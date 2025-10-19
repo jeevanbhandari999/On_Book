@@ -1,0 +1,116 @@
+import 'package:flutter/material.dart';
+
+// Enhanced Design System for Payment Proof Notifications
+// Following Material Design 3 principles with consistent spacing, typography, and colors
+
+
+// Enhanced Color System for Light and Dark themes
+
+// Enhanced Typography System following Material Design 3
+class AppTypographySystem {
+  AppTypographySystem._();
+
+  // Font Families
+  static const String primaryFontFamily = 'Inter';
+  static const String displayFontFamily = 'Poppins';
+
+  // Typography Scale
+  static const TextStyle displayLarge = TextStyle(
+    fontFamily: displayFontFamily,
+    fontSize: 32,
+    fontWeight: FontWeight.w700,
+    letterSpacing: -0.25,
+    height: 1.2,
+  );
+
+  static const TextStyle displayMedium = TextStyle(
+    fontFamily: displayFontFamily,
+    fontSize: 24,
+    fontWeight: FontWeight.w600,
+    letterSpacing: 0,
+    height: 1.3,
+  );
+
+  static const TextStyle displaySmall = TextStyle(
+    fontFamily: displayFontFamily,
+    fontSize: 20,
+    fontWeight: FontWeight.w600,
+    letterSpacing: 0.15,
+    height: 1.4,
+  );
+
+  static const TextStyle headlineLarge = TextStyle(
+    fontFamily: primaryFontFamily,
+    fontSize: 18,
+    fontWeight: FontWeight.w600,
+    letterSpacing: 0.15,
+    height: 1.4,
+  );
+
+  static const TextStyle headlineMedium = TextStyle(
+    fontFamily: primaryFontFamily,
+    fontSize: 16,
+    fontWeight: FontWeight.w500,
+    letterSpacing: 0.15,
+    height: 1.5,
+  );
+
+  static const TextStyle headlineSmall = TextStyle(
+    fontFamily: primaryFontFamily,
+    fontSize: 14,
+    fontWeight: FontWeight.w500,
+    letterSpacing: 0.1,
+    height: 1.4,
+  );
+
+  static const TextStyle bodyLarge = TextStyle(
+    fontFamily: primaryFontFamily,
+    fontSize: 16,
+    fontWeight: FontWeight.w400,
+    letterSpacing: 0.15,
+    height: 1.5,
+  );
+
+  static const TextStyle bodyMedium = TextStyle(
+    fontFamily: primaryFontFamily,
+    fontSize: 14,
+    fontWeight: FontWeight.w400,
+    letterSpacing: 0.25,
+    height: 1.4,
+  );
+
+  static const TextStyle bodySmall = TextStyle(
+    fontFamily: primaryFontFamily,
+    fontSize: 12,
+    fontWeight: FontWeight.w400,
+    letterSpacing: 0.4,
+    height: 1.3,
+  );
+
+  static const TextStyle labelLarge = TextStyle(
+    fontFamily: primaryFontFamily,
+    fontSize: 14,
+    fontWeight: FontWeight.w500,
+    letterSpacing: 0.1,
+    height: 1.4,
+  );
+
+  static const TextStyle labelMedium = TextStyle(
+    fontFamily: primaryFontFamily,
+    fontSize: 12,
+    fontWeight: FontWeight.w500,
+    letterSpacing: 0.5,
+    height: 1.3,
+  );
+
+  static const TextStyle labelSmall = TextStyle(
+    fontFamily: primaryFontFamily,
+    fontSize: 10,
+    fontWeight: FontWeight.w500,
+    letterSpacing: 0.5,
+    height: 1.2,
+  );
+
+
+}
+
