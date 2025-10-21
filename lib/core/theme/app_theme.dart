@@ -14,7 +14,7 @@ class AppTheme {
       useMaterial3: true,
       brightness: Brightness.light,
       colorScheme: colorScheme,
-      scaffoldBackgroundColor: colorScheme.surface,
+      scaffoldBackgroundColor: AppColors.primaryLight,
       visualDensity: VisualDensity.standard,
 
       // Typography
@@ -177,7 +177,7 @@ class AppTheme {
       useMaterial3: true,
       brightness: Brightness.dark,
       colorScheme: colorScheme,
-      scaffoldBackgroundColor: colorScheme.surface,
+      scaffoldBackgroundColor: AppColors.primaryDark,
       applyElevationOverlayColor: true,
       visualDensity: VisualDensity.standard,
 
@@ -287,7 +287,7 @@ class AppTheme {
         labelTextStyle: WidgetStateProperty.all(AppTextStyles.labelSmall),
       ),
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
-        backgroundColor: colorScheme.surface,
+        backgroundColor: AppColors.primaryDark,
         selectedItemColor: colorScheme.primary,
         unselectedItemColor: colorScheme.onSurface.withAlpha(184),
         showUnselectedLabels: false,

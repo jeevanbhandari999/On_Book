@@ -1,5 +1,7 @@
 import 'package:app/app/router/route_constants.dart';
+import 'package:app/core/navigations/navigation_wrapper.dart';
 import 'package:app/features/home/presentation/pages/home_page.dart';
+import 'package:app/features/home/presentation/pages/home_second.dart';
 import 'package:app/features/splash/presentation/pages/splash_page.dart';
 import 'package:go_router/go_router.dart';
 
@@ -16,7 +18,17 @@ class AppRouter {
       // Home route
       GoRoute(
         path: RouteConstants.home,
-        builder: (context, state) => const HomePage(),
+        builder: (context, state) => NavigationWrapper(
+          currentRoute: state.uri.toString(),
+          child: const HomePage(),
+        ),
+      ),
+      GoRoute(
+        path: RouteConstants.homeSecond,
+        builder: (context, state) => NavigationWrapper(
+          currentRoute: state.uri.toString(),
+          child: const HomePage1(),
+        ),
       ),
     ],
   );

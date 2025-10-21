@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 class AppColors {
   // Primary Brand Colors
   // A unique modern blue–violet combo (trust + creativity)
-  static const Color primary = Color(0xFF3A5AFF); // Sapphire Blue
-  static const Color primaryDark = Color(0xFF2E4AD3);
+  static const Color primary = Color(0xffBD93F9); // Sapphire Blue
+  static const Color primaryDark = Color(0xff00030F);
   static const Color primaryLight = Color(0xFFE7EBFF);
 
   // Secondary Accent Colors
   // Adds energy + uniqueness without overpowering
-  static const Color secondary = Color(0xFF9B5DE5); // Soft Violet
-  static const Color secondaryDark = Color(0xFF7A3DB8);
+  static const Color secondary = Color(0xffCAA9FA); // Soft Violet
+  static const Color secondaryDark = Color(0xff00030F);
   static const Color secondaryLight = Color(0xFFF2E9FF);
 
   // Neutral Colors (consistent with modern design systems)

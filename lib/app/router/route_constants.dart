@@ -2,6 +2,7 @@ class RouteConstants {
   // App routes
   static const String splash = '/splash';
   static const String home = '/home';
+  static const String homeSecond = '/homeSecond';
 
   // Auth routes
   static const String login = '/login';
