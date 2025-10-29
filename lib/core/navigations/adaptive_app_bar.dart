@@ -37,9 +37,10 @@ class AdaptiveAppBar extends StatelessWidget implements PreferredSizeWidget {
     if (!ResponsiveNavigationController.shouldShowAppBar(currentRoute)) {
       return const SizedBox.shrink();
     }
-    final title = ResponsiveNavigationController.getPageTitle(currentRoute);
+    // final title = ResponsiveNavigationController.getPageTitle(currentRoute);
+    final mainTitle = 'Onbook';
     return AppBar(
-      title: Text(title, style: _getTitleTextStyle(context)),
+      title: Text(mainTitle, style: _getTitleTextStyle(context)),
       automaticallyImplyLeading: automaticallyImplyLeading,
       actions: _buildActions(context),
       backgroundColor: backgroundColor ?? _getBackgroundColor(context),

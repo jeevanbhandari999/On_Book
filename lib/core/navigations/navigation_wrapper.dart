@@ -194,3 +194,4 @@ class NavigationDecision {
     this.navigationType = NavigationType.mobileBottomNav,
   });
 }
+

@@ -9,4 +9,8 @@ class RouteConstants {
   static const String register = '/register';
   static const String forgotPassword = '/forgotPassword';
   static const String createHotelOrganization = '/create-hotel-organization';
+
+  // Search routes
+  static const String searchPage = '/search';
+  static const String anotherPage = '/anotherPage';
 }

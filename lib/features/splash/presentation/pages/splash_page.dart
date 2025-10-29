@@ -46,7 +46,9 @@ class _SplashPageState extends State<SplashPage>
     // Navigate to the home-page after animation completes + delay
     Future.delayed(const Duration(seconds: 3), () {
       if (mounted) {
-        context.go(RouteConstants.home);
+        // context.go(RouteConstants.home);
+        context.go(RouteConstants.register);
+
       }
     });
   }
@@ -60,18 +62,18 @@ class _SplashPageState extends State<SplashPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.transparent,
+      // backgroundColor: Colors.transparent,
       // dark navy / your OnBook brand color
       body: Container(
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Theme.of(context).primaryColor,
-              Theme.of(context).primaryColor.withAlpha(204),
-            ],
-          ),
+          // gradient: LinearGradient(
+          //   begin: Alignment.topCenter,
+          //   end: Alignment.bottomCenter,
+          //   colors: [
+          //     Theme.of(context).primaryColorLight,
+          //     Theme.of(context).primaryColor.withAlpha(204),
+          //   ],
+          // ),
         ),
         child: Center(
           child: FadeTransition(
@@ -85,24 +87,13 @@ class _SplashPageState extends State<SplashPage>
                   Container(
                     height: 90,
                     width: 90,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.white.withAlpha(77),
-                          blurRadius: 20,
-                          spreadRadius: 2,
-                        ),
-                      ],
-                    ),
+                    decoration: BoxDecoration(shape: BoxShape.circle),
                     child: Center(
                       child: Text(
                         "O",
                         style: TextStyle(
                           fontSize: 48,
                           fontWeight: FontWeight.bold,
-                          color: const Color(0xFF101820),
                           fontFamily: 'Bold',
                         ),
                       ),
@@ -119,7 +110,7 @@ class _SplashPageState extends State<SplashPage>
                         fontSize: 28,
                         fontWeight: FontWeight.w700,
                         letterSpacing: 1.2,
-                        color: Colors.white,
+
                         fontFamily: 'ExtraBold',
                       ),
                     ),
@@ -131,11 +122,7 @@ class _SplashPageState extends State<SplashPage>
                     opacity: _fadeAnimation,
                     child: Text(
                       "Connecting knowledge & people",
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.white.withAlpha(179),
-                        fontFamily: 'Medium',
-                      ),
+                      style: TextStyle(fontSize: 14, fontFamily: 'Medium'),
                     ),
                   ),
                 ],

@@ -78,6 +78,7 @@ class _MobileBottomNavigationState extends State<MobileBottomNavigation>
       return null;
     }
 
+    // return _buildBottomNavigationBarContent(context, orientation);
     return AnimatedBuilder(
       animation: _animation,
       builder: (context, child) {
@@ -326,7 +327,6 @@ class _MobileBottomNavigationState extends State<MobileBottomNavigation>
     if (item.isActiveForRoute(widget.currentRoute)) {
       return;
     }
-
     try {
       context.go(item.route);
     } catch (e) {

@@ -1,4 +1,6 @@
+import 'package:app/app/router/route_constants.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -6,7 +8,14 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: const Center(child: Text('Welcome to home page ONBOOK')),
+      body: Center(
+        child: TextButton(
+          onPressed: () {
+            context.push(RouteConstants.anotherPage);
+          },
+          child: Text('Go'),
+        ),
+      ),
     );
   }
 }
