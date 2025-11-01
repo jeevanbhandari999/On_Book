@@ -1,3 +1,4 @@
+import 'package:app/core/services/session_manager.dart';
 import 'package:app/features/auth/auth_dependencies.dart';
 import 'package:get_it/get_it.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -19,6 +20,26 @@ abstract class DependencyInjection {
     instance.registerLazySingleton<SupabaseClient>(
       () => Supabase.instance.client,
     );
+
+    // Session Manager
+    instance.registerLazySingleton<SessionManager>(() => SessionManager());
+    // Initialize session data from storage
+    // This ensures the SessionManager's in-memory state is populated with persisted user data
+    try {
+      final sessionManager = instance<SessionManager>();
+      // Initialize session data asynchronously
+      sessionManager
+          .getUserPreference()
+          .then((_) {
+            print('✅ Session data initialized successfully');
+          })
+          .catchError((e) {
+            print('⚠️ Failed to initialize session data: $e');
+          });
+    } catch (e) {
+      // Log error but don't crash app initialization
+      print('⚠️ Failed to initialize session data: $e');
+    }
 
     // add others core services here as needed
   }

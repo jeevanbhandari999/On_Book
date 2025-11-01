@@ -6,6 +6,7 @@ abstract class AuthRemoteDataSource {
   // User login
   Future<UserModel> login({required String email, required String password});
 
+
   // User register
   Future<UserModel> register({
     required String email,
@@ -37,6 +38,7 @@ abstract class AuthRemoteDataSource {
 
   // Delete the user account
   Future<void> deleteAccount();
+  
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -80,7 +82,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         data: {
           'full_name': fullName,
           'role': role,
-        }, // Auto-create profile via trigger
+        },
       );
 
       final user = response.user;

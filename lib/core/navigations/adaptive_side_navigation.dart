@@ -1,6 +1,10 @@
+import 'package:app/app/dependency_injection.dart';
+import 'package:app/app/router/route_constants.dart';
 import 'package:app/core/navigations/adaptive_navigation.dart';
 import 'package:app/core/navigations/responsive_navigation_controller.dart';
+import 'package:app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:app/core/navigations/adaptive_app_bar.dart';
 
@@ -676,12 +680,14 @@ class _AdaptiveSideNavigationState extends State<AdaptiveSideNavigation>
         content: const Text('Are you sure you want to logout?'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () {
+              context.pop();
+            },
             child: const Text('Cancel'),
           ),
           ElevatedButton(
             onPressed: () {
-              Navigator.of(context).pop();
+              context.pop();
               _handleLogout(context);
             },
             style: ElevatedButton.styleFrom(
@@ -699,11 +705,11 @@ class _AdaptiveSideNavigationState extends State<AdaptiveSideNavigation>
   void _handleLogout(BuildContext context) {
     try {
       // Try to get AuthBloc and trigger logout
-      // This would be implemented based on the auth system
-      context.go('/login');
+      // final authManager = DependencyInjection.get<AuthBloc>();
+      context.read<AuthBloc>().add(const AuthLogoutRequested());
     } catch (e) {
       // Fallback navigation
-      context.go('/login');
+      context.go(RouteConstants.login);
     }
   }
 }

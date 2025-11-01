@@ -1,0 +1,333 @@
+import 'package:flutter/material.dart';
+import 'package:app/core/constants/ui_constants.dart';
+import 'package:app/core/utils/extensions/extensions.dart';
+
+
+
+class CustomTextField extends StatelessWidget {
+  final String? label;
+  final String? hint;
+  final TextEditingController? controller;
+  final String? Function(String?)? validator;
+  final void Function(String)? onChanged;
+  final void Function(String)? onSubmitted;
+  final TextInputType? keyboardType;
+  final bool obscureText;
+  final Widget? prefixIcon;
+  final Widget? suffixIcon;
+  final int? maxLines;
+  final bool enabled;
+  final String? errorText;
+
+  const CustomTextField({
+    super.key,
+    this.label,
+    this.hint,
+    this.controller,
+    this.validator,
+    this.onChanged,
+    this.onSubmitted,
+    this.keyboardType,
+    this.obscureText = false,
+    this.prefixIcon,
+    this.suffixIcon,
+    this.maxLines = 1,
+    this.enabled = true,
+    this.errorText,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (label != null) ...[
+          Text(
+            label!,
+            style: Theme.of(context).textTheme.labelMedium,
+          ),
+          const SizedBox(height: UiConstants.spacingSm),
+        ],
+        TextFormField(
+          controller: controller,
+          validator: validator,
+          onChanged: onChanged,
+          onFieldSubmitted: onSubmitted,
+          keyboardType: keyboardType,
+          obscureText: obscureText,
+          maxLines: maxLines,
+          enabled: enabled,
+          decoration: InputDecoration(
+            hintText: hint,
+            prefixIcon: prefixIcon,
+            suffixIcon: suffixIcon,
+            errorText: errorText,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class CustomButton extends StatelessWidget {
+  final String text;
+  final VoidCallback? onPressed;
+  final bool isLoading;
+  final ButtonStyle? style;
+  final Widget? icon;
+  final bool isOutlined;
+
+  const CustomButton({
+    super.key,
+    required this.text,
+    this.onPressed,
+    this.isLoading = false,
+    this.style,
+    this.icon,
+    this.isOutlined = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    Widget button;
+
+    if (isOutlined) {
+      button = OutlinedButton(
+        onPressed: isLoading ? null : onPressed,
+        style: style,
+        child: _buildButtonChild(),
+      );
+    } else {
+      button = ElevatedButton(
+        onPressed: isLoading ? null : onPressed,
+        style: style,
+        child: _buildButtonChild(),
+      );
+    }
+
+    return button;
+  }
+
+  Widget _buildButtonChild() {
+    if (isLoading) {
+      return const SizedBox(
+        width: 20,
+        height: 20,
+        child: CircularProgressIndicator(
+          strokeWidth: 2,
+          color: Colors.white,
+        ),
+      );
+    }
+
+    if (icon != null) {
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          icon!,
+          const SizedBox(width: UiConstants.spacingSm),
+          Text(text),
+        ],
+      );
+    }
+
+    return Text(text);
+  }
+}
+
+class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
+  final String title;
+  final List<Widget>? actions;
+  final Widget? leading;
+  final bool centerTitle;
+  final Color? backgroundColor;
+  final Color? foregroundColor;
+
+  const CustomAppBar({
+    super.key,
+    required this.title,
+    this.actions,
+    this.leading,
+    this.centerTitle = true,
+    this.backgroundColor,
+    this.foregroundColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return AppBar(
+      title: Text(title),
+      actions: actions,
+      leading: leading,
+      centerTitle: centerTitle,
+      backgroundColor: backgroundColor,
+      foregroundColor: foregroundColor,
+    );
+  }
+
+  @override
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+}
+
+class CustomBottomSheet extends StatelessWidget {
+  final Widget child;
+  final String? title;
+  final bool isDismissible;
+  final bool enableDrag;
+
+  const CustomBottomSheet({
+    super.key,
+    required this.child,
+    this.title,
+    this.isDismissible = true,
+    this.enableDrag = true,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: const BorderRadius.vertical(
+          top: Radius.circular(UiConstants.radiusLg),
+        ),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (enableDrag) ...[
+            const SizedBox(height: UiConstants.spacingSm),
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.3),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ],
+          if (title != null) ...[
+            const SizedBox(height: UiConstants.spacingMd),
+            Text(
+              title!,
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
+            const Divider(),
+          ],
+          Flexible(child: child),
+          SizedBox(height: context.bottomPadding + UiConstants.spacingMd),
+        ],
+      ),
+    );
+  }
+
+  static Future<T?> show<T>({
+    required BuildContext context,
+    required Widget child,
+    String? title,
+    bool isDismissible = true,
+    bool enableDrag = true,
+  }) {
+    return showModalBottomSheet<T>(
+      context: context,
+      isDismissible: isDismissible,
+      enableDrag: enableDrag,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => CustomBottomSheet(
+        title: title,
+        isDismissible: isDismissible,
+        enableDrag: enableDrag,
+        child: child,
+      ),
+    );
+  }
+}
+
+/// A reusable container for app sections with consistent styling.
+///
+/// Applies surface background, rounded corners, subtle shadow,
+/// and sensible default padding and margin.
+///
+/// Usage examples:
+/// ```dart
+/// // Basic usage
+/// SectionContainer(
+///   child: Text('Content'),
+/// )
+///
+/// // With tap functionality
+/// SectionContainer(
+///   onTap: () => print('Tapped'),
+///   child: Text('Tappable content'),
+/// )
+///
+/// // Custom styling
+/// SectionContainer(
+///   padding: EdgeInsets.all(16),
+///   margin: EdgeInsets.symmetric(horizontal: 8),
+///   backgroundColor: Colors.blue,
+///   child: Text('Custom styled content'),
+/// )
+/// ```
+class SectionContainer extends StatelessWidget {
+  final Widget child;
+  final EdgeInsetsGeometry? padding;
+  final EdgeInsetsGeometry? margin;
+  final Color? backgroundColor;
+  final BorderRadius? borderRadius;
+  final List<BoxShadow>? shadows;
+  final VoidCallback? onTap;
+  final BorderRadius? inkWellBorderRadius;
+
+  const SectionContainer({
+    super.key,
+    required this.child,
+    this.padding,
+    this.margin,
+    this.backgroundColor,
+    this.borderRadius,
+    this.shadows,
+    this.onTap,
+    this.inkWellBorderRadius,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final container = Container(
+      margin: margin ??
+          const EdgeInsets.symmetric(
+            horizontal: UiConstants.spacingMd,
+            vertical: UiConstants.spacingSm,
+          ),
+      padding: padding ?? const EdgeInsets.all(UiConstants.spacingMd),
+      decoration: BoxDecoration(
+        color: backgroundColor ?? colorScheme.surface,
+        borderRadius:
+            borderRadius ?? BorderRadius.circular(UiConstants.radiusLg),
+        boxShadow: shadows ??
+            [
+              BoxShadow(
+                color: const Color(0xFF363535).withOpacity(0.16),
+                spreadRadius: 0,
+                blurRadius: 16,
+                offset: const Offset(0, 0),
+              ),
+            ],
+      ),
+      child: child,
+    );
+
+    if (onTap != null) {
+      return InkWell(
+        onTap: onTap,
+        borderRadius:
+            inkWellBorderRadius ?? BorderRadius.circular(UiConstants.radiusLg),
+        child: container,
+      );
+    }
+
+    return container;
+  }
+}

@@ -5,6 +5,7 @@ import 'package:app/features/auth/domain/repositories/auth_repository.dart';
 import 'package:app/features/auth/domain/usecases/login_use_case.dart';
 import 'package:app/features/auth/domain/usecases/register_use_case.dart';
 import 'package:app/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:app/features/auth/services/auth_service.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -21,7 +22,7 @@ class AuthDependencies {
       () => AuthRemoteDataSourceImpl(client: Supabase.instance.client),
     );
 
-    // Reposiyories
+    // Repositories
     getIt.registerLazySingleton<AuthRepository>(
       () => AuthRepositoryImpl(
         remoteDataSource: getIt<AuthRemoteDataSource>(),
@@ -38,11 +39,15 @@ class AuthDependencies {
       () => RegisterUseCase(getIt<AuthRepository>()),
     );
 
+    // Services
+    getIt.registerLazySingleton<AuthService>(() => AuthService());
+
     // BLoCs
     getIt.registerFactory<AuthBloc>(
       () => AuthBloc(
-        loginUseCase: getIt<LoginUseCase>(),
-        registerUseCase: getIt<RegisterUseCase>(),
+        // loginUseCase: getIt<LoginUseCase>(),
+        // registerUseCase: getIt<RegisterUseCase>(),
+        authService: getIt<AuthService>(),
       ),
     );
   }
