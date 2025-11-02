@@ -1,3 +1,4 @@
+import 'package:app/features/auth/data/models/orgnization_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:app/core/errors/exceptions.dart';
 import 'package:app/features/auth/data/models/user_model.dart';
@@ -5,7 +6,6 @@ import 'package:app/features/auth/data/models/user_model.dart';
 abstract class AuthRemoteDataSource {
   // User login
   Future<UserModel> login({required String email, required String password});
-
 
   // User register
   Future<UserModel> register({
@@ -38,7 +38,9 @@ abstract class AuthRemoteDataSource {
 
   // Delete the user account
   Future<void> deleteAccount();
-  
+
+  // Fetch the organization list
+  Future<List<OrganizationModel>> fetchOrganizations();
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -79,10 +81,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       final response = await client.auth.signUp(
         email: email,
         password: password,
-        data: {
-          'full_name': fullName,
-          'role': role,
-        },
+        data: {'full_name': fullName, 'role': role},
       );
 
       final user = response.user;
@@ -209,5 +208,13 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         .single();
 
     return UserModel.fromJson(response);
+  }
+
+  @override
+  Future<List<OrganizationModel>> fetchOrganizations() async {
+    final response = await client.from('organizations').select();
+    return response
+        .map((organization) => OrganizationModel.fromJson(organization))
+        .toList();
   }
 }

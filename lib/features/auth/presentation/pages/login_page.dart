@@ -58,6 +58,12 @@ class _LoginViewState extends State<LoginView> {
               RouteConstants.createHotelOrganization,
               extra: state.user,
             );
+          } else if (state is AuthNeedsOrganizationSelection) {
+            // print(state.user);
+            context.go(
+              RouteConstants.selectHotelOrganization,
+              extra: state.user,
+            );
           } else if (state is AuthError) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(

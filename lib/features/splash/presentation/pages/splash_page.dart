@@ -106,6 +106,9 @@ class SplashViewState extends State<SplashView>
               } else if (state is AuthNeedsOrganizationCreation) {
                 _targetRoute = RouteConstants.createHotelOrganization;
                 _routeExtra = state.user;
+              } else if (state is AuthNeedsOrganizationSelection) {
+                _targetRoute = RouteConstants.selectHotelOrganization;
+                _routeExtra = state.user;
               } else if (state is AuthUnauthenticated) {
                 _targetRoute = RouteConstants.login;
                 _routeExtra = null;

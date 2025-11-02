@@ -5,6 +5,7 @@ import 'package:app/features/auth/presentation/pages/create_hotel_organization_p
 import 'package:app/features/auth/presentation/pages/forgot_password_page.dart';
 import 'package:app/features/auth/presentation/pages/login_page.dart';
 import 'package:app/features/auth/presentation/pages/register_page.dart';
+import 'package:app/features/auth/presentation/pages/select_hotel_organization_page.dart';
 import 'package:app/features/home/presentation/pages/another.dart';
 import 'package:app/features/home/presentation/pages/home_page.dart';
 import 'package:app/features/home/presentation/pages/home_second.dart';
@@ -40,12 +41,21 @@ class AppRouter {
         builder: (context, state) => const ForgotPasswordPage(),
       ),
 
-      // Create hotel/organization page for (role = owner, and selection of hotel/organization for manager and staff)
+      // Create hotel/organization page for (role = owner),
       GoRoute(
         path: RouteConstants.createHotelOrganization,
         builder: (context, state) {
           final extraData = state.extra as UserModel?;
           return CreateHotelOrganizationPage(user: extraData);
+        },
+      ),
+
+      // Selection of hotel/organization page for (manager and staff/worker)
+      GoRoute(
+        path: RouteConstants.selectHotelOrganization,
+        builder: (context, state) {
+          final extraData = state.extra as UserModel?;
+          return SelectHotelOrganizationPage(user: extraData);
         },
       ),
 

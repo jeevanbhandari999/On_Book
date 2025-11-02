@@ -1,3 +1,6 @@
+import 'package:app/app/dependency_injection.dart';
+import 'package:app/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:app/features/auth/services/auth_service.dart';
 import 'package:equatable/equatable.dart';
 import 'package:app/features/auth/domain/entities/user.dart';
 
@@ -40,6 +43,8 @@ extension UserRoleExtension on UserRole {
 class UserModel extends Equatable {
   final String id;
   final String userId; // Supabase auth.users.id
+  // this is for getting the email
+  final String? email;
   final String fullName;
   final String? imageUrl;
   final UserRole role;
@@ -54,6 +59,7 @@ class UserModel extends Equatable {
     required this.id,
     required this.userId,
     required this.fullName,
+    this.email,
     this.imageUrl,
     required this.role,
     this.organizationId,
@@ -70,6 +76,7 @@ class UserModel extends Equatable {
       id: json['id'] as String,
       userId: json['user_id'] as String,
       fullName: json['full_name'] as String,
+      email: json['email']?.toString(),
       imageUrl: json['image_url'] as String?,
       role: UserRoleExtension.fromString(json['role'] as String? ?? 'user'),
       organizationId: json['organization_id'] as String?,
@@ -165,10 +172,13 @@ class UserModel extends Equatable {
   }
 
   /// Extract email from userId (fallback if not in model)
-  String get emailFromUserId {
+  String? get emailFromUserId {
     // Supabase auth.users.id is UUID, not email
     // So email is NOT in this model — get from auth separately
-    return '';
+    final authService = DependencyInjection.get<AuthService>();
+    final email = authService.currentUser!.email;
+    if (email == null) throw Exception('Email not found');
+    return email;
   }
 
   List<String> getValidationErrors() {

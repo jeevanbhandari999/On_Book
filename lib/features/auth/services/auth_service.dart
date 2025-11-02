@@ -158,6 +158,7 @@ class AuthService {
         return UserModel(
           id: response.user!.id,
           userId: response.user!.id,
+          email: email,
           fullName: response.user!.userMetadata?['full_name'] as String,
           role: role,
           createdAt: DateTime.now(),
@@ -334,30 +335,43 @@ class AuthService {
         throw Exception('User not logged in');
       }
 
-      // Call the secure RPC function to create organization
-      final response = await _supabase.rpc(
-        'create_organization_for_manager',
-        params: {
-          'name': name,
-          'logo_url': logoUrl,
-          'address': address,
-          'phone': phone,
-        },
-      );
+      final now = DateTime.now();
 
-      if (response == null) {
-        throw Exception('Failed to create organization');
-      }
+      final orgData = {
+        'name': name,
+        'logo_url': logoUrl,
+        'address': address,
+        'phone': phone,
+        'created_by': currentUser!.id,
+        'created_at': now.toIso8601String(),
+        'updated_at': now.toIso8601String(),
+      };
 
-      // Get the created organization
-      final orgResponse = await _supabase
+      final response = await _supabase
           .from('organizations')
+          .insert(orgData)
           .select()
-          .eq('id', response)
           .single();
 
-      final organization = OrganizationModel.fromJson(orgResponse);
+      // if (response == null) {
+      //   throw Exception('Failed to create organization');
+      // }
 
+      // // Get the created organization
+      // final orgResponse = await _supabase
+      //     .from('organizations')
+      //     .select()
+      //     .eq('id', response)
+      //     .single();
+
+      final organization = OrganizationModel.fromJson(response);
+
+      // try to update the users table( insert the organization id to the organizationId column )
+      try {} catch (e) {
+        print('Failed to update the profile $e');
+        throw Exception('Failed to update the organization id');
+      }
+      updateProfile(organizationId: organization.id);
       // Update cached session data with new organization information
       try {
         final sessionManager = DependencyInjection.get<SessionManager>();
@@ -449,6 +463,7 @@ class AuthService {
     String? phone,
     String? address,
     String? imageUrl,
+    String? organizationId,
   }) async {
     try {
       if (currentUser == null) return null;
@@ -459,6 +474,8 @@ class AuthService {
       if (phone != null) updateData['phone'] = phone;
       if (address != null) updateData['address'] = address;
       if (imageUrl != null) updateData['image_url'] = imageUrl;
+      if (organizationId != null)
+        updateData['organization_id'] = organizationId;
 
       final response = await _supabase
           .from('users')
@@ -512,5 +529,14 @@ class AuthService {
     } catch (e) {
       return true; // Assume needs completion if error
     }
+  }
+
+  // Fetch the organizations
+  Future<List<OrganizationModel>> fetchOrganizations() async {
+    final response = await _supabase.from('organizations').select();
+    // print('response form the backend : $response');
+    return response
+        .map((organization) => OrganizationModel.fromJson(organization))
+        .toList();
   }
 }

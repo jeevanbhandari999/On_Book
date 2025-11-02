@@ -705,11 +705,13 @@ class _AdaptiveSideNavigationState extends State<AdaptiveSideNavigation>
   void _handleLogout(BuildContext context) {
     try {
       // Try to get AuthBloc and trigger logout
-      // final authManager = DependencyInjection.get<AuthBloc>();
-      context.read<AuthBloc>().add(const AuthLogoutRequested());
+      // final authManager =
+      DependencyInjection.get<AuthBloc>().add(const AuthLogoutRequested());
+      // context.read<AuthBloc>().add(const AuthLogoutRequested());
+      context.go(RouteConstants.login);
     } catch (e) {
       // Fallback navigation
-      context.go(RouteConstants.login);
+      // context.go(RouteConstants.login);
     }
   }
 }
