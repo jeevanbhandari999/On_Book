@@ -4,11 +4,8 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class AppConfig {
   // Supabase Configuration
-  // static String get supabaseUrl => dotenv.env['SUPABASE_URL'] ?? '';
-  // static String get supabaseKey => dotenv.env['SUPABASE_KEY'] ?? '';
-  static String get supabaseUrl => 'https://eucadoxgijhmbpjlypmn.supabase.co';
-  static String get supabaseKey =>
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV1Y2Fkb3hnaWpobWJwamx5cG1uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA4MjQ5MDUsImV4cCI6MjA3NjQwMDkwNX0.uOwdulffgbxqtfjTrgN2xvS7GOuCaer3-xVP0PuVabg';
+  static String get supabaseUrl => dotenv.env['SUPABASE_URL'] ?? '';
+  static String get supabaseKey => dotenv.env['SUPABASE_KEY'] ?? '';
 
   // App Information
   static const String appName = AppConstants.appName;

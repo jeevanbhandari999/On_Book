@@ -321,7 +321,31 @@ class NavigationConfiguration {
       isImplemented: true,
     ),
   ];
-  static const List<NavigationItem> secondaryItems = [];
+  static const List<NavigationItem> secondaryItems = [
+    NavigationItem(
+      route: RouteConstants.libraryPage,
+      label: 'Library',
+      icon: Icons.library_books_outlined,
+      selectedIcon: Icons.library_books_rounded,
+      semanticLabel: 'Navigate to Library',
+      tooltip: 'Go to your Library',
+      description: 'Access your saved books or media',
+      childRoutes: ['/'],
+      isImplemented: true,
+    ),
+
+    NavigationItem(
+      route: RouteConstants.chatUserListPage,
+      label: 'Chat',
+      icon: Icons.chat_bubble_outline,
+      selectedIcon: Icons.chat_bubble_outline,
+      semanticLabel: 'Navigate to Chat',
+      tooltip: 'Go to chat page',
+      description: 'View and edit your chatting',
+      childRoutes: ['/'],
+      isImplemented: true,
+    ),
+  ];
 
   // Route titles mapping for dynamic page title management
   static const Map<String, String> routeTitles = {

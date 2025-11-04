@@ -45,7 +45,11 @@ class _MainTabNavigationPageState extends State<MainTabNavigationPage>
         widget.currentRoute,
       );
       _tabController.animateTo(newIndex);
-      widget.navigationShell.goBranch(newIndex, initialLocation: false);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          widget.navigationShell.goBranch(newIndex, initialLocation: false);
+        }
+      });
     }
   }
 
@@ -65,7 +69,11 @@ class _MainTabNavigationPageState extends State<MainTabNavigationPage>
     // if (!item.isActiveForRoute(widget.currentRoute)) {
     //   context.go(item.route);
     // }
-    widget.navigationShell.goBranch(index);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        widget.navigationShell.goBranch(index);
+      }
+    });
   }
 
   void _showUnimplementedFeatureMessage(
@@ -98,7 +106,11 @@ class _MainTabNavigationPageState extends State<MainTabNavigationPage>
                   .home, // Only allow pop on Home, if the active route is not home then navigate to the home once when user back instead of exiting the app completely
           onPopInvokedWithResult: (bool didPop, Object? result) {
             if (!didPop && widget.currentRoute != RouteConstants.home) {
-              context.go(RouteConstants.home);
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (mounted) {
+                  context.go(RouteConstants.home);
+                }
+              });
             }
           },
           child: Scaffold(

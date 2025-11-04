@@ -38,7 +38,7 @@ class AppTheme {
         backgroundColor: colorScheme.surface,
         foregroundColor: colorScheme.onSurface,
         elevation: UiConstants.elevationSm,
-        centerTitle: true,
+        centerTitle: false,
         titleTextStyle: AppTextStyles.h6.copyWith(color: colorScheme.onSurface),
       ),
 

@@ -54,7 +54,7 @@ class _SearchPageState extends State<SearchPage> {
             hintStyle: TextStyle(color: theme.hintColor),
             prefixIcon: const Icon(Icons.search),
             filled: true,
-            fillColor: theme.colorScheme.surfaceVariant.withOpacity(0.3),
+            fillColor: theme.colorScheme.surface.withAlpha(80),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(24),
               borderSide: BorderSide.none,
@@ -106,7 +106,7 @@ class _SearchPageState extends State<SearchPage> {
           Icon(
             Icons.ondemand_video_rounded,
             size: 80,
-            color: theme.colorScheme.primary.withOpacity(0.8),
+            color: theme.colorScheme.primary.withAlpha(210),
           ),
           const SizedBox(height: 16),
           Text(
@@ -122,7 +122,7 @@ class _SearchPageState extends State<SearchPage> {
                 : 'Start by typing something to search videos.',
             textAlign: TextAlign.center,
             style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.textTheme.bodySmall?.color?.withOpacity(0.7),
+              color: theme.textTheme.bodySmall?.color?.withAlpha(180),
             ),
           ),
         ],

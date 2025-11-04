@@ -1,7 +1,9 @@
+import 'package:app/app/router/route_constants.dart';
 import 'package:app/core/navigations/adaptive_navigation.dart';
 import 'package:app/core/navigations/responsive_navigation_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 
 class AdaptiveAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String currentRoute;
@@ -44,7 +46,34 @@ class AdaptiveAppBar extends StatelessWidget implements PreferredSizeWidget {
     // final title = ResponsiveNavigationController.getPageTitle(currentRoute);
     final mainTitle = 'Onbook';
     return AppBar(
-      title: Text(mainTitle, style: _getTitleTextStyle(context)),
+      title: Row(
+        children: [
+          // Logo icon of the application
+          ClipRect(
+            clipBehavior: Clip.hardEdge,
+            child: Container(
+              width: 40,
+              height: 40,
+              padding: const EdgeInsets.all(2),
+              decoration: BoxDecoration(
+                color: Colors.green.withAlpha(100),
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: Center(
+                child: Text(
+                  'OB',
+                  style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 8),
+            child: Text(mainTitle, style: _getTitleTextStyle(context)),
+          ),
+        ],
+      ),
       // automaticallyImplyLeading: automaticallyImplyLeading,
       automaticallyImplyLeading: showBackArrow,
       leading: showBackArrow
@@ -89,27 +118,133 @@ class AdaptiveAppBar extends StatelessWidget implements PreferredSizeWidget {
   /// Gets the default actions for the app bar
   List<Widget> _getDefaultActions(BuildContext context) {
     return [
-      IconButton(
-        icon: const Icon(Icons.notifications_outlined),
-        onPressed: () => _handleNotificationsPressed(context),
-        tooltip: 'Notifications',
-        iconSize: _getIconSize(),
-        padding: _getIconPadding(),
-        constraints: BoxConstraints(
-          minWidth: ResponsiveNavigationController.getMinimumTouchTargetSize(),
-          minHeight: ResponsiveNavigationController.getMinimumTouchTargetSize(),
-        ),
+      Stack(
+        clipBehavior: Clip.none,
+        children: [
+          IconButton(
+            icon: const Icon(Icons.notifications_outlined),
+            onPressed: () => _handleNotificationsPressed(context),
+            tooltip: 'Notifications',
+            iconSize: _getIconSize(),
+            padding: _getIconPadding(),
+            constraints: BoxConstraints(
+              minWidth:
+                  ResponsiveNavigationController.getMinimumTouchTargetSize(),
+              minHeight:
+                  ResponsiveNavigationController.getMinimumTouchTargetSize(),
+            ),
+          ),
+
+          // Red dot Notification badge
+          Positioned(
+            right: 2,
+            top: 2,
+            child: Builder(
+              builder: (context) {
+                // Will be replace later with actual count
+                const int count = 120;
+                final String displayCount = count > 99
+                    ? '99+'
+                    : count.toString();
+
+                return Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 5,
+                    vertical: 2,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.red,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: Theme.of(context).scaffoldBackgroundColor,
+                      width: 1.5,
+                    ),
+                  ),
+                  constraints: const BoxConstraints(
+                    minWidth: 18,
+                    minHeight: 18,
+                  ),
+                  child: Center(
+                    child: Text(
+                      displayCount,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                        height: 1.1,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
       ),
-      IconButton(
-        icon: const Icon(Icons.messenger_outline_outlined),
-        onPressed: () => _handleChattingPressed(context),
-        tooltip: 'Chat',
-        iconSize: _getIconSize(),
-        padding: _getIconPadding(),
-        constraints: BoxConstraints(
-          minWidth: ResponsiveNavigationController.getMinimumTouchTargetSize(),
-          minHeight: ResponsiveNavigationController.getMinimumTouchTargetSize(),
-        ),
+
+      Stack(
+        clipBehavior: Clip.none,
+        children: [
+          IconButton(
+            icon: const Icon(Icons.messenger_outline_outlined),
+            onPressed: () => _handleChattingPressed(context),
+            tooltip: 'Chat',
+            iconSize: _getIconSize(),
+            padding: _getIconPadding(),
+            constraints: BoxConstraints(
+              minWidth:
+                  ResponsiveNavigationController.getMinimumTouchTargetSize(),
+              minHeight:
+                  ResponsiveNavigationController.getMinimumTouchTargetSize(),
+            ),
+          ),
+
+          // Red dot new chats
+          Positioned(
+            right: 2,
+            top: 2,
+            child: Builder(
+              builder: (context) {
+                const int count = 7;
+                final String displayCount = count > 99
+                    ? '99+'
+                    : count.toString();
+
+                return Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 5,
+                    vertical: 2,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.red,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: Theme.of(context).scaffoldBackgroundColor,
+                      width: 1.5,
+                    ),
+                  ),
+                  constraints: const BoxConstraints(
+                    minWidth: 18,
+                    minHeight: 18,
+                  ),
+                  child: Center(
+                    child: Text(
+                      displayCount,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                        height: 1.1,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
       ),
     ];
   }
@@ -118,7 +253,7 @@ class AdaptiveAppBar extends StatelessWidget implements PreferredSizeWidget {
   void _handleNotificationsPressed(BuildContext context) {
     // Check if notifications are implemented
     final notificationsItem = NavigationConfiguration.getItemByRoute(
-      '/notifications',
+      '/notificationsPage',
     );
     if (notificationsItem?.isImplemented == true) {
       // Navigate to notifications
@@ -137,13 +272,16 @@ class AdaptiveAppBar extends StatelessWidget implements PreferredSizeWidget {
   /// Handles chatting button press
   void _handleChattingPressed(BuildContext context) {
     // Check if notifications are implemented
-    final notificationsItem = NavigationConfiguration.getItemByRoute('/chat');
-    if (notificationsItem?.isImplemented == true) {
+    final chatItem = NavigationConfiguration.getItemByRoute(
+      '/chatUserListPage',
+    );
+    if (chatItem?.isImplemented == true) {
       // Navigate to chat
       // This would be handled by the navigation system
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Navigating to chat...')));
+      // ScaffoldMessenger.of(
+      //   context,
+      // ).showSnackBar(const SnackBar(content: Text('Navigating to chat...')));
+      context.push(RouteConstants.chatUserListPage);
     } else {
       // Show coming soon message
       ScaffoldMessenger.of(
@@ -165,15 +303,15 @@ class AdaptiveAppBar extends StatelessWidget implements PreferredSizeWidget {
 
     switch (navigationType) {
       case NavigationType.mobileBottomNav:
-        fontSize = 20;
+        fontSize = 26;
         fontWeight = FontWeight.w600;
         break;
       case NavigationType.tabletSideNav:
-        fontSize = 22;
+        fontSize = 28;
         fontWeight = FontWeight.w600;
         break;
       case NavigationType.desktopSideNav:
-        fontSize = 24;
+        fontSize = 30;
         fontWeight = FontWeight.w600;
         break;
     }
@@ -214,10 +352,12 @@ class AdaptiveAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   /// Determines if the title should be centered
   bool _shouldCenterTitle() {
+    // if user manually give the center title then true
     if (centerTitle) return true;
-
+    // Else always align left
+    return false;
     // Center title on mobile, left-align on tablet/desktop
-    return navigationType == NavigationType.mobileBottomNav;
+    // return navigationType == NavigationType.mobileBottomNav;
   }
 
   /// Gets the title spacing based on navigation type
@@ -248,11 +388,11 @@ class AdaptiveAppBar extends StatelessWidget implements PreferredSizeWidget {
   double _getIconSize() {
     switch (navigationType) {
       case NavigationType.mobileBottomNav:
-        return 24.0;
-      case NavigationType.tabletSideNav:
         return 26.0;
-      case NavigationType.desktopSideNav:
+      case NavigationType.tabletSideNav:
         return 28.0;
+      case NavigationType.desktopSideNav:
+        return 30.0;
     }
   }
 
@@ -379,42 +519,3 @@ class AppBarContext {
     );
   }
 }
-
-// import 'package:app/core/navigations/adaptive_navigation.dart';
-// import 'package:app/core/navigations/responsive_navigation_controller.dart';
-// import 'package:flutter/material.dart';
-
-// class AdaptiveAppBar extends StatelessWidget implements PreferredSizeWidget {
-//   final String currentRoute;
-//   final NavigationType navigationType;
-//   final bool showBackArrow;
-//   final VoidCallback? onBackPressed;
-
-//   const AdaptiveAppBar({
-//     super.key,
-//     required this.currentRoute,
-//     required this.navigationType,
-//     this.showBackArrow = true,
-//     this.onBackPressed,
-//   });
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return AppBar(
-//       title: Text(NavigationConfiguration.getRouteTitle(currentRoute)),
-//       automaticallyImplyLeading: showBackArrow,
-//       leading: showBackArrow
-//           ? IconButton(
-//               icon: const Icon(Icons.arrow_back),
-//               onPressed: onBackPressed ?? () => Navigator.of(context).pop(),
-//             )
-//           : null,
-//       elevation: ResponsiveNavigationController.getNavigationElevation(
-//         navigationType,
-//       ),
-//     );
-//   }
-
-//   @override
-//   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
-// }
