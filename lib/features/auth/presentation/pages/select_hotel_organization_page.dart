@@ -258,6 +258,7 @@ class _SelectHotelOrganizationViewState
   }
 
   Widget _buildOrganizationsList(AuthState state) {
+    // print(_selectedOrganizationId);
     if (state is AuthLoading) {
       return const Center(child: LoadingWidget());
     }
@@ -269,7 +270,11 @@ class _SelectHotelOrganizationViewState
       final filtered = query.isEmpty
           ? allOrgs
           : allOrgs
-                .where((org) => org.name.toLowerCase().contains(query))
+                .where(
+                  (org) =>
+                      org.name.toLowerCase().contains(query) ||
+                      org.address!.toLowerCase().contains(query),
+                )
                 .toList();
 
       final displayOrgs = query.isEmpty ? filtered.take(5).toList() : filtered;
@@ -339,14 +344,11 @@ class _SelectHotelOrganizationViewState
     if (_selectedOrganizationId != null) {
       // In a real app, this would call a service to join the organization
       // For now, we'll simulate completing the profile with the organization ID
-      // context.read<AuthBloc>().add(
-      //       AuthCompleteProfile(
-      //         fullName: widget.user.fullName ?? '',
-      //         phone: widget.user.phone,
-      //         address: widget.user.address,
-      //         organizationId: _selectedOrganizationId,
-      //       ),
-      //     );
+      context.read<AuthBloc>().add(
+        AuthJoinExistingOrganizationRequested(
+          organizationId: _selectedOrganizationId!,
+        ),
+      );
     }
   }
 }

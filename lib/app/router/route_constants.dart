@@ -14,4 +14,15 @@ class RouteConstants {
   // Search routes
   static const String searchPage = '/search';
   static const String anotherPage = '/anotherPage';
+
+  // Post routes
+  static const String dummyPostPage =
+      '/dummyPostPage'; // this page is for those whose role is not the owner and don't have the authorize to add posts about their hotels, in simple world it's a welcome like page
+  static const String postPage = '/postPage';
+
+  // Library routes
+  static const String libraryPage = '/libraryPage';
+
+  // Profile routes
+  static const String profilePage = '/profilePage';
 }

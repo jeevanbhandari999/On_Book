@@ -19,29 +19,30 @@ class AdaptiveNavigation extends StatefulWidget {
 
 class _AdaptiveNavigationState extends State<AdaptiveNavigation>
     with TickerProviderStateMixin {
-  late AnimationController _transitionController;
-  late Animation<double> _transitionAnimation;
-  NavigationType? _previousNavigationType;
+  // late AnimationController _transitionController;
+  // late Animation<double> _transitionAnimation;
+  // NavigationType? _previousNavigationType;
+  NavigationType? _currentType;
 
-  @override
-  void initState() {
-    super.initState();
-    _transitionController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 300),
-    );
-    _transitionAnimation = CurvedAnimation(
-      parent: _transitionController,
-      curve: Curves.easeInOut,
-    );
-    _transitionController.forward();
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   _transitionController = AnimationController(
+  //     vsync: this,
+  //     duration: const Duration(milliseconds: 300),
+  //   );
+  //   _transitionAnimation = CurvedAnimation(
+  //     parent: _transitionController,
+  //     curve: Curves.easeInOut,
+  //   );
+  //   _transitionController.forward();
+  // }
 
-  @override
-  void dispose() {
-    _transitionController.dispose();
-    super.dispose();
-  }
+  // @override
+  // void dispose() {
+  //   _transitionController.dispose();
+  //   super.dispose();
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -52,27 +53,57 @@ class _AdaptiveNavigationState extends State<AdaptiveNavigation>
         );
 
         // Animate transition when navigation type changes
-        if (_previousNavigationType != null &&
-            _previousNavigationType != navigationType) {
-          _animateNavigationTypeChange();
-        }
-        _previousNavigationType = navigationType;
+        // if (_previousNavigationType != null &&
+        //     _previousNavigationType != navigationType) {
+        //   _animateNavigationTypeChange();
+        // }
+        // _previousNavigationType = navigationType;
 
-        return AnimatedBuilder(
-          animation: _transitionAnimation,
-          builder: (context, child) {
-            return _buildNavigationForType(context, navigationType);
-          },
-        );
+        // return AnimatedBuilder(
+        //   animation: _transitionAnimation,
+        //   builder: (context, child) {
+        //     return _buildNavigationForType(context, navigationType);
+        //   },
+        // );
+        if (_currentType != navigationType) {
+          _currentType = navigationType;
+        }
+
+        return _buildNavigationShell(navigationType);
       },
     );
   }
 
-  /// Animates the transition when navigation type changes
-  void _animateNavigationTypeChange() {
-    _transitionController.reset();
-    _transitionController.forward();
+  Widget _buildNavigationShell(NavigationType type) {
+    switch (type) {
+      case NavigationType.mobileBottomNav:
+        return MobileBottomNavigation(
+          key: const ValueKey('mobile-nav'), // Persistent key
+          currentRoute: widget.currentRoute,
+          child: widget.child,
+        );
+      case NavigationType.tabletSideNav:
+        return AdaptiveSideNavigation(
+          key: const ValueKey('tablet-nav'),
+          currentRoute: widget.currentRoute,
+          navigationType: NavigationType.tabletSideNav,
+          child: widget.child,
+        );
+      case NavigationType.desktopSideNav:
+        return AdaptiveSideNavigation(
+          key: const ValueKey('desktop-nav'),
+          currentRoute: widget.currentRoute,
+          navigationType: NavigationType.desktopSideNav,
+          child: widget.child,
+        );
+    }
   }
+
+  /// Animates the transition when navigation type changes
+  // void _animateNavigationTypeChange() {
+  //   _transitionController.reset();
+  //   _transitionController.forward();
+  // }
 
   // Builds the appropriate navigation components according to the navigation type
   _buildNavigationForType(BuildContext context, NavigationType navigationType) {
@@ -255,7 +286,7 @@ class NavigationConfiguration {
     ),
 
     NavigationItem(
-      route: RouteConstants.home,
+      route: RouteConstants.postPage,
       label: 'Create',
       icon: Icons.add_circle_outline,
       selectedIcon: Icons.add_circle_rounded,
@@ -267,7 +298,7 @@ class NavigationConfiguration {
     ),
 
     NavigationItem(
-      route: RouteConstants.homeSecond,
+      route: RouteConstants.libraryPage,
       label: 'Library',
       icon: Icons.library_books_outlined,
       selectedIcon: Icons.library_books_rounded,
@@ -279,7 +310,7 @@ class NavigationConfiguration {
     ),
 
     NavigationItem(
-      route: RouteConstants.home,
+      route: RouteConstants.profilePage,
       label: 'Profile',
       icon: Icons.person_outline,
       selectedIcon: Icons.person_rounded,
@@ -296,7 +327,10 @@ class NavigationConfiguration {
   static const Map<String, String> routeTitles = {
     '/': 'Home',
     '/home': 'Home',
-    '/homeSecond': 'Home',
+    '/searchPage': 'Search',
+    '/postPage': 'Create',
+    '/libraryPage': 'Library',
+    '/profilePage': 'Profile',
   };
 
   // Get page title for current route with support for dynamic titles
@@ -332,6 +366,16 @@ class NavigationConfiguration {
     }
     // Ensure we return a valid index within bounds
     return 0; // Default to first implemented item
+    // final routes = [
+    //   RouteConstants.home,
+    //   RouteConstants.searchPage,
+    //   RouteConstants.postPage,
+    //   RouteConstants.libraryPage,
+    //   RouteConstants.profilePage,
+    // ];
+    // return routes
+    //     .indexWhere((r) => currentRoute.startsWith(r))
+    //     .clamp(0, routes.length - 1);
   }
 
   // Enhanced route matching that supports nested routes and child routes

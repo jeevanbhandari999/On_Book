@@ -128,41 +128,71 @@ class SplashViewState extends State<SplashView>
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Logo
+                    // Animated Logo Circle
                     Container(
-                      height: 90,
-                      width: 90,
-                      decoration: const BoxDecoration(shape: BoxShape.circle),
+                      height: 100,
+                      width: 100,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: LinearGradient(
+                          colors: [
+                            Theme.of(context).primaryColor.withAlpha(230),
+                            Theme.of(context).primaryColor.withAlpha(155),
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Theme.of(context).primaryColor.withAlpha(80),
+                            blurRadius: 18,
+                            offset: const Offset(0, 6),
+                          ),
+                        ],
+                      ),
                       child: const Center(
                         child: Text(
                           "O",
                           style: TextStyle(
-                            fontSize: 48,
+                            fontSize: 54,
                             fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                            letterSpacing: 1.5,
                           ),
                         ),
                       ),
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 28),
+
                     // App Name
                     SlideTransition(
                       position: _textSlideAnimation,
-                      child: const Text(
+                      child: Text(
                         "OnBook",
                         style: TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: 1.2,
+                          fontSize: 30,
+                          fontWeight: FontWeight.w800,
+                          color: Theme.of(context).textTheme.bodyLarge?.color,
+                          letterSpacing: 1.3,
                         ),
                       ),
                     ),
+
                     const SizedBox(height: 10),
+
                     // Tagline
                     FadeTransition(
                       opacity: _fadeAnimation,
-                      child: const Text(
+                      child: Text(
                         "Connecting knowledge & people",
-                        style: TextStyle(fontSize: 14),
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Theme.of(
+                            context,
+                          ).textTheme.bodyMedium?.color?.withAlpha(180),
+                          letterSpacing: 0.3,
+                        ),
+                        textAlign: TextAlign.center,
                       ),
                     ),
                   ],

@@ -331,3 +331,108 @@ class AppTheme {
     );
   }
 }
+
+// import 'package:flutter/material.dart';
+// import 'app_colors.dart';
+
+// class AppTheme {
+//   static ThemeData lightTheme = ThemeData(
+//     useMaterial3: true,
+//     brightness: Brightness.light,
+//     primaryColor: AppColors.primary,
+//     scaffoldBackgroundColor: AppColors.backgroundLight,
+//     colorScheme: ColorScheme.light(
+//       primary: AppColors.primary,
+//       onPrimary: Colors.white,
+//       secondary: AppColors.secondary,
+//       onSecondary: Colors.white,
+//       surface: AppColors.surfaceLight,
+//       onSurface: AppColors.textPrimaryLight,
+//       background: AppColors.backgroundLight,
+//       onBackground: AppColors.textPrimaryLight,
+//       error: AppColors.error,
+//     ),
+//     appBarTheme: const AppBarTheme(
+//       backgroundColor: AppColors.primary,
+//       foregroundColor: Colors.white,
+//       elevation: 0,
+//     ),
+//     elevatedButtonTheme: ElevatedButtonThemeData(
+//       style: ElevatedButton.styleFrom(
+//         backgroundColor: AppColors.primary,
+//         foregroundColor: Colors.white,
+//         textStyle: const TextStyle(fontWeight: FontWeight.w600),
+//         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+//         shape: RoundedRectangleBorder(
+//           borderRadius: BorderRadius.all(Radius.circular(12)),
+//         ),
+//       ),
+//     ),
+//     bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+//       backgroundColor: AppColors.surfaceLight,
+//       selectedItemColor: AppColors.primary,
+//       unselectedItemColor: AppColors.grey500,
+//       type: BottomNavigationBarType.fixed,
+//       elevation: 8,
+//     ),
+//     floatingActionButtonTheme: const FloatingActionButtonThemeData(
+//       backgroundColor: AppColors.primary,
+//       foregroundColor: Colors.white,
+//     ),
+//     textTheme: const TextTheme(
+//       bodyLarge: TextStyle(color: AppColors.textPrimaryLight),
+//       bodyMedium: TextStyle(color: AppColors.textSecondaryLight),
+//       titleMedium: TextStyle(fontWeight: FontWeight.w600),
+//     ),
+//   );
+
+//   static ThemeData darkTheme = ThemeData(
+//     useMaterial3: true,
+//     brightness: Brightness.dark,
+//     primaryColor: AppColors.primary,
+//     scaffoldBackgroundColor: AppColors.backgroundDark,
+//     colorScheme: ColorScheme.dark(
+//       primary: AppColors.primary,
+//       onPrimary: Colors.white,
+//       secondary: AppColors.secondary,
+//       onSecondary: Colors.white,
+//       surface: AppColors.surfaceDark,
+//       onSurface: AppColors.textPrimaryDark,
+//       background: AppColors.backgroundDark,
+//       onBackground: AppColors.textPrimaryDark,
+//       error: AppColors.error,
+//     ),
+//     appBarTheme: const AppBarTheme(
+//       backgroundColor: AppColors.surfaceDark,
+//       foregroundColor: Colors.white,
+//       elevation: 0,
+//     ),
+//     elevatedButtonTheme: ElevatedButtonThemeData(
+//       style: ElevatedButton.styleFrom(
+//         backgroundColor: AppColors.primary,
+//         foregroundColor: Colors.white,
+//         textStyle: const TextStyle(fontWeight: FontWeight.w600),
+//         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+//         shape: RoundedRectangleBorder(
+//           borderRadius: BorderRadius.all(Radius.circular(12)),
+//         ),
+//       ),
+//     ),
+//     bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+//       backgroundColor: AppColors.surfaceDark,
+//       selectedItemColor: AppColors.primaryLight,
+//       unselectedItemColor: AppColors.grey600,
+//       type: BottomNavigationBarType.fixed,
+//       elevation: 8,
+//     ),
+//     floatingActionButtonTheme: const FloatingActionButtonThemeData(
+//       backgroundColor: AppColors.primary,
+//       foregroundColor: Colors.white,
+//     ),
+//     textTheme: const TextTheme(
+//       bodyLarge: TextStyle(color: AppColors.textPrimaryDark),
+//       bodyMedium: TextStyle(color: AppColors.textSecondaryDark),
+//       titleMedium: TextStyle(fontWeight: FontWeight.w600),
+//     ),
+//   );
+// }

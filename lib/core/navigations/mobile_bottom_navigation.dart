@@ -67,6 +67,7 @@ class _MobileBottomNavigationState extends State<MobileBottomNavigation>
     return AdaptiveAppBar(
       currentRoute: widget.currentRoute,
       navigationType: NavigationType.mobileBottomNav,
+      // backgroundColor: Colors.transparent,
     );
   }
 
@@ -107,6 +108,36 @@ class _MobileBottomNavigationState extends State<MobileBottomNavigation>
   }
 
   /// Builds bottom navigation for portrait orientation
+  // Widget _buildPortraitBottomNavigationBar(
+  //   BuildContext context,
+  //   List<NavigationItem> items,
+  // ) {
+  //   final currentIndex = NavigationConfiguration.getPrimaryIndex(
+  //     widget.currentRoute,
+  //   );
+  //   final safeIndex = currentIndex.clamp(0, items.length - 1);
+
+  //   return BottomNavigationBar(
+  //     type: BottomNavigationBarType.fixed,
+  //     currentIndex: safeIndex,
+  //     onTap: (index) => _onNavigationItemTapped(context, index),
+  //     elevation: ResponsiveNavigationController.getNavigationElevation(
+  //       NavigationType.mobileBottomNav,
+  //     ),
+  //     selectedItemColor: Theme.of(context).primaryColor,
+  //     unselectedItemColor: Theme.of(context).unselectedWidgetColor,
+  //     selectedFontSize: 12,
+  //     unselectedFontSize: 10,
+  //     iconSize: ResponsiveNavigationController.getNavigationIconSize(
+  //       NavigationType.mobileBottomNav,
+  //     ),
+  //     items: items
+  //         .map((item) => _buildBottomNavigationBarItem(context, item))
+  //         .toList(),
+  //   );
+  // }
+
+  /// Builds bottom navigation for portrait orientation
   Widget _buildPortraitBottomNavigationBar(
     BuildContext context,
     List<NavigationItem> items,
@@ -115,24 +146,96 @@ class _MobileBottomNavigationState extends State<MobileBottomNavigation>
       widget.currentRoute,
     );
     final safeIndex = currentIndex.clamp(0, items.length - 1);
+    final theme = Theme.of(context);
 
-    return BottomNavigationBar(
-      type: BottomNavigationBarType.fixed,
-      currentIndex: safeIndex,
-      onTap: (index) => _onNavigationItemTapped(context, index),
-      elevation: ResponsiveNavigationController.getNavigationElevation(
-        NavigationType.mobileBottomNav,
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color:
+            theme.bottomNavigationBarTheme.backgroundColor ??
+            theme.colorScheme.surface,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withAlpha(13),
+            blurRadius: 6,
+            offset: const Offset(0, -2),
+          ),
+        ],
       ),
-      selectedItemColor: Theme.of(context).primaryColor,
-      unselectedItemColor: Theme.of(context).unselectedWidgetColor,
-      selectedFontSize: 12,
-      unselectedFontSize: 10,
-      iconSize: ResponsiveNavigationController.getNavigationIconSize(
-        NavigationType.mobileBottomNav,
+      child: SafeArea(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: items.asMap().entries.map((entry) {
+            final index = entry.key;
+            final item = entry.value;
+            final isSelected = safeIndex == index;
+
+            return Expanded(
+              child: InkWell(
+                // borderRadius: BorderRadius.circular(8),
+                onTap: () => _onNavigationItemTapped(context, index),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Top border indicator
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 250),
+                      height: 3,
+                      // width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: isSelected
+                            ? theme.primaryColor
+                            : Colors.transparent,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      curve: Curves.easeInOut,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 8,
+                      ),
+                      // width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: isSelected
+                            ? theme.primaryColor.withAlpha(31)
+                            : Colors.transparent,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Icon(
+                        isSelected ? item.selectedIcon : item.icon,
+                        color: isSelected
+                            ? theme.primaryColor
+                            : theme.unselectedWidgetColor,
+                        size:
+                            ResponsiveNavigationController.getNavigationIconSize(
+                              NavigationType.mobileBottomNav,
+                            ),
+                      ),
+                    ),
+                    Text(
+                      item.label,
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: isSelected
+                            ? FontWeight.w600
+                            : FontWeight.w400,
+                        color: isSelected
+                            ? theme.primaryColor
+                            : theme.unselectedWidgetColor,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }).toList(),
+        ),
       ),
-      items: items
-          .map((item) => _buildBottomNavigationBarItem(context, item))
-          .toList(),
     );
   }
 
@@ -224,52 +327,52 @@ class _MobileBottomNavigationState extends State<MobileBottomNavigation>
   }
 
   /// Builds a bottom navigation bar item
-  BottomNavigationBarItem _buildBottomNavigationBarItem(
-    BuildContext context,
-    NavigationItem item,
-  ) {
-    return BottomNavigationBarItem(
-      icon: _buildNavigationIcon(context, item, false),
-      activeIcon: _buildNavigationIcon(context, item, true),
-      label: item.label,
-      tooltip: item.tooltipText,
-    );
-  }
+  // BottomNavigationBarItem _buildBottomNavigationBarItem(
+  //   BuildContext context,
+  //   NavigationItem item,
+  // ) {
+  //   return BottomNavigationBarItem(
+  //     icon: _buildNavigationIcon(context, item, false),
+  //     activeIcon: _buildNavigationIcon(context, item, true),
+  //     label: item.label,
+  //     tooltip: item.tooltipText,
+  //   );
+  // }
 
   /// Builds a navigation icon with proper accessibility support
-  Widget _buildNavigationIcon(
-    BuildContext context,
-    NavigationItem item,
-    bool isActive,
-  ) {
-    final icon = isActive ? item.selectedIcon : item.icon;
-    final semanticProperties =
-        ResponsiveNavigationController.getSemanticProperties(
-          item,
-          NavigationType.mobileBottomNav,
-          isActive,
-        );
+  // Widget _buildNavigationIcon(
+  //   BuildContext context,
+  //   NavigationItem item,
+  //   bool isActive,
+  // ) {
+  //   final icon = isActive ? item.selectedIcon : item.icon;
+  //   final semanticProperties =
+  //       ResponsiveNavigationController.getSemanticProperties(
+  //         item,
+  //         NavigationType.mobileBottomNav,
+  //         isActive,
+  //       );
 
-    return Semantics(
-      label: semanticProperties['label'],
-      hint: semanticProperties['hint'],
-      button: true,
-      enabled: semanticProperties['enabled'],
-      selected: semanticProperties['selected'],
-      child: Container(
-        constraints: BoxConstraints(
-          minWidth: ResponsiveNavigationController.getMinimumTouchTargetSize(),
-          minHeight: ResponsiveNavigationController.getMinimumTouchTargetSize(),
-        ),
-        child: Icon(
-          icon,
-          size: ResponsiveNavigationController.getNavigationIconSize(
-            NavigationType.mobileBottomNav,
-          ),
-        ),
-      ),
-    );
-  }
+  //   return Semantics(
+  //     label: semanticProperties['label'],
+  //     hint: semanticProperties['hint'],
+  //     button: true,
+  //     enabled: semanticProperties['enabled'],
+  //     selected: semanticProperties['selected'],
+  //     child: Container(
+  //       constraints: BoxConstraints(
+  //         minWidth: ResponsiveNavigationController.getMinimumTouchTargetSize(),
+  //         minHeight: ResponsiveNavigationController.getMinimumTouchTargetSize(),
+  //       ),
+  //       child: Icon(
+  //         icon,
+  //         size: ResponsiveNavigationController.getNavigationIconSize(
+  //           NavigationType.mobileBottomNav,
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
 
   /// Handles navigation item tap with proper feedback and state management
   void _onNavigationItemTapped(BuildContext context, int index) {

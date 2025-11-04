@@ -15,6 +15,8 @@ class AdaptiveAppBar extends StatelessWidget implements PreferredSizeWidget {
   final double? elevation;
   final bool centerTitle;
   final TextStyle? titleTextStyle;
+  final bool showBackArrow;
+  final VoidCallback? onBackPressed;
 
   const AdaptiveAppBar({
     super.key,
@@ -29,6 +31,8 @@ class AdaptiveAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.elevation,
     this.centerTitle = false,
     this.titleTextStyle,
+    this.showBackArrow = true,
+    this.onBackPressed,
   });
 
   @override
@@ -41,7 +45,14 @@ class AdaptiveAppBar extends StatelessWidget implements PreferredSizeWidget {
     final mainTitle = 'Onbook';
     return AppBar(
       title: Text(mainTitle, style: _getTitleTextStyle(context)),
-      automaticallyImplyLeading: automaticallyImplyLeading,
+      // automaticallyImplyLeading: automaticallyImplyLeading,
+      automaticallyImplyLeading: showBackArrow,
+      leading: showBackArrow
+          ? IconButton(
+              icon: const Icon(Icons.arrow_back),
+              onPressed: onBackPressed ?? () => Navigator.of(context).pop(),
+            )
+          : null,
       actions: _buildActions(context),
       backgroundColor: backgroundColor ?? _getBackgroundColor(context),
       foregroundColor: foregroundColor ?? _getForegroundColor(context),
@@ -368,3 +379,42 @@ class AppBarContext {
     );
   }
 }
+
+// import 'package:app/core/navigations/adaptive_navigation.dart';
+// import 'package:app/core/navigations/responsive_navigation_controller.dart';
+// import 'package:flutter/material.dart';
+
+// class AdaptiveAppBar extends StatelessWidget implements PreferredSizeWidget {
+//   final String currentRoute;
+//   final NavigationType navigationType;
+//   final bool showBackArrow;
+//   final VoidCallback? onBackPressed;
+
+//   const AdaptiveAppBar({
+//     super.key,
+//     required this.currentRoute,
+//     required this.navigationType,
+//     this.showBackArrow = true,
+//     this.onBackPressed,
+//   });
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return AppBar(
+//       title: Text(NavigationConfiguration.getRouteTitle(currentRoute)),
+//       automaticallyImplyLeading: showBackArrow,
+//       leading: showBackArrow
+//           ? IconButton(
+//               icon: const Icon(Icons.arrow_back),
+//               onPressed: onBackPressed ?? () => Navigator.of(context).pop(),
+//             )
+//           : null,
+//       elevation: ResponsiveNavigationController.getNavigationElevation(
+//         navigationType,
+//       ),
+//     );
+//   }
+
+//   @override
+//   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+// }

@@ -91,6 +91,14 @@ class AuthFetchOrganizations extends AuthEvent {
   const AuthFetchOrganizations();
 }
 
+class AuthJoinExistingOrganizationRequested extends AuthEvent {
+  final String organizationId;
+  const AuthJoinExistingOrganizationRequested({required this.organizationId});
+
+  @override
+  List<Object> get props => [organizationId];
+}
+
 // States
 abstract class AuthState extends Equatable {
   const AuthState();
@@ -201,6 +209,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthCheckStatus>(_onCheckStatus);
     on<AuthCreateOrganizationRequested>(_onCreateOrganization);
     on<AuthFetchOrganizations>(_onFetchOrganizations);
+    on<AuthJoinExistingOrganizationRequested>(_onJoinExistingOrganization);
   }
 
   Future<void> _onLoginRequested(
@@ -454,6 +463,26 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     try {
       final result = await _authService.fetchOrganizations();
       emit(AuthOrganizationsLoaded(organizations: result));
+    } catch (e) {
+      emit(AuthError(message: e.toString()));
+    }
+  }
+
+  Future<void> _onJoinExistingOrganization(
+    AuthJoinExistingOrganizationRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(const AuthLoading());
+    try {
+      await _authService.updateProfile(organizationId: event.organizationId);
+      // Get updated user profile
+      final user = await _authService.getCurrentUserProfile();
+      final organization = await _authService.getUserOrganization();
+      if (user != null) {
+        emit(AuthAuthenticated(user: user, organization: organization));
+      } else {
+        emit(const AuthError(message: 'Failed to get updated user profile'));
+      }
     } catch (e) {
       emit(AuthError(message: e.toString()));
     }

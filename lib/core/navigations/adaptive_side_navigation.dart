@@ -4,7 +4,6 @@ import 'package:app/core/navigations/adaptive_navigation.dart';
 import 'package:app/core/navigations/responsive_navigation_controller.dart';
 import 'package:app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:app/core/navigations/adaptive_app_bar.dart';
 
