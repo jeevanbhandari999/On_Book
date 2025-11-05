@@ -1,4 +1,5 @@
-import 'package:app/features/post/data/models/post_enums.dart';
+import 'package:app/features/post/domain/entities/post.dart';
+import 'package:app/features/post/domain/entities/post_enums.dart';
 import 'package:app/features/post/data/models/post_image_model.dart';
 import 'package:equatable/equatable.dart';
 
@@ -217,6 +218,62 @@ class PostModel extends Equatable {
     );
   }
 
+  /// Convert PostModel (data) → Post (domain entity)
+  Post toEntity() {
+    return Post(
+      id: id,
+      organizationId: organizationId,
+      title: title,
+      description: description,
+      primaryImageUrl: primaryImageUrl,
+      additionalImages: additionalImages.map((e) => e.toEntity()).toList(),
+      youtubeUrl: youtubeUrl,
+      videoUrl: videoUrl,
+      longitude: longitude,
+      latitude: latitude,
+      price: price,
+      area: area,
+      capacity: capacity,
+      roomType: roomType,
+      amenities: amenities,
+      tags: tags,
+      status: status,
+      createdBy: createdBy,
+      updatedBy: updatedBy,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+    );
+  }
+
+  /// Create PostModel from Post entity (domain → data)
+  factory PostModel.fromEntity(Post post) {
+    return PostModel(
+      id: post.id,
+      organizationId: post.organizationId,
+      title: post.title,
+      description: post.description,
+      primaryImageUrl: post.primaryImageUrl,
+      additionalImages: post.additionalImages
+          .map((postImage) => PostImageModel.fromEntity(postImage))
+          .toList(),
+      youtubeUrl: post.youtubeUrl,
+      videoUrl: post.videoUrl,
+      longitude: post.longitude,
+      latitude: post.latitude,
+      price: post.price,
+      area: post.area,
+      capacity: post.capacity,
+      roomType: post.roomType,
+      amenities: post.amenities,
+      tags: post.tags,
+      status: post.status,
+      createdBy: post.createdBy,
+      updatedBy: post.updatedBy,
+      createdAt: post.createdAt,
+      updatedAt: post.updatedAt,
+    );
+  }
+
   /// Validate post data
   bool isValid() {
     return id.isNotEmpty &&
@@ -279,6 +336,9 @@ class PostModel extends Equatable {
   bool get hasYoutubeVideoLink {
     return youtubeUrl != null && youtubeUrl!.trim().isNotEmpty;
   }
+
+  // Check if location is set
+  bool get hasLocation => longitude != null && latitude != null;
 
   @override
   List<Object?> get props => [
