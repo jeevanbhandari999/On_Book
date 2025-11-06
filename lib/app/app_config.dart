@@ -7,6 +7,12 @@ class AppConfig {
   static String get supabaseUrl => dotenv.env['SUPABASE_URL'] ?? '';
   static String get supabaseKey => dotenv.env['SUPABASE_KEY'] ?? '';
 
+  // Cloudinary Configuration
+  static String get cloudinaryCloudName =>
+      dotenv.env['CLOUDINARY_CLOUD_NAME'] ?? '';
+  static String get cloudinaryUploadPreset =>
+      dotenv.env['CLOUDINARY_UPLOAD_PRESET'] ?? '';
+
   // App Information
   static const String appName = AppConstants.appName;
   static const String appVersion = AppConstants.appVersion;
