@@ -13,7 +13,7 @@ class HomePage extends StatelessWidget {
           onPressed: () {
             context.push(RouteConstants.anotherPage);
           },
-          child: Text('Go'),
+          child: const Text('Go'),
         ),
       ),
     );

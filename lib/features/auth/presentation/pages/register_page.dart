@@ -23,7 +23,7 @@ class RegisterPage extends StatelessWidget {
         // registerUseCase: DependencyInjection.get<RegisterUseCase>(),
         authService: DependencyInjection.get<AuthService>(),
       ),
-      child: RegisterView(),
+      child: const RegisterView(),
     );
   }
 }
@@ -333,7 +333,7 @@ class _RegisterViewState extends State<RegisterView> {
                       const SizedBox(height: 3),
                       Text(
                         roleConfig.description,
-                        style: TextStyle(fontSize: 13, height: 1.35),
+                        style: const TextStyle(fontSize: 13, height: 1.35),
                       ),
                     ],
                   ),

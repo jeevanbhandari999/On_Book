@@ -59,7 +59,7 @@ class AdaptiveAppBar extends StatelessWidget implements PreferredSizeWidget {
                 color: Colors.green.withAlpha(100),
                 borderRadius: BorderRadius.circular(6),
               ),
-              child: Center(
+              child: const Center(
                 child: Text(
                   'OB',
                   style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),

@@ -201,7 +201,7 @@ class CustomBottomSheet extends StatelessWidget {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.3),
+                color: Theme.of(context).colorScheme.onSurface.withAlpha(80),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -309,7 +309,7 @@ class SectionContainer extends StatelessWidget {
         boxShadow: shadows ??
             [
               BoxShadow(
-                color: const Color(0xFF363535).withOpacity(0.16),
+                color: const Color(0xFF363535).withAlpha(40),
                 spreadRadius: 0,
                 blurRadius: 16,
                 offset: const Offset(0, 0),

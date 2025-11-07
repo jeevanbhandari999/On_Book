@@ -474,8 +474,9 @@ class AuthService {
       if (phone != null) updateData['phone'] = phone;
       if (address != null) updateData['address'] = address;
       if (imageUrl != null) updateData['image_url'] = imageUrl;
-      if (organizationId != null)
+      if (organizationId != null) {
         updateData['organization_id'] = organizationId;
+      }
 
       final response = await _supabase
           .from('users')

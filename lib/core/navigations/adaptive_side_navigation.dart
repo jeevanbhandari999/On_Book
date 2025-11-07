@@ -158,7 +158,7 @@ class _AdaptiveSideNavigationState extends State<AdaptiveSideNavigation>
           widget.navigationType,
         ),
       ),
-      child: Text('Hello'),
+      child: const Text('Hello'),
     );
   }
 

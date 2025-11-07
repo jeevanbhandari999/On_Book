@@ -17,7 +17,7 @@ class LoginPage extends StatelessWidget {
     return BlocProvider(
       create: (context) =>
           AuthBloc(authService: DependencyInjection.get<AuthService>()),
-      child: LoginView(),
+      child: const LoginView(),
     );
   }
 }

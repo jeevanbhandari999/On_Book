@@ -273,7 +273,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     AuthRegisterRequested event,
     Emitter<AuthState> emit,
   ) async {
-    emit(AuthLoading());
+    emit(const AuthLoading());
     try {
       final user = await _authService.register(
         email: event.email,
@@ -386,7 +386,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           }
           if (user.role == UserRole.manager ||
               user.role == UserRole.worker && user.organizationId == null) {
-            print(user);
+            // print(user);
             emit(AuthNeedsOrganizationSelection(user: user));
             return;
           }

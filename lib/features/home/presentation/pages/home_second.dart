@@ -5,8 +5,8 @@ class HomePage1 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: const Center(child: Text('Welcome to home page ONBOOK')),
+    return const Scaffold(
+      body: Center(child: Text('Welcome to home page ONBOOK')),
     );
   }
 }

@@ -88,27 +88,80 @@ class PostRemoteDataSourceImpl implements PostRemoteDataSource {
   Future<List<PostImageModel>> addPostImages(
     String postId,
     List<String> imageUrls,
-  ) {
-    // TODO: implement addPostImages
-    throw UnimplementedError();
+  ) async {
+    try {
+      final imagesToInsert = imageUrls
+          .map(
+            (url) => {
+              'post_id': postId,
+              'image_url': url,
+              'uploaded_by': supabaseClient.auth.currentUser!.id,
+              'updated_by': supabaseClient.auth.currentUser!.id,
+            },
+          )
+          .toList();
+
+      final response = await supabaseClient
+          .from('post_images')
+          .insert(imagesToInsert)
+          .select();
+      final data = response as List<dynamic>;
+
+      return data
+          .map((item) => PostImageModel.fromJson(item as Map<String, dynamic>))
+          .toList();
+    } catch (e) {
+      throw core_exceptions.ServerException('Failed to add post images: $e');
+    }
   }
 
   @override
-  Future<PostVideoModel> addPostVideo(String postId, String videoUrl) {
-    // TODO: implement addPostVideo
-    throw UnimplementedError();
+  Future<PostVideoModel> addPostVideo(String postId, String videoUrl) async {
+    try {
+      final videoToInsert = {
+        'post_id': postId,
+        'video_url': videoUrl,
+        'uploaded_by': supabaseClient.auth.currentUser!.id,
+        'updated_by': supabaseClient.auth.currentUser!.id,
+      };
+
+      final response = await supabaseClient
+          .from('post_videos')
+          .insert(videoToInsert)
+          .select()
+          .single();
+
+      return PostVideoModel.fromJson(response);
+    } catch (e) {
+      throw core_exceptions.ServerException('Failed to add post images: $e');
+    }
   }
 
   @override
   Future<bool> canManagePosts(String userId, String organizationId) async {
-    // // Get the current user to verify permissions
-    // final user = supabaseClient.auth.currentUser;
-    // if (user == null) {
-    throw const core_exceptions.AuthException('User not authenticated');
-    // }
+    try {
+      final response = await supabaseClient
+          .from('users')
+          .select('role, organization_id')
+          .eq('user_id', userId)
+          .single();
 
-    // // Check user permissions
-    // final canCreate = await canManagePosts(userId, organizationId)
+      final role = response['role'] as String?;
+      final userOrgId = response['organization_id'] as String?;
+
+      // Admin can manage all posts
+      if (role == 'admin') return true;
+
+      // Manager can manage posts in their organization
+      if (role == 'manager' && userOrgId == organizationId) return true;
+
+      // Owner can manage posts in their organization
+      if (role == 'owner' && userOrgId == organizationId) return true;
+
+      return false;
+    } catch (e) {
+      throw core_exceptions.ServerException('Failed to check permissions: $e');
+    }
   }
 
   @override
@@ -145,15 +198,44 @@ class PostRemoteDataSourceImpl implements PostRemoteDataSource {
   }
 
   @override
-  Future<void> deleteImage(String imageUrl) {
-    // TODO: implement deleteImage
-    throw UnimplementedError();
+  Future<void> deleteImage(String imageUrl) async {
+    try {
+      // Extract file path from URL
+      final uri = Uri.parse(imageUrl);
+      final pathSegments = uri.pathSegments;
+      final publicIndex = pathSegments.indexOf('public');
+
+      if (publicIndex != -1 && publicIndex < pathSegments.length - 1) {
+        final filePath = pathSegments.sublist(publicIndex + 1).join('/');
+        await supabaseClient.storage.from('post-images').remove([filePath]);
+      }
+    } catch (e) {
+      throw core_exceptions.ServerException('Failed to delete image: $e');
+    }
   }
 
   @override
-  Future<void> deleteImages(List<String> imageUrls) {
-    // TODO: implement deleteImages
-    throw UnimplementedError();
+  Future<void> deleteImages(List<String> imageUrls) async {
+    try {
+      final filePaths = <String>[];
+
+      for (final imageUrl in imageUrls) {
+        final uri = Uri.parse(imageUrl);
+        final pathSegments = uri.pathSegments;
+        final publicIndex = pathSegments.indexOf('public');
+
+        if (publicIndex != -1 && publicIndex < pathSegments.length - 1) {
+          final filePath = pathSegments.sublist(publicIndex + 1).join('/');
+          filePaths.add(filePath);
+        }
+      }
+
+      if (filePaths.isNotEmpty) {
+        await supabaseClient.storage.from('post-images').remove(filePaths);
+      }
+    } catch (e) {
+      throw core_exceptions.ServerException('Failed to delete images: $e');
+    }
   }
 
   @override
@@ -168,7 +250,7 @@ class PostRemoteDataSourceImpl implements PostRemoteDataSource {
       // Check user permissions for this specific event
       final canDelete = await _canEditDeleteEvent(user.id, postId);
       if (!canDelete) {
-        throw core_exceptions.PermissionException(
+        throw const core_exceptions.PermissionException(
           'Insufficient permissions to delete this post',
         );
       }
@@ -284,15 +366,28 @@ class PostRemoteDataSourceImpl implements PostRemoteDataSource {
   }
 
   @override
-  Future<void> removePostImages(List<String> imageIds) {
-    // TODO: implement removePostImages
-    throw UnimplementedError();
+  Future<void> removePostImages(List<String> imageIds) async {
+    try {
+      await supabaseClient
+          .from('post_images')
+          .delete()
+          .inFilter('id', imageIds);
+    } catch (e) {
+      throw core_exceptions.ServerException(
+        'Failed to remove event images: $e',
+      );
+    }
   }
 
   @override
-  Future<void> removePostVideo(String postId) {
-    // TODO: implement removePostVideo
-    throw UnimplementedError();
+  Future<void> removePostVideo(String postId) async {
+    try {
+      await supabaseClient.from('post_images').delete().eq('id', postId);
+    } catch (e) {
+      throw core_exceptions.ServerException(
+        'Failed to remove event images: $e',
+      );
+    }
   }
 
   @override
@@ -354,7 +449,7 @@ class PostRemoteDataSourceImpl implements PostRemoteDataSource {
       // Check user permissions for this specific event
       final canEdit = await _canEditDeleteEvent(user.id, postId);
       if (!canEdit) {
-        throw core_exceptions.PermissionException(
+        throw const core_exceptions.PermissionException(
           'Insufficient permissions to edit this post',
         );
       }
@@ -394,16 +489,34 @@ class PostRemoteDataSourceImpl implements PostRemoteDataSource {
     String postId,
   ) async {
     try {
-      final folderPath = '$organizationId/$postId';
-      final response = await CloudinaryService.instance.cloudinary.uploadFile(
-        CloudinaryFile.fromFile(
-          imageFile.path,
-          folder: folderPath,
-          resourceType: CloudinaryResourceType.Image,
-        ),
-      );
+      // To delete the images from cloudinary, it is little bit hard, so i use the supabase directly,
+      // final folderPath = '$organizationId/$postId';
+      // final response = await CloudinaryService.instance.cloudinary.uploadFile(
+      //   CloudinaryFile.fromFile(
+      //     imageFile.path,
+      //     folder: folderPath,
+      //     resourceType: CloudinaryResourceType.Image,
+      //   ),
+      // );
 
-      return response.secureUrl;
+      // return response.secureUrl;
+
+      // Generate unique filename
+      final fileExt = imageFile.path.split('.').last;
+      final fileName =
+          '$organizationId/$postId/${DateTime.now().millisecondsSinceEpoch}.$fileExt';
+
+      // Upload to Supabase Storage
+      await supabaseClient.storage
+          .from('post-images')
+          .upload(fileName, imageFile);
+
+      // Get public URL
+      final url = supabaseClient.storage
+          .from('post-images')
+          .getPublicUrl(fileName);
+
+      return url;
     } catch (e) {
       throw core_exceptions.ServerException('Filed to upload image: $e');
     }

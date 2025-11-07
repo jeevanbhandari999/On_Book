@@ -104,7 +104,7 @@ class _SelectHotelOrganizationViewState
 
   @override
   Widget build(BuildContext context) {
-    print('the logged in user is : ${widget.user}');
+    // print('the logged in user is : ${widget.user}');
     return Scaffold(
       appBar: AppBar(
         title: const Text('Select Organization'),

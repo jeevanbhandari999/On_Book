@@ -7,7 +7,7 @@ class ChatUserListPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(title: Text('Username')),
+      appBar: AppBar(title: const Text('Username')),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: RefreshIndicator(
@@ -16,7 +16,7 @@ class ChatUserListPage extends StatelessWidget {
             await Future.delayed(const Duration(seconds: 1));
           },
           child: SingleChildScrollView(
-            physics: AlwaysScrollableScrollPhysics(),
+            physics: const AlwaysScrollableScrollPhysics(),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

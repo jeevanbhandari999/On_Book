@@ -44,7 +44,7 @@ class _CreateHotelOrganizationViewState
   // Image upload state
   File? _pickedLogo;
   String? _uploadedLogoUrl;
-  bool _isUploadingLogo = false;
+  final _isUploadingLogo = false;
   String? _email;
 
   @override
@@ -64,7 +64,7 @@ class _CreateHotelOrganizationViewState
 
   @override
   Widget build(BuildContext context) {
-    print('the logged in user is : ${widget.user}');
+    // print('the logged in user is : ${widget.user}');
 
     return Scaffold(
       appBar: AppBar(

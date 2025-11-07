@@ -30,7 +30,7 @@ Future<void> main() async {
         anonKey: AppConfig.supabaseKey,
         debug: AppConfig.isDebug,
       );
-      print('Supabase initialize');
+      // print('Supabase initialize');
 
       // appLogger.info('✅ Supabase initialized successfully');
     } else {

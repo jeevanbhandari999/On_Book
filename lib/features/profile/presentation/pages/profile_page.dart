@@ -15,7 +15,7 @@ class ProfilePage extends StatelessWidget {
           onPressed: () {
             _showLogoutDialog(context);
           },
-          child: Text('Logout'),
+          child: const Text('Logout'),
         ),
       ),
     );

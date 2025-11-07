@@ -48,6 +48,6 @@ class _PostPageState extends State<PostPage> {
       return const DummyPostPage();
     }
 
-    return Scaffold(appBar: AppBar(title: Text('Post page')));
+    return Scaffold(appBar: AppBar(title: const Text('Post page')));
   }
 }

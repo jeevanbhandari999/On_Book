@@ -6,8 +6,8 @@ class Another extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('another')),
-      body: Center(child: Text('Welcome to another page')),
+      appBar: AppBar(title: const Text('another')),
+      body: const Center(child: Text('Welcome to another page')),
     );
   }
 }
