@@ -10,6 +10,7 @@ import 'package:app/features/chat/presentation/pages/chat_user_list_page.dart';
 import 'package:app/features/home/presentation/pages/another.dart';
 import 'package:app/features/home/presentation/pages/home_page.dart';
 import 'package:app/features/library/presentation/pages/library_page.dart';
+import 'package:app/features/post/presentation/pages/create_post_page.dart';
 import 'package:app/features/post/presentation/pages/post_page.dart';
 import 'package:app/features/profile/presentation/pages/profile_page.dart';
 import 'package:app/features/search/presentation/pages/search_page.dart';
@@ -137,6 +138,12 @@ class AppRouter {
       GoRoute(
         path: RouteConstants.anotherPage,
         builder: (context, state) => const Another(),
+      ),
+
+      // Post related page
+      GoRoute(
+        path: RouteConstants.createPostPage,
+        builder: (context, state) => const CreatePostPage(),
       ),
     ],
   );

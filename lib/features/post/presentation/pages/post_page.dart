@@ -1,8 +1,10 @@
 import 'package:app/app/dependency_injection.dart';
+import 'package:app/app/router/route_constants.dart';
 import 'package:app/features/auth/data/models/user_model.dart';
 import 'package:app/features/post/presentation/pages/dummy_post_page.dart';
 import 'package:app/features/post/services/post_services.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class PostPage extends StatefulWidget {
   const PostPage({super.key});
@@ -48,6 +50,16 @@ class _PostPageState extends State<PostPage> {
       return const DummyPostPage();
     }
 
-    return Scaffold(appBar: AppBar(title: const Text('Post page')));
+    return Scaffold(
+      appBar: AppBar(title: const Text('Post page')),
+      body: Center(
+        child: TextButton(
+          onPressed: () {
+            context.push(RouteConstants.createPostPage);
+          },
+          child: const Text('Go to create page'),
+        ),
+      ),
+    );
   }
 }
