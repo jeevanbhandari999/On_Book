@@ -5,9 +5,7 @@ import 'package:app/features/post/domain/usecases/create_post_use_case.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 
-//
-// ────────────────────────────── EVENTS ──────────────────────────────
-//
+//  EVENTS ──────────────────────────────
 
 abstract class PostFormEvent extends Equatable {
   const PostFormEvent();
@@ -48,6 +46,14 @@ class PostFormPrimaryImageChanged extends PostFormEvent {
   const PostFormPrimaryImageChanged(this.imageUrl);
   @override
   List<Object> get props => [imageUrl];
+}
+
+class PostFormPrimaryImagePicked extends PostFormEvent {
+  final File file;
+  const PostFormPrimaryImagePicked(this.file);
+
+  @override
+  List<Object> get props => [file];
 }
 
 class PostFormAdditionalImageAdded extends PostFormEvent {
@@ -140,9 +146,7 @@ class PostFormVideoRemoved extends PostFormEvent {
   const PostFormVideoRemoved();
 }
 
-//
-// ────────────────────────────── STATES ──────────────────────────────
-//
+// STATES
 
 abstract class PostFormState extends Equatable {
   const PostFormState();
@@ -164,6 +168,7 @@ class PostFormReady extends PostFormState {
   final String title;
   final String description;
   final String primaryImageUrl;
+  final File? primaryImageFile;
   final List<File> additionalImages;
   final File? videoFile;
   final String youtubeUrl;
@@ -184,6 +189,7 @@ class PostFormReady extends PostFormState {
     this.title = '',
     this.description = '',
     this.primaryImageUrl = '',
+    this.primaryImageFile,
     this.additionalImages = const [],
     this.videoFile,
     this.youtubeUrl = '',
@@ -206,6 +212,7 @@ class PostFormReady extends PostFormState {
     title,
     description,
     primaryImageUrl,
+    primaryImageFile,
     additionalImages,
     videoFile,
     youtubeUrl,
@@ -227,6 +234,7 @@ class PostFormReady extends PostFormState {
     String? title,
     String? description,
     String? primaryImageUrl,
+    File? primaryImageFile,
     List<File>? additionalImages,
     File? videoFile,
     String? youtubeUrl,
@@ -247,6 +255,7 @@ class PostFormReady extends PostFormState {
       title: title ?? this.title,
       description: description ?? this.description,
       primaryImageUrl: primaryImageUrl ?? this.primaryImageUrl,
+      primaryImageFile: primaryImageFile ?? this.primaryImageFile,
       additionalImages: additionalImages ?? this.additionalImages,
       videoFile: videoFile ?? this.videoFile,
       youtubeUrl: youtubeUrl ?? this.youtubeUrl,
@@ -284,9 +293,7 @@ class PostFormError extends PostFormState {
   List<Object?> get props => [message, previousState];
 }
 
-//
-// ────────────────────────────── BLOC ──────────────────────────────
-//
+// BLOC
 
 class PostFormBloc extends Bloc<PostFormEvent, PostFormState> {
   final CreatePostUseCase _createPostUseCase;
@@ -298,6 +305,7 @@ class PostFormBloc extends Bloc<PostFormEvent, PostFormState> {
     on<PostFormTitleChanged>(_onTitleChanged);
     on<PostFormDescriptionChanged>(_onDescriptionChanged);
     on<PostFormPrimaryImageChanged>(_onPrimaryImageChanged);
+    on<PostFormPrimaryImagePicked>(_onPrimaryImagePicked);
     on<PostFormAdditionalImageAdded>(_onAdditionalImageAdded);
     on<PostFormAdditionalImageRemoved>(_onAdditionalImageRemoved);
     on<PostFormVideoPicked>(_onVideoPicked);
@@ -342,6 +350,17 @@ class PostFormBloc extends Bloc<PostFormEvent, PostFormState> {
     final s = state;
     if (s is PostFormReady) {
       emit(_validateForm(s.copyWith(primaryImageUrl: e.imageUrl)));
+    }
+  }
+
+  void _onPrimaryImagePicked(
+    PostFormPrimaryImagePicked e,
+    Emitter<PostFormState> emit,
+  ) {
+    final s = state;
+    if (s is PostFormReady) {
+      print('primary imaeg: ${e.file}');
+      emit(_validateForm(s.copyWith(primaryImageFile: e.file)));
     }
   }
 
@@ -407,8 +426,9 @@ class PostFormBloc extends Bloc<PostFormEvent, PostFormState> {
     Emitter<PostFormState> emit,
   ) {
     final s = state;
-    if (s is PostFormReady)
+    if (s is PostFormReady) {
       emit(_validateForm(s.copyWith(capacity: e.capacity)));
+    }
   }
 
   void _onRoomTypeChanged(
@@ -416,8 +436,9 @@ class PostFormBloc extends Bloc<PostFormEvent, PostFormState> {
     Emitter<PostFormState> emit,
   ) {
     final s = state;
-    if (s is PostFormReady)
+    if (s is PostFormReady) {
       emit(_validateForm(s.copyWith(roomType: e.roomType)));
+    }
   }
 
   void _onAmenitiesChanged(
@@ -425,8 +446,9 @@ class PostFormBloc extends Bloc<PostFormEvent, PostFormState> {
     Emitter<PostFormState> emit,
   ) {
     final s = state;
-    if (s is PostFormReady)
+    if (s is PostFormReady) {
       emit(_validateForm(s.copyWith(amenities: e.amenities)));
+    }
   }
 
   void _onTagsChanged(PostFormTagsChanged e, Emitter<PostFormState> emit) {
@@ -439,10 +461,11 @@ class PostFormBloc extends Bloc<PostFormEvent, PostFormState> {
     Emitter<PostFormState> emit,
   ) {
     final s = state;
-    if (s is PostFormReady)
+    if (s is PostFormReady) {
       emit(
         _validateForm(s.copyWith(latitude: e.latitude, longitude: e.longitude)),
       );
+    }
   }
 
   Future<void> _onSubmitted(
@@ -459,6 +482,7 @@ class PostFormBloc extends Bloc<PostFormEvent, PostFormState> {
       title: s.title,
       description: s.description,
       primaryImageUrl: s.primaryImageUrl,
+      primaryImageFile: s.primaryImageFile,
       additionalImages: s.additionalImages,
       youtubeUrl: s.youtubeUrl.isEmpty ? null : s.youtubeUrl,
       longitude: s.longitude,
@@ -492,10 +516,7 @@ class PostFormBloc extends Bloc<PostFormEvent, PostFormState> {
   void _onReset(PostFormReset e, Emitter<PostFormState> emit) {
     emit(const PostFormInitial());
   }
-
-  //
-  // ────────────────────────────── VALIDATION ──────────────────────────────
-  //
+  // VALIDATION
 
   PostFormReady _validateForm(PostFormReady s) {
     final errors = <String, String>{};

@@ -4,13 +4,13 @@ import 'package:image_picker/image_picker.dart';
 import 'package:app/core/constants/ui_constants.dart';
 
 class PostMediaPicker extends StatelessWidget {
-  final String primaryImageUrl;
+  final File? primaryImageFile;
   final List<File> additionalImages;
   final File? videoFile;
   final Map<File, double>? uploadProgress;
   final String? errorMessage;
 
-  final Function(String url) onPrimaryImagePicked;
+  final Function(File file) onPrimaryImagePicked;
   final Function(File file) onImageAdded;
   final Function(int index) onImageRemoved;
   final Function(File file) onVideoPicked;
@@ -21,7 +21,7 @@ class PostMediaPicker extends StatelessWidget {
 
   const PostMediaPicker({
     super.key,
-    this.primaryImageUrl = '',
+    this.primaryImageFile,
     this.additionalImages = const [],
     this.videoFile,
     this.uploadProgress,
@@ -36,7 +36,7 @@ class PostMediaPicker extends StatelessWidget {
   });
 
   int get totalImages =>
-      additionalImages.length + (primaryImageUrl.isNotEmpty ? 1 : 0);
+      additionalImages.length + (primaryImageFile != null ? 1 : 0);
   bool get canAddImage => totalImages < maxAdditionalImages && enabled;
 
   @override
@@ -45,7 +45,7 @@ class PostMediaPicker extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _PrimaryImageSection(
-          imageUrl: primaryImageUrl,
+          imageFile: primaryImageFile,
           onPick: () => _showImagePickerSheet(context, isPrimary: true),
           enabled: enabled,
         ),
@@ -154,8 +154,9 @@ class PostMediaPicker extends StatelessWidget {
         }
 
         if (isPrimary != null && isPrimary) {
-          final url = await _uploadImageToSupabase(file);
-          onPrimaryImagePicked(url);
+          // final url = await _uploadImageToSupabase(file);
+          onPrimaryImagePicked(file);
+          print('file: $file');
         } else {
           onImageAdded(file);
         }
@@ -279,12 +280,6 @@ class PostMediaPicker extends StatelessWidget {
     return null;
   }
 
-  Future<String> _uploadImageToSupabase(File file) async {
-    await Future.delayed(const Duration(seconds: 1));
-    // return 'https://supabase.co/storage/${file.path.split('/').last}';
-    return 'https://rjqetlaghsixoeyzsoqh.supabase.co/storage/v1/object/public/announcements/96123bb2-8c01-41a3-a033-b96cce13e695/96123bb2-8c01-41a3-a033-b96cce13e695/1756574458872.jpg';
-  }
-
   void _showError(BuildContext context, String msg) {
     ScaffoldMessenger.of(
       context,
@@ -294,18 +289,19 @@ class PostMediaPicker extends StatelessWidget {
 
 // Primary image section
 class _PrimaryImageSection extends StatelessWidget {
-  final String imageUrl;
+  final File? imageFile;
   final VoidCallback onPick;
   final bool enabled;
 
   const _PrimaryImageSection({
-    required this.imageUrl,
+    this.imageFile,
     required this.onPick,
     required this.enabled,
   });
 
   @override
   Widget build(BuildContext context) {
+    print('image picked');
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -324,11 +320,11 @@ class _PrimaryImageSection extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 8),
-        if (imageUrl.isNotEmpty)
+        if (imageFile != null)
           ClipRRect(
             borderRadius: BorderRadius.circular(8),
-            child: Image.network(
-              imageUrl,
+            child: Image.file(
+              imageFile!,
               width: double.infinity,
               height: 250,
               fit: BoxFit.cover,

@@ -143,7 +143,12 @@ class AppRouter {
       // Post related page
       GoRoute(
         path: RouteConstants.createPostPage,
-        builder: (context, state) => const CreatePostPage(),
+        builder: (context, state) {
+          final extraData = state.extra as Map<String, dynamic>?;
+          final userId = extraData?['userId'];
+          final organizationId = extraData?['organizationId'];
+          return CreatePostPage(userId: userId, organizationId: organizationId);
+        },
       ),
     ],
   );

@@ -56,6 +56,24 @@ class CreatePostUseCase {
       }
     }
 
+    String? primaryImageUrl = params.primaryImageUrl;
+    if (params.primaryImageFile != null) {
+      final uploadResult = await repository.uploadImage(
+        params.primaryImageFile!,
+        params.organizationId,
+        'temp', // temp postId before creation (backend may not need it)
+      );
+
+      if (uploadResult.isLeft()) {
+        return uploadResult.fold(
+          (failure) => Left(failure),
+          (_) => throw Exception('Unexpected upload result'),
+        );
+      }
+
+      primaryImageUrl = uploadResult.getOrElse(() => '');
+    }
+
     // Create post entity
     final now = DateTime.now();
     final post = Post(
@@ -63,7 +81,7 @@ class CreatePostUseCase {
       organizationId: params.organizationId.trim(),
       title: params.title.trim(),
       description: params.description.trim(),
-      primaryImageUrl: params.primaryImageUrl,
+      primaryImageUrl: primaryImageUrl,
       price: params.price,
       area: params.area,
       capacity: params.capacity,
@@ -104,6 +122,7 @@ class CreatePostParams extends Equatable {
   final String title;
   final String description;
   final String primaryImageUrl;
+  final File? primaryImageFile;
   final List<File> additionalImages;
   final String? youtubeUrl;
   final double? longitude;
@@ -123,6 +142,7 @@ class CreatePostParams extends Equatable {
     required this.title,
     required this.description,
     required this.primaryImageUrl,
+    this.primaryImageFile,
     this.additionalImages = const [],
     this.youtubeUrl,
     this.longitude,
@@ -184,6 +204,7 @@ class CreatePostParams extends Equatable {
       title: title ?? this.title,
       description: description ?? this.description,
       primaryImageUrl: primaryImageUrl ?? this.primaryImageUrl,
+      primaryImageFile: primaryImageFile ?? this.primaryImageFile,
       additionalImages: additionalImages ?? this.additionalImages,
       youtubeUrl: youtubeUrl ?? this.youtubeUrl,
       longitude: longitude ?? this.longitude,
