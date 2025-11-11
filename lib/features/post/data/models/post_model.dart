@@ -138,6 +138,7 @@ class PostModel extends Equatable {
       'tags': tags?.map((e) => e.name).toList(),
       'status': status.name,
       'created_by': createdBy,
+      'updated_by': updatedBy,
       'location': longitude != null && latitude != null
           ? 'POINT($longitude $latitude)'
           : null,

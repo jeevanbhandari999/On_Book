@@ -331,3 +331,135 @@ class SectionContainer extends StatelessWidget {
     return container;
   }
 }
+
+
+class CustomDropdown<T> extends StatelessWidget {
+  final String label;
+  final String? hint;
+  final T? value;
+  final List<DropdownMenuItem<T>> items;
+  final ValueChanged<T?>? onChanged;
+  final String? errorText;
+  final Widget? prefixIcon;
+
+  const CustomDropdown({
+    super.key,
+    required this.label,
+    this.hint,
+    this.value,
+    required this.items,
+    this.onChanged,
+    this.errorText,
+    this.prefixIcon,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                fontWeight: FontWeight.w500,
+              ),
+        ),
+        const SizedBox(height: 6),
+        DropdownButtonFormField<T>(
+          value: value,
+          hint: hint != null
+              ? Text(hint!, style: const TextStyle(color: Colors.grey))
+              : null,
+          items: items,
+          onChanged: onChanged,
+          decoration: InputDecoration(
+            errorText: errorText,
+            prefixIcon: prefixIcon,
+            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.grey.shade400),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.grey.shade400),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Theme.of(context).primaryColor, width: 2),
+            ),
+            filled: true,
+            fillColor: Colors.grey.shade50,
+          ),
+          dropdownColor: Colors.white,
+          icon: const Icon(Icons.keyboard_arrow_down_rounded),
+        ),
+      ],
+    );
+  }
+}
+
+
+class CustomMultiSelect<T> extends StatelessWidget {
+  final String label;
+  final List<T> items;
+  final List<T> selected;
+  final String Function(T) itemLabel;
+  final ValueChanged<List<T>> onChanged;
+  final Widget? prefixIcon;
+
+  const CustomMultiSelect({
+    super.key,
+    required this.label,
+    required this.items,
+    required this.selected,
+    required this.itemLabel,
+    required this.onChanged,
+    this.prefixIcon,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                fontWeight: FontWeight.w500,
+              ),
+        ),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: items.map((item) {
+            final isSelected = selected.contains(item);
+            return FilterChip(
+              label: Text(itemLabel(item)),
+              selected: isSelected,
+              onSelected: (bool selected) {
+                final newSelected = List<T>.from(this.selected);
+                if (selected) {
+                  newSelected.add(item);
+                } else {
+                  newSelected.remove(item);
+                }
+                onChanged(newSelected);
+              },
+              selectedColor: Theme.of(context).primaryColor.withOpacity(0.2),
+              checkmarkColor: Theme.of(context).primaryColor,
+              backgroundColor: Colors.grey.shade100,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+                side: BorderSide(
+                  color: isSelected ? Theme.of(context).primaryColor : Colors.grey.shade300,
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+      ],
+    );
+  }
+}

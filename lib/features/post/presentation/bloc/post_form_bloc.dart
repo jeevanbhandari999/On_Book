@@ -129,6 +129,17 @@ class PostFormReset extends PostFormEvent {
   const PostFormReset();
 }
 
+class PostFormVideoPicked extends PostFormEvent {
+  final File videoFile;
+  const PostFormVideoPicked(this.videoFile);
+  @override
+  List<Object> get props => [videoFile];
+}
+
+class PostFormVideoRemoved extends PostFormEvent {
+  const PostFormVideoRemoved();
+}
+
 //
 // ────────────────────────────── STATES ──────────────────────────────
 //
@@ -154,6 +165,7 @@ class PostFormReady extends PostFormState {
   final String description;
   final String primaryImageUrl;
   final List<File> additionalImages;
+  final File? videoFile;
   final String youtubeUrl;
   final double price;
   final double? area;
@@ -173,6 +185,7 @@ class PostFormReady extends PostFormState {
     this.description = '',
     this.primaryImageUrl = '',
     this.additionalImages = const [],
+    this.videoFile,
     this.youtubeUrl = '',
     this.price = 0,
     this.area,
@@ -194,6 +207,7 @@ class PostFormReady extends PostFormState {
     description,
     primaryImageUrl,
     additionalImages,
+    videoFile,
     youtubeUrl,
     price,
     area,
@@ -214,6 +228,7 @@ class PostFormReady extends PostFormState {
     String? description,
     String? primaryImageUrl,
     List<File>? additionalImages,
+    File? videoFile,
     String? youtubeUrl,
     double? price,
     double? area,
@@ -233,6 +248,7 @@ class PostFormReady extends PostFormState {
       description: description ?? this.description,
       primaryImageUrl: primaryImageUrl ?? this.primaryImageUrl,
       additionalImages: additionalImages ?? this.additionalImages,
+      videoFile: videoFile ?? this.videoFile,
       youtubeUrl: youtubeUrl ?? this.youtubeUrl,
       price: price ?? this.price,
       area: area ?? this.area,
@@ -284,6 +300,8 @@ class PostFormBloc extends Bloc<PostFormEvent, PostFormState> {
     on<PostFormPrimaryImageChanged>(_onPrimaryImageChanged);
     on<PostFormAdditionalImageAdded>(_onAdditionalImageAdded);
     on<PostFormAdditionalImageRemoved>(_onAdditionalImageRemoved);
+    on<PostFormVideoPicked>(_onVideoPicked);
+    on<PostFormVideoRemoved>(_onVideoRemoved);
     on<PostFormYoutubeUrlChanged>(_onYoutubeUrlChanged);
     on<PostFormPriceChanged>(_onPriceChanged);
     on<PostFormAreaChanged>(_onAreaChanged);
@@ -347,6 +365,20 @@ class PostFormBloc extends Bloc<PostFormEvent, PostFormState> {
       final imgs = List<File>.from(s.additionalImages);
       if (e.index >= 0 && e.index < imgs.length) imgs.removeAt(e.index);
       emit(_validateForm(s.copyWith(additionalImages: imgs)));
+    }
+  }
+
+  void _onVideoPicked(PostFormVideoPicked e, Emitter<PostFormState> emit) {
+    final s = state;
+    if (s is PostFormReady) {
+      emit(_validateForm(s.copyWith(videoFile: e.videoFile)));
+    }
+  }
+
+  void _onVideoRemoved(PostFormVideoRemoved e, Emitter<PostFormState> emit) {
+    final s = state;
+    if (s is PostFormReady) {
+      emit(_validateForm(s.copyWith(videoFile: null)));
     }
   }
 
@@ -425,7 +457,7 @@ class PostFormBloc extends Bloc<PostFormEvent, PostFormState> {
     final params = CreatePostParams(
       organizationId: s.organizationId,
       title: s.title,
-      descriotion: s.description,
+      description: s.description,
       primaryImageUrl: s.primaryImageUrl,
       additionalImages: s.additionalImages,
       youtubeUrl: s.youtubeUrl.isEmpty ? null : s.youtubeUrl,
@@ -450,6 +482,7 @@ class PostFormBloc extends Bloc<PostFormEvent, PostFormState> {
           previousState: s,
         ),
       ),
+
       (post) => emit(
         PostFormSuccess(post: post, message: 'Post created successfully!'),
       ),

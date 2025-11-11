@@ -518,6 +518,7 @@ class PostRemoteDataSourceImpl implements PostRemoteDataSource {
 
       return url;
     } catch (e) {
+      print('Here is the error');
       throw core_exceptions.ServerException('Filed to upload image: $e');
     }
   }
