@@ -325,8 +325,8 @@ class NavigationConfiguration {
     NavigationItem(
       route: RouteConstants.libraryPage,
       label: 'Library',
-      icon: Icons.library_books_outlined,
-      selectedIcon: Icons.library_books_rounded,
+      icon: Icons.video_library_outlined,
+      selectedIcon: Icons.video_library,
       semanticLabel: 'Navigate to Library',
       tooltip: 'Go to your Library',
       description: 'Access your saved books or media',
