@@ -6,6 +6,7 @@ import 'package:app/features/post/data/datasources/post_local_data_source.dart';
 import 'package:app/features/post/data/datasources/post_remote_data_source.dart';
 import 'package:app/features/post/data/models/post_model.dart';
 import 'package:app/features/post/domain/entities/post.dart';
+import 'package:app/features/post/domain/entities/post_image.dart';
 import 'package:app/features/post/domain/repositories/post_repository.dart';
 import 'package:dartz/dartz.dart';
 
@@ -79,6 +80,74 @@ class PostRepositoryImpl implements PostRepository {
       } catch (_) {
         // Ignore these cache errors when network is also failing
       }
+      return Left(NetworkFailure(e.message));
+    } on CacheException catch (e) {
+      return Left(CacheFailure(e.message));
+    } catch (e) {
+      return Left(UnknownFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<PostImage>>> getPostsWithImagesByOrganizationId(
+    String organizationId,
+  ) async {
+    try {
+      // Check if cache is expired
+      // final isCacheExpired = await localDataSource.isCacheExpired(
+      //   organizationId,
+      // );
+      // if (!isCacheExpired) {
+      //   // try to get the cached posts first
+      //   final cachedPosts = await localDataSource.getCachedPosts(
+      //     organizationId,
+      //   );
+      //   if (cachedPosts != null && cachedPosts.isNotEmpty) {
+      //     return Right(
+      //       cachedPosts.map((postModel) => postModel.toEntity()).toList(),
+      //     );
+      //   }
+      // }
+
+      // fetch from remote if cache is expired or empty
+      final postImageModels = await remoteDataSource
+          .getPostsWithImagesByOrganizationId(organizationId);
+
+      // Cache the fetched posts from the remote for offline support
+      // await localDataSource.cachePosts(organizationId, postImageModels);
+
+      return Right(
+        postImageModels.map((postImageModel) => postImageModel.toEntity()).toList(),
+      );
+    } on ServerException catch (e) {
+      // Try to return the cache data on server exception
+      // try {
+      //   final cachedPosts = await localDataSource.getCachedPosts(
+      //     organizationId,
+      //   );
+      //   if (cachedPosts != null && cachedPosts.isNotEmpty) {
+      //     return Right(
+      //       cachedPosts.map((postModel) => postModel.toEntity()).toList(),
+      //     );
+      //   }
+      // } catch (_) {
+      //   // Ignore these cache errors when server is also failing
+      // }
+      return Left(ServerFailure(e.message));
+    } on NetworkException catch (e) {
+      // Again try to rturn the cached data in network error
+      // try {
+      //   final cachedPosts = await localDataSource.getCachedPosts(
+      //     organizationId,
+      //   );
+      //   if (cachedPosts != null && cachedPosts.isNotEmpty) {
+      //     return Right(
+      //       cachedPosts.map((postModel) => postModel.toEntity()).toList(),
+      //     );
+      //   }
+      // } catch (_) {
+      //   // Ignore these cache errors when network is also failing
+      // }
       return Left(NetworkFailure(e.message));
     } on CacheException catch (e) {
       return Left(CacheFailure(e.message));

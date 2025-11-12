@@ -12,6 +12,14 @@ abstract class PostRemoteDataSource {
   // Get all posts for a specific organization
   Future<List<PostModel>> getPostsByOrganizationId(String organizationId);
 
+  // Get all posts for a specific organization
+  // Future<List<PostModel>> getPostsWithVideosByOrganizationId(String organizationId);
+
+  // Get all posts for a specific organization
+  Future<List<PostImageModel>> getPostsWithImagesByOrganizationId(
+    String organizationId,
+  );
+
   // Get a specific post by its Id
   Future<PostModel> getPostById(String postId);
 
@@ -359,6 +367,26 @@ class PostRemoteDataSourceImpl implements PostRemoteDataSource {
       final data = response as List<dynamic>;
       return data
           .map((item) => PostModel.fromJson(item as Map<String, dynamic>))
+          .toList();
+    } catch (e) {
+      throw core_exceptions.ServerException('Failed to fetch posts: $e');
+    }
+  }
+
+  @override
+  Future<List<PostImageModel>> getPostsWithImagesByOrganizationId(
+    String organizationId,
+  ) async {
+    try {
+      final response = await supabaseClient
+          .from('post_images')
+          .select('*, posts!inner(organization_id)')
+          .eq('posts.organization_id', organizationId)
+          .order('created_at', ascending: true);
+
+      final data = response as List<dynamic>;
+      return data
+          .map((item) => PostImageModel.fromJson(item as Map<String, dynamic>))
           .toList();
     } catch (e) {
       throw core_exceptions.ServerException('Failed to fetch posts: $e');

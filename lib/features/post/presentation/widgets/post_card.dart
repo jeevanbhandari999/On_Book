@@ -148,7 +148,6 @@ class _PostCardState extends State<PostCard> {
 
   @override
   Widget build(BuildContext context) {
-    // Dynamic height based on content
     final double baseHeight = 220;
     final double heightVariation = (widget.title.length % 5) * 40.0;
     final double cardHeight = baseHeight + heightVariation;
@@ -165,7 +164,7 @@ class _PostCardState extends State<PostCard> {
               // Media: Image or Video
               if (widget.videoUrl != null && _isVideoInitialized)
                 Positioned.fill(child: VideoPlayer(_videoController!))
-              else if (widget.imageUrl != null)
+              else if (widget.imageUrl != null && widget.imageUrl!.isNotEmpty)
                 Positioned.fill(
                   child: CachedNetworkImage(
                     imageUrl: widget.imageUrl!,
@@ -203,35 +202,32 @@ class _PostCardState extends State<PostCard> {
                 child: Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 12,
-                    vertical: 10,
+                    vertical: 8,
                   ),
-                  decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [Colors.black, Colors.black45],
-                      begin: Alignment.bottomCenter,
-                      end: Alignment.topCenter,
-                    ),
-                  ),
+                  // decoration: const BoxDecoration(
+                  //   gradient: LinearGradient(
+                  //     colors: [Colors.black45, Colors.black54],
+                  //     begin: Alignment.bottomCenter,
+                  //     end: Alignment.topCenter,
+                  //   ),
+                  // ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         widget.title,
                         style: const TextStyle(
-                          color: Colors.white,
                           fontWeight: FontWeight.bold,
                           fontSize: 14,
                         ),
-                        maxLines: 2,
+                        maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(height: 4),
                       Text(
                         'Rs. ${widget.price.toStringAsFixed(2)}',
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                          color: Theme.of(context).colorScheme.primary,
                           fontWeight: FontWeight.w600,
-                          fontSize: 13,
                         ),
                       ),
                     ],

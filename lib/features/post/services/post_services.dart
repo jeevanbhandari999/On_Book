@@ -1,3 +1,4 @@
+import 'package:app/features/auth/data/models/orgnization_model.dart';
 import 'package:app/features/auth/data/models/user_model.dart';
 import 'package:app/features/auth/services/auth_service.dart';
 
@@ -75,5 +76,16 @@ class PostServices {
       );
     }
     return currentUserData.role;
+  }
+
+  // Get the organization details of the user
+  Future<OrganizationModel> getCurrentUserOrganization() async {
+    final currentOrganizationData = await _authService.getUserOrganization();
+    if (currentOrganizationData == null) {
+      throw Exception(
+        'Unable to get the user organization, Please ensure you are logged in - and create or joined to an organization',
+      );
+    }
+    return currentOrganizationData;
   }
 }

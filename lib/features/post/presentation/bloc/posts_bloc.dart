@@ -1,14 +1,20 @@
 import 'package:app/features/post/domain/entities/post.dart';
+import 'package:app/features/post/domain/entities/post_image.dart';
 import 'package:app/features/post/domain/usecases/get_all_posts_by_organization_id_use_case.dart';
+import 'package:app/features/post/domain/usecases/get_all_posts_with_images_by_orgnization_id.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 
 class OrganizationPostsBloc
     extends Bloc<OrganizationPostsEvent, OrganizationPostsState> {
   final GetAllPostsByOrganizationIdUseCase getAllPostsByOrganizationId;
+  final GetAllPostsWithImagesByOrganizationIdUseCase
+  getAllPostsWithImagesByOrganizationId;
 
-  OrganizationPostsBloc({required this.getAllPostsByOrganizationId})
-      : super(OrganizationPostsInitial()) {
+  OrganizationPostsBloc({
+    required this.getAllPostsByOrganizationId,
+    required this.getAllPostsWithImagesByOrganizationId,
+  }) : super(OrganizationPostsInitial()) {
     on<FetchOrganizationPosts>((event, emit) async {
       emit(OrganizationPostsLoading());
       final result = await getAllPostsByOrganizationId(
@@ -20,6 +26,19 @@ class OrganizationPostsBloc
       result.fold(
         (failure) => emit(OrganizationPostsError(failure.message)),
         (posts) => emit(OrganizationPostsLoaded(posts)),
+      );
+    });
+    on<FetchOrganizationPostsWithImages>((event, emit) async {
+      emit(OrganizationPostsLoading());
+      final result = await getAllPostsWithImagesByOrganizationId(
+        GetAllPostsWithImagesByOrganizationIdParams(
+          userId: event.userId,
+          organizationId: event.organizationId,
+        ),
+      );
+      result.fold(
+        (failure) => emit(OrganizationPostsError(failure.message)),
+        (posts) => emit(OrganizationPostsImagesLoaded(posts)),
       );
     });
   }
@@ -41,7 +60,17 @@ class FetchOrganizationPosts extends OrganizationPostsEvent {
   List<Object?> get props => [userId, organizationId];
 }
 
-// ─── States ────────────────────────────────────────────────────────────────
+class FetchOrganizationPostsWithImages extends OrganizationPostsEvent {
+  final String organizationId;
+  final String? userId;
+
+  FetchOrganizationPostsWithImages({required this.organizationId, this.userId});
+
+  @override
+  List<Object?> get props => [userId, organizationId];
+}
+
+// States
 abstract class OrganizationPostsState extends Equatable {
   @override
   List<Object?> get props => [];
@@ -57,6 +86,14 @@ class OrganizationPostsLoaded extends OrganizationPostsState {
 
   @override
   List<Object?> get props => [posts];
+}
+
+class OrganizationPostsImagesLoaded extends OrganizationPostsState {
+  final List<PostImage> postImages;
+  OrganizationPostsImagesLoaded(this.postImages);
+
+  @override
+  List<Object?> get props => [postImages];
 }
 
 class OrganizationPostsError extends OrganizationPostsState {

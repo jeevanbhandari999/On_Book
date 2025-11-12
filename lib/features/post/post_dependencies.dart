@@ -5,6 +5,7 @@ import 'package:app/features/post/data/repositories/post_repository_impl.dart';
 import 'package:app/features/post/domain/repositories/post_repository.dart';
 import 'package:app/features/post/domain/usecases/create_post_use_case.dart';
 import 'package:app/features/post/domain/usecases/get_all_posts_by_organization_id_use_case.dart';
+import 'package:app/features/post/domain/usecases/get_all_posts_with_images_by_orgnization_id.dart';
 import 'package:app/features/post/presentation/bloc/post_form_bloc.dart';
 import 'package:app/features/post/presentation/bloc/posts_bloc.dart';
 import 'package:app/features/post/services/post_services.dart';
@@ -54,6 +55,9 @@ class PostDependencies {
     getIt.registerFactory<OrganizationPostsBloc>(
       () => OrganizationPostsBloc(
         getAllPostsByOrganizationId: GetAllPostsByOrganizationIdUseCase(
+          getIt<PostRepository>(),
+        ),
+        getAllPostsWithImagesByOrganizationId: GetAllPostsWithImagesByOrganizationIdUseCase(
           getIt<PostRepository>(),
         ),
       ),
