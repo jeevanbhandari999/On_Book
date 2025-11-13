@@ -46,6 +46,11 @@ class PostDependencies {
       () => GetAllPostsByOrganizationIdUseCase(getIt<PostRepository>()),
     );
 
+    getIt.registerLazySingleton<GetAllPostsWithImagesByOrganizationIdUseCase>(
+      () =>
+          GetAllPostsWithImagesByOrganizationIdUseCase(getIt<PostRepository>()),
+    );
+
     // BLoC
     getIt.registerFactory<PostFormBloc>(
       () => PostFormBloc(
@@ -57,9 +62,10 @@ class PostDependencies {
         getAllPostsByOrganizationId: GetAllPostsByOrganizationIdUseCase(
           getIt<PostRepository>(),
         ),
-        getAllPostsWithImagesByOrganizationId: GetAllPostsWithImagesByOrganizationIdUseCase(
-          getIt<PostRepository>(),
-        ),
+        getAllPostsWithImagesByOrganizationId:
+            GetAllPostsWithImagesByOrganizationIdUseCase(
+              getIt<PostRepository>(),
+            ),
       ),
     );
   }

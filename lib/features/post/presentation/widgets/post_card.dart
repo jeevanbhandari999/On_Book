@@ -1,78 +1,3 @@
-// import 'package:flutter/material.dart';
-
-// class PostCard extends StatelessWidget {
-//   final String title;
-//   final String? imageUrl;
-//   final String description;
-//   final double price;
-//   final String? videoUrl;
-//   final VoidCallback onTap;
-//   const PostCard({
-//     super.key,
-//     required this.title,
-//     this.imageUrl,
-//     required this.description,
-//     required this.price,
-//     this.videoUrl,
-//     required this.onTap,
-//   });
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return InkWell(
-//       onTap: onTap,
-//       borderRadius: BorderRadius.circular(16),
-//       child: ClipRRect(
-//         borderRadius: BorderRadius.circular(16),
-//         clipBehavior: Clip.antiAlias,
-//         child: Stack(
-//           children: [
-//             // Image section or Video section
-//             if (imageUrl != null)
-//               Image.network(
-//                 imageUrl!,
-//                 height: (250 + (30 * (title.length % 3))).toDouble(),
-//                 width: double.infinity,
-//                 fit: BoxFit.cover,
-//               ),
-
-//             // Text section
-//             Positioned(
-//               bottom: 0,
-//               left: 0,
-//               right: 0,
-//               child: Container(
-//                 padding: const EdgeInsets.symmetric(
-//                   horizontal: 10,
-//                   vertical: 8,
-//                 ),
-//                 decoration: BoxDecoration(
-//                   gradient: LinearGradient(
-//                     colors: [
-//                       Colors.black.withAlpha(185),
-//                       Colors.black.withAlpha(50),
-//                     ],
-//                     begin: Alignment.bottomCenter,
-//                     end: Alignment.topCenter,
-//                   ),
-//                 ),
-//                 child: Column(
-//                   crossAxisAlignment: CrossAxisAlignment.start,
-//                   children: [
-//                     Text(title, maxLines: 1, overflow: TextOverflow.ellipsis),
-//                     Text('Rs. ${price.toStringAsFixed(2)}'),
-//                   ],
-//                 ),
-//               ),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
-
-// post_card.dart
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
@@ -102,6 +27,7 @@ class PostCard extends StatefulWidget {
 class _PostCardState extends State<PostCard> {
   VideoPlayerController? _videoController;
   bool _isVideoInitialized = false;
+  String? _duration;
 
   @override
   void initState() {
@@ -116,12 +42,18 @@ class _PostCardState extends State<PostCard> {
         VideoPlayerController.networkUrl(Uri.parse(widget.videoUrl!))
           ..initialize()
               .then((_) {
-                if (mounted) {
-                  setState(() => _isVideoInitialized = true);
-                  _videoController!.setLooping(true);
-                  _videoController!.setVolume(0); // Muted preview
-                  _videoController!.play();
+                if (!mounted) {
+                  return;
                 }
+                setState(() {
+                  _isVideoInitialized = true;
+                  final duration = _videoController!.value.duration;
+                  _duration =
+                      '${duration.inMinutes}:${(duration.inSeconds % 60).toString().padLeft(2, '0')}';
+                });
+                _videoController!.setLooping(true);
+                _videoController!.setVolume(0); // Muted preview
+                _videoController!.play();
               })
               .catchError((error) {
                 if (mounted) setState(() => _isVideoInitialized = false);
@@ -154,9 +86,9 @@ class _PostCardState extends State<PostCard> {
 
     return InkWell(
       onTap: widget.onTap,
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(4),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(4),
         child: SizedBox(
           height: cardHeight,
           child: Stack(
@@ -183,14 +115,30 @@ class _PostCardState extends State<PostCard> {
                 Positioned.fill(child: Container(color: Colors.grey[300])),
 
               // Play icon for videos
-              if (widget.videoUrl != null)
-                const Positioned(
+              if (widget.videoUrl != null && _duration != null)
+                Positioned(
                   top: 8,
                   right: 8,
-                  child: Icon(
-                    Icons.play_circle_fill,
-                    color: Colors.white,
-                    size: 28,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 2,
+                    ),
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [Colors.black45, Colors.black54],
+                        begin: Alignment.bottomCenter,
+                        end: Alignment.topCenter,
+                      ),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Text(
+                      _duration!,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                 ),
 
@@ -202,15 +150,15 @@ class _PostCardState extends State<PostCard> {
                 child: Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 12,
-                    vertical: 8,
+                    vertical: 4,
                   ),
-                  // decoration: const BoxDecoration(
-                  //   gradient: LinearGradient(
-                  //     colors: [Colors.black45, Colors.black54],
-                  //     begin: Alignment.bottomCenter,
-                  //     end: Alignment.topCenter,
-                  //   ),
-                  // ),
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [Colors.black45, Colors.black54],
+                      begin: Alignment.bottomCenter,
+                      end: Alignment.topCenter,
+                    ),
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -219,15 +167,17 @@ class _PostCardState extends State<PostCard> {
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 14,
+                          color: Colors.white,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
                       Text(
                         'Rs. ${widget.price.toStringAsFixed(2)}',
-                        style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                          color: Theme.of(context).colorScheme.primary,
-                          fontWeight: FontWeight.w600,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                          color: Colors.white,
                         ),
                       ),
                     ],
