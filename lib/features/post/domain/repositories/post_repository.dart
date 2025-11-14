@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:app/core/errors/failures.dart';
 import 'package:app/features/post/domain/entities/post.dart';
 import 'package:app/features/post/domain/entities/post_image.dart';
+import 'package:app/features/post/domain/entities/post_video.dart';
 import 'package:dartz/dartz.dart';
 
 abstract class PostRepository {
@@ -11,8 +12,14 @@ abstract class PostRepository {
     String organizationId,
   );
 
-  // Get all posts for a specific organization
+  // Get all post's images for a specific organization
   Future<Either<Failure, List<PostImage>>> getPostsWithImagesByOrganizationId(
+    String organizationId,
+  );
+
+
+  // Get all post's videos for a specific organization
+  Future<Either<Failure, List<PostVideo>>> getPostsWithVideosByOrganizationId(
     String organizationId,
   );
 

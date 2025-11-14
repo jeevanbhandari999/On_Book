@@ -16,9 +16,10 @@ class PostGridSection extends StatelessWidget {
         crossAxisSpacing: 10,
         children: List.generate(posts.length, (index) {
           final post = posts[index];
-          final isWide = (index + 1) % 5 == 0;
+          // final isWide = (index + 1) % 5 == 0;
           return StaggeredGridTile.fit(
-            crossAxisCellCount: isWide ? 2 : 1,
+            // crossAxisCellCount: isWide ? 2 : 1,
+            crossAxisCellCount: 1,
             child: PostCard(
               key: ValueKey(post['imageUrl'] ?? post['videoUrl'] ?? index),
               title: post['title'] ?? 'Untitled',
@@ -27,6 +28,7 @@ class PostGridSection extends StatelessWidget {
               description: post['description'] ?? '',
               price: (post['price'] as num?)?.toDouble() ?? 0.0,
               onTap: () {},
+              all: (post['all'] as bool),
             ),
           );
         }),

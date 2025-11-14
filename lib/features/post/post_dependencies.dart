@@ -6,6 +6,7 @@ import 'package:app/features/post/domain/repositories/post_repository.dart';
 import 'package:app/features/post/domain/usecases/create_post_use_case.dart';
 import 'package:app/features/post/domain/usecases/get_all_posts_by_organization_id_use_case.dart';
 import 'package:app/features/post/domain/usecases/get_all_posts_with_images_by_orgnization_id.dart';
+import 'package:app/features/post/domain/usecases/get_all_posts_with_videos_by_organization_id.dart';
 import 'package:app/features/post/presentation/bloc/post_form_bloc.dart';
 import 'package:app/features/post/presentation/bloc/posts_bloc.dart';
 import 'package:app/features/post/services/post_services.dart';
@@ -51,6 +52,10 @@ class PostDependencies {
           GetAllPostsWithImagesByOrganizationIdUseCase(getIt<PostRepository>()),
     );
 
+    getIt.registerLazySingleton<GetAllPostsWithVideosByOrganizationId>(
+      () => GetAllPostsWithVideosByOrganizationId(getIt<PostRepository>()),
+    );
+
     // BLoC
     getIt.registerFactory<PostFormBloc>(
       () => PostFormBloc(
@@ -66,6 +71,9 @@ class PostDependencies {
             GetAllPostsWithImagesByOrganizationIdUseCase(
               getIt<PostRepository>(),
             ),
+        getAllPostsWithVideosByOrganizationId:
+            GetAllPostsWithVideosByOrganizationId(getIt<PostRepository>()),
+        postServices: PostServices(authService: getIt<AuthService>()),
       ),
     );
   }

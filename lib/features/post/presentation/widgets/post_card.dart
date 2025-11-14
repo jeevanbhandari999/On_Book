@@ -9,6 +9,7 @@ class PostCard extends StatefulWidget {
   final String description;
   final double price;
   final VoidCallback onTap;
+  final bool all;
 
   const PostCard({
     super.key,
@@ -18,6 +19,7 @@ class PostCard extends StatefulWidget {
     required this.description,
     required this.price,
     required this.onTap,
+    required this.all,
   });
 
   @override
@@ -80,7 +82,7 @@ class _PostCardState extends State<PostCard> {
 
   @override
   Widget build(BuildContext context) {
-    final double baseHeight = 220;
+    final double baseHeight = 200;
     final double heightVariation = (widget.title.length % 5) * 40.0;
     final double cardHeight = baseHeight + heightVariation;
 
@@ -143,47 +145,49 @@ class _PostCardState extends State<PostCard> {
                 ),
 
               // Gradient + Text Overlay
-              Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 4,
-                  ),
-                  decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [Colors.black45, Colors.black54],
-                      begin: Alignment.bottomCenter,
-                      end: Alignment.topCenter,
+              // Only show in a all posts tab not in a video and the images.
+              if (widget.all)
+                Positioned(
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 4,
+                    ),
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [Colors.black45, Colors.black54],
+                        begin: Alignment.bottomCenter,
+                        end: Alignment.topCenter,
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          widget.title,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                            color: Colors.white,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        Text(
+                          'Rs. ${widget.price.toStringAsFixed(2)}',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        widget.title,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                          color: Colors.white,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      Text(
-                        'Rs. ${widget.price.toStringAsFixed(2)}',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ],
-                  ),
                 ),
-              ),
             ],
           ),
         ),

@@ -1,16 +1,16 @@
 import 'package:app/core/errors/failures.dart';
-import 'package:app/features/post/domain/entities/post_image.dart';
+import 'package:app/features/post/domain/entities/post_video.dart';
 import 'package:app/features/post/domain/repositories/post_repository.dart';
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
 
-class GetAllPostsWithImagesByOrganizationIdUseCase {
+class GetAllPostsWithVideosByOrganizationId {
   final PostRepository repository;
 
-  GetAllPostsWithImagesByOrganizationIdUseCase(this.repository);
+  GetAllPostsWithVideosByOrganizationId(this.repository);
 
-  Future<Either<Failure, List<PostImage>>> call(
-    GetAllPostsWithImagesByOrganizationIdParams params,
+  Future<Either<Failure, List<PostVideo>>> call(
+    GetAllPostsWithVideosByOrganizationIdParams params,
   ) async {
     // Validate organization ID
     if (params.organizationId.trim().isEmpty) {
@@ -27,17 +27,17 @@ class GetAllPostsWithImagesByOrganizationIdUseCase {
 
     // Get posts based on cached type,
 
-    return await repository.getPostsWithImagesByOrganizationId(
+    return await repository.getPostsWithVideosByOrganizationId(
       params.organizationId,
     );
   }
 }
 
-class GetAllPostsWithImagesByOrganizationIdParams extends Equatable {
+class GetAllPostsWithVideosByOrganizationIdParams extends Equatable {
   final String? userId; // Made optional
   final String organizationId;
 
-  const GetAllPostsWithImagesByOrganizationIdParams({
+  const GetAllPostsWithVideosByOrganizationIdParams({
     this.userId,
     required this.organizationId,
   });

@@ -79,7 +79,7 @@ class PostServices {
   }
 
   // Get the organization details of the user
-  Future<OrganizationModel> getCurrentUserOrganization() async {
+  Future<OrganizationModel?> getCurrentUserOrganization() async {
     final currentOrganizationData = await _authService.getUserOrganization();
     if (currentOrganizationData == null) {
       throw Exception(
@@ -87,5 +87,25 @@ class PostServices {
       );
     }
     return currentOrganizationData;
+  }
+
+  // Get current user profile
+  Future<UserModel?> getCurrentUserProfile() async {
+    try {
+      final userProfile = await _authService.getCurrentUserProfile();
+      if (userProfile == null) {
+        throw Exception(
+          'Unable to get the user profile, Please ensure you are logged in.',
+        );
+      }
+      return userProfile;
+    } catch (e) {
+      // Don't throw exception for missing profile, just return null
+      if (e.toString().contains('No rows returned') ||
+          e.toString().contains('not found')) {
+        return null;
+      }
+      throw Exception('Failed to get current user profile: ${e.toString()}');
+    }
   }
 }

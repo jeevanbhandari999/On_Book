@@ -34,6 +34,8 @@ class CreatePostPage extends StatelessWidget {
   }
 }
 
+
+
 class CreatePostView extends StatelessWidget {
   const CreatePostView({super.key});
 
