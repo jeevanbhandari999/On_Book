@@ -1,23 +1,12 @@
-import 'package:app/app/dependency_injection.dart';
 import 'package:app/features/auth/data/models/user_model.dart';
-import 'package:app/features/post/services/post_services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-// import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:app/app/router/route_constants.dart';
 
-// class DummyPostPage extends StatelessWidget {
-//   const DummyPostPage({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return BlocProvider(create: (context) => DependencyInjection.get<PostServices>(), child: const DummyPostView(),);
-//   }
-// }
-
 class DummyPostPage extends StatelessWidget {
-  const DummyPostPage({super.key});
+  final UserModel user;
+  const DummyPostPage({super.key, required this.user});
 
   @override
   Widget build(BuildContext context) {

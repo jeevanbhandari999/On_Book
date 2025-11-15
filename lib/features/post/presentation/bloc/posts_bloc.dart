@@ -91,6 +91,11 @@ class OrganizationPostsLoading extends OrganizationPostsState {
   const OrganizationPostsLoading();
 }
 
+class UserRoleAndOrganizationDetailStatusChecking
+    extends OrganizationPostsState {
+  const UserRoleAndOrganizationDetailStatusChecking();
+}
+
 class OrganizationPostsLoaded extends OrganizationPostsState {
   final List<Post> posts;
   const OrganizationPostsLoaded(this.posts);
@@ -320,7 +325,7 @@ class OrganizationPostsBloc
     ChecKUserRoleAndOrganizationDetailStatus event,
     Emitter<OrganizationPostsState> emit,
   ) async {
-    emit(const OrganizationPostsLoading());
+    emit(const UserRoleAndOrganizationDetailStatusChecking());
     try {
       final user = await postServices.getCurrentUserProfile();
       if (user == null) {
@@ -331,6 +336,13 @@ class OrganizationPostsBloc
         );
         return;
       }
+
+      // check whether the general user logged in before get the organization details
+      if (user.role == UserRole.user) {
+        emit(GeneralUserLoggedIn(user: user));
+        return;
+      }
+
       final userOrganizationDetails = await postServices
           .getCurrentUserOrganization();
 

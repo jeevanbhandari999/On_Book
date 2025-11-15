@@ -81,11 +81,13 @@ class PostServices {
   // Get the organization details of the user
   Future<OrganizationModel?> getCurrentUserOrganization() async {
     final currentOrganizationData = await _authService.getUserOrganization();
-    if (currentOrganizationData == null) {
-      throw Exception(
-        'Unable to get the user organization, Please ensure you are logged in - and create or joined to an organization',
-      );
-    }
+    // if (currentOrganizationData == null) {
+    //   return null;
+    //   // throw Exception(
+    //   //   'Unable to get the user organization, Please ensure you are logged in - and create or joined to an organization',
+    //   // );
+    // }
+    // Auto return null if there is no organization found
     return currentOrganizationData;
   }
 

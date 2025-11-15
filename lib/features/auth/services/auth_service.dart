@@ -1,3 +1,5 @@
+import 'dart:developer' as dev;
+
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:app/features/auth/data/models/user_model.dart';
 import 'package:app/features/auth/data/models/orgnization_model.dart';
@@ -400,11 +402,23 @@ class AuthService {
   // Get organization for current user
   Future<OrganizationModel?> getUserOrganization() async {
     try {
-      if (currentUser == null) return null;
+      // if (currentUser == null) return null;
 
-      // Get user profile first
+      // // Get user profile first
+      // final profile = await _getUserProfile(currentUser!.id);
+      // if (profile?.organizationId == null) return null;
+
+      if (currentUser == null) {
+        return null;
+      }
       final profile = await _getUserProfile(currentUser!.id);
-      if (profile?.organizationId == null) return null;
+      if (profile == null) {
+        return null;
+      }
+      final orgId = profile.organizationId;
+      if (orgId == null) {
+        return null;
+      }
 
       // Get organization details
       final response = await _supabase

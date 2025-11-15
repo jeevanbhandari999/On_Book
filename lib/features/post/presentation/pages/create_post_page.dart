@@ -34,8 +34,6 @@ class CreatePostPage extends StatelessWidget {
   }
 }
 
-
-
 class CreatePostView extends StatelessWidget {
   const CreatePostView({super.key});
 
@@ -208,7 +206,7 @@ class CreatePostView extends StatelessWidget {
                   onVideoRemoved: () => bloc.add(const PostFormVideoRemoved()),
                 ),
                 const SizedBox(height: UiConstants.spacingMd),
-                // ─── Location (Map Picker) ──────────────
+                // Location (Map Picker)
                 _LocationSection(
                   latitude: form.latitude,
                   longitude: form.longitude,

@@ -384,9 +384,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             emit(AuthNeedsOrganizationCreation(user: user));
             return;
           }
-          if (user.role == UserRole.manager ||
-              user.role == UserRole.worker && user.organizationId == null) {
-            // print(user);
+          if ((user.role == UserRole.manager || user.role == UserRole.worker) &&
+              (user.organizationId == null)) {
             emit(AuthNeedsOrganizationSelection(user: user));
             return;
           }
