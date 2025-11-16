@@ -262,8 +262,6 @@ class _SelectHotelOrganizationViewState
     if (state is AuthLoading) {
       return const Center(child: LoadingWidget());
     }
-    // print(state);
-
     if (state is AuthOrganizationsLoaded) {
       final allOrgs = state.organizations;
       final query = _searchController.text.toLowerCase();
@@ -349,6 +347,7 @@ class _SelectHotelOrganizationViewState
           organizationId: _selectedOrganizationId!,
         ),
       );
+      context.read<AuthBloc>().add(const AuthCheckStatus());
     }
   }
 }

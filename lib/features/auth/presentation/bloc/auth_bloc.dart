@@ -236,8 +236,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           emit(AuthNeedsOrganizationCreation(user: user));
         }
         // Check if manager needs to join organization
-        if (user.role == UserRole.manager ||
-            user.role == UserRole.worker && user.organizationId == null) {
+        if ((user.role == UserRole.manager || user.role == UserRole.worker) &&
+            user.organizationId == null) {
           emit(AuthNeedsOrganizationSelection(user: user));
         }
 
@@ -384,8 +384,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             emit(AuthNeedsOrganizationCreation(user: user));
             return;
           }
-          if ((user.role == UserRole.manager || user.role == UserRole.worker) &&
-              (user.organizationId == null)) {
+          if (user.role == UserRole.manager && user.organizationId == null) {
+            emit(AuthNeedsOrganizationSelection(user: user));
+            return;
+          }
+          if (user.role == UserRole.worker && user.organizationId == null) {
             emit(AuthNeedsOrganizationSelection(user: user));
             return;
           }

@@ -424,7 +424,7 @@ class AuthService {
       final response = await _supabase
           .from('organizations')
           .select()
-          .eq('id', profile!.organizationId!)
+          .eq('id', profile.organizationId!)
           .single();
 
       return OrganizationModel.fromJson(response);
