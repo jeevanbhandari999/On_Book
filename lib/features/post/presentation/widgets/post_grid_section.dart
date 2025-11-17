@@ -1,5 +1,8 @@
+import 'package:app/app/router/route_constants.dart';
+import 'package:app/features/post/presentation/pages/post_details_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:go_router/go_router.dart';
 import 'post_card.dart';
 
 class PostGridSection extends StatelessWidget {
@@ -27,7 +30,15 @@ class PostGridSection extends StatelessWidget {
               videoUrl: post['videoUrl'],
               description: post['description'] ?? '',
               price: (post['price'] as num?)?.toDouble() ?? 0.0,
-              onTap: () {},
+              onTap: () {
+                context.push(
+                  RouteConstants.postDetailsPage,
+                  extra: {
+                    'title': post['title'] as String,
+                    'location': post['location'] as String,
+                  },
+                );
+              },
               all: (post['all'] as bool),
             ),
           );

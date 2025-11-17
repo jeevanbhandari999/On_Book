@@ -55,53 +55,6 @@ class _SelectHotelOrganizationViewState
     super.dispose();
   }
 
-  // Mock organizations - in real app, this would come from a service
-  // final List<OrganizationModel> _organizations = [
-  //   OrganizationModel(
-  //     id: '1',
-  //     name: 'Tech Solutions Inc.',
-  //     logoUrl: null,
-  //     address: '123 Tech Street, Silicon Valley',
-  //     phone: '+1-555-0123',
-  //     createdBy: 'Jeevan',
-  //     createdAt: DateTime.now(),
-  //     updatedAt: DateTime.now(),
-  //   ),
-  //   OrganizationModel(
-  //     id: '2',
-  //     name: 'Green Earth Foundation',
-  //     logoUrl: null,
-  //     address: '456 Green Ave, Eco City',
-  //     phone: '+1-555-0456',
-  //     createdBy: 'Jeevan',
-  //     createdAt: DateTime.now(),
-  //     updatedAt: DateTime.now(),
-  //   ),
-  //   OrganizationModel(
-  //     id: '3',
-  //     name: 'Community Health Center',
-  //     logoUrl: null,
-  //     address: '789 Health Blvd, Wellness Town',
-  //     phone: '+1-555-0789',
-  //     createdBy: 'Jeevan',
-  //     createdAt: DateTime.now(),
-  //     updatedAt: DateTime.now(),
-  //   ),
-  // ];
-
-  // List<OrganizationModel> get _filteredOrganizations {
-  //   if (_searchController.text.isEmpty) {
-  //     return _organizations;
-  //   }
-  //   return _organizations
-  //       .where(
-  //         (org) => org.name.toLowerCase().contains(
-  //           _searchController.text.toLowerCase(),
-  //         ),
-  //       )
-  //       .toList();
-  // }
-
   @override
   Widget build(BuildContext context) {
     // print('the logged in user is : ${widget.user}');
@@ -219,7 +172,7 @@ class _SelectHotelOrganizationViewState
                           ? () => _onJoinOrganizationPressed(context)
                           : null,
                       text: 'Join Organization',
-                      isLoading: state is AuthLoading,
+                      isLoading: state is AuthOrganizationJoining,
                     );
                   },
                 ),

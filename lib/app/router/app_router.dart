@@ -12,6 +12,7 @@ import 'package:app/features/home/presentation/pages/home_page.dart';
 import 'package:app/features/library/presentation/pages/library_page.dart';
 import 'package:app/features/post/presentation/pages/create_post_page.dart';
 import 'package:app/features/post/presentation/pages/dummy_post_page.dart';
+import 'package:app/features/post/presentation/pages/post_details_page.dart';
 import 'package:app/features/post/presentation/pages/post_page.dart';
 import 'package:app/features/profile/presentation/pages/profile_page.dart';
 import 'package:app/features/search/presentation/pages/search_page.dart';
@@ -151,6 +152,17 @@ class AppRouter {
           return CreatePostPage(userId: userId, organizationId: organizationId);
         },
       ),
+
+      GoRoute(
+        path: RouteConstants.postDetailsPage,
+        builder: (context, state) {
+          final extraData = state.extra as Map<String, dynamic>?;
+          final title = extraData?['title'];
+          final location = extraData?['location'];
+          return PostDetailsPage(title: title, postGisLocation: location);
+        },
+      ),
+
 
       // GoRoute(
       //   path: RouteConstants.dummyPostPage,

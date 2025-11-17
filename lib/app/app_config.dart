@@ -13,6 +13,9 @@ class AppConfig {
   static String get cloudinaryUploadPreset =>
       dotenv.env['CLOUDINARY_UPLOAD_PRESET'] ?? '';
 
+  // Map Tiler (Map Configuration)
+  static String get mapTilerKey => dotenv.env['MAP_TILER_KEY'] ?? '';
+
   // App Information
   static const String appName = AppConstants.appName;
   static const String appVersion = AppConstants.appVersion;

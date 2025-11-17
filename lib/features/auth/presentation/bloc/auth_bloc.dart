@@ -115,6 +115,10 @@ class AuthLoading extends AuthState {
   const AuthLoading();
 }
 
+class AuthOrganizationJoining extends AuthState {
+  const AuthOrganizationJoining();
+}
+
 class AuthAuthenticated extends AuthState {
   final UserModel user;
   final OrganizationModel? organization;
@@ -474,7 +478,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     AuthJoinExistingOrganizationRequested event,
     Emitter<AuthState> emit,
   ) async {
-    emit(const AuthLoading());
+    emit(const AuthOrganizationJoining());
     try {
       await _authService.updateProfile(organizationId: event.organizationId);
       // Get updated user profile

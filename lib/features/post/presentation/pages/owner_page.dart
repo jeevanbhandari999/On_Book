@@ -185,6 +185,8 @@ Widget _buildPostsList(
                     'videoUrl': p.videoUrl,
                     'description': p.description,
                     'price': p.price,
+                    'location':
+                        '0101000020E6100000DBF97E6ABC545540F2B0506B9AB73B40',
                     // to determine whether the posts is is all, video , images
                     'all': true,
                   },

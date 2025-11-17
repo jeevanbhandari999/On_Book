@@ -20,6 +20,7 @@ class RouteConstants {
       '/dummyPostPage'; // this page is for those whose role is not the owner and don't have the authorize to add posts about their hotels, in simple world it's a welcome like page
   static const String postPage = '/postPage';
   static const String createPostPage = '/createPostPage';
+  static const String postDetailsPage = '/postDetailsPage';
 
   // Library routes
   static const String libraryPage = '/libraryPage';

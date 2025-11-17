@@ -1,4 +1,5 @@
 import 'package:app/app/dependency_injection.dart';
+import 'package:app/app/router/route_constants.dart';
 import 'package:app/core/constants/ui_constants.dart';
 import 'package:app/core/widgets/common_widgets.dart';
 import 'package:app/features/post/domain/entities/post_enums.dart';
@@ -8,6 +9,8 @@ import 'package:app/features/post/presentation/bloc/post_form_bloc.dart';
 import 'package:app/features/post/presentation/widgets/post_image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:latlong2/latlong.dart';
 
 class CreatePostPage extends StatelessWidget {
   final String? organizationId;
@@ -238,62 +241,207 @@ class CreatePostView extends StatelessWidget {
   }
 }
 
+// class _LocationSection extends StatelessWidget {
+//   final double? latitude;
+//   final double? longitude;
+//   final Function(double?, double?) onChanged;
+
+//   const _LocationSection({
+//     this.latitude,
+//     this.longitude,
+//     required this.onChanged,
+//   });
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Column(
+//       crossAxisAlignment: CrossAxisAlignment.start,
+//       children: [
+//         Text(
+//           'Location (optional)',
+//           style: Theme.of(context).textTheme.titleMedium,
+//         ),
+//         const SizedBox(height: 8),
+//         Row(
+//           children: [
+//             Expanded(
+//               child: CustomTextField(
+//                 label: 'Latitude',
+//                 hint: 'e.g. 27.7172',
+//                 keyboardType: const TextInputType.numberWithOptions(
+//                   decimal: true,
+//                 ),
+//                 onChanged: (v) => onChanged(double.tryParse(v), longitude),
+//               ),
+//             ),
+//             const SizedBox(width: 12),
+//             Expanded(
+//               child: CustomTextField(
+//                 label: 'Longitude',
+//                 hint: 'e.g. 85.3240',
+//                 keyboardType: const TextInputType.numberWithOptions(
+//                   decimal: true,
+//                 ),
+//                 onChanged: (v) => onChanged(latitude, double.tryParse(v)),
+//               ),
+//             ),
+//           ],
+//         ),
+//         const SizedBox(height: 8),
+//         TextButton.icon(
+//           onPressed: () async {
+//             final result = await context.push(RouteConstants.anotherPage);
+
+//             if (result != null && result is LatLng && context.mounted) {
+//               onChanged(result.latitude, result.longitude);
+//             }
+//             print(result);
+//           },
+
+//           icon: const Icon(Icons.map),
+//           label: const Text('Pick from Map'),
+//         ),
+//       ],
+//     );
+//   }
+// }
+
 class _LocationSection extends StatelessWidget {
   final double? latitude;
   final double? longitude;
   final Function(double?, double?) onChanged;
 
   const _LocationSection({
-    this.latitude,
-    this.longitude,
+    required this.latitude,
+    required this.longitude,
     required this.onChanged,
   });
 
   @override
   Widget build(BuildContext context) {
+    // Create controllers that reflect current values
+    final latController = TextEditingController(
+      text: latitude != null ? latitude!.toStringAsFixed(6) : '',
+    );
+    final lngController = TextEditingController(
+      text: longitude != null ? longitude!.toStringAsFixed(6) : '',
+    );
+
+    // Keep controllers in sync if value changes externally (e.g. from map)
+    latController.text = latitude?.toStringAsFixed(6) ?? '';
+    lngController.text = longitude?.toStringAsFixed(6) ?? '';
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           'Location (optional)',
-          style: Theme.of(context).textTheme.titleMedium,
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 12),
+
         Row(
           children: [
             Expanded(
               child: CustomTextField(
+                controller: latController,
                 label: 'Latitude',
                 hint: 'e.g. 27.7172',
                 keyboardType: const TextInputType.numberWithOptions(
                   decimal: true,
                 ),
-                onChanged: (v) => onChanged(double.tryParse(v), longitude),
+                onChanged: (v) {
+                  final val = double.tryParse(v);
+                  onChanged(val, longitude);
+                },
+                prefixIcon: const Icon(Icons.location_on, size: 20),
               ),
             ),
             const SizedBox(width: 12),
             Expanded(
               child: CustomTextField(
+                controller: lngController,
                 label: 'Longitude',
                 hint: 'e.g. 85.3240',
                 keyboardType: const TextInputType.numberWithOptions(
                   decimal: true,
                 ),
-                onChanged: (v) => onChanged(latitude, double.tryParse(v)),
+                onChanged: (v) {
+                  final val = double.tryParse(v);
+                  onChanged(latitude, val);
+                },
+                prefixIcon: const Icon(Icons.explore, size: 20),
               ),
             ),
           ],
         ),
-        const SizedBox(height: 8),
-        TextButton.icon(
-          onPressed: () async {
-            // TODO: Open map picker
-            // final location = await showMapPicker();
-            // onChanged(location.lat, location.lng);
-          },
-          icon: const Icon(Icons.map),
-          label: const Text('Pick from Map'),
+
+        const SizedBox(height: 12),
+
+        // Show selected coords clearly
+        if (latitude != null && longitude != null)
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+              ),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.location_on,
+                  color: Theme.of(context).colorScheme.primary,
+                  size: 20,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  'Selected: ${latitude!.toStringAsFixed(6)}, ${longitude!.toStringAsFixed(6)}',
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
+                ),
+              ],
+            ),
+          ),
+        const SizedBox(height: 12),
+
+        // Pick from Map Button
+        SizedBox(
+          width: double.infinity,
+          child: OutlinedButton.icon(
+            onPressed: () async {
+              final result = await context.push(
+                RouteConstants.anotherPage,
+              ); // your Another page
+
+              if (result is LatLng && context.mounted) {
+                onChanged(result.latitude, result.longitude);
+              }
+            },
+            icon: const Icon(Icons.map_outlined),
+            label: const Text('Pick Location from Map'),
+            style: OutlinedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 14),
+            ),
+          ),
         ),
+
+        const SizedBox(height: 8),
+
+        // Optional: Clear button
+        if (latitude != null || longitude != null)
+          Align(
+            alignment: Alignment.centerRight,
+            child: TextButton(
+              onPressed: () => onChanged(null, null),
+              child: const Text('Clear Location'),
+            ),
+          ),
       ],
     );
   }
