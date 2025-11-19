@@ -327,10 +327,10 @@ class _LocationSection extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+              color: Theme.of(context).colorScheme.primary.withAlpha(25),
               borderRadius: BorderRadius.circular(8),
               border: Border.all(
-                color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                color: Theme.of(context).colorScheme.primary.withAlpha(80),
               ),
             ),
             child: Row(
@@ -355,7 +355,9 @@ class _LocationSection extends StatelessWidget {
         // Pick from Map Button
         SizedBox(
           width: double.infinity,
-          child: OutlinedButton.icon(
+          child: CustomButton(
+            text: 'Pick Location from Map',
+            icon: const Icon(Icons.map_outlined),
             onPressed: () async {
               final result = await context.push(
                 RouteConstants.anotherPage,
@@ -365,11 +367,6 @@ class _LocationSection extends StatelessWidget {
                 onChanged(result.latitude, result.longitude);
               }
             },
-            icon: const Icon(Icons.map_outlined),
-            label: const Text('Pick Location from Map'),
-            style: OutlinedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 14),
-            ),
           ),
         ),
 

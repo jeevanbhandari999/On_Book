@@ -9,7 +9,9 @@ class PostCard extends StatefulWidget {
   final String description;
   final double price;
   final VoidCallback onTap;
-  final bool all;
+  final bool? posts;
+  final bool? videos;
+  final bool? images;
 
   const PostCard({
     super.key,
@@ -19,7 +21,9 @@ class PostCard extends StatefulWidget {
     required this.description,
     required this.price,
     required this.onTap,
-    required this.all,
+    this.posts,
+    this.videos,
+    this.images,
   });
 
   @override
@@ -40,26 +44,27 @@ class _PostCardState extends State<PostCard> {
   }
 
   void _initializeVideo() {
-    _videoController =
-        VideoPlayerController.networkUrl(Uri.parse(widget.videoUrl!))
-          ..initialize()
-              .then((_) {
-                if (!mounted) {
-                  return;
-                }
-                setState(() {
-                  _isVideoInitialized = true;
-                  final duration = _videoController!.value.duration;
-                  _duration =
-                      '${duration.inMinutes}:${(duration.inSeconds % 60).toString().padLeft(2, '0')}';
-                });
-                _videoController!.setLooping(true);
-                _videoController!.setVolume(0); // Muted preview
-                _videoController!.play();
-              })
-              .catchError((error) {
-                if (mounted) setState(() => _isVideoInitialized = false);
-              });
+    _videoController = VideoPlayerController.networkUrl(
+        Uri.parse(widget.videoUrl!),
+      )
+      ..initialize()
+          .then((_) {
+            if (!mounted) {
+              return;
+            }
+            setState(() {
+              _isVideoInitialized = true;
+              final duration = _videoController!.value.duration;
+              _duration =
+                  '${duration.inMinutes}:${(duration.inSeconds % 60).toString().padLeft(2, '0')}';
+            });
+            _videoController!.setLooping(true);
+            _videoController!.setVolume(0); // Muted preview
+            _videoController!.play();
+          })
+          .catchError((error) {
+            if (mounted) setState(() => _isVideoInitialized = false);
+          });
   }
 
   @override
@@ -82,7 +87,7 @@ class _PostCardState extends State<PostCard> {
 
   @override
   Widget build(BuildContext context) {
-    final double baseHeight = 200;
+    final double baseHeight = 180;
     final double heightVariation = (widget.title.length % 5) * 40.0;
     final double cardHeight = baseHeight + heightVariation;
 
@@ -103,14 +108,18 @@ class _PostCardState extends State<PostCard> {
                   child: CachedNetworkImage(
                     imageUrl: widget.imageUrl!,
                     fit: BoxFit.cover,
-                    placeholder: (context, url) => Container(
-                      color: Colors.grey[300],
-                      child: const Center(child: CircularProgressIndicator()),
-                    ),
-                    errorWidget: (context, url, error) => Container(
-                      color: Colors.grey[300],
-                      child: const Icon(Icons.error),
-                    ),
+                    placeholder:
+                        (context, url) => Container(
+                          color: Colors.grey[300],
+                          child: const Center(
+                            child: CircularProgressIndicator(),
+                          ),
+                        ),
+                    errorWidget:
+                        (context, url, error) => Container(
+                          color: Colors.grey[300],
+                          child: const Icon(Icons.error),
+                        ),
                   ),
                 )
               else
@@ -146,7 +155,7 @@ class _PostCardState extends State<PostCard> {
 
               // Gradient + Text Overlay
               // Only show in a all posts tab not in a video and the images.
-              if (widget.all)
+              if (widget.posts != null && widget.posts!)
                 Positioned(
                   bottom: 0,
                   left: 0,

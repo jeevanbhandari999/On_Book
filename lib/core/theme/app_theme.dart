@@ -47,9 +47,9 @@ class AppTheme {
         style: ElevatedButton.styleFrom(
           backgroundColor: colorScheme.primary,
           foregroundColor: colorScheme.onPrimary,
-          minimumSize: const Size(64, UiConstants.buttonHeightMd),
+          minimumSize: const Size(64, UiConstants.buttonHeightSm),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(UiConstants.radiusMd),
+            borderRadius: BorderRadius.circular(UiConstants.radiusSm),
           ),
           textStyle: AppTextStyles.button,
         ),
@@ -58,9 +58,9 @@ class AppTheme {
         style: FilledButton.styleFrom(
           backgroundColor: colorScheme.primary,
           foregroundColor: colorScheme.onPrimary,
-          minimumSize: const Size(64, UiConstants.buttonHeightMd),
+          minimumSize: const Size(64, UiConstants.buttonHeightSm),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(UiConstants.radiusMd),
+            borderRadius: BorderRadius.circular(UiConstants.radiusSm),
           ),
           textStyle: AppTextStyles.button,
         ),
@@ -69,9 +69,9 @@ class AppTheme {
         style: OutlinedButton.styleFrom(
           foregroundColor: colorScheme.primary,
           side: BorderSide(color: colorScheme.outline),
-          minimumSize: const Size(64, UiConstants.buttonHeightMd),
+          minimumSize: const Size(64, UiConstants.buttonHeightSm),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(UiConstants.radiusMd),
+            borderRadius: BorderRadius.circular(UiConstants.radiusSm),
           ),
           textStyle: AppTextStyles.button,
         ),
@@ -88,22 +88,22 @@ class AppTheme {
         filled: true,
         fillColor: colorScheme.surface,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(UiConstants.radiusMd),
+          borderRadius: BorderRadius.circular(UiConstants.radiusSm),
           borderSide: BorderSide(color: colorScheme.outlineVariant),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(UiConstants.radiusMd),
+          borderRadius: BorderRadius.circular(UiConstants.radiusSm),
           borderSide: BorderSide(color: colorScheme.outlineVariant),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(UiConstants.radiusMd),
+          borderRadius: BorderRadius.circular(UiConstants.radiusSm),
           borderSide: BorderSide(color: colorScheme.primary, width: 2),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(UiConstants.radiusMd),
+          borderRadius: BorderRadius.circular(UiConstants.radiusSm),
           borderSide: BorderSide(color: colorScheme.error),
         ),
-        contentPadding: const EdgeInsets.all(UiConstants.spacingMd),
+        contentPadding: const EdgeInsets.all(UiConstants.radiusSm),
       ),
 
       // Cards
@@ -111,7 +111,7 @@ class AppTheme {
         color: colorScheme.surface,
         elevation: UiConstants.elevationSm,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(UiConstants.radiusMd),
+          borderRadius: BorderRadius.circular(UiConstants.radiusSm),
         ),
       ),
 
@@ -135,7 +135,7 @@ class AppTheme {
         backgroundColor: colorScheme.surface,
         surfaceTintColor: colorScheme.surfaceTint,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(UiConstants.radiusLg),
+          borderRadius: BorderRadius.circular(UiConstants.radiusSm),
         ),
         titleTextStyle: AppTextStyles.h5.copyWith(color: colorScheme.onSurface),
         contentTextStyle: AppTextStyles.bodyMedium.copyWith(
@@ -211,9 +211,9 @@ class AppTheme {
         style: ElevatedButton.styleFrom(
           backgroundColor: colorScheme.primary,
           foregroundColor: colorScheme.onPrimary,
-          minimumSize: const Size(64, UiConstants.buttonHeightMd),
+          minimumSize: const Size(64, UiConstants.buttonHeightSm),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(UiConstants.radiusMd),
+            borderRadius: BorderRadius.circular(UiConstants.radiusSm),
           ),
           textStyle: AppTextStyles.button,
         ),
@@ -222,9 +222,9 @@ class AppTheme {
         style: FilledButton.styleFrom(
           backgroundColor: colorScheme.primary,
           foregroundColor: colorScheme.onPrimary,
-          minimumSize: const Size(64, UiConstants.buttonHeightMd),
+          minimumSize: const Size(64, UiConstants.buttonHeightSm),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(UiConstants.radiusMd),
+            borderRadius: BorderRadius.circular(UiConstants.radiusSm),
           ),
           textStyle: AppTextStyles.button,
         ),
@@ -233,9 +233,9 @@ class AppTheme {
         style: OutlinedButton.styleFrom(
           foregroundColor: colorScheme.primary,
           side: BorderSide(color: colorScheme.outline),
-          minimumSize: const Size(64, UiConstants.buttonHeightMd),
+          minimumSize: const Size(64, UiConstants.buttonHeightSm),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(UiConstants.radiusMd),
+            borderRadius: BorderRadius.circular(UiConstants.radiusSm),
           ),
           textStyle: AppTextStyles.button,
         ),
@@ -252,22 +252,22 @@ class AppTheme {
         filled: true,
         fillColor: colorScheme.surface,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(UiConstants.radiusMd),
+          borderRadius: BorderRadius.circular(UiConstants.radiusSm),
           borderSide: BorderSide(color: colorScheme.outlineVariant),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(UiConstants.radiusMd),
+          borderRadius: BorderRadius.circular(UiConstants.radiusSm),
           borderSide: BorderSide(color: colorScheme.outlineVariant),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(UiConstants.radiusMd),
+          borderRadius: BorderRadius.circular(UiConstants.radiusSm),
           borderSide: BorderSide(color: colorScheme.primary, width: 2),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(UiConstants.radiusMd),
+          borderRadius: BorderRadius.circular(UiConstants.radiusSm),
           borderSide: BorderSide(color: colorScheme.error),
         ),
-        contentPadding: const EdgeInsets.all(UiConstants.spacingMd),
+        contentPadding: const EdgeInsets.all(UiConstants.spacingSm),
       ),
 
       // Cards
@@ -275,7 +275,7 @@ class AppTheme {
         color: colorScheme.surface,
         elevation: UiConstants.elevationSm,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(UiConstants.radiusMd),
+          borderRadius: BorderRadius.circular(UiConstants.radiusSm),
         ),
       ),
 
@@ -299,7 +299,7 @@ class AppTheme {
         backgroundColor: colorScheme.surface,
         surfaceTintColor: colorScheme.surfaceTint,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(UiConstants.radiusLg),
+          borderRadius: BorderRadius.circular(UiConstants.radiusSm),
         ),
         titleTextStyle: AppTextStyles.h5.copyWith(color: colorScheme.onSurface),
         contentTextStyle: AppTextStyles.bodyMedium.copyWith(
@@ -331,108 +331,3 @@ class AppTheme {
     );
   }
 }
-
-// import 'package:flutter/material.dart';
-// import 'app_colors.dart';
-
-// class AppTheme {
-//   static ThemeData lightTheme = ThemeData(
-//     useMaterial3: true,
-//     brightness: Brightness.light,
-//     primaryColor: AppColors.primary,
-//     scaffoldBackgroundColor: AppColors.backgroundLight,
-//     colorScheme: ColorScheme.light(
-//       primary: AppColors.primary,
-//       onPrimary: Colors.white,
-//       secondary: AppColors.secondary,
-//       onSecondary: Colors.white,
-//       surface: AppColors.surfaceLight,
-//       onSurface: AppColors.textPrimaryLight,
-//       background: AppColors.backgroundLight,
-//       onBackground: AppColors.textPrimaryLight,
-//       error: AppColors.error,
-//     ),
-//     appBarTheme: const AppBarTheme(
-//       backgroundColor: AppColors.primary,
-//       foregroundColor: Colors.white,
-//       elevation: 0,
-//     ),
-//     elevatedButtonTheme: ElevatedButtonThemeData(
-//       style: ElevatedButton.styleFrom(
-//         backgroundColor: AppColors.primary,
-//         foregroundColor: Colors.white,
-//         textStyle: const TextStyle(fontWeight: FontWeight.w600),
-//         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-//         shape: RoundedRectangleBorder(
-//           borderRadius: BorderRadius.all(Radius.circular(12)),
-//         ),
-//       ),
-//     ),
-//     bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-//       backgroundColor: AppColors.surfaceLight,
-//       selectedItemColor: AppColors.primary,
-//       unselectedItemColor: AppColors.grey500,
-//       type: BottomNavigationBarType.fixed,
-//       elevation: 8,
-//     ),
-//     floatingActionButtonTheme: const FloatingActionButtonThemeData(
-//       backgroundColor: AppColors.primary,
-//       foregroundColor: Colors.white,
-//     ),
-//     textTheme: const TextTheme(
-//       bodyLarge: TextStyle(color: AppColors.textPrimaryLight),
-//       bodyMedium: TextStyle(color: AppColors.textSecondaryLight),
-//       titleMedium: TextStyle(fontWeight: FontWeight.w600),
-//     ),
-//   );
-
-//   static ThemeData darkTheme = ThemeData(
-//     useMaterial3: true,
-//     brightness: Brightness.dark,
-//     primaryColor: AppColors.primary,
-//     scaffoldBackgroundColor: AppColors.backgroundDark,
-//     colorScheme: ColorScheme.dark(
-//       primary: AppColors.primary,
-//       onPrimary: Colors.white,
-//       secondary: AppColors.secondary,
-//       onSecondary: Colors.white,
-//       surface: AppColors.surfaceDark,
-//       onSurface: AppColors.textPrimaryDark,
-//       background: AppColors.backgroundDark,
-//       onBackground: AppColors.textPrimaryDark,
-//       error: AppColors.error,
-//     ),
-//     appBarTheme: const AppBarTheme(
-//       backgroundColor: AppColors.surfaceDark,
-//       foregroundColor: Colors.white,
-//       elevation: 0,
-//     ),
-//     elevatedButtonTheme: ElevatedButtonThemeData(
-//       style: ElevatedButton.styleFrom(
-//         backgroundColor: AppColors.primary,
-//         foregroundColor: Colors.white,
-//         textStyle: const TextStyle(fontWeight: FontWeight.w600),
-//         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-//         shape: RoundedRectangleBorder(
-//           borderRadius: BorderRadius.all(Radius.circular(12)),
-//         ),
-//       ),
-//     ),
-//     bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-//       backgroundColor: AppColors.surfaceDark,
-//       selectedItemColor: AppColors.primaryLight,
-//       unselectedItemColor: AppColors.grey600,
-//       type: BottomNavigationBarType.fixed,
-//       elevation: 8,
-//     ),
-//     floatingActionButtonTheme: const FloatingActionButtonThemeData(
-//       backgroundColor: AppColors.primary,
-//       foregroundColor: Colors.white,
-//     ),
-//     textTheme: const TextTheme(
-//       bodyLarge: TextStyle(color: AppColors.textPrimaryDark),
-//       bodyMedium: TextStyle(color: AppColors.textSecondaryDark),
-//       titleMedium: TextStyle(fontWeight: FontWeight.w600),
-//     ),
-//   );
-// }

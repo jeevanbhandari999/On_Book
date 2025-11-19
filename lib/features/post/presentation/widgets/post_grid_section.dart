@@ -1,4 +1,6 @@
 import 'package:app/app/router/route_constants.dart';
+import 'package:app/core/widgets/common_widgets.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:go_router/go_router.dart';
@@ -30,20 +32,55 @@ class PostGridSection extends StatelessWidget {
               description: post['description'] ?? '',
               price: (post['price'] as num?)?.toDouble() ?? 0.0,
               onTap: () {
-                context.push(
-                  RouteConstants.postDetailsPage,
-                  extra: {
-                    'title': post['title'] as String,
-                    'longitude': post['longitude'],
-                    'latitude': post['latitude'],
-                  },
-                );
+                if (post['posts'] as bool == true) {
+                  context.push(
+                    RouteConstants.postDetailsPage,
+                    extra: {
+                      'title': post['title'] as String,
+                      'longitude': post['longitude'],
+                      'latitude': post['latitude'],
+                    },
+                  );
+                }
+                if (post['images'] as bool == true) {
+                  _showModalBottomSheetForImage(context, post: post);
+                }
               },
-              all: (post['all'] as bool),
+              posts: (post['posts'] as bool),
+              videos: (post['videos'] as bool),
+              images: (post['images'] as bool),
             ),
           );
         }),
       ),
     );
   }
+}
+
+Future<void> _showModalBottomSheetForImage(
+  BuildContext context, {
+  required Map<String, dynamic> post,
+}) async {
+  return CustomBottomSheet.show(
+    context: context,
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        CachedNetworkImage(
+          imageUrl: post['imageUrl'],
+          fit: BoxFit.cover,
+          placeholder:
+              (context, url) => Container(
+                color: Colors.grey[300],
+                child: const Center(child: CircularProgressIndicator()),
+              ),
+          errorWidget:
+              (context, url, error) => Container(
+                color: Colors.grey[300],
+                child: const Icon(Icons.error),
+              ),
+        ),
+      ],
+    ),
+  );
 }

@@ -192,7 +192,9 @@ Widget _buildPostsList(
                         'longitude': p.longitude,
                         'latitude': p.latitude,
                         // to determine whether the posts is is all, video , images
-                        'all': true,
+                        'posts': true,
+                        'videos': false,
+                        'images': false,
                       },
                     )
                     .toList(),
@@ -260,7 +262,9 @@ Widget _buildPostVideos(
                     'longitude': post.longitude,
                     'latitude': post.latitude,
                     // to determine whether the posts is is all, video , images
-                    'all': false,
+                    'posts': false,
+                    'videos': true,
+                    'images': false,
                   };
                 })
                 .whereType<Map<String, dynamic>>()
@@ -357,7 +361,9 @@ Widget _buildPostImages(
                     'longitude': post.longitude,
                     'latitude': post.latitude,
                     // to determine whether the posts is is all, video , images
-                    'all': false,
+                    'posts': false,
+                    'videos': false,
+                    'images': true,
                   };
                 })
                 .whereType<Map<String, dynamic>>()
