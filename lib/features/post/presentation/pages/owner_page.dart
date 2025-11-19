@@ -23,17 +23,20 @@ class OwnerPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => OrganizationPostsBloc(
-        getAllPostsByOrganizationId:
-            DependencyInjection.get<GetAllPostsByOrganizationIdUseCase>(),
-        getAllPostsWithImagesByOrganizationId:
-            DependencyInjection.get<
-              GetAllPostsWithImagesByOrganizationIdUseCase
-            >(),
-        getAllPostsWithVideosByOrganizationId:
-            DependencyInjection.get<GetAllPostsWithVideosByOrganizationId>(),
-        postServices: DependencyInjection.get<PostServices>(),
-      )..add(FetchOrganizationPosts(organizationId: organization.id)),
+      create:
+          (context) => OrganizationPostsBloc(
+            getAllPostsByOrganizationId:
+                DependencyInjection.get<GetAllPostsByOrganizationIdUseCase>(),
+            getAllPostsWithImagesByOrganizationId:
+                DependencyInjection.get<
+                  GetAllPostsWithImagesByOrganizationIdUseCase
+                >(),
+            getAllPostsWithVideosByOrganizationId:
+                DependencyInjection.get<
+                  GetAllPostsWithVideosByOrganizationId
+                >(),
+            postServices: DependencyInjection.get<PostServices>(),
+          )..add(FetchOrganizationPosts(organizationId: organization.id)),
       child: OwnerView(user: user, organization: organization),
     );
   }
@@ -165,10 +168,10 @@ Widget _buildPostsList(
                 user.role == UserRole.manager,
             content:
                 user.role == UserRole.admin ||
-                    user.role == UserRole.owner ||
-                    user.role == UserRole.manager
-                ? 'Create Your first post to get started.'
-                : 'Come back later to check the upcomig posts.',
+                        user.role == UserRole.owner ||
+                        user.role == UserRole.manager
+                    ? 'Create Your first post to get started.'
+                    : 'Come back later to check the upcomig posts.',
             userId: user.userId,
             organizationId: organization.id,
           );
@@ -177,21 +180,22 @@ Widget _buildPostsList(
         return Padding(
           padding: const EdgeInsets.all(8.0),
           child: PostGridSection(
-            posts: state.posts
-                .map(
-                  (p) => {
-                    'title': p.title,
-                    'imageUrl': p.primaryImageUrl,
-                    'videoUrl': p.videoUrl,
-                    'description': p.description,
-                    'price': p.price,
-                    'location':
-                        '0101000020E6100000DBF97E6ABC545540F2B0506B9AB73B40',
-                    // to determine whether the posts is is all, video , images
-                    'all': true,
-                  },
-                )
-                .toList(),
+            posts:
+                state.posts
+                    .map(
+                      (p) => {
+                        'title': p.title,
+                        'imageUrl': p.primaryImageUrl,
+                        'videoUrl': p.videoUrl,
+                        'description': p.description,
+                        'price': p.price,
+                        'longitude': p.longitude,
+                        'latitude': p.latitude,
+                        // to determine whether the posts is is all, video , images
+                        'all': true,
+                      },
+                    )
+                    .toList(),
           ),
         );
       } else if (state is OrganizationPostsError) {
@@ -227,10 +231,10 @@ Widget _buildPostVideos(
                 'You haven\'t create any posts yet, try to add some posts and check it out.',
             content:
                 user.role == UserRole.admin ||
-                    user.role == UserRole.owner ||
-                    user.role == UserRole.manager
-                ? 'Create Your first post to get started.'
-                : 'Come back later to check the upcomig posts.',
+                        user.role == UserRole.owner ||
+                        user.role == UserRole.manager
+                    ? 'Create Your first post to get started.'
+                    : 'Come back later to check the upcomig posts.',
             userId: user.userId,
             organizationId: organization.id,
           );
@@ -240,24 +244,27 @@ Widget _buildPostVideos(
         final postMap = {for (var post in postsOnly) post.id: post};
 
         // Flatten: one card per image, with full post data
-        final cardItems = postsWithImages
-            .map((vid) {
-              final post = postMap[vid.postId];
-              if (post == null) return null; // safety
+        final cardItems =
+            postsWithImages
+                .map((vid) {
+                  final post = postMap[vid.postId];
+                  if (post == null) return null; // safety
 
-              return {
-                'title': post.title,
-                'imageUrl': null, // Since we are only showing videos here..
-                'videoUrl': vid.videoUrl,
-                'description': post.description ?? '',
-                'price': post.price,
-                'postId': post.id,
-                // to determine whether the posts is is all, video , images
-                'all': false,
-              };
-            })
-            .whereType<Map<String, dynamic>>()
-            .toList();
+                  return {
+                    'title': post.title,
+                    'imageUrl': null, // Since we are only showing videos here..
+                    'videoUrl': vid.videoUrl,
+                    'description': post.description ?? '',
+                    'price': post.price,
+                    'postId': post.id,
+                    'longitude': post.longitude,
+                    'latitude': post.latitude,
+                    // to determine whether the posts is is all, video , images
+                    'all': false,
+                  };
+                })
+                .whereType<Map<String, dynamic>>()
+                .toList();
 
         if (cardItems.isEmpty) {
           return _buildEmptyState(
@@ -271,10 +278,10 @@ Widget _buildPostVideos(
                 'You haven\'t create any posts yet, try to add some posts and check it out.',
             content:
                 user.role == UserRole.admin ||
-                    user.role == UserRole.owner ||
-                    user.role == UserRole.manager
-                ? 'Create Your first post to get started.'
-                : 'Come back later to check the upcomig posts.',
+                        user.role == UserRole.owner ||
+                        user.role == UserRole.manager
+                    ? 'Create Your first post to get started.'
+                    : 'Come back later to check the upcomig posts.',
             userId: user.userId,
             organizationId: organization.id,
           );
@@ -321,10 +328,10 @@ Widget _buildPostImages(
                 'You haven\'t create any posts yet, try to add some posts and check it out.',
             content:
                 user.role == UserRole.admin ||
-                    user.role == UserRole.owner ||
-                    user.role == UserRole.manager
-                ? 'Create Your first post to get started.'
-                : 'Come back later to check the upcomig posts.',
+                        user.role == UserRole.owner ||
+                        user.role == UserRole.manager
+                    ? 'Create Your first post to get started.'
+                    : 'Come back later to check the upcomig posts.',
             userId: user.userId,
             organizationId: organization.id,
           );
@@ -334,24 +341,27 @@ Widget _buildPostImages(
         final postMap = {for (var post in postsOnly) post.id: post};
 
         // Flatten: one card per image, with full post data
-        final cardItems = postsWithImages
-            .map((img) {
-              final post = postMap[img.postId];
-              if (post == null) return null; // safety
+        final cardItems =
+            postsWithImages
+                .map((img) {
+                  final post = postMap[img.postId];
+                  if (post == null) return null; // safety
 
-              return {
-                'title': post.title,
-                'imageUrl': img.imageUrl,
-                'videoUrl': null, // Since we are only showing images here..
-                'description': post.description ?? '',
-                'price': post.price,
-                'postId': post.id,
-                // to determine whether the posts is is all, video , images
-                'all': false,
-              };
-            })
-            .whereType<Map<String, dynamic>>()
-            .toList();
+                  return {
+                    'title': post.title,
+                    'imageUrl': img.imageUrl,
+                    'videoUrl': null, // Since we are only showing images here..
+                    'description': post.description ?? '',
+                    'price': post.price,
+                    'postId': post.id,
+                    'longitude': post.longitude,
+                    'latitude': post.latitude,
+                    // to determine whether the posts is is all, video , images
+                    'all': false,
+                  };
+                })
+                .whereType<Map<String, dynamic>>()
+                .toList();
 
         if (cardItems.isEmpty) {
           return const Center(child: Text('No valid posts with images.'));
@@ -391,21 +401,19 @@ Widget _buildErrorState(
               label: 'Error icon',
               child: Icon(
                 Icons.error_outline,
-                size: 64,
+                size: 40,
                 color: Theme.of(context).colorScheme.error,
               ),
             ),
-            const SizedBox(height: UiConstants.spacingMd),
             Text(
               'Something went wrong',
               style: Theme.of(context).textTheme.headlineSmall,
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: UiConstants.spacingSm),
             if (description != null)
               Text(
                 description,
-                style: Theme.of(context).textTheme.headlineSmall,
+                style: Theme.of(context).textTheme.bodySmall,
                 textAlign: TextAlign.center,
               ),
             const SizedBox(height: UiConstants.spacingSm),
@@ -474,7 +482,7 @@ Widget _buildEmptyState(
             label: 'No post icon',
             child: Icon(
               Icons.hourglass_empty,
-              size: 64,
+              size: 40,
               color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ),

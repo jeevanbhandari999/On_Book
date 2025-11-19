@@ -46,23 +46,22 @@ class Header extends StatelessWidget {
                     color: Colors.blueAccent.shade100,
                     child:
                         (organization.logoUrl != null &&
-                            organization.logoUrl!.isNotEmpty)
-                        ? Image.network(
-                            organization.logoUrl!,
-                            fit: BoxFit.cover,
-                          )
-                        : Center(
-                            child: Text(
-                              _getInitialCharactrOfOrganization(
-                                organization.name,
-                              ),
-                              style: const TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
+                                organization.logoUrl!.isNotEmpty)
+                            ? Image.network(
+                              organization.logoUrl!,
+                              fit: BoxFit.cover,
+                            )
+                            : Center(
+                              child: Text(
+                                _getInitialCharactrOfOrganization(
+                                  organization.name,
+                                ),
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
                               ),
                             ),
-                          ),
                   ),
                 ),
               ),
@@ -73,10 +72,7 @@ class Header extends StatelessWidget {
                   children: [
                     Text(
                       organization.name,
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                     Text(
                       user.role.toString().split('.').last.toUpperCase(),
@@ -95,7 +91,7 @@ class Header extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(height: UiConstants.spacingSm),
+        const SizedBox(height: UiConstants.spacingXs),
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: Row(
@@ -113,7 +109,7 @@ class Header extends StatelessWidget {
                   icon: const Icon(Icons.apartment_rounded),
                 ),
               ),
-              const SizedBox(width: UiConstants.spacingSm),
+              const SizedBox(width: UiConstants.spacingXs),
               Expanded(
                 child: CustomButton(
                   text: managePostMessage,

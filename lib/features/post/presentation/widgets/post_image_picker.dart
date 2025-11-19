@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:app/core/widgets/common_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:app/core/constants/ui_constants.dart';
@@ -87,9 +88,9 @@ class PostMediaPicker extends StatelessWidget {
     BuildContext context, {
     required bool isPrimary,
   }) async {
-    await showModalBottomSheet<ImageSource?>(
+    CustomBottomSheet.show(
       context: context,
-      builder: (_) => SafeArea(
+      child: SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -156,10 +157,32 @@ class PostMediaPicker extends StatelessWidget {
         if (isPrimary != null && isPrimary) {
           // final url = await _uploadImageToSupabase(file);
           onPrimaryImagePicked(file);
-          print('file: $file');
+          // print('file: $file');
         } else {
           onImageAdded(file);
         }
+      }
+    } catch (e) {
+      _showError(context, 'Failed to pick image: ${e.toString()}');
+    }
+  }
+
+  Future<void> _pickVideo(BuildContext context, ImageSource source) async {
+    try {
+      final videoPicked = ImagePicker();
+      final pickedFile = await videoPicked.pickVideo(
+        source: source,
+        maxDuration: const Duration(minutes: 1),
+      );
+
+      if (pickedFile != null && context.mounted) {
+        final file = File(pickedFile.path);
+        final error = await _validateVideo(file);
+        if (error != null) {
+          _showError(context, error);
+          return;
+        }
+        onVideoPicked(file);
       }
     } catch (e) {
       _showError(context, 'Failed to pick image: ${e.toString()}');
@@ -216,9 +239,9 @@ class PostMediaPicker extends StatelessWidget {
 
   // Video picker
   Future<void> _showVideoPickerSheet(BuildContext context) async {
-    final source = await showModalBottomSheet<ImageSource>(
+    final source = CustomBottomSheet.show(
       context: context,
-      builder: (_) => SafeArea(
+      child: SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -226,35 +249,24 @@ class PostMediaPicker extends StatelessWidget {
               leading: const Icon(Icons.videocam),
               title: const Text('Record Video'),
               subtitle: const Text('Record video through your device'),
-              onTap: () => Navigator.pop(context, ImageSource.camera),
+              onTap: () {
+                Navigator.of(context).pop();
+                _pickVideo(context, ImageSource.camera);
+              },
             ),
             ListTile(
               leading: const Icon(Icons.video_library),
               title: const Text('Choose from Gallery'),
               subtitle: const Text('Select from your video gallery'),
-              onTap: () => Navigator.pop(context, ImageSource.gallery),
+              onTap: () {
+                Navigator.of(context).pop();
+                _pickVideo(context, ImageSource.gallery);
+              },
             ),
           ],
         ),
       ),
     );
-    if (source == null || !context.mounted) return;
-
-    final picker = ImagePicker();
-    final picked = await picker.pickVideo(
-      source: source,
-      maxDuration: const Duration(minutes: 1),
-    );
-
-    if (picked != null && context.mounted) {
-      final file = File(picked.path);
-      final error = await _validateVideo(file);
-      if (error != null) {
-        _showError(context, error);
-        return;
-      }
-      onVideoPicked(file);
-    }
   }
 
   // Validation and upload
@@ -301,21 +313,18 @@ class _PrimaryImageSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print('image picked');
+    // print('image picked');
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              'Primary Image *',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            ElevatedButton.icon(
-              onPressed: enabled ? onPick : null,
+            const Text('Primary Image *'),
+            CustomButton(
+              text: 'Pick Image',
               icon: const Icon(Icons.camera_alt),
-              label: const Text('Pick Image'),
+              onPressed: enabled ? onPick : null,
             ),
           ],
         ),
@@ -362,12 +371,7 @@ class _AdditionalImagesSection extends StatelessWidget {
       children: [
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Additional Images (${images.length}/$maxImages)',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-          ],
+          children: [Text('Additional Images (${images.length}/$maxImages)')],
         ),
         const SizedBox(height: 8),
 
@@ -461,17 +465,23 @@ class _VideoSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (videoFile == null) {
-      return ElevatedButton.icon(
-        onPressed: enabled ? onPick : null,
-        icon: const Icon(Icons.video_call),
-        label: const Text('Add Video (Optional)'),
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          const Text('Add video'),
+          CustomButton(
+            text: 'Add Video',
+            icon: const Icon(Icons.video_call),
+            onPressed: enabled ? onPick : null,
+          ),
+        ],
       );
     }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Video', style: Theme.of(context).textTheme.titleMedium),
+        const Text('Video'),
         const SizedBox(height: 8),
         Stack(
           children: [

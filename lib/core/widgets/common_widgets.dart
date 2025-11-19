@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:app/core/constants/ui_constants.dart';
 import 'package:app/core/utils/extensions/extensions.dart';
 
-
-
 class CustomTextField extends StatelessWidget {
   final String? label;
   final String? hint;
@@ -42,10 +40,7 @@ class CustomTextField extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (label != null) ...[
-          Text(
-            label!,
-            style: Theme.of(context).textTheme.labelMedium,
-          ),
+          Text(label!, style: Theme.of(context).textTheme.labelMedium),
           const SizedBox(height: UiConstants.spacingSm),
         ],
         TextFormField(
@@ -58,7 +53,13 @@ class CustomTextField extends StatelessWidget {
           maxLines: maxLines,
           enabled: enabled,
           decoration: InputDecoration(
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 4,
+            ),
+
             hintText: hint,
+            hintStyle: const TextStyle(color: Colors.grey),
             prefixIcon: prefixIcon,
             suffixIcon: suffixIcon,
             errorText: errorText,
@@ -113,10 +114,7 @@ class CustomButton extends StatelessWidget {
       return const SizedBox(
         width: 20,
         height: 20,
-        child: CircularProgressIndicator(
-          strokeWidth: 2,
-          color: Colors.white,
-        ),
+        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
       );
     }
 
@@ -126,12 +124,16 @@ class CustomButton extends StatelessWidget {
         children: [
           icon!,
           const SizedBox(width: UiConstants.spacingSm),
-          Text(text),
+          Text(
+            text,
+            style: const TextStyle(fontSize: 10),
+            overflow: TextOverflow.ellipsis,
+          ),
         ],
       );
     }
 
-    return Text(text);
+    return Text(text, overflow: TextOverflow.ellipsis);
   }
 }
 
@@ -208,10 +210,7 @@ class CustomBottomSheet extends StatelessWidget {
           ],
           if (title != null) ...[
             const SizedBox(height: UiConstants.spacingMd),
-            Text(
-              title!,
-              style: Theme.of(context).textTheme.headlineSmall,
-            ),
+            Text(title!, style: Theme.of(context).textTheme.headlineSmall),
             const Divider(),
           ],
           Flexible(child: child),
@@ -234,12 +233,13 @@ class CustomBottomSheet extends StatelessWidget {
       enableDrag: enableDrag,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => CustomBottomSheet(
-        title: title,
-        isDismissible: isDismissible,
-        enableDrag: enableDrag,
-        child: child,
-      ),
+      builder:
+          (context) => CustomBottomSheet(
+            title: title,
+            isDismissible: isDismissible,
+            enableDrag: enableDrag,
+            child: child,
+          ),
     );
   }
 }
@@ -296,7 +296,8 @@ class SectionContainer extends StatelessWidget {
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final container = Container(
-      margin: margin ??
+      margin:
+          margin ??
           const EdgeInsets.symmetric(
             horizontal: UiConstants.spacingMd,
             vertical: UiConstants.spacingSm,
@@ -306,7 +307,8 @@ class SectionContainer extends StatelessWidget {
         color: backgroundColor ?? colorScheme.surface,
         borderRadius:
             borderRadius ?? BorderRadius.circular(UiConstants.radiusLg),
-        boxShadow: shadows ??
+        boxShadow:
+            shadows ??
             [
               BoxShadow(
                 color: const Color(0xFF363535).withAlpha(40),
@@ -331,7 +333,6 @@ class SectionContainer extends StatelessWidget {
     return container;
   }
 }
-
 
 class CustomDropdown<T> extends StatelessWidget {
   final String label;
@@ -360,22 +361,26 @@ class CustomDropdown<T> extends StatelessWidget {
       children: [
         Text(
           label,
-          style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                fontWeight: FontWeight.w500,
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w500),
         ),
         const SizedBox(height: 6),
         DropdownButtonFormField<T>(
-          value: value,
-          hint: hint != null
-              ? Text(hint!, style: const TextStyle(color: Colors.grey))
-              : null,
+          initialValue: value,
+          hint:
+              hint != null
+                  ? Text(hint!, style: const TextStyle(color: Colors.grey))
+                  : null,
           items: items,
           onChanged: onChanged,
           decoration: InputDecoration(
             errorText: errorText,
             prefixIcon: prefixIcon,
-            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 4,
+            ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(color: Colors.grey.shade400),
@@ -386,7 +391,10 @@ class CustomDropdown<T> extends StatelessWidget {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Theme.of(context).primaryColor, width: 2),
+              borderSide: BorderSide(
+                color: Theme.of(context).primaryColor,
+                width: 2,
+              ),
             ),
             filled: true,
             fillColor: Colors.grey.shade50,
@@ -398,7 +406,6 @@ class CustomDropdown<T> extends StatelessWidget {
     );
   }
 }
-
 
 class CustomMultiSelect<T> extends StatelessWidget {
   final String label;
@@ -425,39 +432,45 @@ class CustomMultiSelect<T> extends StatelessWidget {
       children: [
         Text(
           label,
-          style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                fontWeight: FontWeight.w500,
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w500),
         ),
-        const SizedBox(height: 8),
         Wrap(
           spacing: 8,
-          runSpacing: 8,
-          children: items.map((item) {
-            final isSelected = selected.contains(item);
-            return FilterChip(
-              label: Text(itemLabel(item)),
-              selected: isSelected,
-              onSelected: (bool selected) {
-                final newSelected = List<T>.from(this.selected);
-                if (selected) {
-                  newSelected.add(item);
-                } else {
-                  newSelected.remove(item);
-                }
-                onChanged(newSelected);
-              },
-              selectedColor: Theme.of(context).primaryColor.withOpacity(0.2),
-              checkmarkColor: Theme.of(context).primaryColor,
-              backgroundColor: Colors.grey.shade100,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-                side: BorderSide(
-                  color: isSelected ? Theme.of(context).primaryColor : Colors.grey.shade300,
-                ),
-              ),
-            );
-          }).toList(),
+          children:
+              items.map((item) {
+                final isSelected = selected.contains(item);
+                return FilterChip(
+                  label: Text(itemLabel(item)),
+                  labelPadding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 4,
+                  ),
+                  selected: isSelected,
+                  onSelected: (bool selected) {
+                    final newSelected = List<T>.from(this.selected);
+                    if (selected) {
+                      newSelected.add(item);
+                    } else {
+                      newSelected.remove(item);
+                    }
+                    onChanged(newSelected);
+                  },
+                  selectedColor: Theme.of(context).primaryColor.withAlpha(50),
+                  checkmarkColor: Theme.of(context).primaryColor,
+                  backgroundColor: Colors.grey.shade100,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    side: BorderSide(
+                      color:
+                          isSelected
+                              ? Theme.of(context).primaryColor
+                              : Colors.grey.shade300,
+                    ),
+                  ),
+                );
+              }).toList(),
         ),
       ],
     );

@@ -21,8 +21,8 @@ class CreatePostPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) =>
-          PostFormBloc(
+      create:
+          (_) => PostFormBloc(
             createPostUseCase: CreatePostUseCase(
               DependencyInjection.get<PostRepository>(),
             ),
@@ -86,19 +86,19 @@ class CreatePostView extends StatelessWidget {
                   onChanged: (v) => bloc.add(PostFormTitleChanged(v.trim())),
                   prefixIcon: const Icon(Icons.title),
                 ),
-                const SizedBox(height: UiConstants.spacingMd),
+                const SizedBox(height: UiConstants.spacingSm),
 
                 //  Description
                 CustomTextField(
                   label: 'Description *',
                   hint: 'Enter post description',
                   errorText: form.validationErrors['description'],
-                  maxLines: 4,
-                  onChanged: (v) =>
-                      bloc.add(PostFormDescriptionChanged(v.trim())),
+                  maxLines: 1,
+                  onChanged:
+                      (v) => bloc.add(PostFormDescriptionChanged(v.trim())),
                   prefixIcon: const Icon(Icons.description),
                 ),
-                const SizedBox(height: UiConstants.spacingMd),
+                const SizedBox(height: UiConstants.spacingSm),
 
                 // Price
                 CustomTextField(
@@ -112,7 +112,7 @@ class CreatePostView extends StatelessWidget {
                   },
                   prefixIcon: const Icon(Icons.attach_money),
                 ),
-                const SizedBox(height: UiConstants.spacingMd),
+                const SizedBox(height: UiConstants.spacingSm),
 
                 // Area and capacity
                 Row(
@@ -123,8 +123,10 @@ class CreatePostView extends StatelessWidget {
                         hint: 'e.g. 500',
                         errorText: form.validationErrors['area'],
                         keyboardType: TextInputType.number,
-                        onChanged: (v) =>
-                            bloc.add(PostFormAreaChanged(double.tryParse(v))),
+                        onChanged:
+                            (v) => bloc.add(
+                              PostFormAreaChanged(double.tryParse(v)),
+                            ),
                         prefixIcon: const Icon(Icons.space_bar),
                       ),
                     ),
@@ -135,31 +137,34 @@ class CreatePostView extends StatelessWidget {
                         hint: 'e.g. 2',
                         errorText: form.validationErrors['capacity'],
                         keyboardType: TextInputType.number,
-                        onChanged: (v) =>
-                            bloc.add(PostFormCapacityChanged(int.tryParse(v))),
+                        onChanged:
+                            (v) => bloc.add(
+                              PostFormCapacityChanged(int.tryParse(v)),
+                            ),
                         prefixIcon: const Icon(Icons.people),
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: UiConstants.spacingMd),
+                const SizedBox(height: UiConstants.spacingSm),
 
                 //  Room Type Dropdown
                 CustomDropdown<RoomType>(
                   label: 'Room Type',
                   hint: 'Select room type',
                   value: form.roomType,
-                  items: RoomType.values
-                      .map(
-                        (t) => DropdownMenuItem(
-                          value: t,
-                          child: Text(_roomTypeLabel(t)),
-                        ),
-                      )
-                      .toList(),
+                  items:
+                      RoomType.values
+                          .map(
+                            (t) => DropdownMenuItem(
+                              value: t,
+                              child: Text(_roomTypeLabel(t)),
+                            ),
+                          )
+                          .toList(),
                   onChanged: (val) => bloc.add(PostFormRoomTypeChanged(val)),
                 ),
-                const SizedBox(height: UiConstants.spacingMd),
+                const SizedBox(height: UiConstants.spacingSm),
 
                 //  Amenities (Multi-Select)
                 CustomMultiSelect<AmenityType>(
@@ -167,10 +172,11 @@ class CreatePostView extends StatelessWidget {
                   items: AmenityType.values,
                   selected: form.amenities,
                   itemLabel: (a) => _amenityLabel(a),
-                  onChanged: (selected) =>
-                      bloc.add(PostFormAmenitiesChanged(selected)),
+                  onChanged:
+                      (selected) =>
+                          bloc.add(PostFormAmenitiesChanged(selected)),
                 ),
-                const SizedBox(height: UiConstants.spacingMd),
+                const SizedBox(height: UiConstants.spacingSm),
 
                 //  Tags (Multi-Select)
                 CustomMultiSelect<PostTag>(
@@ -178,37 +184,37 @@ class CreatePostView extends StatelessWidget {
                   items: PostTag.values,
                   selected: form.tags,
                   itemLabel: (t) => _tagLabel(t),
-                  onChanged: (selected) =>
-                      bloc.add(PostFormTagsChanged(selected)),
+                  onChanged:
+                      (selected) => bloc.add(PostFormTagsChanged(selected)),
                 ),
-                const SizedBox(height: UiConstants.spacingMd),
+                const SizedBox(height: UiConstants.spacingSm),
 
                 //  YouTube URL , help to show the whole detail of the hotels if the owner has a youtube channel and have uploaed the videos
                 CustomTextField(
                   label: 'YouTube URL (optional)',
                   hint: 'https://youtube.com/...',
                   errorText: form.validationErrors['youtubeUrl'],
-                  onChanged: (v) =>
-                      bloc.add(PostFormYoutubeUrlChanged(v.trim())),
+                  onChanged:
+                      (v) => bloc.add(PostFormYoutubeUrlChanged(v.trim())),
                   prefixIcon: const Icon(Icons.play_circle_outline),
                 ),
-                const SizedBox(height: UiConstants.spacingMd),
+                const SizedBox(height: UiConstants.spacingSm),
 
                 PostMediaPicker(
                   primaryImageFile: form.primaryImageFile,
                   additionalImages: form.additionalImages,
                   videoFile: form.videoFile, // Add to state
                   // uploadProgress: bloc.uploadProgress,
-                  onPrimaryImagePicked: (file) =>
-                      bloc.add(PostFormPrimaryImagePicked(file)),
-                  onImageAdded: (file) =>
-                      bloc.add(PostFormAdditionalImageAdded(file)),
-                  onImageRemoved: (i) =>
-                      bloc.add(PostFormAdditionalImageRemoved(i)),
+                  onPrimaryImagePicked:
+                      (file) => bloc.add(PostFormPrimaryImagePicked(file)),
+                  onImageAdded:
+                      (file) => bloc.add(PostFormAdditionalImageAdded(file)),
+                  onImageRemoved:
+                      (i) => bloc.add(PostFormAdditionalImageRemoved(i)),
                   onVideoPicked: (file) => bloc.add(PostFormVideoPicked(file)),
                   onVideoRemoved: () => bloc.add(const PostFormVideoRemoved()),
                 ),
-                const SizedBox(height: UiConstants.spacingMd),
+                const SizedBox(height: UiConstants.spacingSm),
                 // Location (Map Picker)
                 _LocationSection(
                   latitude: form.latitude,
@@ -226,9 +232,10 @@ class CreatePostView extends StatelessWidget {
                   width: double.infinity,
                   child: CustomButton(
                     text: 'Create Post',
-                    onPressed: form.isValid
-                        ? () => bloc.add(const PostFormSubmitted())
-                        : null,
+                    onPressed:
+                        form.isValid
+                            ? () => bloc.add(const PostFormSubmitted())
+                            : null,
                     icon: const Icon(Icons.send),
                   ),
                 ),
@@ -240,71 +247,6 @@ class CreatePostView extends StatelessWidget {
     );
   }
 }
-
-// class _LocationSection extends StatelessWidget {
-//   final double? latitude;
-//   final double? longitude;
-//   final Function(double?, double?) onChanged;
-
-//   const _LocationSection({
-//     this.latitude,
-//     this.longitude,
-//     required this.onChanged,
-//   });
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Column(
-//       crossAxisAlignment: CrossAxisAlignment.start,
-//       children: [
-//         Text(
-//           'Location (optional)',
-//           style: Theme.of(context).textTheme.titleMedium,
-//         ),
-//         const SizedBox(height: 8),
-//         Row(
-//           children: [
-//             Expanded(
-//               child: CustomTextField(
-//                 label: 'Latitude',
-//                 hint: 'e.g. 27.7172',
-//                 keyboardType: const TextInputType.numberWithOptions(
-//                   decimal: true,
-//                 ),
-//                 onChanged: (v) => onChanged(double.tryParse(v), longitude),
-//               ),
-//             ),
-//             const SizedBox(width: 12),
-//             Expanded(
-//               child: CustomTextField(
-//                 label: 'Longitude',
-//                 hint: 'e.g. 85.3240',
-//                 keyboardType: const TextInputType.numberWithOptions(
-//                   decimal: true,
-//                 ),
-//                 onChanged: (v) => onChanged(latitude, double.tryParse(v)),
-//               ),
-//             ),
-//           ],
-//         ),
-//         const SizedBox(height: 8),
-//         TextButton.icon(
-//           onPressed: () async {
-//             final result = await context.push(RouteConstants.anotherPage);
-
-//             if (result != null && result is LatLng && context.mounted) {
-//               onChanged(result.latitude, result.longitude);
-//             }
-//             print(result);
-//           },
-
-//           icon: const Icon(Icons.map),
-//           label: const Text('Pick from Map'),
-//         ),
-//       ],
-//     );
-//   }
-// }
 
 class _LocationSection extends StatelessWidget {
   final double? latitude;

@@ -78,8 +78,9 @@ class AppRouter {
             routes: [
               GoRoute(
                 path: RouteConstants.home,
-                pageBuilder: (context, state) =>
-                    const NoTransitionPage(child: HomePage()),
+                pageBuilder:
+                    (context, state) =>
+                        const NoTransitionPage(child: HomePage()),
               ),
             ],
           ),
@@ -89,8 +90,9 @@ class AppRouter {
             routes: [
               GoRoute(
                 path: RouteConstants.searchPage,
-                pageBuilder: (context, state) =>
-                    const NoTransitionPage(child: SearchPage()),
+                pageBuilder:
+                    (context, state) =>
+                        const NoTransitionPage(child: SearchPage()),
               ),
             ],
           ),
@@ -100,8 +102,9 @@ class AppRouter {
             routes: [
               GoRoute(
                 path: RouteConstants.postPage,
-                pageBuilder: (context, state) =>
-                    const NoTransitionPage(child: PostPage()),
+                pageBuilder:
+                    (context, state) =>
+                        const NoTransitionPage(child: PostPage()),
               ),
             ],
           ),
@@ -111,8 +114,9 @@ class AppRouter {
             routes: [
               GoRoute(
                 path: RouteConstants.libraryPage,
-                pageBuilder: (context, state) =>
-                    const NoTransitionPage(child: LibraryPage()),
+                pageBuilder:
+                    (context, state) =>
+                        const NoTransitionPage(child: LibraryPage()),
               ),
             ],
           ),
@@ -122,8 +126,9 @@ class AppRouter {
             routes: [
               GoRoute(
                 path: RouteConstants.profilePage,
-                pageBuilder: (context, state) =>
-                    const NoTransitionPage(child: ProfilePage()),
+                pageBuilder:
+                    (context, state) =>
+                        const NoTransitionPage(child: ProfilePage()),
               ),
             ],
           ),
@@ -158,11 +163,15 @@ class AppRouter {
         builder: (context, state) {
           final extraData = state.extra as Map<String, dynamic>?;
           final title = extraData?['title'];
-          final location = extraData?['location'];
-          return PostDetailsPage(title: title, postGisLocation: location);
+          final latitude = extraData?['latitude'];
+          final longitude = extraData?['longitude'];
+          return PostDetailsPage(
+            title: title,
+            latitude: latitude,
+            longitude: longitude,
+          );
         },
       ),
-
 
       // GoRoute(
       //   path: RouteConstants.dummyPostPage,

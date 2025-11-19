@@ -165,75 +165,79 @@ class _MobileBottomNavigationState extends State<MobileBottomNavigation>
       child: SafeArea(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: items.asMap().entries.map((entry) {
-            final index = entry.key;
-            final item = entry.value;
-            final isSelected = safeIndex == index;
+          children:
+              items.asMap().entries.map((entry) {
+                final index = entry.key;
+                final item = entry.value;
+                final isSelected = safeIndex == index;
 
-            return Expanded(
-              child: InkWell(
-                // borderRadius: BorderRadius.circular(8),
-                onTap: () => _onNavigationItemTapped(context, index),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Top border indicator
-                    AnimatedContainer(
-                      duration: const Duration(milliseconds: 250),
-                      height: 3,
-                      // width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: isSelected
-                            ? theme.primaryColor
-                            : Colors.transparent,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
+                return Expanded(
+                  child: InkWell(
+                    // borderRadius: BorderRadius.circular(8),
+                    onTap: () => _onNavigationItemTapped(context, index),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Top border indicator
+                        AnimatedContainer(
+                          duration: const Duration(milliseconds: 250),
+                          height: 3,
+                          // width: double.infinity,
+                          decoration: BoxDecoration(
+                            color:
+                                isSelected
+                                    ? theme.primaryColor
+                                    : Colors.transparent,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          curve: Curves.easeInOut,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 24,
+                            vertical: 8,
+                          ),
+                          // width: double.infinity,
+                          decoration: BoxDecoration(
+                            color:
+                                isSelected
+                                    ? theme.primaryColor.withAlpha(31)
+                                    : Colors.transparent,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Icon(
+                            isSelected ? item.selectedIcon : item.icon,
+                            color:
+                                isSelected
+                                    ? theme.primaryColor
+                                    : theme.unselectedWidgetColor,
+                            size:
+                                ResponsiveNavigationController.getNavigationIconSize(
+                                  NavigationType.mobileBottomNav,
+                                ),
+                          ),
+                        ),
+                        Text(
+                          item.label,
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight:
+                                isSelected ? FontWeight.w600 : FontWeight.w400,
+                            color:
+                                isSelected
+                                    ? theme.primaryColor
+                                    : theme.unselectedWidgetColor,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 4),
-                    AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      curve: Curves.easeInOut,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 8,
-                      ),
-                      // width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: isSelected
-                            ? theme.primaryColor.withAlpha(31)
-                            : Colors.transparent,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Icon(
-                        isSelected ? item.selectedIcon : item.icon,
-                        color: isSelected
-                            ? theme.primaryColor
-                            : theme.unselectedWidgetColor,
-                        size:
-                            ResponsiveNavigationController.getNavigationIconSize(
-                              NavigationType.mobileBottomNav,
-                            ),
-                      ),
-                    ),
-                    Text(
-                      item.label,
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: isSelected
-                            ? FontWeight.w600
-                            : FontWeight.w400,
-                        color: isSelected
-                            ? theme.primaryColor
-                            : theme.unselectedWidgetColor,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
-              ),
-            );
-          }).toList(),
+                  ),
+                );
+              }).toList(),
         ),
       ),
     );
@@ -261,11 +265,12 @@ class _MobileBottomNavigationState extends State<MobileBottomNavigation>
       child: SafeArea(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: items.asMap().entries.map((entry) {
-            final index = entry.key;
-            final item = entry.value;
-            return _buildLandscapeNavigationItem(context, item, index);
-          }).toList(),
+          children:
+              items.asMap().entries.map((entry) {
+                final index = entry.key;
+                final item = entry.value;
+                return _buildLandscapeNavigationItem(context, item, index);
+              }).toList(),
         ),
       ),
     );
@@ -302,9 +307,10 @@ class _MobileBottomNavigationState extends State<MobileBottomNavigation>
               Icon(
                 isSelected ? item.selectedIcon : item.icon,
                 size: 20, // Smaller icon for landscape
-                color: isSelected
-                    ? theme.primaryColor
-                    : theme.unselectedWidgetColor,
+                color:
+                    isSelected
+                        ? theme.primaryColor
+                        : theme.unselectedWidgetColor,
               ),
               const SizedBox(height: 2),
               Text(
@@ -312,9 +318,10 @@ class _MobileBottomNavigationState extends State<MobileBottomNavigation>
                 style: TextStyle(
                   fontSize: 10, // Smaller text for landscape
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                  color: isSelected
-                      ? theme.primaryColor
-                      : theme.unselectedWidgetColor,
+                  color:
+                      isSelected
+                          ? theme.primaryColor
+                          : theme.unselectedWidgetColor,
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,

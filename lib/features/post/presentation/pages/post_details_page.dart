@@ -3,28 +3,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'dart:typed_data';
-import 'dart:convert';
 
 class PostDetailsPage extends StatelessWidget {
   final String title;
-  final String
-  postGisLocation; // e.g. "0101000020E6100000DBF97E6ABC545540F2B0506B9AB73B40"
+  final double? latitude;
+  final double? longitude;
 
   const PostDetailsPage({
     super.key,
     required this.title,
-    required this.postGisLocation,
+    this.latitude,
+    this.longitude,
   });
 
-  // Parse PostGIS hex string → LatLng
-  LatLng? get location =>
-      parsePostGisPoint('0101000020E6100000DBF97E6ABC545540F2B0506B9AB73B40');
-  // LatLng? get location => parsePostGisPoint(postGisLocation);
-
+  bool get hasLocation => latitude != null && longitude != null;
+  LatLng? get latLng => hasLocation ? LatLng(latitude!, longitude!) : null;
   @override
   Widget build(BuildContext context) {
-    print(location);
-    final latLng = location;
+    final location = latLng;
 
     return Scaffold(
       appBar: AppBar(
@@ -56,7 +52,7 @@ class PostDetailsPage extends StatelessWidget {
             const SizedBox(height: 12),
 
             // Mini Map
-            if (latLng != null)
+            if (location != null)
               ClipRRect(
                 borderRadius: BorderRadius.circular(16),
                 child: Container(
@@ -67,25 +63,25 @@ class PostDetailsPage extends StatelessWidget {
                   ),
                   child: FlutterMap(
                     options: MapOptions(
-                      initialCenter: latLng,
-                      initialZoom: 15,
+                      initialCenter: location,
+                      initialZoom: 16,
+                      minZoom: 3,
                       maxZoom: 20,
-                      interactionOptions: const InteractionOptions(
-                        flags: InteractiveFlag.all & ~InteractiveFlag.rotate,
-                      ),
                     ),
                     children: [
                       TileLayer(
                         urlTemplate:
-                            'https://api.maptiler.com/maps/streets/{z}/{x}/{y}.png?key=${AppConfig.mapTilerKey}',
+                            'https://api.maptiler.com/maps/hybrid/{z}/{x}/{y}.png?key=${AppConfig.mapTilerKey}',
                         userAgentPackageName: 'com.example.app',
+                        subdomains: const ['a', 'b', 'c', 'd'],
+                        maxZoom: 20,
                       ),
                       MarkerLayer(
                         markers: [
                           Marker(
-                            point: latLng,
-                            width: 60,
-                            height: 60,
+                            point: location,
+                            width: 80,
+                            height: 80,
                             child: const Icon(
                               Icons.location_on,
                               color: Colors.blue,
@@ -118,7 +114,8 @@ class PostDetailsPage extends StatelessWidget {
             const SizedBox(height: 16),
 
             // Coordinates Text
-            if (latLng != null)
+            if (location != null) ...[
+              const SizedBox(height: 16),
               Card(
                 child: ListTile(
                   leading: const Icon(Icons.pin_drop, color: Colors.blue),
@@ -127,10 +124,10 @@ class PostDetailsPage extends StatelessWidget {
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                   subtitle: Text(
-                    'Lat: ${latLng.latitude.toStringAsFixed(6)}\nLng: ${latLng.longitude.toStringAsFixed(6)}',
+                    'Lat: ${location.latitude.toStringAsFixed(6)}\nLng: ${location.longitude.toStringAsFixed(6)}',
                   ),
                   trailing: IconButton(
-                    icon: const Icon(Icons.copy),
+                    icon: const Icon(Icons.open_in_new),
                     onPressed: () {
                       // Optional: copy to clipboard
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -140,7 +137,7 @@ class PostDetailsPage extends StatelessWidget {
                   ),
                 ),
               ),
-
+            ],
             const SizedBox(height: 40),
           ],
         ),

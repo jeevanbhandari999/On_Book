@@ -19,17 +19,20 @@ class PostPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => OrganizationPostsBloc(
-        getAllPostsByOrganizationId:
-            DependencyInjection.get<GetAllPostsByOrganizationIdUseCase>(),
-        getAllPostsWithImagesByOrganizationId:
-            DependencyInjection.get<
-              GetAllPostsWithImagesByOrganizationIdUseCase
-            >(),
-        getAllPostsWithVideosByOrganizationId:
-            DependencyInjection.get<GetAllPostsWithVideosByOrganizationId>(),
-        postServices: DependencyInjection.get<PostServices>(),
-      )..add(const ChecKUserRoleAndOrganizationDetailStatus()),
+      create:
+          (context) => OrganizationPostsBloc(
+            getAllPostsByOrganizationId:
+                DependencyInjection.get<GetAllPostsByOrganizationIdUseCase>(),
+            getAllPostsWithImagesByOrganizationId:
+                DependencyInjection.get<
+                  GetAllPostsWithImagesByOrganizationIdUseCase
+                >(),
+            getAllPostsWithVideosByOrganizationId:
+                DependencyInjection.get<
+                  GetAllPostsWithVideosByOrganizationId
+                >(),
+            postServices: DependencyInjection.get<PostServices>(),
+          )..add(const ChecKUserRoleAndOrganizationDetailStatus()),
       child: const PostView(),
     );
   }

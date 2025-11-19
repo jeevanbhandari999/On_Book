@@ -1,5 +1,4 @@
 import 'package:app/app/router/route_constants.dart';
-import 'package:app/features/post/presentation/pages/post_details_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:go_router/go_router.dart';
@@ -35,7 +34,8 @@ class PostGridSection extends StatelessWidget {
                   RouteConstants.postDetailsPage,
                   extra: {
                     'title': post['title'] as String,
-                    'location': post['location'] as String,
+                    'longitude': post['longitude'],
+                    'latitude': post['latitude'],
                   },
                 );
               },
