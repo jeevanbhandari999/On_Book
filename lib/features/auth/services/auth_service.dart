@@ -56,11 +56,8 @@ class AuthService {
         'updated_at': now.toIso8601String(),
       };
 
-      final profileResponse = await _supabase
-          .from('users')
-          .insert(profileData)
-          .select()
-          .single();
+      final profileResponse =
+          await _supabase.from('users').insert(profileData).select().single();
 
       // 3. Return full UserModel from DB
       return UserModel.fromJson({
@@ -242,11 +239,12 @@ class AuthService {
   // Get user profile from database
   Future<UserModel?> _getUserProfile(String userId) async {
     try {
-      final response = await _supabase
-          .from('users')
-          .select()
-          .eq('user_id', userId)
-          .maybeSingle(); // Use maybeSingle instead of single to handle missing profile
+      final response =
+          await _supabase
+              .from('users')
+              .select()
+              .eq('user_id', userId)
+              .maybeSingle(); // Use maybeSingle instead of single to handle missing profile
 
       if (response == null) {
         // Profile not found - return null instead of throwing exception
@@ -298,11 +296,8 @@ class AuthService {
         'updated_at': now.toIso8601String(),
       };
 
-      final response = await _supabase
-          .from('users')
-          .insert(profileData)
-          .select()
-          .single();
+      final response =
+          await _supabase.from('users').insert(profileData).select().single();
 
       final userModel = UserModel.fromJson({
         'user_id': currentUser!.id,
@@ -349,11 +344,12 @@ class AuthService {
         'updated_at': now.toIso8601String(),
       };
 
-      final response = await _supabase
-          .from('organizations')
-          .insert(orgData)
-          .select()
-          .single();
+      final response =
+          await _supabase
+              .from('organizations')
+              .insert(orgData)
+              .select()
+              .single();
 
       // if (response == null) {
       //   throw Exception('Failed to create organization');
@@ -421,11 +417,12 @@ class AuthService {
       }
 
       // Get organization details
-      final response = await _supabase
-          .from('organizations')
-          .select()
-          .eq('id', profile.organizationId!)
-          .single();
+      final response =
+          await _supabase
+              .from('organizations')
+              .select()
+              .eq('id', profile.organizationId!)
+              .single();
 
       return OrganizationModel.fromJson(response);
     } catch (e) {
@@ -492,12 +489,13 @@ class AuthService {
         updateData['organization_id'] = organizationId;
       }
 
-      final response = await _supabase
-          .from('users')
-          .update(updateData)
-          .eq('user_id', currentUser!.id)
-          .select()
-          .single();
+      final response =
+          await _supabase
+              .from('users')
+              .update(updateData)
+              .eq('user_id', currentUser!.id)
+              .select()
+              .single();
 
       return UserModel.fromJson({'id': currentUser!.id, ...response});
     } catch (e) {
@@ -534,11 +532,12 @@ class AuthService {
     try {
       if (currentUser == null) return false;
 
-      final response = await _supabase
-          .from('users')
-          .select('id')
-          .eq('user_id', currentUser!.id)
-          .maybeSingle();
+      final response =
+          await _supabase
+              .from('users')
+              .select('id')
+              .eq('user_id', currentUser!.id)
+              .maybeSingle();
 
       return response == null;
     } catch (e) {

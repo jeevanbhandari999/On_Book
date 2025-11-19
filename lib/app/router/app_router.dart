@@ -11,7 +11,6 @@ import 'package:app/features/home/presentation/pages/another.dart';
 import 'package:app/features/home/presentation/pages/home_page.dart';
 import 'package:app/features/library/presentation/pages/library_page.dart';
 import 'package:app/features/post/presentation/pages/create_post_page.dart';
-import 'package:app/features/post/presentation/pages/dummy_post_page.dart';
 import 'package:app/features/post/presentation/pages/post_details_page.dart';
 import 'package:app/features/post/presentation/pages/post_page.dart';
 import 'package:app/features/profile/presentation/pages/profile_page.dart';
