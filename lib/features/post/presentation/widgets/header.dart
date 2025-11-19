@@ -78,13 +78,7 @@ class Header extends StatelessWidget {
                       user.role.toString().split('.').last.toUpperCase(),
                       style: const TextStyle(color: Colors.blueAccent),
                     ),
-                    Text(
-                      roleMessage,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        color: Colors.black54,
-                      ),
-                    ),
+                    Text(roleMessage, style: const TextStyle(fontSize: 13)),
                   ],
                 ),
               ),

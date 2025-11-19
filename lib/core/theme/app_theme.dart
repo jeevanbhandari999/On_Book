@@ -47,7 +47,7 @@ class AppTheme {
         style: ElevatedButton.styleFrom(
           backgroundColor: colorScheme.primary,
           foregroundColor: colorScheme.onPrimary,
-          minimumSize: const Size(64, UiConstants.buttonHeightSm),
+          minimumSize: const Size(64, UiConstants.buttonHeightMd),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(UiConstants.radiusSm),
           ),
@@ -58,7 +58,7 @@ class AppTheme {
         style: FilledButton.styleFrom(
           backgroundColor: colorScheme.primary,
           foregroundColor: colorScheme.onPrimary,
-          minimumSize: const Size(64, UiConstants.buttonHeightSm),
+          minimumSize: const Size(64, UiConstants.buttonHeightMd),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(UiConstants.radiusSm),
           ),
@@ -69,7 +69,7 @@ class AppTheme {
         style: OutlinedButton.styleFrom(
           foregroundColor: colorScheme.primary,
           side: BorderSide(color: colorScheme.outline),
-          minimumSize: const Size(64, UiConstants.buttonHeightSm),
+          minimumSize: const Size(64, UiConstants.buttonHeightMd),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(UiConstants.radiusSm),
           ),
@@ -124,7 +124,7 @@ class AppTheme {
       ),
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
         backgroundColor: colorScheme.surface,
-        selectedItemColor: colorScheme.primary,
+        selectedItemColor: colorScheme.secondary,
         unselectedItemColor: colorScheme.onSurface.withAlpha(163),
         showUnselectedLabels: false,
         type: BottomNavigationBarType.fixed,
@@ -211,7 +211,7 @@ class AppTheme {
         style: ElevatedButton.styleFrom(
           backgroundColor: colorScheme.primary,
           foregroundColor: colorScheme.onPrimary,
-          minimumSize: const Size(64, UiConstants.buttonHeightSm),
+          minimumSize: const Size(64, UiConstants.buttonHeightMd),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(UiConstants.radiusSm),
           ),
@@ -222,7 +222,7 @@ class AppTheme {
         style: FilledButton.styleFrom(
           backgroundColor: colorScheme.primary,
           foregroundColor: colorScheme.onPrimary,
-          minimumSize: const Size(64, UiConstants.buttonHeightSm),
+          minimumSize: const Size(64, UiConstants.buttonHeightMd),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(UiConstants.radiusSm),
           ),
@@ -233,7 +233,7 @@ class AppTheme {
         style: OutlinedButton.styleFrom(
           foregroundColor: colorScheme.primary,
           side: BorderSide(color: colorScheme.outline),
-          minimumSize: const Size(64, UiConstants.buttonHeightSm),
+          minimumSize: const Size(64, UiConstants.buttonHeightMd),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(UiConstants.radiusSm),
           ),
@@ -287,9 +287,9 @@ class AppTheme {
         labelTextStyle: WidgetStateProperty.all(AppTextStyles.labelSmall),
       ),
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
-        backgroundColor: AppColors.primaryDark,
+        backgroundColor: colorScheme.surface,
         selectedItemColor: colorScheme.primary,
-        unselectedItemColor: colorScheme.onSurface.withAlpha(184),
+        unselectedItemColor: colorScheme.onSurface.withAlpha(163),
         showUnselectedLabels: false,
         type: BottomNavigationBarType.fixed,
       ),

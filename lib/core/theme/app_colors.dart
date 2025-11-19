@@ -3,12 +3,19 @@ import 'package:flutter/material.dart';
 class AppColors {
   // Primary Brand Colors
   // A unique modern blue–violet combo (trust + creativity)
-  static const Color primary = Color.fromARGB(
-    255,
-    104,
-    3,
-    245,
-  ); // Sapphire Blue
+  // static const Color primary = Color.fromARGB(
+  //   255,
+  //   3,
+  //   245,
+  //   176,
+  // ); // Sapphire Blue
+  // static const Color primary = Color(0xFF006EE6);
+  // static const Color primary = Color(0xFF00BFA6);
+  // static const Color primary = Color(0xFF6B4DFF);
+  // static const Color primary = Color(0xFF3F51B5);
+  // static const Color primary = Color(0xFF34D399);
+  static const Color primary = Color(0xFF00D2B8);
+
   static const Color primaryDark = Color(0xff00030F);
   static const Color primaryLight = Color(0xFFE7EBFF);
 

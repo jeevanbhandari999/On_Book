@@ -76,12 +76,13 @@ class AdaptiveAppBar extends StatelessWidget implements PreferredSizeWidget {
       ),
       // automaticallyImplyLeading: automaticallyImplyLeading,
       automaticallyImplyLeading: showBackArrow,
-      leading: showBackArrow
-          ? IconButton(
-              icon: const Icon(Icons.arrow_back),
-              onPressed: onBackPressed ?? () => Navigator.of(context).pop(),
-            )
-          : null,
+      leading:
+          showBackArrow
+              ? IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: onBackPressed ?? () => Navigator.of(context).pop(),
+              )
+              : null,
       actions: _buildActions(context),
       backgroundColor: backgroundColor ?? _getBackgroundColor(context),
       foregroundColor: foregroundColor ?? _getForegroundColor(context),
@@ -143,9 +144,8 @@ class AdaptiveAppBar extends StatelessWidget implements PreferredSizeWidget {
               builder: (context) {
                 // Will be replace later with actual count
                 const int count = 120;
-                final String displayCount = count > 99
-                    ? '99+'
-                    : count.toString();
+                final String displayCount =
+                    count > 99 ? '99+' : count.toString();
 
                 return Container(
                   padding: const EdgeInsets.symmetric(
@@ -207,9 +207,8 @@ class AdaptiveAppBar extends StatelessWidget implements PreferredSizeWidget {
             child: Builder(
               builder: (context) {
                 const int count = 7;
-                final String displayCount = count > 99
-                    ? '99+'
-                    : count.toString();
+                final String displayCount =
+                    count > 99 ? '99+' : count.toString();
 
                 return Container(
                   padding: const EdgeInsets.symmetric(
