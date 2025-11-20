@@ -10,6 +10,7 @@ import 'package:app/features/chat/presentation/pages/chat_user_list_page.dart';
 import 'package:app/features/home/presentation/pages/another.dart';
 import 'package:app/features/home/presentation/pages/home_page.dart';
 import 'package:app/features/library/presentation/pages/library_page.dart';
+import 'package:app/features/post/domain/entities/post.dart';
 import 'package:app/features/post/presentation/pages/create_post_page.dart';
 import 'package:app/features/post/presentation/pages/post_details_page.dart';
 import 'package:app/features/post/presentation/pages/post_page.dart';
@@ -77,9 +78,8 @@ class AppRouter {
             routes: [
               GoRoute(
                 path: RouteConstants.home,
-                pageBuilder:
-                    (context, state) =>
-                        const NoTransitionPage(child: HomePage()),
+                pageBuilder: (context, state) =>
+                    const NoTransitionPage(child: HomePage()),
               ),
             ],
           ),
@@ -89,9 +89,8 @@ class AppRouter {
             routes: [
               GoRoute(
                 path: RouteConstants.searchPage,
-                pageBuilder:
-                    (context, state) =>
-                        const NoTransitionPage(child: SearchPage()),
+                pageBuilder: (context, state) =>
+                    const NoTransitionPage(child: SearchPage()),
               ),
             ],
           ),
@@ -101,9 +100,8 @@ class AppRouter {
             routes: [
               GoRoute(
                 path: RouteConstants.postPage,
-                pageBuilder:
-                    (context, state) =>
-                        const NoTransitionPage(child: PostPage()),
+                pageBuilder: (context, state) =>
+                    const NoTransitionPage(child: PostPage()),
               ),
             ],
           ),
@@ -113,9 +111,8 @@ class AppRouter {
             routes: [
               GoRoute(
                 path: RouteConstants.libraryPage,
-                pageBuilder:
-                    (context, state) =>
-                        const NoTransitionPage(child: LibraryPage()),
+                pageBuilder: (context, state) =>
+                    const NoTransitionPage(child: LibraryPage()),
               ),
             ],
           ),
@@ -125,9 +122,8 @@ class AppRouter {
             routes: [
               GoRoute(
                 path: RouteConstants.profilePage,
-                pageBuilder:
-                    (context, state) =>
-                        const NoTransitionPage(child: ProfilePage()),
+                pageBuilder: (context, state) =>
+                    const NoTransitionPage(child: ProfilePage()),
               ),
             ],
           ),
@@ -160,15 +156,12 @@ class AppRouter {
       GoRoute(
         path: RouteConstants.postDetailsPage,
         builder: (context, state) {
-          final extraData = state.extra as Map<String, dynamic>?;
-          final title = extraData?['title'];
-          final latitude = extraData?['latitude'];
-          final longitude = extraData?['longitude'];
-          return PostDetailsPage(
-            title: title,
-            latitude: latitude,
-            longitude: longitude,
-          );
+          final extraData = state.extra as Map<String, dynamic>;
+          print(extraData);
+          final postId = extraData['postId'] as String;
+          final post = extraData['post'];
+          final userId = extraData['userId'];
+          return PostDetailsPage(postId: postId, post: post, userId: userId);
         },
       ),
 

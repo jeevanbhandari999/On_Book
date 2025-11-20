@@ -37,9 +37,9 @@ class PostGridSection extends StatelessWidget {
                   context.push(
                     RouteConstants.postDetailsPage,
                     extra: {
-                      'title': post['title'] as String,
-                      'longitude': post['longitude'],
-                      'latitude': post['latitude'],
+                      'postId': post['postId'],
+                      'post': post['post'],
+                      'userId': post['userId'],
                     },
                   );
                 }
@@ -78,18 +78,16 @@ Future<void> _showModalBottomSheetForImage(
               height: 220,
               width: double.infinity,
               fit: BoxFit.cover,
-              placeholder:
-                  (context, url) => Container(
-                    height: 220,
-                    color: Colors.grey[300],
-                    child: const Center(child: CircularProgressIndicator()),
-                  ),
-              errorWidget:
-                  (context, url, error) => Container(
-                    height: 220,
-                    color: Colors.grey[300],
-                    child: const Icon(Icons.error, size: 40),
-                  ),
+              placeholder: (context, url) => Container(
+                height: 220,
+                color: Colors.grey[300],
+                child: const Center(child: CircularProgressIndicator()),
+              ),
+              errorWidget: (context, url, error) => Container(
+                height: 220,
+                color: Colors.grey[300],
+                child: const Icon(Icons.error, size: 40),
+              ),
             ),
           ),
 
@@ -112,8 +110,8 @@ Future<void> _showModalBottomSheetForImage(
                       width: 70,
                       height: 70,
                       fit: BoxFit.cover,
-                      errorWidget:
-                          (context, url, error) => const Icon(Icons.error),
+                      errorWidget: (context, url, error) =>
+                          const Icon(Icons.error),
                     ),
                   );
                 },
@@ -162,7 +160,9 @@ Future<void> _showModalBottomSheetForImage(
                 ),
               ),
               const SizedBox(width: UiConstants.spacingSm),
-              Expanded(child: CustomButton(text: 'Book Now', onPressed: () {})),
+              Expanded(
+                child: CustomButton(text: 'Book Now', onPressed: () {}),
+              ),
             ],
           ),
           const SizedBox(height: UiConstants.spacingMd),
