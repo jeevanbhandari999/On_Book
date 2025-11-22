@@ -20,6 +20,9 @@ abstract class PostRemoteDataSource {
     String organizationId,
   );
 
+  // Get all images related to the specific post
+  Future<List<PostImageModel>> getAllSpecificPostImagesByPostId(String postId);
+
   // Get all posts for a specific organization
   Future<List<PostVideoModel>> getPostsWithVideosByOrganizationId(
     String organizationId,
@@ -387,6 +390,26 @@ class PostRemoteDataSourceImpl implements PostRemoteDataSource {
           .from('post_images')
           .select('*, posts!inner(organization_id)')
           .eq('posts.organization_id', organizationId)
+          .order('created_at', ascending: true);
+
+      final data = response as List<dynamic>;
+      return data
+          .map((item) => PostImageModel.fromJson(item as Map<String, dynamic>))
+          .toList();
+    } catch (e) {
+      throw core_exceptions.ServerException('Failed to fetch posts: $e');
+    }
+  }
+
+  @override
+  Future<List<PostImageModel>> getAllSpecificPostImagesByPostId(
+    String postId,
+  ) async {
+    try {
+      final response = await supabaseClient
+          .from('post_images')
+          .select()
+          .eq('post_id', postId)
           .order('created_at', ascending: true);
 
       final data = response as List<dynamic>;

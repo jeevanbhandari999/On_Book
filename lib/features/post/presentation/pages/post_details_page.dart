@@ -6,6 +6,7 @@ import 'package:app/features/post/domain/entities/post.dart';
 import 'package:app/features/post/domain/usecases/delete_post_use_case.dart';
 import 'package:app/features/post/domain/usecases/get_post_by_id_use_case.dart';
 import 'package:app/features/post/presentation/bloc/post_details_bloc.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -57,34 +58,373 @@ class PostDetailsView extends StatelessWidget {
             return const Center(child: CircularProgressIndicator());
           }
           if (state is PostDetailLoaded) {
-            return Text('Loaded');
+            return _buildPostDetailSection(
+              context,
+              post: state.post,
+              stateLoaded: state,
+            );
           }
           if (state is PostDetailNotFound) {
             return _buildNotFoundState(context);
           }
           if (state is PostDetailError) {
-            return _buildErrorState(context);
+            return _buildErrorState(context, message: 'Something went wrong');
           }
           // show try again in fall back
           return _buildFallBackTryAgainState(context);
         },
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: UiConstants.spacingSm),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Expanded(
+              child: CustomButton(
+                text: 'Add to Library',
+                icon: const Icon(Icons.bookmark_outline),
+                onPressed: () {},
+                isOutlined: true,
+              ),
+            ),
+            const SizedBox(width: UiConstants.spacingSm),
+            Expanded(
+              child: CustomButton(
+                text: 'Book Now',
+                onPressed: () {},
+                icon: const Icon(Icons.event_available),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
 
-Widget _buildNotFoundState(BuildContext context) {
-  return Column();
+Widget _buildPostDetailSection(
+  BuildContext context, {
+  required Post post,
+  required PostDetailLoaded stateLoaded,
+}) {
+  return BlocBuilder<PostDetailsBloc, PostDetailState>(
+    builder: (context, state) {
+      return RefreshIndicator(
+        onRefresh: () => _onRefresh(context),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildImagePageView(context, stateLoaded),
+              _buildTitleAndPriceSection(
+                context,
+                title: post.title,
+                price: post.price!,
+              ),
+              _buildDescriptionSection(
+                context,
+                description: post.description!,
+                isExpanded: stateLoaded.isDescriptionExpanded,
+                onToggleExpand: () {
+                  context.read<PostDetailsBloc>().add(
+                    PostDetailToggleDescriptionRequested(
+                      isDescriptionToggled: stateLoaded.isDescriptionExpanded,
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  );
 }
 
-Widget _buildErrorState(BuildContext context) {
-  return Column();
+Widget _buildImagePageView(BuildContext context, PostDetailLoaded state) {
+  final images = state.getAllImages;
+  return SizedBox(
+    height: 400,
+    child: Stack(
+      children: [
+        PageView.builder(
+          itemCount: images.length,
+          onPageChanged: (index) {
+            context.read<PostDetailsBloc>().add(
+              PostDetailImageViewRequested(imageIndex: index),
+            );
+            // context.read<PostDetailsBloc>().emit(
+            //   state.copyWith(viewingImageIndex: index),
+            // );
+          },
+          itemBuilder: (context, index) {
+            final url = images[index];
+            return GestureDetector(
+              onTap: () {
+                context.read<PostDetailsBloc>().add(
+                  PostDetailImageViewRequested(imageIndex: index),
+                );
+              },
+              child: CachedNetworkImage(
+                imageUrl: url,
+                fit: BoxFit.cover,
+                width: double.infinity,
+                height: 400,
+                placeholder: (context, url) =>
+                    const Center(child: CircularProgressIndicator()),
+                errorWidget: (context, url, error) =>
+                    const Center(child: Icon(Icons.error)),
+              ),
+            );
+          },
+        ),
+        Align(
+          alignment: Alignment.bottomCenter,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Colors.black45, Colors.black54],
+                begin: Alignment.bottomCenter,
+                end: Alignment.topCenter,
+              ),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(images.length, (i) {
+                final currentIndex = state.viewingImageIndex ?? 0;
+                return AnimatedContainer(
+                  duration: const Duration(milliseconds: 100),
+                  margin: const EdgeInsets.symmetric(horizontal: 4),
+                  width: currentIndex == i ? 10 : 4,
+                  height: currentIndex == i ? 10 : 4,
+                  decoration: BoxDecoration(
+                    color: currentIndex == i
+                        ? Theme.of(context).colorScheme.primary
+                        : Theme.of(context).colorScheme.onPrimary,
+                    shape: BoxShape.circle,
+                  ),
+                );
+              }),
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+Widget _buildTitleAndPriceSection(
+  BuildContext context, {
+  required String title,
+  required double price,
+}) {
+  return Padding(
+    padding: const EdgeInsets.all(UiConstants.spacingSm),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            const Text('Rs.', style: TextStyle(fontWeight: FontWeight.bold)),
+            Text(
+              '$price',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            ),
+          ],
+        ),
+      ],
+    ),
+  );
+}
+
+Widget _buildDescriptionSection(
+  BuildContext context, {
+  required String description,
+  required bool isExpanded,
+  required VoidCallback onToggleExpand,
+}) {
+  return Padding(
+    padding: const EdgeInsets.symmetric(horizontal: UiConstants.spacingSm),
+    child: LayoutBuilder(
+      builder: (context, constraints) {
+        final span = TextSpan(text: description);
+
+        final textPainter = TextPainter(
+          text: span,
+          textDirection: TextDirection.ltr,
+          maxLines: 3,
+        )..layout(maxWidth: constraints.maxWidth);
+
+        final bool textExceedsThreeLines = textPainter.didExceedMaxLines;
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (isExpanded || !textExceedsThreeLines)
+              Text(description, textAlign: TextAlign.justify)
+            else
+              Stack(
+                children: [
+                  Text(
+                    description,
+                    maxLines: 3,
+                    overflow: TextOverflow.clip,
+                    textAlign: TextAlign.justify,
+                  ),
+
+                  Positioned(
+                    bottom: 0,
+                    right: 0,
+                    child: GestureDetector(
+                      onTap: onToggleExpand,
+                      child: Container(
+                        color: Theme.of(context).scaffoldBackgroundColor,
+                        padding: const EdgeInsets.only(left: 8),
+                        child: Text(
+                          isExpanded ? 'View Lesss' : 'View More',
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.primary,
+                            fontWeight: FontWeight.bold,
+                            backgroundColor: Theme.of(
+                              context,
+                            ).scaffoldBackgroundColor,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+
+            // Show "View Less" when expanded and text was long
+            if (isExpanded && textExceedsThreeLines)
+              GestureDetector(
+                onTap: onToggleExpand,
+                child: Text(
+                  'View Less',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.primary,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+          ],
+        );
+      },
+    ),
+  );
+}
+
+Widget _buildNotFoundState(BuildContext context) {
+  return Center(
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const Icon(Icons.search_off, size: UiConstants.iconLg),
+        const SizedBox(height: UiConstants.spacingMd),
+        const Text(
+          'No results found',
+          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: UiConstants.spacingSm),
+        const Text(
+          'Try adjusting your search or filters.',
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: UiConstants.spacingLg),
+        CustomButton(
+          text: 'Try Again',
+          onPressed: () => _onRefresh(context),
+          icon: const Icon(Icons.refresh),
+        ),
+      ],
+    ),
+  );
+}
+
+Widget _buildErrorState(
+  BuildContext context, {
+  required String message,
+  String? description,
+}) {
+  return Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 20),
+    child: Semantics(
+      label: message,
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Semantics(
+              image: true,
+              label: 'Error icon',
+              child: Icon(
+                Icons.error_outline,
+                size: 40,
+                color: Theme.of(context).colorScheme.error,
+              ),
+            ),
+            const Text(
+              'Error',
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
+            ),
+            if (description != null)
+              Text(
+                description,
+                style: Theme.of(context).textTheme.bodySmall,
+                textAlign: TextAlign.center,
+              ),
+            const SizedBox(height: UiConstants.spacingSm),
+            Text(
+              message,
+              style: Theme.of(context).textTheme.bodyMedium,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: UiConstants.spacingLg),
+            Semantics(
+              label: 'Try again',
+              hint: message,
+              button: true,
+              child: CustomButton(
+                text: 'Try Again',
+                onPressed: () => _onRefresh(context),
+                icon: const Icon(Icons.refresh),
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
+Future<void> _onRefresh(BuildContext context) async {
+  context.read<PostDetailsBloc>().add(const PostDetailRefreshRequested());
 }
 
 Widget _buildFallBackTryAgainState(BuildContext context) {
   return Center(
     child: Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.symmetric(horizontal: 20.0),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -105,11 +445,7 @@ Widget _buildFallBackTryAgainState(BuildContext context) {
           CustomButton(
             text: 'Retry',
             icon: const Icon(Icons.refresh),
-            onPressed: () {
-              context.read<PostDetailsBloc>().add(
-                const PostDetailRefreshRequested(),
-              );
-            },
+            onPressed: () => _onRefresh(context),
           ),
         ],
       ),

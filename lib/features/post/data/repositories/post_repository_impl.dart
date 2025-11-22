@@ -118,7 +118,9 @@ class PostRepositoryImpl implements PostRepository {
       // await localDataSource.cachePosts(organizationId, postImageModels);
 
       return Right(
-        postImageModels.map((postImageModel) => postImageModel.toEntity()).toList(),
+        postImageModels
+            .map((postImageModel) => postImageModel.toEntity())
+            .toList(),
       );
     } on ServerException catch (e) {
       // Try to return the cache data on server exception
@@ -157,8 +159,77 @@ class PostRepositoryImpl implements PostRepository {
     }
   }
 
+  @override
+  Future<Either<Failure, List<PostImage>>> getAllSpecificPostImagesByPostId(
+    String postId,
+  ) async {
+    try {
+      // Check if cache is expired
+      // final isCacheExpired = await localDataSource.isCacheExpired(
+      //   organizationId,
+      // );
+      // if (!isCacheExpired) {
+      //   // try to get the cached posts first
+      //   final cachedPosts = await localDataSource.getCachedPosts(
+      //     organizationId,
+      //   );
+      //   if (cachedPosts != null && cachedPosts.isNotEmpty) {
+      //     return Right(
+      //       cachedPosts.map((postModel) => postModel.toEntity()).toList(),
+      //     );
+      //   }
+      // }
 
-   @override
+      // fetch from remote if cache is expired or empty
+      final postImageModels = await remoteDataSource
+          .getAllSpecificPostImagesByPostId(postId);
+
+      // Cache the fetched posts from the remote for offline support
+      // await localDataSource.cachePosts(organizationId, postImageModels);
+
+      return Right(
+        postImageModels
+            .map((postImageModel) => postImageModel.toEntity())
+            .toList(),
+      );
+    } on ServerException catch (e) {
+      // Try to return the cache data on server exception
+      // try {
+      //   final cachedPosts = await localDataSource.getCachedPosts(
+      //     organizationId,
+      //   );
+      //   if (cachedPosts != null && cachedPosts.isNotEmpty) {
+      //     return Right(
+      //       cachedPosts.map((postModel) => postModel.toEntity()).toList(),
+      //     );
+      //   }
+      // } catch (_) {
+      //   // Ignore these cache errors when server is also failing
+      // }
+      return Left(ServerFailure(e.message));
+    } on NetworkException catch (e) {
+      // Again try to rturn the cached data in network error
+      // try {
+      //   final cachedPosts = await localDataSource.getCachedPosts(
+      //     organizationId,
+      //   );
+      //   if (cachedPosts != null && cachedPosts.isNotEmpty) {
+      //     return Right(
+      //       cachedPosts.map((postModel) => postModel.toEntity()).toList(),
+      //     );
+      //   }
+      // } catch (_) {
+      //   // Ignore these cache errors when network is also failing
+      // }
+      return Left(NetworkFailure(e.message));
+    } on CacheException catch (e) {
+      return Left(CacheFailure(e.message));
+    } catch (e) {
+      return Left(UnknownFailure(e.toString()));
+    }
+  }
+
+  @override
   Future<Either<Failure, List<PostVideo>>> getPostsWithVideosByOrganizationId(
     String organizationId,
   ) async {
@@ -187,7 +258,9 @@ class PostRepositoryImpl implements PostRepository {
       // await localDataSource.cachePosts(organizationId, postImageModels);
 
       return Right(
-        postImageModels.map((postImageModel) => postImageModel.toEntity()).toList(),
+        postImageModels
+            .map((postImageModel) => postImageModel.toEntity())
+            .toList(),
       );
     } on ServerException catch (e) {
       // Try to return the cache data on server exception

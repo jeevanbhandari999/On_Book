@@ -17,6 +17,10 @@ abstract class PostRepository {
     String organizationId,
   );
 
+  // Get all specific post's images by post id (post related additional images)
+  Future<Either<Failure, List<PostImage>>> getAllSpecificPostImagesByPostId(
+    String postId,
+  );
 
   // Get all post's videos for a specific organization
   Future<Either<Failure, List<PostVideo>>> getPostsWithVideosByOrganizationId(

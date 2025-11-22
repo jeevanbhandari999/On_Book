@@ -1,7 +1,9 @@
 import 'dart:async';
 
+import 'package:app/app/dependency_injection.dart';
 import 'package:app/features/post/domain/entities/post.dart';
 import 'package:app/features/post/domain/entities/post_enums.dart';
+import 'package:app/features/post/domain/repositories/post_repository.dart';
 import 'package:app/features/post/domain/usecases/delete_post_use_case.dart';
 import 'package:app/features/post/domain/usecases/get_post_by_id_use_case.dart';
 import 'package:equatable/equatable.dart';
@@ -85,6 +87,16 @@ class PostDetailDeleteRequested extends PostDetailEvent {
   ];
 }
 
+class PostDetailToggleDescriptionRequested extends PostDetailEvent {
+  final bool isDescriptionToggled;
+  const PostDetailToggleDescriptionRequested({
+    this.isDescriptionToggled = false,
+  });
+
+  @override
+  List<Object?> get props => [isDescriptionToggled];
+}
+
 // States
 abstract class PostDetailState extends Equatable {
   const PostDetailState();
@@ -129,19 +141,24 @@ class PostDetailDeleted extends PostDetailState {
 
 class PostDetailLoaded extends PostDetailState {
   final Post post;
+  final List<String> additionalImageUrls;
+
   final bool canEdit;
   final bool canDelete;
   final int? viewingImageIndex;
   final bool? watchingVideo;
   final bool? isSharing;
+  final bool isDescriptionExpanded;
 
   const PostDetailLoaded({
     required this.post,
+    required this.additionalImageUrls,
     this.canEdit = false,
     this.canDelete = false,
     this.viewingImageIndex,
     this.watchingVideo,
     this.isSharing = false,
+    this.isDescriptionExpanded = false,
   });
 
   @override
@@ -152,23 +169,29 @@ class PostDetailLoaded extends PostDetailState {
     viewingImageIndex,
     watchingVideo,
     isSharing,
+    isDescriptionExpanded,
   ];
 
   PostDetailLoaded copyWith({
     Post? post,
+    List<String>? additionalImageUrls,
     bool? canEdit,
     bool? canDelete,
     int? viewingImageIndex,
     bool? watchingVideo,
     bool? isSharing,
+    bool? isDescriptionExpanded,
   }) {
     return PostDetailLoaded(
       post: post ?? this.post,
+      additionalImageUrls: additionalImageUrls ?? this.additionalImageUrls,
       canEdit: canEdit ?? this.canEdit,
       canDelete: canDelete ?? this.canDelete,
       viewingImageIndex: viewingImageIndex ?? this.viewingImageIndex,
       watchingVideo: watchingVideo ?? this.watchingVideo,
       isSharing: isSharing ?? this.isSharing,
+      isDescriptionExpanded:
+          isDescriptionExpanded ?? this.isDescriptionExpanded,
     );
   }
 
@@ -179,10 +202,7 @@ class PostDetailLoaded extends PostDetailState {
 
   // Get all images (primary or additional images)
   List<String> get getAllImages {
-    final images = <String>[];
-    images.add(post.primaryImageUrl);
-    images.addAll(post.additionalImages.map((img) => img.imageUrl));
-    return images;
+    return [post.primaryImageUrl, ...additionalImageUrls];
   }
 
   // Check if the post has additional images
@@ -252,6 +272,7 @@ class PostDetailsBloc extends Bloc<PostDetailEvent, PostDetailState> {
     on<PostDetailImageViewCloseRequested>(_onImageCloseRequested);
     on<PostDetailSharedRequested>(_onSharedRequested);
     on<PostDetailDeleteRequested>(_onDeleteRequested);
+    on<PostDetailToggleDescriptionRequested>(_onToggleDescriptionRequested);
   }
 
   Future<void> _onLoadRequested(
@@ -273,23 +294,76 @@ class PostDetailsBloc extends Bloc<PostDetailEvent, PostDetailState> {
 
       final result = await _getPostByIdUseCase(params);
 
-      result.fold(
-        (failure) {
-          if (failure.message.contains('not found')) {
-            emit(PostDetailNotFound(postId: event.postId));
-          } else {
-            emit(PostDetailError(message: failure.message));
-          }
-        },
-        (postData) {
-          emit(PostDetailLoaded(post: postData));
+      if (result.isLeft()) {
+        final failure = result.swap().getOrElse(() => throw Exception());
+        if (failure.message.contains('not found')) {
+          emit(PostDetailNotFound(postId: event.postId));
+        } else {
+          emit(PostDetailError(message: failure.message));
+        }
+        return;
+      }
 
-          // Check the permission also
-          if (event.userId != null) {
-            add(PostDetailPermissionCheckedRequested(userId: event.userId!));
-          }
-        },
+      final postData = result.getOrElse(() => throw Exception());
+
+      final postRepo = DependencyInjection.get<PostRepository>();
+
+      final imageResult = await postRepo.getAllSpecificPostImagesByPostId(
+        postData.id,
       );
+
+      // extract the image urls safely
+      final additionalImageUrls = imageResult.fold(
+        (failure) => <String>[],
+        (images) => images.map((img) => img.imageUrl).toList(),
+      );
+
+      emit(
+        PostDetailLoaded(
+          post: postData,
+          additionalImageUrls: additionalImageUrls,
+        ),
+      );
+
+      // Check the permission also
+      if (event.userId != null) {
+        add(PostDetailPermissionCheckedRequested(userId: event.userId!));
+      }
+
+      // result.fold(
+      //   (failure) {
+      //     if (failure.message.contains('not found')) {
+      //       emit(PostDetailNotFound(postId: event.postId));
+      //     } else {
+      //       emit(PostDetailError(message: failure.message));
+      //     }
+      //   },
+      //   (postData) async {
+      //     final postRepo = DependencyInjection.get<PostRepository>();
+
+      //     final imageResult = await postRepo.getPostsWithImagesByOrganizationId(
+      //       postData.organizationId,
+      //     );
+
+      //     // extract the image urls safely
+      //     final additionalImageUrls = imageResult.fold(
+      //       (failure) => <String>[],
+      //       (images) => images.map((img) => img.imageUrl).toList(),
+      //     );
+
+      //     emit(
+      //       PostDetailLoaded(
+      //         post: postData,
+      //         additionalImageUrls: additionalImageUrls,
+      //       ),
+      //     );
+
+      //     // Check the permission also
+      //     if (event.userId != null) {
+      //       add(PostDetailPermissionCheckedRequested(userId: event.userId!));
+      //     }
+      //   },
+      // );
     } catch (e) {
       // To enhance the performance it's a best way to use const constructor
       emit(
@@ -452,6 +526,20 @@ class PostDetailsBloc extends Bloc<PostDetailEvent, PostDetailState> {
         PostDetailError(
           message: 'Uexpected error: ${e.toString()}',
           post: currentState.post,
+        ),
+      );
+    }
+  }
+
+  Future<void> _onToggleDescriptionRequested(
+    PostDetailToggleDescriptionRequested event,
+    Emitter<PostDetailState> emit,
+  ) async {
+    final currentState = state;
+    if (currentState is PostDetailLoaded) {
+      emit(
+        currentState.copyWith(
+          isDescriptionExpanded: !event.isDescriptionToggled,
         ),
       );
     }
