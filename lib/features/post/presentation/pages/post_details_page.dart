@@ -7,11 +7,13 @@ import 'package:app/features/post/domain/entities/post_enums.dart';
 import 'package:app/features/post/domain/usecases/delete_post_use_case.dart';
 import 'package:app/features/post/domain/usecases/get_post_by_id_use_case.dart';
 import 'package:app/features/post/presentation/bloc/post_details_bloc.dart';
+import 'package:app/features/post/presentation/widgets/detail_info_tile.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+
 import 'package:url_launcher/url_launcher.dart';
 
 class PostDetailsPage extends StatelessWidget {
@@ -139,11 +141,26 @@ Widget _buildPostDetailSection(
               ),
               const SizedBox(height: UiConstants.spacingSm),
               _buildActionButtons(context),
+              const SizedBox(height: UiConstants.spacingSm),
               _buildLocationSection(
                 context,
                 latitude: post.latitude,
                 longitude: post.longitude,
               ),
+              const SizedBox(height: UiConstants.spacingSm),
+              _buildAmeniticsSection(context, amenityType: post.amenities),
+              const SizedBox(height: UiConstants.spacingSm),
+              _buildTagsSection(context, postTag: post.tags),
+              const SizedBox(height: UiConstants.spacingSm),
+              _buildOthersDetails(
+                context,
+                roomType: post.roomType,
+                area: post.area,
+                capacity: post.capacity,
+              ),
+              const SizedBox(height: UiConstants.spacingSm),
+              _buildYoutubeVideoPreview(context, youtubeUrl: post.youtubeUrl),
+              const SizedBox(height: UiConstants.spacingXxl),
             ],
           ),
         ),
@@ -279,123 +296,113 @@ Widget _buildLocationSection(
   required double? latitude,
   required double? longitude,
 }) {
-  if (latitude == null && longitude == null) return const SizedBox.shrink();
-  final location = LatLng(latitude!, longitude!);
-  return Padding(
-    padding: const EdgeInsets.all(UiConstants.spacingSm),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Icon(
-              Icons.location_on,
-              color: Theme.of(context).colorScheme.primary,
-              size: 20,
-            ),
-            const SizedBox(width: 6),
-            const Text(
-              'Find us here',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-          ],
-        ),
-        Text(
-          'Visit us in person – we\'re ready to welcome you!',
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            color: Colors.grey.shade700,
-            height: 1.4,
-          ),
-        ),
-        ClipRRect(
-          borderRadius: BorderRadius.circular(UiConstants.radiusMd),
-          child: Container(
-            height: 200,
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey.shade300),
-              borderRadius: BorderRadius.circular(UiConstants.radiusMd),
-            ),
-            child: FlutterMap(
-              options: MapOptions(
-                initialCenter: location,
-                initialZoom: 16,
-                minZoom: 3,
-                maxZoom: 20,
+  if (latitude == null && longitude == null) {
+    print('object');
+    return const SizedBox.shrink();
+  } else {
+    final location = LatLng(latitude!, longitude!);
+    return Padding(
+      padding: const EdgeInsets.all(UiConstants.spacingSm),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.location_on,
+                color: Theme.of(context).colorScheme.primary,
+                size: 20,
               ),
-              children: [
-                TileLayer(
-                  urlTemplate:
-                      'https://api.maptiler.com/maps/hybrid/{z}/{x}/{y}.png?key=${AppConfig.mapTilerKey}',
-                  userAgentPackageName: 'com.example.app',
-                  subdomains: const ['a', 'b', 'c', 'd'],
+              const SizedBox(width: 6),
+              const Text(
+                'Find us here',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+          Text(
+            'Visit us in person – we\'re ready to welcome you!',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: Colors.grey.shade700,
+              height: 1.4,
+            ),
+          ),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(UiConstants.radiusMd),
+            child: Container(
+              height: 200,
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey.shade300),
+                borderRadius: BorderRadius.circular(UiConstants.radiusMd),
+              ),
+              child: FlutterMap(
+                options: MapOptions(
+                  initialCenter: location,
+                  initialZoom: 16,
+                  minZoom: 3,
                   maxZoom: 20,
                 ),
-                MarkerLayer(
-                  markers: [
-                    Marker(
-                      point: location,
-                      width: 80,
-                      height: 80,
-                      child: const Icon(
-                        Icons.location_on,
-                        color: Colors.blue,
-                        size: 50,
-                        shadows: [
-                          BoxShadow(
-                            color: Colors.black26,
-                            blurRadius: 10,
-                            offset: Offset(0, 4),
-                          ),
-                        ],
+                children: [
+                  TileLayer(
+                    urlTemplate:
+                        'https://api.maptiler.com/maps/hybrid/{z}/{x}/{y}.png?key=${AppConfig.mapTilerKey}',
+                    userAgentPackageName: 'com.example.app',
+                    subdomains: const ['a', 'b', 'c', 'd'],
+                    maxZoom: 20,
+                  ),
+                  MarkerLayer(
+                    markers: [
+                      Marker(
+                        point: location,
+                        width: 80,
+                        height: 80,
+                        child: const Icon(
+                          Icons.location_on,
+                          color: Colors.blue,
+                          size: 50,
+                          shadows: [
+                            BoxShadow(
+                              color: Colors.black26,
+                              blurRadius: 10,
+                              offset: Offset(0, 4),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              ],
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
-        Row(
-          children: [
-            Expanded(
-              child: OutlinedButton.icon(
-                onPressed: () => _launchMaps(context, latitude, longitude),
-                icon: const Icon(Icons.directions, size: 18),
-                label: const Text('Get Directions'),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: Theme.of(context).colorScheme.primary,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: OutlinedButton.icon(
-                onPressed: () {
-                  // Option A: Navigate to your own full-screen map page
+          const SizedBox(height: UiConstants.spacingSm),
 
-                  // Option B: Or just open Google Maps in full (if you don’t have in-app map yet)
-                  // _launchMaps(latitude!, longitude!);
-                },
-                icon: const Icon(Icons.fullscreen, size: 18),
-                label: const Text('View Map'),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: Theme.of(context).colorScheme.primary,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+          Row(
+            children: [
+              Expanded(
+                child: CustomButton(
+                  text: 'Get Directions',
+                  icon: const Icon(Icons.directions),
+                  onPressed: () => _launchMaps(context, latitude, longitude),
+                  isOutlined: true,
                 ),
               ),
-            ),
-          ],
-        ),
-      ],
-    ),
-  );
+              const SizedBox(width: 12),
+              Expanded(
+                child: CustomButton(
+                  text: 'View Map',
+                  icon: const Icon(Icons.fullscreen),
+                  onPressed: () {
+                    // TODO
+                  },
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 Future<void> _launchMaps(BuildContext context, double lat, double lng) async {
@@ -461,12 +468,14 @@ Widget _buildDescriptionSection(
     padding: const EdgeInsets.symmetric(horizontal: UiConstants.spacingSm),
     child: LayoutBuilder(
       builder: (context, constraints) {
-        final span = TextSpan(text: description);
+        final textStyle = DefaultTextStyle.of(context).style;
+        final span = TextSpan(text: description, style: textStyle);
 
         final textPainter = TextPainter(
           text: span,
           textDirection: TextDirection.ltr,
           maxLines: 3,
+          ellipsis: '...',
         )..layout(maxWidth: constraints.maxWidth);
 
         final bool textExceedsThreeLines = textPainter.didExceedMaxLines;
@@ -475,17 +484,17 @@ Widget _buildDescriptionSection(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (isExpanded || !textExceedsThreeLines)
-              Text(description, textAlign: TextAlign.justify)
+              Text(description, style: textStyle, textAlign: TextAlign.justify)
             else
               Stack(
                 children: [
                   Text(
                     description,
                     maxLines: 3,
-                    overflow: TextOverflow.clip,
+                    overflow: TextOverflow.ellipsis,
+                    style: textStyle,
                     textAlign: TextAlign.justify,
                   ),
-
                   Positioned(
                     bottom: 0,
                     right: 0,
@@ -529,11 +538,204 @@ Widget _buildDescriptionSection(
   );
 }
 
+Widget _buildAmeniticsSection(
+  BuildContext context, {
+  required List<AmenityType>? amenityType,
+}) {
+  if (amenityType == null) return const SizedBox.shrink();
+  return Padding(
+    padding: const EdgeInsets.all(UiConstants.spacingSm),
+    child: Column(
+      children: [
+        CustomMultiSelect<AmenityType>(
+          label: 'Amenities',
+          items: AmenityType.values,
+          selected: amenityType,
+          itemLabel: (a) => _amenityLabel(a),
+          readOnly: true,
+          onChanged: null,
+        ),
+      ],
+    ),
+  );
+}
+
+Widget _buildTagsSection(
+  BuildContext context, {
+  required List<PostTag>? postTag,
+}) {
+  if (postTag == null) return const SizedBox.shrink();
+  return Padding(
+    padding: const EdgeInsets.all(UiConstants.spacingSm),
+    child: Column(
+      children: [
+        CustomMultiSelect<PostTag>(
+          label: 'Tags',
+          items: PostTag.values,
+          selected: postTag,
+          itemLabel: (p) => _tagLabel(p),
+          readOnly: true,
+          onChanged: null,
+        ),
+      ],
+    ),
+  );
+}
+
+Widget _buildOthersDetails(
+  BuildContext context, {
+  required RoomType? roomType,
+  required double? area,
+  required int? capacity,
+}) {
+  if (roomType == null && area == null && capacity == null) {
+    return const SizedBox.shrink();
+  }
+  return Padding(
+    padding: const EdgeInsets.all(UiConstants.spacingSm),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Others details!!!',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: UiConstants.spacingSm),
+        if (roomType != null)
+          DetailInfoTile(
+            icon: Icons.bed,
+            title: "Room Type",
+            value: roomType.displayName,
+          ),
+        const SizedBox(height: UiConstants.spacingSm),
+        if (area != null)
+          DetailInfoTile(
+            icon: Icons.square_foot,
+            title: "Area",
+            value: "$area sqft",
+          ),
+        const SizedBox(height: UiConstants.spacingSm),
+        if (capacity != null)
+          DetailInfoTile(
+            icon: Icons.people,
+            title: "Capacity",
+            value: "$capacity guests",
+          ),
+      ],
+    ),
+  );
+}
+
+String _amenityLabel(AmenityType a) => a.name.replaceAll('_', ' ').capitalize();
+String _tagLabel(PostTag p) => p.name.replaceAll('_', ' ').capitalize();
+
+extension StringExt on String {
+  String capitalize() => this[0].toUpperCase() + substring(1);
+}
+
 Widget _buildYoutubeVideoPreview(
   BuildContext context, {
-  required String youtubeUrl,
+  required String? youtubeUrl,
 }) {
-  return Column();
+  if (youtubeUrl == null) return const SizedBox.shrink();
+
+  final videoId = extractYoutubeId(youtubeUrl);
+
+  if (videoId == null) {
+    return const Text("Invalid YouTube link");
+  }
+
+  final thumbnailUrl = "https://img.youtube.com/vi/$videoId/0.jpg";
+
+  return Padding(
+    padding: const EdgeInsets.all(UiConstants.spacingSm),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Wanna know us about more!!!',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        Text(
+          'Visit us in our official youtybe videos!',
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            color: Colors.grey.shade700,
+            height: 1.4,
+          ),
+        ),
+        const SizedBox(height: UiConstants.spacingSm),
+        GestureDetector(
+          onTap: () async {
+            final uri = Uri.parse(youtubeUrl);
+            if (await canLaunchUrl(uri)) {
+              await launchUrl(uri, mode: LaunchMode.externalApplication);
+            } else {
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(const SnackBar(content: Text('Unable to open')));
+            }
+          },
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(UiConstants.radiusSm),
+            child: Stack(
+              children: [
+                AspectRatio(
+                  aspectRatio: 16 / 9,
+                  child: Image.network(
+                    thumbnailUrl,
+                    fit: BoxFit.cover,
+                    loadingBuilder: (context, child, loadingProgress) {
+                      if (loadingProgress == null) return child;
+                      return Container(
+                        color: Colors.grey.shade200,
+                        child: const Center(
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                      );
+                    },
+                    errorBuilder: (_, __, ___) => Container(
+                      height: 200,
+                      color: Colors.grey.shade300,
+                      child: const Center(child: Icon(Icons.broken_image)),
+                    ),
+                  ),
+                ),
+
+                // Play button overlay
+                Positioned.fill(
+                  child: Container(
+                    color: Colors.black.withAlpha(80),
+                    child: const Center(
+                      child: Icon(
+                        Icons.play_circle_fill,
+                        color: Colors.white,
+                        size: 64,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+String? extractYoutubeId(String url) {
+  final uri = Uri.tryParse(url);
+  if (uri == null) return null;
+
+  if (uri.host.contains('youtu.be')) {
+    return uri.pathSegments.isNotEmpty ? uri.pathSegments.first : null;
+  }
+
+  if (uri.host.contains('youtube.com')) {
+    return uri.queryParameters['v'];
+  }
+
+  return null;
 }
 
 Widget _buildNotFoundState(BuildContext context) {

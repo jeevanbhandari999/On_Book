@@ -233,13 +233,12 @@ class CustomBottomSheet extends StatelessWidget {
       enableDrag: enableDrag,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder:
-          (context) => CustomBottomSheet(
-            title: title,
-            isDismissible: isDismissible,
-            enableDrag: enableDrag,
-            child: child,
-          ),
+      builder: (context) => CustomBottomSheet(
+        title: title,
+        isDismissible: isDismissible,
+        enableDrag: enableDrag,
+        child: child,
+      ),
     );
   }
 }
@@ -368,10 +367,9 @@ class CustomDropdown<T> extends StatelessWidget {
         const SizedBox(height: 6),
         DropdownButtonFormField<T>(
           initialValue: value,
-          hint:
-              hint != null
-                  ? Text(hint!, style: const TextStyle(color: Colors.grey))
-                  : null,
+          hint: hint != null
+              ? Text(hint!, style: const TextStyle(color: Colors.grey))
+              : null,
           items: items,
           onChanged: onChanged,
           decoration: InputDecoration(
@@ -412,8 +410,9 @@ class CustomMultiSelect<T> extends StatelessWidget {
   final List<T> items;
   final List<T> selected;
   final String Function(T) itemLabel;
-  final ValueChanged<List<T>> onChanged;
+  final ValueChanged<List<T>>? onChanged;
   final Widget? prefixIcon;
+  final bool readOnly;
 
   const CustomMultiSelect({
     super.key,
@@ -421,8 +420,9 @@ class CustomMultiSelect<T> extends StatelessWidget {
     required this.items,
     required this.selected,
     required this.itemLabel,
-    required this.onChanged,
+    this.onChanged,
     this.prefixIcon,
+    this.readOnly = false,
   });
 
   @override
@@ -438,39 +438,39 @@ class CustomMultiSelect<T> extends StatelessWidget {
         ),
         Wrap(
           spacing: 8,
-          children:
-              items.map((item) {
-                final isSelected = selected.contains(item);
-                return FilterChip(
-                  label: Text(itemLabel(item)),
-                  labelPadding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 4,
-                  ),
-                  selected: isSelected,
-                  onSelected: (bool selected) {
-                    final newSelected = List<T>.from(this.selected);
-                    if (selected) {
-                      newSelected.add(item);
-                    } else {
-                      newSelected.remove(item);
-                    }
-                    onChanged(newSelected);
-                  },
-                  selectedColor: Theme.of(context).primaryColor.withAlpha(50),
-                  checkmarkColor: Theme.of(context).primaryColor,
-                  backgroundColor: Colors.grey.shade100,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    side: BorderSide(
-                      color:
-                          isSelected
-                              ? Theme.of(context).primaryColor
-                              : Colors.grey.shade300,
-                    ),
-                  ),
-                );
-              }).toList(),
+          children: items.map((item) {
+            final isSelected = selected.contains(item);
+            return FilterChip(
+              label: Text(itemLabel(item)),
+              labelPadding: const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 4,
+              ),
+              selected: isSelected,
+              onSelected: readOnly
+                  ? null
+                  : (bool selected) {
+                      final newSelected = List<T>.from(this.selected);
+                      if (selected) {
+                        newSelected.add(item);
+                      } else {
+                        newSelected.remove(item);
+                      }
+                      onChanged?.call(newSelected);
+                    },
+              selectedColor: Theme.of(context).primaryColor.withAlpha(50),
+              checkmarkColor: Theme.of(context).primaryColor,
+              backgroundColor: Colors.grey.shade100,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+                side: BorderSide(
+                  color: isSelected
+                      ? Theme.of(context).primaryColor
+                      : Colors.grey.shade300,
+                ),
+              ),
+            );
+          }).toList(),
         ),
       ],
     );
