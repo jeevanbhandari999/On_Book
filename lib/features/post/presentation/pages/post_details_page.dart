@@ -3,6 +3,7 @@ import 'package:app/app/dependency_injection.dart';
 import 'package:app/core/constants/ui_constants.dart';
 import 'package:app/core/widgets/common_widgets.dart';
 import 'package:app/features/post/domain/entities/post.dart';
+import 'package:app/features/post/domain/entities/post_enums.dart';
 import 'package:app/features/post/domain/usecases/delete_post_use_case.dart';
 import 'package:app/features/post/domain/usecases/get_post_by_id_use_case.dart';
 import 'package:app/features/post/presentation/bloc/post_details_bloc.dart';
@@ -11,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class PostDetailsPage extends StatelessWidget {
   final String postId;
@@ -74,32 +76,32 @@ class PostDetailsView extends StatelessWidget {
           return _buildFallBackTryAgainState(context);
         },
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: UiConstants.spacingSm),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Expanded(
-              child: CustomButton(
-                text: 'Add to Library',
-                icon: const Icon(Icons.bookmark_outline),
-                onPressed: () {},
-                isOutlined: true,
-              ),
-            ),
-            const SizedBox(width: UiConstants.spacingSm),
-            Expanded(
-              child: CustomButton(
-                text: 'Book Now',
-                onPressed: () {},
-                icon: const Icon(Icons.event_available),
-              ),
-            ),
-          ],
-        ),
-      ),
+      // floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      // floatingActionButton: Padding(
+      //   padding: const EdgeInsets.symmetric(horizontal: UiConstants.spacingSm),
+      //   child: Row(
+      //     mainAxisAlignment: MainAxisAlignment.center,
+      //     mainAxisSize: MainAxisSize.min,
+      //     children: [
+      //       Expanded(
+      //         child: CustomButton(
+      //           text: 'Add to Library',
+      //           icon: const Icon(Icons.bookmark_outline),
+      //           onPressed: () {},
+      //           isOutlined: true,
+      //         ),
+      //       ),
+      //       const SizedBox(width: UiConstants.spacingSm),
+      //       Expanded(
+      //         child: CustomButton(
+      //           text: 'Book Now',
+      //           onPressed: () {},
+      //           icon: const Icon(Icons.event_available),
+      //         ),
+      //       ),
+      //     ],
+      //   ),
+      // ),
     );
   }
 }
@@ -135,11 +137,46 @@ Widget _buildPostDetailSection(
                   );
                 },
               ),
+              const SizedBox(height: UiConstants.spacingSm),
+              _buildActionButtons(context),
+              _buildLocationSection(
+                context,
+                latitude: post.latitude,
+                longitude: post.longitude,
+              ),
             ],
           ),
         ),
       );
     },
+  );
+}
+
+Widget _buildActionButtons(BuildContext context) {
+  return Padding(
+    padding: const EdgeInsets.symmetric(horizontal: UiConstants.spacingSm),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Expanded(
+          child: CustomButton(
+            text: 'Add to Library',
+            icon: const Icon(Icons.bookmark_outline),
+            onPressed: () {},
+            isOutlined: true,
+          ),
+        ),
+        const SizedBox(width: UiConstants.spacingSm),
+        Expanded(
+          child: CustomButton(
+            text: 'Book Now',
+            onPressed: () {},
+            icon: const Icon(Icons.event_available),
+          ),
+        ),
+      ],
+    ),
   );
 }
 
@@ -180,6 +217,25 @@ Widget _buildImagePageView(BuildContext context, PostDetailLoaded state) {
             );
           },
         ),
+        Positioned(
+          bottom: 0,
+          right: 4,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            decoration: BoxDecoration(
+              color: getPostStatusColor(state.post.status),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Text(
+              enumToString(state.post.status).toUpperCase(),
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 10,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ),
         Align(
           alignment: Alignment.bottomCenter,
           child: Container(
@@ -216,6 +272,147 @@ Widget _buildImagePageView(BuildContext context, PostDetailLoaded state) {
       ],
     ),
   );
+}
+
+Widget _buildLocationSection(
+  BuildContext context, {
+  required double? latitude,
+  required double? longitude,
+}) {
+  if (latitude == null && longitude == null) return const SizedBox.shrink();
+  final location = LatLng(latitude!, longitude!);
+  return Padding(
+    padding: const EdgeInsets.all(UiConstants.spacingSm),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(
+              Icons.location_on,
+              color: Theme.of(context).colorScheme.primary,
+              size: 20,
+            ),
+            const SizedBox(width: 6),
+            const Text(
+              'Find us here',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+        Text(
+          'Visit us in person – we\'re ready to welcome you!',
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            color: Colors.grey.shade700,
+            height: 1.4,
+          ),
+        ),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(UiConstants.radiusMd),
+          child: Container(
+            height: 200,
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.grey.shade300),
+              borderRadius: BorderRadius.circular(UiConstants.radiusMd),
+            ),
+            child: FlutterMap(
+              options: MapOptions(
+                initialCenter: location,
+                initialZoom: 16,
+                minZoom: 3,
+                maxZoom: 20,
+              ),
+              children: [
+                TileLayer(
+                  urlTemplate:
+                      'https://api.maptiler.com/maps/hybrid/{z}/{x}/{y}.png?key=${AppConfig.mapTilerKey}',
+                  userAgentPackageName: 'com.example.app',
+                  subdomains: const ['a', 'b', 'c', 'd'],
+                  maxZoom: 20,
+                ),
+                MarkerLayer(
+                  markers: [
+                    Marker(
+                      point: location,
+                      width: 80,
+                      height: 80,
+                      child: const Icon(
+                        Icons.location_on,
+                        color: Colors.blue,
+                        size: 50,
+                        shadows: [
+                          BoxShadow(
+                            color: Colors.black26,
+                            blurRadius: 10,
+                            offset: Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+        Row(
+          children: [
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed: () => _launchMaps(context, latitude, longitude),
+                icon: const Icon(Icons.directions, size: 18),
+                label: const Text('Get Directions'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: Theme.of(context).colorScheme.primary,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed: () {
+                  // Option A: Navigate to your own full-screen map page
+
+                  // Option B: Or just open Google Maps in full (if you don’t have in-app map yet)
+                  // _launchMaps(latitude!, longitude!);
+                },
+                icon: const Icon(Icons.fullscreen, size: 18),
+                label: const Text('View Map'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: Theme.of(context).colorScheme.primary,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    ),
+  );
+}
+
+Future<void> _launchMaps(BuildContext context, double lat, double lng) async {
+  final googleUrl = Uri.parse(
+    'https://www.google.com/maps/search/?api=1&query=$lat,$lng',
+  );
+  final appleUrl = Uri.parse('https://maps.apple.com/?q=$lat,$lng');
+
+  if (await canLaunchUrl(googleUrl)) {
+    await launchUrl(googleUrl, mode: LaunchMode.externalApplication);
+  } else if (await canLaunchUrl(appleUrl)) {
+    await launchUrl(appleUrl, mode: LaunchMode.externalApplication);
+  } else {
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Could not open maps')));
+  }
 }
 
 Widget _buildTitleAndPriceSection(
@@ -330,6 +527,13 @@ Widget _buildDescriptionSection(
       },
     ),
   );
+}
+
+Widget _buildYoutubeVideoPreview(
+  BuildContext context, {
+  required String youtubeUrl,
+}) {
+  return Column();
 }
 
 Widget _buildNotFoundState(BuildContext context) {
@@ -453,144 +657,15 @@ Widget _buildFallBackTryAgainState(BuildContext context) {
   );
 }
 
-// class PostDetailsView extends StatelessWidget {
-//   final String title;
-//   final double? latitude;
-//   final double? longitude;
-
-//   const PostDetailsView({
-//     super.key,
-//     required this.title,
-//     this.latitude,
-//     this.longitude,
-//   });
-
-//   bool get hasLocation => latitude != null && longitude != null;
-//   LatLng? get latLng => hasLocation ? LatLng(latitude!, longitude!) : null;
-//   @override
-//   Widget build(BuildContext context) {
-//     final location = latLng;
-
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: const Text('Post Details'),
-//         backgroundColor: Colors.transparent,
-//         elevation: 0,
-//       ),
-//       body: SingleChildScrollView(
-//         padding: const EdgeInsets.all(16),
-//         child: Column(
-//           crossAxisAlignment: CrossAxisAlignment.start,
-//           children: [
-//             // Title
-//             Text(
-//               title,
-//               style: Theme.of(
-//                 context,
-//               ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
-//             ),
-//             const SizedBox(height: 24),
-
-//             // Location Section
-//             Text(
-//               'Location',
-//               style: Theme.of(
-//                 context,
-//               ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
-//             ),
-//             const SizedBox(height: 12),
-
-//             // Mini Map
-//             if (location != null)
-//               ClipRRect(
-//                 borderRadius: BorderRadius.circular(16),
-//                 child: Container(
-//                   height: 300,
-//                   decoration: BoxDecoration(
-//                     border: Border.all(color: Colors.grey.shade300),
-//                     borderRadius: BorderRadius.circular(16),
-//                   ),
-//                   child: FlutterMap(
-//                     options: MapOptions(
-//                       initialCenter: location,
-//                       initialZoom: 16,
-//                       minZoom: 3,
-//                       maxZoom: 20,
-//                     ),
-//                     children: [
-//                       TileLayer(
-//                         urlTemplate:
-//                             'https://api.maptiler.com/maps/hybrid/{z}/{x}/{y}.png?key=${AppConfig.mapTilerKey}',
-//                         userAgentPackageName: 'com.example.app',
-//                         subdomains: const ['a', 'b', 'c', 'd'],
-//                         maxZoom: 20,
-//                       ),
-//                       MarkerLayer(
-//                         markers: [
-//                           Marker(
-//                             point: location,
-//                             width: 80,
-//                             height: 80,
-//                             child: const Icon(
-//                               Icons.location_on,
-//                               color: Colors.blue,
-//                               size: 50,
-//                               shadows: [
-//                                 BoxShadow(
-//                                   color: Colors.black26,
-//                                   blurRadius: 10,
-//                                   offset: Offset(0, 4),
-//                                 ),
-//                               ],
-//                             ),
-//                           ),
-//                         ],
-//                       ),
-//                     ],
-//                   ),
-//                 ),
-//               )
-//             else
-//               Container(
-//                 padding: const EdgeInsets.all(24),
-//                 decoration: BoxDecoration(
-//                   color: Colors.grey[100],
-//                   borderRadius: BorderRadius.circular(12),
-//                 ),
-//                 child: const Center(child: Text('No location available')),
-//               ),
-
-//             const SizedBox(height: 16),
-
-//             // Coordinates Text
-//             if (location != null) ...[
-//               const SizedBox(height: 16),
-//               Card(
-//                 child: ListTile(
-//                   leading: const Icon(Icons.pin_drop, color: Colors.blue),
-//                   title: Text(
-//                     'Coordinates',
-//                     style: Theme.of(context).textTheme.titleMedium,
-//                   ),
-//                   subtitle: Text(
-//                     'Lat: ${location.latitude.toStringAsFixed(6)}\nLng: ${location.longitude.toStringAsFixed(6)}',
-//                   ),
-//                   trailing: IconButton(
-//                     icon: const Icon(Icons.open_in_new),
-//                     onPressed: () {
-//                       // Optional: copy to clipboard
-//                       ScaffoldMessenger.of(context).showSnackBar(
-//                         const SnackBar(content: Text('Coordinates copied!')),
-//                       );
-//                     },
-//                   ),
-//                 ),
-//               ),
-//             ],
-//             const SizedBox(height: 40),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
+Color getPostStatusColor(PostStatus status) {
+  switch (status) {
+    case PostStatus.available:
+      return const Color(0xFF4CAF50);
+    case PostStatus.booked:
+      return const Color(0xFFFF8C00);
+    case PostStatus.sold:
+      return const Color(0xFFEF5350);
+    case PostStatus.underMaintenance:
+      return const Color(0xFF546E7A);
+  }
+}
