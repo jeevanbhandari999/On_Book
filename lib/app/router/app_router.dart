@@ -12,6 +12,7 @@ import 'package:app/features/home/presentation/pages/home_page.dart';
 import 'package:app/features/library/presentation/pages/library_page.dart';
 import 'package:app/features/post/domain/entities/post.dart';
 import 'package:app/features/post/presentation/pages/create_post_page.dart';
+import 'package:app/features/post/presentation/pages/edit_post_page.dart';
 import 'package:app/features/post/presentation/pages/post_details_page.dart';
 import 'package:app/features/post/presentation/pages/post_page.dart';
 import 'package:app/features/profile/presentation/pages/profile_page.dart';
@@ -157,11 +158,21 @@ class AppRouter {
         path: RouteConstants.postDetailsPage,
         builder: (context, state) {
           final extraData = state.extra as Map<String, dynamic>;
-          print(extraData);
+          // print(extraData);
           final postId = extraData['postId'] as String;
           final post = extraData['post'];
           final userId = extraData['userId'];
           return PostDetailsPage(postId: postId, post: post, userId: userId);
+        },
+      ),
+
+      GoRoute(
+        path: RouteConstants.editPostPage,
+        builder: (context, state) {
+          // final extraData = state.extra as Map<String, dynamic>?;
+          // final userId = extraData?['userId'];
+          // final organizationId = extraData?['organizationId'];
+          return const EditPostPage();
         },
       ),
 

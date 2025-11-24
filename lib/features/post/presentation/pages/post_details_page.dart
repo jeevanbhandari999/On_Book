@@ -1,5 +1,6 @@
 import 'package:app/app/app_config.dart';
 import 'package:app/app/dependency_injection.dart';
+import 'package:app/app/router/route_constants.dart';
 import 'package:app/core/constants/ui_constants.dart';
 import 'package:app/core/widgets/common_widgets.dart';
 import 'package:app/features/post/domain/entities/post.dart';
@@ -12,6 +13,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
 
 import 'package:url_launcher/url_launcher.dart';
@@ -55,7 +57,52 @@ class PostDetailsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(post?.title ?? 'Details Page')),
+      appBar: AppBar(
+        title: Text(post?.title ?? 'Details Page'),
+        actions: [
+          PopupMenuButton<String>(
+            elevation: 3,
+            onSelected: (value) {
+              if (value == 'edit') {
+                context.push(RouteConstants.editPostPage);
+              }
+              if (value == 'delete') {
+                _showDeleteConfirmDialog(
+                  context,
+                  title: post?.title ?? '',
+                  userId: userId ?? '',
+                );
+              }
+            },
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: 'edit',
+                child: Row(
+                  children: [
+                    Icon(Icons.edit, size: UiConstants.iconMd),
+                    SizedBox(width: UiConstants.spacingSm),
+                    Text('Edit'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'delete',
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.delete,
+                      size: UiConstants.iconMd,
+                      color: Colors.red,
+                    ),
+                    SizedBox(width: UiConstants.spacingSm),
+                    Text('Delete', style: TextStyle(color: Colors.red)),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
       body: BlocBuilder<PostDetailsBloc, PostDetailState>(
         builder: (context, state) {
           if (state is PostdetailLoading) {
@@ -297,7 +344,7 @@ Widget _buildLocationSection(
   required double? longitude,
 }) {
   if (latitude == null && longitude == null) {
-    print('object');
+    // print('object');
     return const SizedBox.shrink();
   } else {
     final location = LatLng(latitude!, longitude!);
@@ -416,9 +463,11 @@ Future<void> _launchMaps(BuildContext context, double lat, double lng) async {
   } else if (await canLaunchUrl(appleUrl)) {
     await launchUrl(appleUrl, mode: LaunchMode.externalApplication);
   } else {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('Could not open maps')));
+    if (context.mounted) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Could not open maps')));
+    }
   }
 }
 
@@ -670,9 +719,11 @@ Widget _buildYoutubeVideoPreview(
             if (await canLaunchUrl(uri)) {
               await launchUrl(uri, mode: LaunchMode.externalApplication);
             } else {
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(const SnackBar(content: Text('Unable to open')));
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Could not open youtube')),
+                );
+              }
             }
           },
           child: ClipRRect(
@@ -870,4 +921,40 @@ Color getPostStatusColor(PostStatus status) {
     case PostStatus.underMaintenance:
       return const Color(0xFF546E7A);
   }
+}
+
+void _showDeleteConfirmDialog(
+  BuildContext context, {
+  required String title,
+  required String userId,
+}) {
+  showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: Text('Delete post Confirm'),
+        content: Text(
+          'Are you aure want to delete this post ($title), This action can\'t be undone once you delete , you will lose all related data about this post',
+        ),
+        actions: [
+          CustomButton(
+            text: 'Cancel',
+            isOutlined: true,
+            onPressed: () => context.pop(),
+          ),
+          BlocBuilder<PostDetailsBloc, PostDetailState>(
+            builder: (context, state) {
+              return CustomButton(
+                text: 'Confirm',
+                isLoading: state is PostDetailDeleting,
+                onPressed: () => context.read<PostDetailsBloc>().add(
+                  PostDetailDeleteRequested(userId: userId),
+                ),
+              );
+            },
+          ),
+        ],
+      );
+    },
+  );
 }

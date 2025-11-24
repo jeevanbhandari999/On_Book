@@ -21,6 +21,7 @@ class RouteConstants {
   static const String postPage = '/postPage';
   static const String createPostPage = '/createPostPage';
   static const String postDetailsPage = '/postDetailsPage';
+  static const String editPostPage = '/editPostPage';
 
   // Library routes
   static const String libraryPage = '/libraryPage';
