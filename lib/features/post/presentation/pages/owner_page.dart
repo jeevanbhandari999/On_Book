@@ -251,6 +251,7 @@ Widget _buildPostVideos(
               if (post == null) return null; // safety
 
               return {
+                'post': post,
                 'title': post.title,
                 'imageUrl': null, // Since we are only showing videos here..
                 'videoUrl': vid.videoUrl,
@@ -349,6 +350,7 @@ Widget _buildPostImages(
               if (post == null) return null; // safety
 
               return {
+                'post': post,
                 'title': post.title,
                 'imageUrl': img.imageUrl,
                 'videoUrl': null, // Since we are only showing images here..

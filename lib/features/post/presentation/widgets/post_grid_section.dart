@@ -70,7 +70,7 @@ Future<void> _showModalBottomSheetForImage(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // --- Large Main Image ---
+          // image
           ClipRRect(
             borderRadius: BorderRadius.circular(16),
             child: CachedNetworkImage(
@@ -120,7 +120,6 @@ Future<void> _showModalBottomSheetForImage(
 
           const SizedBox(height: UiConstants.spacingMd),
 
-          // --- Title ---
           Text(
             post['title'] ?? 'Untitled Post',
             style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
@@ -128,7 +127,6 @@ Future<void> _showModalBottomSheetForImage(
 
           const SizedBox(height: UiConstants.spacingSm),
 
-          // --- Description ---
           Text(
             post['description'] ?? 'No description available.',
             maxLines: 3,
@@ -138,7 +136,6 @@ Future<void> _showModalBottomSheetForImage(
 
           const SizedBox(height: UiConstants.spacingMd),
 
-          // --- Price Tag ---
           if (post['price'] != null)
             Text(
               "Price: Rs.${post['price'].toString()}",
@@ -171,8 +168,15 @@ Future<void> _showModalBottomSheetForImage(
             child: CustomButton(
               text: 'View More',
               onPressed: () {
-                // TODO
-                // Logic to view more
+                if (!context.mounted) return;
+                context.push(
+                  RouteConstants.postDetailsPage,
+                  extra: {
+                    'postId': post['postId'],
+                    'post': post['post'],
+                    'userId': post['userId'],
+                  },
+                );
               },
             ),
           ),

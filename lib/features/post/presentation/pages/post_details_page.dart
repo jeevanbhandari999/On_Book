@@ -55,7 +55,7 @@ class PostDetailsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(post!.title)),
+      appBar: AppBar(title: Text(post?.title ?? 'Details Page')),
       body: BlocBuilder<PostDetailsBloc, PostDetailState>(
         builder: (context, state) {
           if (state is PostdetailLoading) {
