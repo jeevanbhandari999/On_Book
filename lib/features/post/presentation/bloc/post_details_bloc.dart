@@ -64,6 +64,14 @@ class PostDetailImageViewRequested extends PostDetailEvent {
   List<Object?> get props => [imageIndex];
 }
 
+class PostDetailFullImageViewRequested extends PostDetailEvent {
+  final int imageIndex;
+  const PostDetailFullImageViewRequested({required this.imageIndex});
+
+  @override
+  List<Object?> get props => [imageIndex];
+}
+
 class PostDetailImageViewCloseRequested extends PostDetailEvent {
   const PostDetailImageViewCloseRequested();
 }
@@ -142,13 +150,13 @@ class PostDetailDeleted extends PostDetailState {
 class PostDetailLoaded extends PostDetailState {
   final Post post;
   final List<String> additionalImageUrls;
-
   final bool canEdit;
   final bool canDelete;
   final int? viewingImageIndex;
   final bool? watchingVideo;
   final bool? isSharing;
   final bool isDescriptionExpanded;
+  final bool isInFullScreenImageMode;
 
   const PostDetailLoaded({
     required this.post,
@@ -159,6 +167,7 @@ class PostDetailLoaded extends PostDetailState {
     this.watchingVideo,
     this.isSharing = false,
     this.isDescriptionExpanded = false,
+    this.isInFullScreenImageMode = false,
   });
 
   @override
@@ -170,6 +179,7 @@ class PostDetailLoaded extends PostDetailState {
     watchingVideo,
     isSharing,
     isDescriptionExpanded,
+    isInFullScreenImageMode,
   ];
 
   PostDetailLoaded copyWith({
@@ -181,6 +191,7 @@ class PostDetailLoaded extends PostDetailState {
     bool? watchingVideo,
     bool? isSharing,
     bool? isDescriptionExpanded,
+    bool? isInFullScreenImageMode,
   }) {
     return PostDetailLoaded(
       post: post ?? this.post,
@@ -192,12 +203,14 @@ class PostDetailLoaded extends PostDetailState {
       isSharing: isSharing ?? this.isSharing,
       isDescriptionExpanded:
           isDescriptionExpanded ?? this.isDescriptionExpanded,
+      isInFullScreenImageMode:
+          isInFullScreenImageMode ?? this.isInFullScreenImageMode,
     );
   }
 
   // Clear image viewing
   PostDetailLoaded clearImageViewing() {
-    return copyWith(viewingImageIndex: null);
+    return copyWith(viewingImageIndex: null, isInFullScreenImageMode: false);
   }
 
   // Get all images (primary or additional images)
@@ -209,7 +222,8 @@ class PostDetailLoaded extends PostDetailState {
   bool get hasAdditionalImages => post.hasAdditionalImages;
 
   // Check if currently viewing an image
-  bool get isViewingImage => viewingImageIndex != null;
+  bool get isViewingImage =>
+      viewingImageIndex != null && isInFullScreenImageMode == true;
 
   // Get the current viewing image url
   String? get currentViewingImageUrl {
@@ -269,6 +283,7 @@ class PostDetailsBloc extends Bloc<PostDetailEvent, PostDetailState> {
     on<PostDetailVideoViewRequested>(_onVideoViewRequested);
     on<PostDetailVideoViewCloseRequested>(_onVideoCloseRequested);
     on<PostDetailImageViewRequested>(_onImageViewRequested);
+    on<PostDetailFullImageViewRequested>(_onFullImageViewRequested);
     on<PostDetailImageViewCloseRequested>(_onImageCloseRequested);
     on<PostDetailSharedRequested>(_onSharedRequested);
     on<PostDetailDeleteRequested>(_onDeleteRequested);
@@ -452,6 +467,24 @@ class PostDetailsBloc extends Bloc<PostDetailEvent, PostDetailState> {
       if (event.imageIndex >= 0 &&
           event.imageIndex < currentState.getAllImages.length) {
         emit(currentState.copyWith(viewingImageIndex: event.imageIndex));
+      }
+    }
+  }
+
+  Future<void> _onFullImageViewRequested(
+    PostDetailFullImageViewRequested event,
+    Emitter<PostDetailState> emit,
+  ) async {
+    final currentState = state;
+    if (currentState is PostDetailLoaded) {
+      if (event.imageIndex >= 0 &&
+          event.imageIndex < currentState.getAllImages.length) {
+        emit(
+          currentState.copyWith(
+            viewingImageIndex: event.imageIndex,
+            isInFullScreenImageMode: true,
+          ),
+        );
       }
     }
   }

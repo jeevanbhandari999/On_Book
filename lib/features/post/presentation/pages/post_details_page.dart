@@ -60,52 +60,77 @@ class PostDetailsView extends StatelessWidget {
       appBar: AppBar(
         title: Text(post?.title ?? 'Details Page'),
         actions: [
-          PopupMenuButton<String>(
-            elevation: 3,
-            onSelected: (value) {
-              if (value == 'edit') {
-                context.push(RouteConstants.editPostPage);
-              }
-              if (value == 'delete') {
-                _showDeleteConfirmDialog(
-                  context,
-                  title: post?.title,
-                  userId: userId ?? '',
-                );
-              }
-            },
-            itemBuilder: (context) => [
-              const PopupMenuItem(
-                value: 'edit',
-                child: Row(
-                  children: [
-                    Icon(Icons.edit, size: UiConstants.iconMd),
-                    SizedBox(width: UiConstants.spacingSm),
-                    Text('Edit'),
-                  ],
-                ),
-              ),
-              const PopupMenuItem(
-                value: 'delete',
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.delete,
-                      size: UiConstants.iconMd,
-                      color: Colors.red,
+          BlocBuilder<PostDetailsBloc, PostDetailState>(
+            builder: (context, state) {
+              return PopupMenuButton<String>(
+                elevation: 3,
+                onSelected: (value) {
+                  if (value == 'edit') {
+                    context.push(RouteConstants.editPostPage);
+                  }
+                  if (value == 'delete') {
+                    _showDeleteConfirmDialog(
+                      context,
+                      title: post?.title,
+                      userId: userId ?? '',
+                      state: state,
+                    );
+                  }
+                },
+                itemBuilder: (context) => [
+                  const PopupMenuItem(
+                    value: 'edit',
+                    child: Row(
+                      children: [
+                        Icon(Icons.edit, size: UiConstants.iconMd),
+                        SizedBox(width: UiConstants.spacingSm),
+                        Text('Edit'),
+                      ],
                     ),
-                    SizedBox(width: UiConstants.spacingSm),
-                    Text('Delete', style: TextStyle(color: Colors.red)),
-                  ],
-                ),
-              ),
-            ],
+                  ),
+                  const PopupMenuItem(
+                    value: 'delete',
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.delete,
+                          size: UiConstants.iconMd,
+                          color: Colors.red,
+                        ),
+                        SizedBox(width: UiConstants.spacingSm),
+                        Text('Delete', style: TextStyle(color: Colors.red)),
+                      ],
+                    ),
+                  ),
+                ],
+              );
+            },
           ),
         ],
       ),
-      body: BlocBuilder<PostDetailsBloc, PostDetailState>(
+      body: BlocConsumer<PostDetailsBloc, PostDetailState>(
+        listener: (context, state) {
+          if (state is PostDetailDeleted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.message),
+                backgroundColor: Colors.green,
+              ),
+            );
+            Navigator.pop(context);
+          } else if (state is PostDetailError) {
+            // print(state.message);
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.message),
+                backgroundColor: Colors.red,
+                duration: const Duration(seconds: 10),
+              ),
+            );
+          }
+        },
         builder: (context, state) {
-          if (state is PostdetailLoading) {
+          if (state is PostdetailLoading || state is PostDetailDeleting) {
             return const Center(child: CircularProgressIndicator());
           }
           if (state is PostDetailLoaded) {
@@ -121,6 +146,7 @@ class PostDetailsView extends StatelessWidget {
           if (state is PostDetailError) {
             return _buildErrorState(context, message: state.message);
           }
+
           // show try again in fall back
           return _buildFallBackTryAgainState(context);
         },
@@ -162,15 +188,11 @@ Widget _buildPostDetailSection(
 }) {
   return BlocBuilder<PostDetailsBloc, PostDetailState>(
     builder: (context, state) {
-      if (state is PostDetailDeleted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(state.message)));
-      }
-      if (state is PostDetailError) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(state.message)));
+      final isViewingImage = state is PostDetailLoaded
+          ? state.isViewingImage
+          : false;
+      if (isViewingImage) {
+        return _buildImageViewer(context, state);
       }
       return RefreshIndicator(
         onRefresh: () => _onRefresh(context),
@@ -256,27 +278,25 @@ Widget _buildActionButtons(BuildContext context) {
 
 Widget _buildImagePageView(BuildContext context, PostDetailLoaded state) {
   final images = state.getAllImages;
+  final currentIndex = state.viewingImageIndex ?? 0;
+  final pageController = PageController(initialPage: currentIndex);
   return SizedBox(
     height: 400,
     child: Stack(
       children: [
         PageView.builder(
+          controller: pageController,
           itemCount: images.length,
           onPageChanged: (index) {
             context.read<PostDetailsBloc>().add(
               PostDetailImageViewRequested(imageIndex: index),
             );
-            // context.read<PostDetailsBloc>().emit(
-            //   state.copyWith(viewingImageIndex: index),
-            // );
           },
           itemBuilder: (context, index) {
             final url = images[index];
             return GestureDetector(
               onTap: () {
-                context.read<PostDetailsBloc>().add(
-                  PostDetailImageViewRequested(imageIndex: index),
-                );
+                _onImageViewTapped(context, index);
               },
               child: CachedNetworkImage(
                 imageUrl: url,
@@ -344,6 +364,59 @@ Widget _buildImagePageView(BuildContext context, PostDetailLoaded state) {
           ),
         ),
       ],
+    ),
+  );
+}
+
+void _onImageViewTapped(BuildContext context, int index) {
+  context.read<PostDetailsBloc>().add(
+    PostDetailFullImageViewRequested(imageIndex: index),
+  );
+}
+
+void _onCloseImageViewer(BuildContext context) {
+  context.read<PostDetailsBloc>().add(
+    const PostDetailImageViewCloseRequested(),
+  );
+}
+
+Widget _buildImageViewer(BuildContext context, PostDetailLoaded state) {
+  final allImages = state.getAllImages;
+  final currentIndex = state.viewingImageIndex ?? 0;
+  final pageController = PageController(initialPage: currentIndex);
+
+  return Scaffold(
+    appBar: AppBar(
+      backgroundColor: Colors.transparent,
+      leading: IconButton(
+        icon: const Icon(Icons.close),
+        onPressed: () => _onCloseImageViewer(context),
+      ),
+      title: Text('${currentIndex + 1} of ${allImages.length}'),
+      centerTitle: true,
+    ),
+    body: PageView.builder(
+      controller: pageController,
+      itemCount: allImages.length,
+      onPageChanged: (index) {
+        context.read<PostDetailsBloc>().add(
+          PostDetailImageViewRequested(imageIndex: index),
+        );
+      },
+      itemBuilder: (context, index) {
+        return InteractiveViewer(
+          child: Center(
+            child: CachedNetworkImage(
+              imageUrl: allImages[index],
+              fit: BoxFit.contain,
+              placeholder: (context, url) =>
+                  const Center(child: CircularProgressIndicator()),
+              errorWidget: (context, url, error) =>
+                  const Center(child: Icon(Icons.error)),
+            ),
+          ),
+        );
+      },
     ),
   );
 }
@@ -937,6 +1010,7 @@ void _showDeleteConfirmDialog(
   BuildContext context, {
   required String? title,
   required String userId,
+  required PostDetailState state,
 }) {
   // print('$title , $userId');
   showDialog(
@@ -955,10 +1029,13 @@ void _showDeleteConfirmDialog(
           ),
           CustomButton(
             text: 'Confirm',
-            // isLoading: state is PostDetailDeleting,
-            onPressed: () => context.read<PostDetailsBloc>().add(
-              PostDetailDeleteRequested(userId: userId),
-            ),
+            isLoading: state is PostDetailDeleting,
+            onPressed: () {
+              context.read<PostDetailsBloc>().add(
+                PostDetailDeleteRequested(userId: userId),
+              );
+              dialogContext.pop();
+            },
           ),
           // BlocBuilder<PostDetailsBloc, PostDetailState>(
           //   builder: (context, state) {

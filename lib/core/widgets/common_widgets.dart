@@ -197,19 +197,46 @@ class CustomBottomSheet extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (enableDrag) ...[
-            const SizedBox(height: UiConstants.spacingSm),
-            Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.onSurface.withAlpha(80),
-                borderRadius: BorderRadius.circular(2),
+          Stack(
+            alignment: Alignment.center,
+            children: [
+              // Drag handle (centered)
+              if (enableDrag)
+                Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withAlpha(80),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+
+              // Close icon (top-right)
+              Align(
+                alignment: Alignment.centerRight,
+                child: IconButton(
+                  icon: const Icon(Icons.close),
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
               ),
-            ),
-          ],
+              if (title != null)
+                Positioned(
+                  left: 56, // enough space for the close button
+                  right: 56,
+                  child: Text(
+                    title!,
+                    style: Theme.of(context).textTheme.titleLarge,
+                    textAlign: TextAlign.center,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+            ],
+          ),
           if (title != null) ...[
-            const SizedBox(height: UiConstants.spacingMd),
             Text(title!, style: Theme.of(context).textTheme.headlineSmall),
             const Divider(),
           ],
