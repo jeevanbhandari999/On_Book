@@ -359,7 +359,7 @@ class PostFormBloc extends Bloc<PostFormEvent, PostFormState> {
   ) {
     final s = state;
     if (s is PostFormReady) {
-      print('primary imaeg: ${e.file}');
+      // print('primary imaeg: ${e.file}');
       emit(_validateForm(s.copyWith(primaryImageFile: e.file)));
     }
   }

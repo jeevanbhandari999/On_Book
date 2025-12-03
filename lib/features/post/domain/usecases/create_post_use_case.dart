@@ -61,7 +61,7 @@ class CreatePostUseCase {
       final uploadResult = await repository.uploadImage(
         params.primaryImageFile!,
         params.organizationId,
-        'temp', // temp postId before creation (backend may not need it)
+        'primary_image', // primary_image postId before creation (backend may not need it)
       );
 
       if (uploadResult.isLeft()) {

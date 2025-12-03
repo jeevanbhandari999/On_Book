@@ -277,12 +277,6 @@ class PostRemoteDataSourceImpl implements PostRemoteDataSource {
           .select('image_url')
           .eq('post_id', postId);
 
-      final postResponse = await supabaseClient
-          .from('posts')
-          .select('primary_image_url')
-          .eq('id', postId)
-          .single();
-
       // Collect all image URls to delete
       final imageUrls = <String>[];
 
@@ -294,8 +288,14 @@ class PostRemoteDataSourceImpl implements PostRemoteDataSource {
         }
       }
 
+      final postResponse = await supabaseClient
+          .from('posts')
+          .select()
+          .eq('id', postId)
+          .maybeSingle();
+
       // Add primary image also
-      final primaryImageUrl = postResponse['primary_image_url'] as String?;
+      final primaryImageUrl = postResponse?['primary_image_url'] as String?;
       if (primaryImageUrl != null) {
         imageUrls.add(primaryImageUrl);
       }

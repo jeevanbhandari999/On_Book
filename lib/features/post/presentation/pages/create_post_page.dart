@@ -283,7 +283,6 @@ class _LocationSection extends StatelessWidget {
           ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 12),
-
         Row(
           children: [
             Expanded(

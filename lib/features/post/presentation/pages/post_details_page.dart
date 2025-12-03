@@ -69,7 +69,7 @@ class PostDetailsView extends StatelessWidget {
               if (value == 'delete') {
                 _showDeleteConfirmDialog(
                   context,
-                  title: post?.title ?? '',
+                  title: post?.title,
                   userId: userId ?? '',
                 );
               }
@@ -119,7 +119,7 @@ class PostDetailsView extends StatelessWidget {
             return _buildNotFoundState(context);
           }
           if (state is PostDetailError) {
-            return _buildErrorState(context, message: 'Something went wrong');
+            return _buildErrorState(context, message: state.message);
           }
           // show try again in fall back
           return _buildFallBackTryAgainState(context);
@@ -162,6 +162,16 @@ Widget _buildPostDetailSection(
 }) {
   return BlocBuilder<PostDetailsBloc, PostDetailState>(
     builder: (context, state) {
+      if (state is PostDetailDeleted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(state.message)));
+      }
+      if (state is PostDetailError) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(state.message)));
+      }
       return RefreshIndicator(
         onRefresh: () => _onRefresh(context),
         child: SingleChildScrollView(
@@ -925,14 +935,15 @@ Color getPostStatusColor(PostStatus status) {
 
 void _showDeleteConfirmDialog(
   BuildContext context, {
-  required String title,
+  required String? title,
   required String userId,
 }) {
+  // print('$title , $userId');
   showDialog(
     context: context,
-    builder: (context) {
+    builder: (dialogContext) {
       return AlertDialog(
-        title: Text('Delete post Confirm'),
+        title: const Text('Delete post Confirm'),
         content: Text(
           'Are you aure want to delete this post ($title), This action can\'t be undone once you delete , you will lose all related data about this post',
         ),
@@ -940,19 +951,29 @@ void _showDeleteConfirmDialog(
           CustomButton(
             text: 'Cancel',
             isOutlined: true,
-            onPressed: () => context.pop(),
+            onPressed: () => dialogContext.pop(),
           ),
-          BlocBuilder<PostDetailsBloc, PostDetailState>(
-            builder: (context, state) {
-              return CustomButton(
-                text: 'Confirm',
-                isLoading: state is PostDetailDeleting,
-                onPressed: () => context.read<PostDetailsBloc>().add(
-                  PostDetailDeleteRequested(userId: userId),
-                ),
-              );
-            },
+          CustomButton(
+            text: 'Confirm',
+            // isLoading: state is PostDetailDeleting,
+            onPressed: () => context.read<PostDetailsBloc>().add(
+              PostDetailDeleteRequested(userId: userId),
+            ),
           ),
+          // BlocBuilder<PostDetailsBloc, PostDetailState>(
+          //   builder: (context, state) {
+          //     if (state is PostDetailLoaded) {
+          //       CustomButton(
+          //         text: 'Confirm',
+          //         isLoading: state is PostDetailDeleting,
+          //         onPressed: () => context.read<PostDetailsBloc>().add(
+          //           PostDetailDeleteRequested(userId: userId),
+          //         ),
+          //       );
+          //     }
+          //     return const SizedBox.shrink();
+          //   },
+          // ),
         ],
       );
     },
