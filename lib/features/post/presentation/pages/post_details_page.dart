@@ -66,7 +66,15 @@ class PostDetailsView extends StatelessWidget {
                 elevation: 3,
                 onSelected: (value) {
                   if (value == 'edit') {
-                    context.push(RouteConstants.editPostPage);
+                    context.push(
+                      RouteConstants.editPostPage,
+                      extra: {
+                        // pasing the post id and userid to get the post detail through bloc in case the post is unavailabel at that moment
+                        'postId': post?.id,
+                        'post': post,
+                        'userId': post?.createdBy,
+                      },
+                    );
                   }
                   if (value == 'delete') {
                     _showDeleteConfirmDialog(

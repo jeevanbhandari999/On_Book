@@ -90,9 +90,7 @@ Future<void> _showModalBottomSheetForImage(
               ),
             ),
           ),
-
           const SizedBox(height: 16),
-
           // show the remaining related images to this posts (in future)
           if (post['gallery'] != null && post['gallery'] is List)
             SizedBox(
@@ -166,7 +164,6 @@ Future<void> _showModalBottomSheetForImage(
               },
             ),
           ),
-
           const SizedBox(height: 10),
         ],
       ),

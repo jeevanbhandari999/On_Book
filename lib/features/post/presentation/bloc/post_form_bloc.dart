@@ -1,11 +1,14 @@
 import 'dart:io';
+import 'package:app/app/dependency_injection.dart';
 import 'package:app/features/post/domain/entities/post.dart';
 import 'package:app/features/post/domain/entities/post_enums.dart';
+import 'package:app/features/post/domain/entities/post_image.dart';
+import 'package:app/features/post/domain/repositories/post_repository.dart';
 import 'package:app/features/post/domain/usecases/create_post_use_case.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 
-//  EVENTS ──────────────────────────────
+//  EVENTS
 
 abstract class PostFormEvent extends Equatable {
   const PostFormEvent();
@@ -17,14 +20,16 @@ abstract class PostFormEvent extends Equatable {
 class PostFormInitialized extends PostFormEvent {
   final String userId;
   final String organizationId;
+  final Post? editPost; // Made optional for editing purpose
 
   const PostFormInitialized({
     required this.userId,
     required this.organizationId,
+    this.editPost,
   });
 
   @override
-  List<Object?> get props => [userId, organizationId];
+  List<Object?> get props => [userId, organizationId, editPost];
 }
 
 class PostFormTitleChanged extends PostFormEvent {
@@ -169,6 +174,7 @@ class PostFormReady extends PostFormState {
   final String description;
   final String primaryImageUrl;
   final File? primaryImageFile;
+  final List<String>? existingAdditionalImages;
   final List<File> additionalImages;
   final File? videoFile;
   final String youtubeUrl;
@@ -190,6 +196,7 @@ class PostFormReady extends PostFormState {
     this.description = '',
     this.primaryImageUrl = '',
     this.primaryImageFile,
+    this.existingAdditionalImages,
     this.additionalImages = const [],
     this.videoFile,
     this.youtubeUrl = '',
@@ -213,6 +220,7 @@ class PostFormReady extends PostFormState {
     description,
     primaryImageUrl,
     primaryImageFile,
+    existingAdditionalImages,
     additionalImages,
     videoFile,
     youtubeUrl,
@@ -235,6 +243,7 @@ class PostFormReady extends PostFormState {
     String? description,
     String? primaryImageUrl,
     File? primaryImageFile,
+    List<String>? existingAdditionalImages,
     List<File>? additionalImages,
     File? videoFile,
     String? youtubeUrl,
@@ -256,6 +265,8 @@ class PostFormReady extends PostFormState {
       description: description ?? this.description,
       primaryImageUrl: primaryImageUrl ?? this.primaryImageUrl,
       primaryImageFile: primaryImageFile ?? this.primaryImageFile,
+      existingAdditionalImages:
+          existingAdditionalImages ?? this.existingAdditionalImages,
       additionalImages: additionalImages ?? this.additionalImages,
       videoFile: videoFile ?? this.videoFile,
       youtubeUrl: youtubeUrl ?? this.youtubeUrl,
@@ -322,10 +333,53 @@ class PostFormBloc extends Bloc<PostFormEvent, PostFormState> {
     on<PostFormReset>(_onReset);
   }
 
-  void _onInitialized(PostFormInitialized event, Emitter<PostFormState> emit) {
-    emit(
-      PostFormReady(userId: event.userId, organizationId: event.organizationId),
-    );
+  Future<void> _onInitialized(
+    PostFormInitialized event,
+    Emitter<PostFormState> emit,
+  ) async {
+    if (event.editPost == null) {
+      emit(
+        PostFormReady(
+          userId: event.userId,
+          organizationId: event.organizationId,
+        ),
+      );
+    } else {
+      final post = event.editPost!;
+      final postRepo = DependencyInjection.get<PostRepository>();
+
+      final imageResult = await postRepo.getAllSpecificPostImagesByPostId(
+        post.id,
+      );
+
+      // extract the image urls safely
+      final additionalImageUrls = imageResult.fold(
+        (failure) => <String>[],
+        (images) => images.map((img) => img.imageUrl).toList(),
+      );
+      // Try to prefill the post properly
+      emit(
+        PostFormReady(
+          userId: event.userId,
+          organizationId: event.organizationId,
+          title: post.title,
+          description: post.description ?? '',
+          primaryImageUrl: post.primaryImageUrl,
+          youtubeUrl: post.youtubeUrl ?? '',
+          price: post.price ?? 0,
+          area: post.area,
+          capacity: post.capacity,
+          roomType: post.roomType,
+          amenities: post.amenities ?? [],
+          tags: post.tags ?? [],
+          latitude: post.latitude,
+          longitude: post.longitude,
+          existingAdditionalImages: additionalImageUrls,
+          // Note: We don't pre-fill File fields (primaryImageFile, additionalImages, videoFile)
+          // because user might want to change images → handled separately in UI
+        ),
+      );
+    }
   }
 
   void _onTitleChanged(PostFormTitleChanged e, Emitter<PostFormState> emit) {
@@ -531,6 +585,10 @@ class PostFormBloc extends Bloc<PostFormEvent, PostFormState> {
 
     if (s.price <= 0) {
       errors['price'] = 'Price must be greater than 0';
+    }
+
+    if (s.primaryImageFile == null) {
+      errors['primary_image'] = 'Primary image is required';
     }
 
     if (s.area != null && s.area! < 0) {

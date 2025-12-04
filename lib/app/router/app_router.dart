@@ -169,10 +169,12 @@ class AppRouter {
       GoRoute(
         path: RouteConstants.editPostPage,
         builder: (context, state) {
-          // final extraData = state.extra as Map<String, dynamic>?;
-          // final userId = extraData?['userId'];
-          // final organizationId = extraData?['organizationId'];
-          return const EditPostPage();
+          final extraData = state.extra as Map<String, dynamic>;
+          // print(extraData);
+          final postId = extraData['postId'];
+          final post = extraData['post'];
+          final userId = extraData['userId'];
+          return EditPostPage(postId: postId, post: post, userId: userId);
         },
       ),
 

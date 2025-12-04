@@ -5,6 +5,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:app/core/constants/ui_constants.dart';
 
 class PostMediaPicker extends StatelessWidget {
+  final String? existingPrimaryImageUrl;
+  final List<String>? existingAdditionalImage;
   final File? primaryImageFile;
   final List<File> additionalImages;
   final File? videoFile;
@@ -22,6 +24,8 @@ class PostMediaPicker extends StatelessWidget {
 
   const PostMediaPicker({
     super.key,
+    this.existingPrimaryImageUrl,
+    this.existingAdditionalImage,
     this.primaryImageFile,
     this.additionalImages = const [],
     this.videoFile,
@@ -45,7 +49,10 @@ class PostMediaPicker extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // Text('the existing image is : $existingPrimaryImageUrl'),
         _PrimaryImageSection(
+          errorMessage: errorMessage,
+          extingPrimaryImage: existingPrimaryImageUrl,
           imageFile: primaryImageFile,
           onPick: () => _showImagePickerSheet(context, isPrimary: true),
           enabled: enabled,
@@ -53,6 +60,7 @@ class PostMediaPicker extends StatelessWidget {
         const SizedBox(height: UiConstants.spacingMd),
 
         _AdditionalImagesSection(
+          existingImages: existingAdditionalImage,
           images: additionalImages,
           uploadProgress: uploadProgress,
           onAdd: () => _showImagePickerSheet(context, isPrimary: false),
@@ -71,14 +79,6 @@ class PostMediaPicker extends StatelessWidget {
           enabled: enabled && videoFile == null,
         ),
         const SizedBox(height: UiConstants.spacingSm),
-
-        if (errorMessage != null)
-          Text(
-            errorMessage!,
-            style: Theme.of(
-              context,
-            ).textTheme.bodySmall?.copyWith(color: Colors.red),
-          ),
       ],
     );
   }
@@ -301,14 +301,18 @@ class PostMediaPicker extends StatelessWidget {
 
 // Primary image section
 class _PrimaryImageSection extends StatelessWidget {
+  final String? extingPrimaryImage;
   final File? imageFile;
   final VoidCallback onPick;
   final bool enabled;
+  final String? errorMessage;
 
   const _PrimaryImageSection({
+    this.extingPrimaryImage,
     this.imageFile,
     required this.onPick,
     required this.enabled,
+    this.errorMessage,
   });
 
   @override
@@ -320,7 +324,10 @@ class _PrimaryImageSection extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text('Primary Image *'),
+            Text(
+              errorMessage ?? 'Primary Image *',
+              style: TextStyle(color: errorMessage != null ? Colors.red : null),
+            ),
             CustomButton(
               text: 'Pick Image',
               icon: const Icon(Icons.camera_alt),
@@ -329,6 +336,18 @@ class _PrimaryImageSection extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 8),
+        if (extingPrimaryImage != null &&
+            extingPrimaryImage != '' &&
+            imageFile == null)
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: Image.network(
+              extingPrimaryImage!,
+              width: double.infinity,
+              height: 250,
+              fit: BoxFit.cover,
+            ),
+          ),
         if (imageFile != null)
           ClipRRect(
             borderRadius: BorderRadius.circular(8),
@@ -347,6 +366,7 @@ class _PrimaryImageSection extends StatelessWidget {
 // Additional images sections
 class _AdditionalImagesSection extends StatelessWidget {
   final List<File> images;
+  final List<String>? existingImages;
   final Map<File, double>? uploadProgress;
   final VoidCallback onAdd;
   final Function(int) onRemove;
@@ -356,6 +376,7 @@ class _AdditionalImagesSection extends StatelessWidget {
 
   const _AdditionalImagesSection({
     required this.images,
+    this.existingImages,
     this.uploadProgress,
     required this.onAdd,
     required this.onRemove,
@@ -379,6 +400,54 @@ class _AdditionalImagesSection extends StatelessWidget {
           spacing: 12,
           runSpacing: 12,
           children: [
+            if (existingImages != null)
+              ...existingImages!.asMap().entries.map((e) {
+                final progress = uploadProgress?[e.value];
+                return Stack(
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.network(
+                        e.value,
+                        width: 100,
+                        height: 100,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    if (progress != null)
+                      Positioned.fill(
+                        child: Container(
+                          color: Colors.black54,
+                          child: Center(
+                            child: CircularProgressIndicator(
+                              value: progress,
+                              strokeWidth: 3,
+                            ),
+                          ),
+                        ),
+                      ),
+                    Positioned(
+                      top: 4,
+                      right: 4,
+                      child: GestureDetector(
+                        onTap: enabled ? () => onRemove(e.key) : null,
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: const BoxDecoration(
+                            color: Colors.red,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.close,
+                            size: 16,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              }),
             ...images.asMap().entries.map((e) {
               final progress = uploadProgress?[e.value];
               return Stack(
