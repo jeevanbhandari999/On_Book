@@ -643,7 +643,7 @@ Widget _buildDescriptionSection(
                         color: Theme.of(context).scaffoldBackgroundColor,
                         padding: const EdgeInsets.only(left: 8),
                         child: Text(
-                          isExpanded ? 'View Lesss' : 'View More',
+                          isExpanded ? 'View Less' : 'View More',
                           style: TextStyle(
                             color: Theme.of(context).colorScheme.primary,
                             fontWeight: FontWeight.bold,
