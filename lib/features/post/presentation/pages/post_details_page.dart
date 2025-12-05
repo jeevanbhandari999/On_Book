@@ -578,7 +578,6 @@ Widget _buildTitleAndPriceSection(
           overflow: TextOverflow.ellipsis,
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
-
         Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [

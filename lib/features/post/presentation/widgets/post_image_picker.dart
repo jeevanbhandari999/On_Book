@@ -61,7 +61,6 @@ class PostMediaPicker extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Text('the existing image is : $existingPrimaryImageUrl'),
         _PrimaryImageSection(
           errorMessage: errorMessage,
           extingPrimaryImage: existingPrimaryImageUrl,
@@ -407,7 +406,11 @@ class _AdditionalImagesSection extends StatelessWidget {
       children: [
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [Text('Additional Images (${images.length}/$maxImages)')],
+          children: [
+            Text(
+              'Additional Images (${existingImages != null ? (images.length + existingImages!.length) : images.length}/$maxImages)',
+            ),
+          ],
         ),
         const SizedBox(height: 8),
 
