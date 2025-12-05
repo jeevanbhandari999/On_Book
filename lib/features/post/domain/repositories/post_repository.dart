@@ -42,10 +42,12 @@ abstract class PostRepository {
   // Update an existing post
   Future<Either<Failure, Post>> updatePost(
     Post post,
+    File? newPrimaryImageFile,
+    String? primaryImageToDelete,
     List<File> newImages,
     List<String> imagesToDelete,
-    File newVideoFile,
-    String videoToDelete,
+    File? newVideoFile,
+    String? videoToDelete,
   );
 
   // Delete a post and all associated data

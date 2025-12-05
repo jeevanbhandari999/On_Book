@@ -2,9 +2,9 @@ import 'dart:io';
 import 'package:app/app/dependency_injection.dart';
 import 'package:app/features/post/domain/entities/post.dart';
 import 'package:app/features/post/domain/entities/post_enums.dart';
-import 'package:app/features/post/domain/entities/post_image.dart';
 import 'package:app/features/post/domain/repositories/post_repository.dart';
 import 'package:app/features/post/domain/usecases/create_post_use_case.dart';
+import 'package:app/features/post/domain/usecases/update_post_use_case.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 
@@ -59,6 +59,13 @@ class PostFormPrimaryImagePicked extends PostFormEvent {
 
   @override
   List<Object> get props => [file];
+}
+
+class PostFormExistingImageRemoved extends PostFormEvent {
+  final String imageUrl;
+  const PostFormExistingImageRemoved({required this.imageUrl});
+  @override
+  List<Object> get props => [imageUrl];
 }
 
 class PostFormAdditionalImageAdded extends PostFormEvent {
@@ -188,6 +195,9 @@ class PostFormReady extends PostFormState {
   final double? longitude;
   final Map<String, String> validationErrors;
   final bool isValid;
+  final bool isEditMode;
+  final Post? editPost; // the original post when editing
+  final List<String> imagesMarkedForDeletion;
 
   const PostFormReady({
     required this.organizationId,
@@ -210,6 +220,9 @@ class PostFormReady extends PostFormState {
     this.longitude,
     this.validationErrors = const {},
     this.isValid = false,
+    this.isEditMode = false,
+    this.editPost,
+    this.imagesMarkedForDeletion = const [],
   });
 
   @override
@@ -234,6 +247,9 @@ class PostFormReady extends PostFormState {
     longitude,
     validationErrors,
     isValid,
+    isEditMode,
+    editPost,
+    imagesMarkedForDeletion,
   ];
 
   PostFormReady copyWith({
@@ -257,6 +273,9 @@ class PostFormReady extends PostFormState {
     double? longitude,
     Map<String, String>? validationErrors,
     bool? isValid,
+    bool? isEditMode,
+    Post? editPost,
+    List<String>? imagesMarkedForDeletion,
   }) {
     return PostFormReady(
       organizationId: organizationId ?? this.organizationId,
@@ -280,20 +299,38 @@ class PostFormReady extends PostFormState {
       longitude: longitude ?? this.longitude,
       validationErrors: validationErrors ?? this.validationErrors,
       isValid: isValid ?? this.isValid,
+      isEditMode: isEditMode ?? this.isEditMode,
+      editPost: editPost ?? this.editPost,
+      imagesMarkedForDeletion:
+          imagesMarkedForDeletion ?? this.imagesMarkedForDeletion,
     );
   }
+
+  int get totalImages =>
+      (editPost?.additionalImages.length ?? 0) -
+      imagesMarkedForDeletion.length +
+      additionalImages.length;
 }
 
 class PostFormSubmitting extends PostFormState {
-  const PostFormSubmitting();
+  final bool isEditMode;
+  const PostFormSubmitting({this.isEditMode = false});
+
+  @override
+  List<Object> get props => [isEditMode];
 }
 
 class PostFormSuccess extends PostFormState {
   final Post post;
   final String message;
-  const PostFormSuccess({required this.post, required this.message});
+  final bool isEditMode;
+  const PostFormSuccess({
+    required this.post,
+    required this.message,
+    this.isEditMode = false,
+  });
   @override
-  List<Object> get props => [post, message];
+  List<Object> get props => [post, message, isEditMode];
 }
 
 class PostFormError extends PostFormState {
@@ -308,15 +345,20 @@ class PostFormError extends PostFormState {
 
 class PostFormBloc extends Bloc<PostFormEvent, PostFormState> {
   final CreatePostUseCase _createPostUseCase;
+  final UpdatePostUseCase _updatePostUseCase;
 
-  PostFormBloc({required CreatePostUseCase createPostUseCase})
-    : _createPostUseCase = createPostUseCase,
-      super(const PostFormInitial()) {
+  PostFormBloc({
+    required CreatePostUseCase createPostUseCase,
+    required UpdatePostUseCase updatePostUseCase,
+  }) : _createPostUseCase = createPostUseCase,
+       _updatePostUseCase = updatePostUseCase,
+       super(const PostFormInitial()) {
     on<PostFormInitialized>(_onInitialized);
     on<PostFormTitleChanged>(_onTitleChanged);
     on<PostFormDescriptionChanged>(_onDescriptionChanged);
     on<PostFormPrimaryImageChanged>(_onPrimaryImageChanged);
     on<PostFormPrimaryImagePicked>(_onPrimaryImagePicked);
+    on<PostFormExistingImageRemoved>(_onExistingImageRemoved);
     on<PostFormAdditionalImageAdded>(_onAdditionalImageAdded);
     on<PostFormAdditionalImageRemoved>(_onAdditionalImageRemoved);
     on<PostFormVideoPicked>(_onVideoPicked);
@@ -342,9 +384,11 @@ class PostFormBloc extends Bloc<PostFormEvent, PostFormState> {
         PostFormReady(
           userId: event.userId,
           organizationId: event.organizationId,
+          isEditMode: false,
         ),
       );
     } else {
+      final isEditMode = event.editPost != null;
       final post = event.editPost!;
       final postRepo = DependencyInjection.get<PostRepository>();
 
@@ -375,8 +419,9 @@ class PostFormBloc extends Bloc<PostFormEvent, PostFormState> {
           latitude: post.latitude,
           longitude: post.longitude,
           existingAdditionalImages: additionalImageUrls,
-          // Note: We don't pre-fill File fields (primaryImageFile, additionalImages, videoFile)
-          // because user might want to change images → handled separately in UI
+          isEditMode: isEditMode,
+          editPost: post,
+          imagesMarkedForDeletion: const [],
         ),
       );
     }
@@ -415,6 +460,30 @@ class PostFormBloc extends Bloc<PostFormEvent, PostFormState> {
     if (s is PostFormReady) {
       // print('primary imaeg: ${e.file}');
       emit(_validateForm(s.copyWith(primaryImageFile: e.file)));
+    }
+  }
+
+  void _onExistingImageRemoved(
+    PostFormExistingImageRemoved event,
+    Emitter<PostFormState> emit,
+  ) {
+    final s = state;
+    if (s is PostFormReady) {
+      // remove from existingAdditionalImages
+      final updatedExisting = List<String>.from(
+        s.existingAdditionalImages ?? [],
+      )..remove(event.imageUrl);
+
+      // add to imagesMarkedForDeletion
+      final updatedMarked = List<String>.from(s.imagesMarkedForDeletion)
+        ..add(event.imageUrl);
+
+      emit(
+        s.copyWith(
+          existingAdditionalImages: updatedExisting,
+          imagesMarkedForDeletion: updatedMarked,
+        ),
+      );
     }
   }
 
@@ -522,49 +591,174 @@ class PostFormBloc extends Bloc<PostFormEvent, PostFormState> {
     }
   }
 
+  // Future<void> _onSubmitted(
+  //   PostFormSubmitted e,
+  //   Emitter<PostFormState> emit,
+  // ) async {
+  //   final currentState = state;
+  //   if (currentState is! PostFormReady || !currentState.isValid) return;
+
+  //   emit(PostFormSubmitting(isEditMode: currentState.isEditMode));
+
+  //   try {
+
+  //   } catch (e) {
+  //     emit(
+  //       PostFormError(
+  //         message: 'Failed to create post: ${e.toString()}',
+  //         previousState: currentState,
+  //       ),
+  //     );
+  //   }
+
+  //   final params = CreatePostParams(
+  //     organizationId: currentState.organizationId,
+  //     title: currentState.title,
+  //     description: currentState.description,
+  //     primaryImageUrl: currentState.primaryImageUrl,
+  //     primaryImageFile: currentState.primaryImageFile,
+  //     additionalImages: currentState.additionalImages,
+  //     youtubeUrl: currentState.youtubeUrl.isEmpty
+  //         ? null
+  //         : currentState.youtubeUrl,
+  //     longitude: currentState.longitude,
+  //     latitude: currentState.latitude,
+  //     price: currentState.price,
+  //     area: currentState.area,
+  //     capacity: currentState.capacity,
+  //     roomType: currentState.roomType,
+  //     amenities: currentState.amenities,
+  //     tags: currentState.tags,
+  //     createdBy: currentState.userId,
+  //     updatedBy: currentState.userId,
+  //   );
+
+  //   final result = await _createPostUseCase(params);
+
+  //   result.fold(
+  //     (failure) => emit(
+  //       PostFormError(
+  //         message: 'Failed to create post: ${failure.message}',
+  //         previousState: currentState,
+  //       ),
+  //     ),
+
+  //     (post) => emit(
+  //       PostFormSuccess(post: post, message: 'Post created successfully!', isEditMode: false),
+  //     ),
+  //   );
+  // }
+
   Future<void> _onSubmitted(
-    PostFormSubmitted e,
+    PostFormSubmitted event,
     Emitter<PostFormState> emit,
   ) async {
-    final s = state;
-    if (s is! PostFormReady || !s.isValid) return;
+    final currentState = state;
+    if (currentState is! PostFormReady || !currentState.isValid) return;
 
-    emit(const PostFormSubmitting());
+    emit(PostFormSubmitting(isEditMode: currentState.isEditMode));
 
-    final params = CreatePostParams(
-      organizationId: s.organizationId,
-      title: s.title,
-      description: s.description,
-      primaryImageUrl: s.primaryImageUrl,
-      primaryImageFile: s.primaryImageFile,
-      additionalImages: s.additionalImages,
-      youtubeUrl: s.youtubeUrl.isEmpty ? null : s.youtubeUrl,
-      longitude: s.longitude,
-      latitude: s.latitude,
-      price: s.price,
-      area: s.area,
-      capacity: s.capacity,
-      roomType: s.roomType,
-      amenities: s.amenities,
-      tags: s.tags,
-      createdBy: s.userId,
-      updatedBy: s.userId,
-    );
+    try {
+      if (currentState.isEditMode) {
+        final editPost = currentState.editPost!;
 
-    final result = await _createPostUseCase(params);
+        final params = UpdatePostParams(
+          postId: editPost.id,
+          userId: currentState.userId,
+          title: currentState.title.trim(),
+          description: currentState.description.trim(),
+          primaryImageUrl: editPost.primaryImageUrl,
+          newPrimaryImageFile: currentState.primaryImageFile,
+          primaryImageToDelete:
+              (currentState.primaryImageFile != null &&
+                  editPost.primaryImageUrl != '')
+              ? editPost.primaryImageUrl
+              : null,
+          additionalImages: currentState.additionalImages,
+          additionalImagesToDelete: currentState.imagesMarkedForDeletion,
+          youtubeUrl: currentState.youtubeUrl.trim().isEmpty
+              ? null
+              : currentState.youtubeUrl.trim(),
+          longitude: currentState.longitude,
+          latitude: currentState.latitude,
+          price: currentState.price,
+          area: currentState.area,
+          capacity: currentState.capacity,
+          roomType: currentState.roomType,
+          amenities: currentState.amenities,
+          tags: currentState.tags,
+          status: editPost.status, // or allow changing status if needed
+          updatedBy: currentState.userId,
+          updatedAt: DateTime.now(),
+        );
 
-    result.fold(
-      (failure) => emit(
+        final result = await _updatePostUseCase(params);
+
+        result.fold(
+          (failure) => emit(
+            PostFormError(
+              message: 'Failed to update post: ${failure.message}',
+              previousState: currentState,
+            ),
+          ),
+          (updatedPost) => emit(
+            PostFormSuccess(
+              post: updatedPost,
+              message: 'Post updated successfully!',
+              isEditMode: true,
+            ),
+          ),
+        );
+      } else {
+        final params = CreatePostParams(
+          organizationId: currentState.organizationId,
+          title: currentState.title.trim(),
+          description: currentState.description.trim(),
+          primaryImageUrl: currentState.primaryImageUrl,
+          primaryImageFile: currentState.primaryImageFile,
+          additionalImages: currentState.additionalImages,
+          youtubeUrl: currentState.youtubeUrl.trim().isEmpty
+              ? null
+              : currentState.youtubeUrl.trim(),
+          longitude: currentState.longitude,
+          latitude: currentState.latitude,
+          price: currentState.price,
+          area: currentState.area,
+          capacity: currentState.capacity,
+          roomType: currentState.roomType,
+          amenities: currentState.amenities,
+          tags: currentState.tags,
+          createdBy: currentState.userId,
+          updatedBy: currentState.userId,
+        );
+
+        final result = await _createPostUseCase(params);
+
+        result.fold(
+          (failure) => emit(
+            PostFormError(
+              message: 'Failed to create post: ${failure.message}',
+              previousState: currentState,
+            ),
+          ),
+          (newPost) => emit(
+            PostFormSuccess(
+              post: newPost,
+              message: 'Post created successfully!',
+              isEditMode: false,
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      // print('PostFormBloc submit error: $e\n$s');
+      emit(
         PostFormError(
-          message: 'Failed to create post: ${failure.message}',
-          previousState: s,
+          message: 'Unexpected error: $e',
+          previousState: currentState,
         ),
-      ),
-
-      (post) => emit(
-        PostFormSuccess(post: post, message: 'Post created successfully!'),
-      ),
-    );
+      );
+    }
   }
 
   void _onReset(PostFormReset e, Emitter<PostFormState> emit) {
@@ -587,7 +781,7 @@ class PostFormBloc extends Bloc<PostFormEvent, PostFormState> {
       errors['price'] = 'Price must be greater than 0';
     }
 
-    if (s.primaryImageFile == null) {
+    if (s.primaryImageFile == null && s.primaryImageUrl == '') {
       errors['primary_image'] = 'Primary image is required';
     }
 

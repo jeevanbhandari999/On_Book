@@ -5,6 +5,7 @@ import 'package:app/core/widgets/common_widgets.dart';
 import 'package:app/features/post/domain/entities/post_enums.dart';
 import 'package:app/features/post/domain/repositories/post_repository.dart';
 import 'package:app/features/post/domain/usecases/create_post_use_case.dart';
+import 'package:app/features/post/domain/usecases/update_post_use_case.dart';
 import 'package:app/features/post/presentation/bloc/post_form_bloc.dart';
 import 'package:app/features/post/presentation/widgets/post_form.dart';
 import 'package:app/features/post/presentation/widgets/post_image_picker.dart';
@@ -25,6 +26,9 @@ class CreatePostPage extends StatelessWidget {
       create: (_) =>
           PostFormBloc(
             createPostUseCase: CreatePostUseCase(
+              DependencyInjection.get<PostRepository>(),
+            ),
+            updatePostUseCase: UpdatePostUseCase(
               DependencyInjection.get<PostRepository>(),
             ),
           )..add(

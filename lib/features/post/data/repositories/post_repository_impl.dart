@@ -458,10 +458,12 @@ class PostRepositoryImpl implements PostRepository {
   @override
   Future<Either<Failure, Post>> updatePost(
     Post post,
+    File? newPrimaryImageFile,
+    String? primaryImageToDelete,
     List<File> newImages,
     List<String> imagesToDelete,
-    File newVideoFile,
-    String videoToDelete,
+    File? newVideoFile,
+    String? videoToDelete,
   ) async {
     try {
       // Validate post data
@@ -481,12 +483,11 @@ class PostRepositoryImpl implements PostRepository {
         await remoteDataSource.deleteImages(imagesToDelete);
 
         // Remove from event_images table
-        final imageIdsToRemove = <String>[];
-        for (final imageUrl in imagesToDelete) {
-          // TODO
-          // Find image IDs that match the URLs (this would need to be implemented)
-          // For now, we'll rely on the remote data source to handle this
-        }
+        // TODO ==  instead of url we can inhance the performance by using id though the image url is also unique because of using timestamp in file upload
+        await remoteDataSource.removePostImages(imagesToDelete);
+        // final imageIdsToRemove = <String>[];
+        // for (final imageUrl in imagesToDelete) {
+        // }
       }
 
       // Upload new images if provided

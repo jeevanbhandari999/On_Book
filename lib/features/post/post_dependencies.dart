@@ -9,6 +9,7 @@ import 'package:app/features/post/domain/usecases/get_all_posts_by_organization_
 import 'package:app/features/post/domain/usecases/get_all_posts_with_images_by_orgnization_id.dart';
 import 'package:app/features/post/domain/usecases/get_all_posts_with_videos_by_organization_id.dart';
 import 'package:app/features/post/domain/usecases/get_post_by_id_use_case.dart';
+import 'package:app/features/post/domain/usecases/update_post_use_case.dart';
 import 'package:app/features/post/presentation/bloc/post_details_bloc.dart';
 import 'package:app/features/post/presentation/bloc/post_form_bloc.dart';
 import 'package:app/features/post/presentation/bloc/posts_bloc.dart';
@@ -46,6 +47,9 @@ class PostDependencies {
     getIt.registerLazySingleton<CreatePostUseCase>(
       () => CreatePostUseCase(getIt<PostRepository>()),
     );
+     getIt.registerLazySingleton<UpdatePostUseCase>(
+      () => UpdatePostUseCase(getIt<PostRepository>()),
+    );
     getIt.registerLazySingleton<GetAllPostsByOrganizationIdUseCase>(
       () => GetAllPostsByOrganizationIdUseCase(getIt<PostRepository>()),
     );
@@ -71,6 +75,7 @@ class PostDependencies {
     getIt.registerFactory<PostFormBloc>(
       () => PostFormBloc(
         createPostUseCase: CreatePostUseCase(getIt<PostRepository>()),
+        updatePostUseCase: UpdatePostUseCase(getIt<PostRepository>()),
       ),
     );
 

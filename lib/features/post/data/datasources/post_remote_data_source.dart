@@ -70,7 +70,7 @@ abstract class PostRemoteDataSource {
   );
 
   // Remove additional images from a post
-  Future<void> removePostImages(List<String> imageIds);
+  Future<void> removePostImages(List<String> imageUrls);
 
   // upload a single video to storage
   Future<String> uploadVideo(
@@ -442,12 +442,12 @@ class PostRemoteDataSourceImpl implements PostRemoteDataSource {
   }
 
   @override
-  Future<void> removePostImages(List<String> imageIds) async {
+  Future<void> removePostImages(List<String> imageUrls) async {
     try {
       await supabaseClient
           .from('post_images')
           .delete()
-          .inFilter('id', imageIds);
+          .inFilter('image_url', imageUrls);
     } catch (e) {
       throw core_exceptions.ServerException(
         'Failed to remove event images: $e',
@@ -533,7 +533,7 @@ class PostRemoteDataSourceImpl implements PostRemoteDataSource {
       final response = await supabaseClient
           .from('posts')
           .update(post.toUpdateJson())
-          .eq('post_id', postId)
+          .eq('id', postId)
           .select('''
             *,
             post_images (

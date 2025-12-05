@@ -2,6 +2,7 @@ import 'package:app/app/dependency_injection.dart';
 import 'package:app/features/post/domain/entities/post.dart';
 import 'package:app/features/post/domain/repositories/post_repository.dart';
 import 'package:app/features/post/domain/usecases/create_post_use_case.dart';
+import 'package:app/features/post/domain/usecases/update_post_use_case.dart';
 import 'package:app/features/post/presentation/bloc/post_form_bloc.dart';
 import 'package:app/features/post/presentation/pages/create_post_page.dart';
 import 'package:app/features/post/presentation/widgets/post_form.dart';
@@ -21,6 +22,9 @@ class EditPostPage extends StatelessWidget {
       create: (_) =>
           PostFormBloc(
             createPostUseCase: CreatePostUseCase(
+              DependencyInjection.get<PostRepository>(),
+            ),
+            updatePostUseCase: UpdatePostUseCase(
               DependencyInjection.get<PostRepository>(),
             ),
           )..add(

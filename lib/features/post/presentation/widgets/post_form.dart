@@ -83,6 +83,7 @@ class _PostFormState extends State<PostForm> {
         }
 
         final form = state;
+        final bloc = context.read<PostFormBloc>();
 
         // Sync controllers with BLoC state
         _titleController.text = form.title;
@@ -236,7 +237,7 @@ class _PostFormState extends State<PostForm> {
               PostMediaPicker(
                 errorMessage: form.validationErrors['primary_image'],
                 existingAdditionalImage: form.existingAdditionalImages,
-                existingPrimaryImageUrl: form.primaryImageUrl,
+                existingPrimaryImageUrl: form.editPost?.primaryImageUrl,
                 primaryImageFile: form.primaryImageFile,
                 additionalImages: form.additionalImages,
                 videoFile: form.videoFile,
@@ -249,12 +250,31 @@ class _PostFormState extends State<PostForm> {
                 onImageRemoved: (i) => context.read<PostFormBloc>().add(
                   PostFormAdditionalImageRemoved(i),
                 ),
+                onExistingImageRemoved: (url) => context
+                    .read<PostFormBloc>()
+                    .add(PostFormExistingImageRemoved(imageUrl: url)),
                 onVideoPicked: (f) =>
                     context.read<PostFormBloc>().add(PostFormVideoPicked(f)),
                 onVideoRemoved: () => context.read<PostFormBloc>().add(
                   const PostFormVideoRemoved(),
                 ),
               ),
+              // PostMediaPicker(
+              //   existingPrimaryImageUrl: form.editPost?.primaryImageUrl,
+              //   existingAdditionalImages: form.existingAdditionalImages,
+              //   primaryImageFile: form.primaryImageFile,
+              //   additionalImages: form.additionalImages,
+              //   videoFile: form.videoFile,
+              //   onPrimaryImagePicked: (f) =>
+              //       bloc.add(PostFormPrimaryImagePicked(f)),
+              //   onImageAdded: (f) => bloc.add(PostFormAdditionalImageAdded(f)),
+              //   onImageRemoved: (i) =>
+              //       bloc.add(PostFormAdditionalImageRemoved(i)),
+              //   onExistingImageRemoved: (url) =>
+              //       bloc.add(PostFormExistingImageRemoved(imageUrl: url)),
+              //   onVideoPicked: (f) => bloc.add(PostFormVideoPicked(f)),
+              //   onVideoRemoved: () => bloc.add(const PostFormVideoRemoved()),
+              // ),
               const SizedBox(height: UiConstants.spacingMd),
 
               // Location Picker

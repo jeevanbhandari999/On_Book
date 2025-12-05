@@ -93,6 +93,11 @@ class Post extends Equatable {
 
   /// Check if price is set
   bool get hasPrice => price != null && price! > 0;
+  List<String>? get existingAdditionalImages {
+    final images = <String>[];
+    additionalImages.map((image) => images.add(image.imageUrl)).toList();
+    return images;
+  }
 
   // Private: Validate image URL
   bool _isValidImageUrl(String url) {
