@@ -6,7 +6,7 @@ abstract class HomeRepository {
   // Get all posts near user
   Future<Either<Failure, ({List<Post> posts, String? nextCursor})>>
   getNearByPosts({
-    required String useerId,
+    required String userId,
     double? latitude,
     double? longitude,
     int limit = 15,
@@ -25,7 +25,7 @@ abstract class HomeRepository {
 
   // Cache posts locally
   Future<Either<Failure, void>> cachePosts(
-    String organizationId,
+    String userId,
     List<Post> posts,
   );
 
@@ -40,14 +40,14 @@ abstract class HomeRepository {
 
   // For future need
   // Like the post or may be rate to make recommendation in future
-  // Future<Either<Failure, void>> likePost(String postId);
+  Future<Either<Failure, void>> likePost(String postId);
 
   // Unlike posts
-  // Future<Either<Failure, void>> unlikePost(String postId);
+  Future<Either<Failure, void>> unlikePost(String postId);
 
   // Save the post for add to the library
-  // Future<Either<Failure, void>> bookmarkPost(String postId);
+  Future<Either<Failure, void>> bookmarkPost(String postId);
 
   // Unsave posts from the library
-  // Future<Either<Failure, void>> removeBookmark(String postId);
+  Future<Either<Failure, void>> removeBookmark(String postId);
 }

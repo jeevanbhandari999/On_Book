@@ -8,7 +8,7 @@ abstract class HomeRemoteDataSource {
   // Get all posts near user
   Future<Either<Failure, ({List<PostModel> posts, String? nextCursor})>>
   getNearByPosts({
-    required String useerId,
+    required String userId,
     double? latitude,
     double? longitude,
     int limit = 15,
@@ -31,7 +31,7 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
   @override
   Future<Either<Failure, ({String? nextCursor, List<PostModel> posts})>>
   getNearByPosts({
-    required String useerId,
+    required String userId,
     double? latitude,
     double? longitude,
     int limit = 15,
