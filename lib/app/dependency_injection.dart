@@ -1,5 +1,6 @@
 import 'package:app/core/services/session_manager.dart';
 import 'package:app/features/auth/auth_dependencies.dart';
+import 'package:app/features/home/home_dependencies.dart';
 import 'package:app/features/post/post_dependencies.dart';
 import 'package:get_it/get_it.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -51,6 +52,9 @@ abstract class DependencyInjection {
 
     // Post feature depenencies
     await _registerPostDependencies();
+
+    // Post feature depenencies
+    await _registerHomeDependencies();
   }
 
   // Register auth dependencies
@@ -61,6 +65,11 @@ abstract class DependencyInjection {
   // Regisetr post dependencies
   static Future<void> _registerPostDependencies() async {
     await PostDependencies.register(instance);
+  }
+
+  // Register home dependencies
+  static Future<void> _registerHomeDependencies() async {
+    await HomeDependencies.register(instance);
   }
 
   static void reset() {
