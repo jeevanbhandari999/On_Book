@@ -38,8 +38,8 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
     String? cursor,
   }) async {
     try {
-      var query = supabaseClient.from('posts').select().limit(limit + 1);
       if (latitude == null || longitude == null) {
+        var query = supabaseClient.from('posts').select().limit(limit + 1);
         if (cursor != null) {
           query = supabaseClient
               .from('posts')
@@ -62,28 +62,32 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
         return Right((posts: posts, nextCursor: nextCursor));
       }
 
-      // Now fetch through location based if user allow the location
-      final distanceSql =
-          '''
-        6371 * acos(
-        cos(radians($latitude)) * cos(radians(latitude)) *
-        cos(radians(longitude)) - radians($longitude) +
-        sin(radians($latitude)) * sin(radians(latitude))
-        )
-        ''';
-
-      query = query
-          .select('*, distance: ($distanceSql)')
+      final query = supabaseClient
+          .from('posts')
+          .select(''' 
+              *,
+              distance: ST_Distance(
+                location::geography, 
+                ST_MakePoint($longitude, $latitude)::geography
+              )
+            ''')
           .order('distance', ascending: true)
-          .order('created_at', ascending: false);
+          // here distance is come from distance: ST_Distance(
+          //   location::geography,
+          //   ST_MakePoint($longitude, $latitude)::geography
+          // )
+          // which creates a virtual distance field that you can order by.
+          .order('created_at', ascending: false)
+          .limit(limit + 1);
       final response = await query;
-      final List<PostModel> posts = (response as List)
+
+      final posts = (response as List)
           .map((json) => PostModel.fromJson(json))
           .toList();
 
       String? nextCursor;
       if (posts.length > limit) {
-        posts.removeLast(); // remove the extra one
+        posts.removeLast();
         nextCursor = posts.last.createdAt.toIso8601String();
       }
 

@@ -1,0 +1,53 @@
+import 'package:app/core/errors/failures.dart';
+import 'package:app/features/post/domain/entities/post.dart';
+import 'package:dartz/dartz.dart';
+
+abstract class HomeRepository {
+  // Get all posts near user
+  Future<Either<Failure, ({List<Post> posts, String? nextCursor})>>
+  getNearByPosts({
+    required String useerId,
+    double? latitude,
+    double? longitude,
+    int limit = 15,
+    String? cursor,
+  });
+
+  // Get the recommendation (content based or AI whatever)
+  // TODO
+  Future<Either<Failure, List<Post>>> getRecommendedPosts({
+    required String userId,
+    int limit = 15,
+  });
+
+  // Get cached home page posts for offline supports
+  Future<Either<Failure, List<Post>>> getCachedPosts(String userId);
+
+  // Cache posts locally
+  Future<Either<Failure, void>> cachePosts(
+    String organizationId,
+    List<Post> posts,
+  );
+
+  // Clear cached posts for a specific user
+  Future<Either<Failure, void>> clearCachedPosts(String userId);
+
+  // Subscribe to real time posts updates
+  Stream<Either<Failure, List<Post>>> subscribeToPosts(String userId);
+
+  // For refresh , if needed
+  Future<Either<Failure, List<Post>>> refreshHomePage(String userId);
+
+  // For future need
+  // Like the post or may be rate to make recommendation in future
+  // Future<Either<Failure, void>> likePost(String postId);
+
+  // Unlike posts
+  // Future<Either<Failure, void>> unlikePost(String postId);
+
+  // Save the post for add to the library
+  // Future<Either<Failure, void>> bookmarkPost(String postId);
+
+  // Unsave posts from the library
+  // Future<Either<Failure, void>> removeBookmark(String postId);
+}
