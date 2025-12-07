@@ -79,8 +79,11 @@ class AppRouter {
             routes: [
               GoRoute(
                 path: RouteConstants.home,
-                pageBuilder: (context, state) =>
-                    const NoTransitionPage(child: HomePage()),
+                pageBuilder: (context, state) {
+                  final extraData = state.extra as UserModel?;
+                  final userId = extraData?.userId;
+                  return NoTransitionPage(child: HomePage(userId: userId ?? ''));
+                },
               ),
             ],
           ),

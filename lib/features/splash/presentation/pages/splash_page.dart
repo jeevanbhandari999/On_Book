@@ -95,10 +95,10 @@ class SplashViewState extends State<SplashView>
               if (state is AuthLoading) {
                 _authDone = false;
               }
-              print(state);
+              // print(state);
               if (state is AuthAuthenticated) {
                 _targetRoute = RouteConstants.home;
-                _routeExtra = null;
+                _routeExtra = state.user;
               } else if (state is AuthNeedsProfileCompletion) {
                 // It's not use for now..
                 _targetRoute = RouteConstants.register;

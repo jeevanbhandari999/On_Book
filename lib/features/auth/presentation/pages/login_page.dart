@@ -50,7 +50,7 @@ class _LoginViewState extends State<LoginView> {
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthAuthenticated) {
-            context.go(RouteConstants.home);
+            context.go(RouteConstants.home, extra: state.user);
           } else if (state is AuthNeedsProfileCompletion) {
             context.go(RouteConstants.register, extra: state.user);
           } else if (state is AuthNeedsOrganizationCreation) {
