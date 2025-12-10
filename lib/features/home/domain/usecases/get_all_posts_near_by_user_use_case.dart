@@ -17,13 +17,17 @@ class GetAllPostsNearByUserUseCase {
       return const Left(ValidationFailure('User ID is required'));
     }
 
-    return await repository.getNearByPosts(
+    final data = await repository.getNearByPosts(
       userId: params.userId,
       latitude: params.latitude,
       longitude: params.longitude,
       limit: params.limit,
       cursor: params.cursor,
     );
+
+    // print(data);
+
+    return data;
   }
 }
 

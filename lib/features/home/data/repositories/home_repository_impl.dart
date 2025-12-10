@@ -80,6 +80,7 @@ class HomeRepositoryImpl implements HomeRepository {
     try {
       // First check is cache is expired
       final isCacheExpired = await localDataSource.isCacheExpired(userId);
+      // print(isCacheExpired);
       if (!isCacheExpired) {
         // Try to get the caches posts first
         final cachePosts = await localDataSource.getCachedPosts(userId);
@@ -112,6 +113,8 @@ class HomeRepositoryImpl implements HomeRepository {
           final postEntities = data.posts
               .map((post) => post.toEntity())
               .toList();
+
+          print(postEntities);
 
           return Right((posts: postEntities, nextCursor: data.nextCursor));
         },

@@ -77,6 +77,7 @@ class CustomButton extends StatelessWidget {
   final ButtonStyle? style;
   final Widget? icon;
   final bool isOutlined;
+  final Color? textColor;
 
   const CustomButton({
     super.key,
@@ -86,6 +87,7 @@ class CustomButton extends StatelessWidget {
     this.style,
     this.icon,
     this.isOutlined = false,
+    this.textColor,
   });
 
   @override
@@ -126,7 +128,7 @@ class CustomButton extends StatelessWidget {
           const SizedBox(width: UiConstants.spacingSm),
           Text(
             text,
-            style: const TextStyle(fontSize: 10),
+            style: TextStyle(fontSize: 10, color: textColor),
             overflow: TextOverflow.ellipsis,
           ),
         ],

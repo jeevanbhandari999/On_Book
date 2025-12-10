@@ -37,21 +37,40 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
     int limit = 15,
     String? cursor,
   }) async {
+    // print('$latitude $longitude $cursor');
     // try {
     //   if (latitude == null || longitude == null) {
-    //     var query = supabaseClient.from('posts').select().limit(limit + 1);
-    //     if (cursor != null) {
-    //       query = supabaseClient
-    //           .from('posts')
-    //           .select()
-    //           .lt('created_at', cursor)
-    //           .limit(limit + 1);
-    //     }
+    //     final response = await supabaseClient
+    //         .from('posts')
+    //         .select('''
+    //         *,
+    //         post_images (
+    //           id,
+    //           post_id,
+    //           image_url,
+    //           uploaded_by,
+    //           updated_by,
+    //           created_at,
+    //           updated_at
+    //         )
+    //       ''')
+    //         .order('created_at', ascending: true);
 
-    //     final response = await query;
-    //     final posts = (response as List)
-    //         .map((json) => PostModel.fromJson(json))
-    //         .toList();
+    //     // if (cursor != null) {
+    //     //   query = supabaseClient
+    //     //       .from('posts')
+    //     //       .select('*')
+    //     //       .lt('created_at', cursor)
+    //     //       .limit(limit + 1);
+    //     // }
+
+    //     // final response = await query;
+
+    //     final data = response as List<dynamic>;
+
+    //     final posts = data.map((json) => PostModel.fromJson(json)).toList();
+
+    //     print(posts);
 
     //     String? nextCursor;
     //     if (posts.length > limit) {
@@ -147,23 +166,56 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
         },
       );
 
+      print('the response is: $response');
+
+      // Assuming the response is a list of rows as the function returns a table.
       final List<dynamic> data = response as List;
+
+      // Convert the response to a list of PostModel objects
       final List<PostModel> posts = data
           .map((json) => PostModel.fromJson(json as Map<String, dynamic>))
           .toList();
 
+      // Extract the nextCursor, which is the `created_at` value of the last post.
       String? nextCursor;
-      if (posts.length > limit) {
-        posts.removeLast();
-        nextCursor = posts.last.createdAt.toIso8601String();
+      if (posts.isNotEmpty) {
+        nextCursor = posts.last.createdAt
+            .toIso8601String(); // Use the created_at timestamp as the cursor
       }
 
       return Right((posts: posts, nextCursor: nextCursor));
+      // return Right((posts: [], nextCursor: 'nextCursor'));
     } on PostgrestException catch (e) {
       return Left(ServerFailure('Supabase error: ${e.message}'));
     } catch (e) {
       return Left(ServerFailure('Failed to load posts: $e'));
     }
+
+    // try {
+    //   final response = await supabaseClient
+    //       .from('posts')
+    //       .select('''
+    //         *,
+    //         post_images (
+    //           id,
+    //           post_id,
+    //           image_url,
+    //           uploaded_by,
+    //           updated_by,
+    //           created_at,
+    //           updated_at
+    //         )
+    //       ''')
+    //       .order('created_at', ascending: true);
+
+    //   final data = response as List<dynamic>;
+    //   final posts = data
+    //       .map((item) => PostModel.fromJson(item as Map<String, dynamic>))
+    //       .toList();
+    //   return Right((posts: posts, nextCursor: 'nextCursor'));
+    // } catch (e) {
+    //   throw core_exceptions.ServerException('Failed to fetch posts: $e');
+    // }
   }
 
   @override

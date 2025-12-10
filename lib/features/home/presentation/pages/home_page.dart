@@ -1,9 +1,16 @@
 import 'package:app/app/dependency_injection.dart';
-import 'package:app/features/home/domain/repositories/home_repository.dart';
+import 'package:app/app/router/route_constants.dart';
+import 'package:app/core/constants/ui_constants.dart';
+import 'package:app/core/widgets/common_widgets.dart';
 import 'package:app/features/home/domain/usecases/get_all_posts_near_by_user_use_case.dart';
 import 'package:app/features/home/presentation/bloc/home_bloc.dart';
+import 'package:app/features/post/domain/entities/post.dart';
+import 'package:app/features/post/domain/entities/post_enums.dart';
+import 'package:app/features/post/presentation/pages/post_details_page.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 class HomePage extends StatelessWidget {
   final String userId;
@@ -43,7 +50,6 @@ class HomeView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Nearby Posts")),
       body: BlocBuilder<HomeBloc, HomeState>(
         builder: (context, state) {
           if (state is HomeLoading) {
@@ -51,7 +57,7 @@ class HomeView extends StatelessWidget {
           }
 
           if (state is HomeError) {
-            print(state.message);
+            // print(state.message);
             return Center(child: Text(state.message));
           }
 
@@ -60,18 +66,17 @@ class HomeView extends StatelessWidget {
               return const Center(child: Text("No posts found"));
             }
 
-            return ListView.builder(
+            return PageView.builder(
+              scrollDirection: Axis.vertical,
               itemCount: state.posts.length,
               itemBuilder: (_, index) {
                 final post = state.posts[index];
-                return Card(
-                  margin: const EdgeInsets.all(12),
-                  child: ListTile(
-                    title: Text(post.title ?? "Untitled"),
-                    subtitle: Text(post.description ?? "No description"),
-                  ),
-                );
+                return _buildImagePageView(context, post);
               },
+              pageSnapping: false,
+              physics: const BouncingScrollPhysics(
+                parent: ClampingScrollPhysics(),
+              ),
             );
           }
 
@@ -82,15 +87,350 @@ class HomeView extends StatelessWidget {
   }
 }
 
+Widget _buildImagePageView(BuildContext context, Post post) {
+  return SizedBox.expand(
+    child: Stack(
+      fit: StackFit.expand,
+      children: [
+        Positioned.fill(
+          child: GestureDetector(
+            onTap: () {
+              context.push(
+                RouteConstants.postDetailsPage,
+                extra: {
+                  'postId': post.id,
+                  'post': post,
+                  'userId': post.createdBy,
+                },
+              );
+            },
+            child: CachedNetworkImage(
+              imageUrl: post.primaryImageUrl,
+              fit: BoxFit.cover,
+              width: double.infinity,
+              placeholder: (context, url) =>
+                  const Center(child: CircularProgressIndicator()),
+              errorWidget: (context, url, error) =>
+                  const Center(child: Icon(Icons.error)),
+            ),
+          ),
+        ),
+        Positioned(
+          top: 0,
+          left: 0,
+          right: 0,
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                // Organization logo
+                const Row(
+                  children: [
+                    CircleAvatar(radius: 24),
+                    SizedBox(width: 10),
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Name of organization',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        Text(
+                          'Subtitle for organization',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                // Just show the menu icon for now
+                PopupMenuButton<String>(
+                  icon: const Icon(Icons.more_vert, color: Colors.white),
+                  elevation: 3,
+                  onSelected: (value) {
+                    // handle selection
+                  },
+                  itemBuilder: (context) => [
+                    const PopupMenuItem<String>(
+                      value: 'message',
+                      child: Row(
+                        children: [
+                          Icon(Icons.chat, size: UiConstants.iconMd),
+                          const SizedBox(width: UiConstants.spacingSm),
+                          const Text('Message'),
+                        ],
+                      ),
+                    ),
+                    const PopupMenuItem<String>(
+                      value: 'vire_details',
+                      child: Row(
+                        children: [
+                          Icon(Icons.info, size: UiConstants.iconMd),
+                          const SizedBox(width: UiConstants.spacingSm),
+                          Text('Details'),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+        // Positioned(
+        //   bottom: 150,
+        //   right: 4,
+        //   child: Container(
+        //     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        //     decoration: BoxDecoration(
+        //       color: getPostStatusColor(post.status),
+        //       borderRadius: BorderRadius.circular(16),
+        //     ),
+        //     child: Text(
+        //       enumToString(post.status).toUpperCase(),
+        //       style: const TextStyle(
+        //         color: Colors.white,
+        //         fontSize: 10,
+        //         fontWeight: FontWeight.bold,
+        //       ),
+        //     ),
+        //   ),
+        // ),
+        Positioned(
+          bottom: 0,
+          left: 0,
+          right: 0,
+          child: Container(
+            padding: const EdgeInsets.all(8.0),
+            color: Colors.black54,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildTitleAndPriceSection(
+                      context,
+                      title: post.title,
+                      price: post.price!,
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: getPostStatusColor(post.status),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Text(
+                        enumToString(post.status).toUpperCase(),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                _buildDescriptionSection(
+                  context,
+                  description: post.description!,
+                  isExpanded: true,
+                  onToggleExpand: () {
+                    // context.read<PostDetailsBloc>().add(
+                    //   PostDetailToggleDescriptionRequested(
+                    //     isDescriptionToggled: stateLoaded.isDescriptionExpanded,
+                    //   ),
+                    // );
+                  },
+                ),
+                const SizedBox(height: UiConstants.spacingSm),
+                _buildActionButtons(context),
+              ],
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
 
+Widget _showMoreOptions(BuildContext context) {
+  return PopupMenuButton<String>(
+    elevation: 3,
+    onSelected: (value) {},
+    itemBuilder: (context) => [
+      const PopupMenuItem(
+        value: 'edit',
+        child: Row(
+          children: [
+            Icon(Icons.edit, size: UiConstants.iconMd),
+            SizedBox(width: UiConstants.spacingSm),
+            Text('Edit'),
+          ],
+        ),
+      ),
+      const PopupMenuItem(
+        value: 'delete',
+        child: Row(
+          children: [
+            Icon(Icons.delete, size: UiConstants.iconMd, color: Colors.red),
+            SizedBox(width: UiConstants.spacingSm),
+            Text('Delete', style: TextStyle(color: Colors.red)),
+          ],
+        ),
+      ),
+    ],
+  );
+}
 
-// Scaffold(
-    //   body: Center(
-    //     child: TextButton(
-    //       onPressed: () {
-    //         context.push(RouteConstants.anotherPage);
-    //       },
-    //       child: const Text('Go'),
-    //     ),
-    //   ),
-    // );
+Widget _buildTitleAndPriceSection(
+  BuildContext context, {
+  required String title,
+  required double price,
+}) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(
+        title,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: const TextStyle(
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+          fontSize: 20,
+        ),
+      ),
+      Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          const Text(
+            'Rs.',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              fontSize: 20,
+            ),
+          ),
+          Text(
+            '$price',
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              fontSize: 20,
+            ),
+          ),
+        ],
+      ),
+    ],
+  );
+}
+
+Widget _buildDescriptionSection(
+  BuildContext context, {
+  required String description,
+  required bool isExpanded,
+  required VoidCallback onToggleExpand,
+}) {
+  return LayoutBuilder(
+    builder: (context, constraints) {
+      final textStyle = const TextStyle(color: Colors.white);
+      final span = TextSpan(text: description, style: textStyle);
+
+      final textPainter = TextPainter(
+        text: span,
+        textDirection: TextDirection.ltr,
+        maxLines: 2,
+        ellipsis: '...',
+      )..layout(maxWidth: constraints.maxWidth);
+
+      final bool textExceedsThreeLines = textPainter.didExceedMaxLines;
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (isExpanded || !textExceedsThreeLines)
+            Text(description, style: textStyle, textAlign: TextAlign.justify)
+          else
+            Stack(
+              children: [
+                Text(
+                  description,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: textStyle,
+                  textAlign: TextAlign.justify,
+                ),
+                Positioned(
+                  bottom: 0,
+                  right: 0,
+                  child: GestureDetector(
+                    onTap: onToggleExpand,
+                    child: Container(
+                      color: Theme.of(context).scaffoldBackgroundColor,
+                      padding: const EdgeInsets.only(left: 8),
+                      child: Text(
+                        isExpanded ? 'View Less' : 'View More',
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.primary,
+                          fontWeight: FontWeight.bold,
+                          backgroundColor: Theme.of(
+                            context,
+                          ).scaffoldBackgroundColor,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+
+          // Show "View Less" when expanded and text was long
+          if (isExpanded && textExceedsThreeLines)
+            GestureDetector(
+              onTap: onToggleExpand,
+              child: Text(
+                'View Less',
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.primary,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+        ],
+      );
+    },
+  );
+}
+
+Widget _buildActionButtons(BuildContext context) {
+  return Row(
+    mainAxisAlignment: MainAxisAlignment.center,
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      Expanded(
+        child: CustomButton(
+          text: 'Add to Library',
+          textColor: Colors.white,
+          icon: const Icon(Icons.bookmark_outline, color: Colors.white),
+          onPressed: () {},
+          isOutlined: true,
+        ),
+      ),
+      const SizedBox(width: UiConstants.spacingSm),
+      Expanded(
+        child: CustomButton(
+          text: 'Book Now',
+          onPressed: () {},
+          icon: const Icon(Icons.event_available),
+        ),
+      ),
+    ],
+  );
+}
