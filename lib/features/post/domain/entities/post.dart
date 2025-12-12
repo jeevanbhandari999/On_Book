@@ -25,6 +25,9 @@ class Post extends Equatable {
   final DateTime createdAt;
   final DateTime updatedAt;
 
+  // others paramteters
+  final List<String> additionalImagesForHomeFeed;
+
   const Post({
     required this.id,
     required this.organizationId,
@@ -47,6 +50,7 @@ class Post extends Equatable {
     required this.updatedBy,
     required this.createdAt,
     required this.updatedAt,
+    this.additionalImagesForHomeFeed = const [],
   });
 
   /// Validate post data
@@ -152,6 +156,8 @@ class Post extends Equatable {
     String? updatedBy,
     DateTime? createdAt,
     DateTime? updatedAt,
+
+    List<String>? additionalImagesForHomeFeed,
   }) {
     return Post(
       id: id ?? this.id,
@@ -175,6 +181,7 @@ class Post extends Equatable {
       updatedBy: updatedBy ?? this.updatedBy,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      additionalImagesForHomeFeed: additionalImagesForHomeFeed ?? this.additionalImagesForHomeFeed,
     );
   }
 
@@ -201,5 +208,6 @@ class Post extends Equatable {
     updatedBy,
     createdAt,
     updatedAt,
+    additionalImagesForHomeFeed,
   ];
 }

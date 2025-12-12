@@ -2,7 +2,9 @@ import 'package:app/app/dependency_injection.dart';
 import 'package:app/app/router/route_constants.dart';
 import 'package:app/core/constants/ui_constants.dart';
 import 'package:app/core/widgets/common_widgets.dart';
+import 'package:app/features/auth/domain/entities/organization.dart';
 import 'package:app/features/home/domain/usecases/get_all_posts_near_by_user_use_case.dart';
+import 'package:app/features/home/domain/usecases/get_organization_detail_by_post_organization_id.dart';
 import 'package:app/features/home/presentation/bloc/home_bloc.dart';
 import 'package:app/features/post/domain/entities/post.dart';
 import 'package:app/features/post/domain/entities/post_enums.dart';
@@ -30,6 +32,10 @@ class HomePage extends StatelessWidget {
           HomeBloc(
             getNearbyPostsUseCase:
                 DependencyInjection.get<GetAllPostsNearByUserUseCase>(),
+            getOrganizationDetailByPostOrganizationIdUseCase:
+                DependencyInjection.get<
+                  GetOrganizationDetailByPostOrganizationIdUseCase
+                >(),
           )..add(
             FetchNearbyPosts(
               userId: userId,
@@ -71,7 +77,15 @@ class HomeView extends StatelessWidget {
               itemCount: state.posts.length,
               itemBuilder: (_, index) {
                 final post = state.posts[index];
-                return _buildImagePageView(context, post);
+                final organization = state.organizations[post.organizationId];
+                if (organization == null) {
+                  context.read<HomeBloc>().add(
+                    FetchOrganizationDetails(post.organizationId),
+                  );
+
+                  return const Center(child: CircularProgressIndicator());
+                }
+                return _buildImagePageView(context, post, organization);
               },
               pageSnapping: false,
               physics: const BouncingScrollPhysics(
@@ -87,12 +101,20 @@ class HomeView extends StatelessWidget {
   }
 }
 
-Widget _buildImagePageView(BuildContext context, Post post) {
+Widget _buildImagePageView(
+  BuildContext context,
+  Post post,
+  Organization organization,
+) {
   return SizedBox.expand(
     child: Stack(
       fit: StackFit.expand,
       children: [
         Positioned.fill(
+          // top: 0,
+          // left: 0,
+          // right: 0,
+          // bottom: 280,
           child: GestureDetector(
             onTap: () {
               context.push(
@@ -125,21 +147,53 @@ Widget _buildImagePageView(BuildContext context, Post post) {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 // Organization logo
-                const Row(
+                Row(
                   children: [
-                    CircleAvatar(radius: 24),
-                    SizedBox(width: 10),
+                    SizedBox(
+                      width: 60,
+                      height: 60,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Container(
+                          color: Colors.blueAccent.shade100,
+                          child:
+                              (organization.logoUrl != null &&
+                                  organization.logoUrl!.isNotEmpty)
+                              ? Image.network(
+                                  organization.logoUrl!,
+                                  fit: BoxFit.cover,
+                                )
+                              : Center(
+                                  child: Text(
+                                    _getInitialCharactrOfOrganization(
+                                      organization.name,
+                                    ),
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
                     Column(
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          'Name of organization',
-                          style: TextStyle(color: Colors.white),
+                          organization.name,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                            fontSize: 18,
+                          ),
                         ),
                         Text(
-                          'Subtitle for organization',
-                          style: TextStyle(color: Colors.white),
+                          organization.address ?? '',
+                          style: const TextStyle(color: Colors.white),
                         ),
                       ],
                     ),
@@ -179,25 +233,18 @@ Widget _buildImagePageView(BuildContext context, Post post) {
             ),
           ),
         ),
-        // Positioned(
-        //   bottom: 150,
-        //   right: 4,
-        //   child: Container(
-        //     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-        //     decoration: BoxDecoration(
-        //       color: getPostStatusColor(post.status),
-        //       borderRadius: BorderRadius.circular(16),
-        //     ),
-        //     child: Text(
-        //       enumToString(post.status).toUpperCase(),
-        //       style: const TextStyle(
-        //         color: Colors.white,
-        //         fontSize: 10,
-        //         fontWeight: FontWeight.bold,
-        //       ),
-        //     ),
-        //   ),
-        // ),
+
+        if (post.additionalImagesForHomeFeed.isNotEmpty)
+          Positioned(
+            bottom: 140,
+            right: 0,
+            left: 0,
+            child: Container(
+              padding: const EdgeInsets.only(top: 8.0),
+              color: Colors.black54,
+              child: _buildImageStrip(post),
+            ),
+          ),
         Positioned(
           bottom: 0,
           left: 0,
@@ -256,6 +303,43 @@ Widget _buildImagePageView(BuildContext context, Post post) {
           ),
         ),
       ],
+    ),
+  );
+}
+
+String _getInitialCharactrOfOrganization(String name) {
+  return name
+      .trim()
+      .split(' ')
+      .where((word) => word.isNotEmpty)
+      .map((word) => word[0].toUpperCase())
+      .join();
+}
+
+Widget _buildImageStrip(Post post) {
+  final images = post.additionalImagesForHomeFeed;
+
+  return SizedBox(
+    width: double.infinity,
+    height: 120,
+    child: ListView.separated(
+      itemBuilder: (context, index) {
+        return Padding(
+          padding: const EdgeInsets.only(left: 6),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: CachedNetworkImage(
+              imageUrl: images[index],
+              width: 120,
+              height: 120,
+              fit: BoxFit.cover,
+            ),
+          ),
+        );
+      },
+      separatorBuilder: (context, index) => const SizedBox(width: 10),
+      itemCount: images.length,
+      scrollDirection: Axis.horizontal,
     ),
   );
 }

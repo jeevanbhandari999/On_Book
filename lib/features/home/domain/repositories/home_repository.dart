@@ -1,4 +1,5 @@
 import 'package:app/core/errors/failures.dart';
+import 'package:app/features/auth/domain/entities/organization.dart';
 import 'package:app/features/post/domain/entities/post.dart';
 import 'package:dartz/dartz.dart';
 
@@ -50,4 +51,8 @@ abstract class HomeRepository {
 
   // Unsave posts from the library
   Future<Either<Failure, void>> removeBookmark(String postId);
+
+  // Get the organization detail by post id
+  Future<Either<Failure, Organization>>
+  getOrganizationDetailByPostOrganizationId(String organizationId);
 }

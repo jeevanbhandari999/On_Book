@@ -1,8 +1,9 @@
+import 'package:app/features/auth/domain/entities/organization.dart';
 import 'package:app/features/home/domain/usecases/get_all_posts_near_by_user_use_case.dart';
+import 'package:app/features/home/domain/usecases/get_organization_detail_by_post_organization_id.dart';
 import 'package:app/features/post/domain/entities/post.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 
 // Events
 abstract class HomeEvent extends Equatable {
@@ -31,7 +32,16 @@ class FetchNearbyPosts extends HomeEvent {
   List<Object?> get props => [userId, latitude, longitude, cursor, limit];
 }
 
-// States 
+class FetchOrganizationDetails extends HomeEvent {
+  final String organizationId;
+  const FetchOrganizationDetails(this.organizationId);
+
+  @override
+  List<Object?> get props => [organizationId];
+}
+
+
+// States
 
 abstract class HomeState extends Equatable {
   const HomeState();
@@ -50,11 +60,26 @@ class HomeLoading extends HomeState {
 class HomeLoaded extends HomeState {
   final List<Post> posts;
   final String? nextCursor;
+   final Map<String, Organization> organizations; 
 
-  const HomeLoaded(this.posts, this.nextCursor);
+  const HomeLoaded(this.posts, this.nextCursor,  {
+    this.organizations = const {},
+  });
+
+  HomeLoaded copyWith({
+    List<Post>? posts,
+    String? nextCursor,
+    Map<String, Organization>? organizations,
+  }) {
+    return HomeLoaded(
+      posts ?? this.posts,
+      nextCursor ?? this.nextCursor,
+      organizations: organizations ?? this.organizations,
+    );
+  }
 
   @override
-  List<Object?> get props => [posts, nextCursor];
+  List<Object?> get props => [posts, nextCursor, organizations];
 }
 
 class HomeError extends HomeState {
@@ -65,15 +90,20 @@ class HomeError extends HomeState {
   List<Object?> get props => [message];
 }
 
-
 // BLoC
 
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
   final GetAllPostsNearByUserUseCase getNearbyPostsUseCase;
+  final GetOrganizationDetailByPostOrganizationIdUseCase
+  getOrganizationDetailByPostOrganizationIdUseCase;
 
-  HomeBloc({required this.getNearbyPostsUseCase})
-      : super(const HomeInitial()) {
+  HomeBloc({
+    required this.getNearbyPostsUseCase,
+    required this.getOrganizationDetailByPostOrganizationIdUseCase,
+  }) : super(const HomeInitial()) {
     on<FetchNearbyPosts>(_onFetchNearbyPosts);
+    on<FetchOrganizationDetails>(_onFetchOrganizationDetails);
+
   }
 
   Future<void> _onFetchNearbyPosts(
@@ -97,4 +127,37 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       (data) => emit(HomeLoaded(data.posts, data.nextCursor)),
     );
   }
+
+  Future<void> _onFetchOrganizationDetails(
+  FetchOrganizationDetails event,
+  Emitter<HomeState> emit,
+) async {
+  if (state is! HomeLoaded) return;
+
+  final currentState = state as HomeLoaded;
+
+  // Already cached? Don’t fetch again.
+  if (currentState.organizations.containsKey(event.organizationId)) {
+    return;
+  }
+
+  final result = await getOrganizationDetailByPostOrganizationIdUseCase(
+    GetOrganizationDetailByPostOrganizationIdParams(
+      organizationId: event.organizationId,
+    ),
+  );
+
+  result.fold(
+    (failure) {
+      // You can ignore or show error
+    },
+    (organization) {
+      final updatedMap = Map<String, Organization>.from(currentState.organizations);
+      updatedMap[event.organizationId] = organization;
+
+      emit(currentState.copyWith(organizations: updatedMap));
+    },
+  );
+}
+
 }

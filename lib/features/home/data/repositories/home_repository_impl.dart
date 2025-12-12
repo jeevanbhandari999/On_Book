@@ -1,10 +1,13 @@
+import 'package:app/app/dependency_injection.dart';
 import 'package:app/core/errors/exceptions.dart';
 import 'package:app/core/errors/failures.dart';
+import 'package:app/features/auth/domain/entities/organization.dart';
 import 'package:app/features/home/data/datasources/home_local_data_source.dart';
 import 'package:app/features/home/data/datasources/home_remote_data_source.dart';
 import 'package:app/features/home/domain/repositories/home_repository.dart';
 import 'package:app/features/post/data/models/post_model.dart';
 import 'package:app/features/post/domain/entities/post.dart';
+import 'package:app/features/post/domain/repositories/post_repository.dart';
 import 'package:dartz/dartz.dart';
 
 class HomeRepositoryImpl implements HomeRepository {
@@ -110,13 +113,33 @@ class HomeRepositoryImpl implements HomeRepository {
           if (cursor != null) {
             await localDataSource.cachePosts(userId, data.posts);
           }
-          final postEntities = data.posts
-              .map((post) => post.toEntity())
-              .toList();
 
-          print(postEntities);
+          // Fetch the images related to the post
+          final postRepo = DependencyInjection.get<PostRepository>();
+          final enrichedPosts = await Future.wait(
+            data.posts.map((post) async {
+              final imagesResult = await postRepo
+                  .getAllSpecificPostImagesByPostId(post.id);
 
-          return Right((posts: postEntities, nextCursor: data.nextCursor));
+              final additionalImageUrls = imagesResult.fold(
+                (failure) => <String>[],
+                (imgs) => imgs.map((e) => e.imageUrl).toList(),
+              );
+
+              // 3) Attach the images safely
+              return post.toEntity().copyWith(
+                additionalImagesForHomeFeed: additionalImageUrls,
+              );
+            }),
+          );
+
+          // final postEntities = data.posts
+          //     .map((post) => post.toEntity())
+          //     .toList();
+
+          // print(postEntities);
+
+          return Right((posts: enrichedPosts, nextCursor: data.nextCursor));
         },
       );
     } catch (e) {
@@ -165,5 +188,20 @@ class HomeRepositoryImpl implements HomeRepository {
   Future<Either<Failure, void>> unlikePost(String postId) {
     // TODO: implement unlikePost
     throw UnimplementedError();
+  }
+
+  @override
+  Future<Either<Failure, Organization>>
+  getOrganizationDetailByPostOrganizationId(String organizationId) async {
+    try {
+      final remoteOrganizationDetails = await remoteDataSource
+          .getOrganizationDetailByPostOrganizationId(organizationId);
+      return remoteOrganizationDetails.fold(
+        (failure) => Left(failure),
+        (orgDetail) => Right(orgDetail.toEntity()),
+      );
+    } catch (e) {
+      return Left(UnknownFailure(e.toString()));
+    }
   }
 }

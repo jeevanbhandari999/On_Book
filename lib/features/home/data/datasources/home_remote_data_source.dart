@@ -1,5 +1,6 @@
 import 'package:app/core/errors/exceptions.dart' as core_exceptions;
 import 'package:app/core/errors/failures.dart';
+import 'package:app/features/auth/data/models/orgnization_model.dart';
 import 'package:app/features/post/data/models/post_model.dart';
 import 'package:dartz/dartz.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -21,6 +22,10 @@ abstract class HomeRemoteDataSource {
     required String userId,
     int limit = 15,
   });
+
+  // Get the organization detail by post id
+  Future<Either<Failure, OrganizationModel>>
+  getOrganizationDetailByPostOrganizationId(String organizationId);
 }
 
 class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
@@ -225,5 +230,23 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
   }) {
     // TODO: implement getRecommendedPosts
     throw UnimplementedError();
+  }
+
+  @override
+  Future<Either<Failure, OrganizationModel>>
+  getOrganizationDetailByPostOrganizationId(String organizationId) async {
+    try {
+      final organizationResponse = await supabaseClient
+          .from('organizations')
+          .select()
+          .eq('id', organizationId)
+          .single();
+      final organizationModel = OrganizationModel.fromJson(
+        organizationResponse,
+      );
+      return Right(organizationModel);
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
   }
 }
