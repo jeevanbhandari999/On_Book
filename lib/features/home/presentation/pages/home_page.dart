@@ -324,15 +324,18 @@ Widget _buildImageStrip(Post post) {
     height: 120,
     child: ListView.separated(
       itemBuilder: (context, index) {
-        return Padding(
-          padding: const EdgeInsets.only(left: 6),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: CachedNetworkImage(
-              imageUrl: images[index],
-              width: 120,
-              height: 120,
-              fit: BoxFit.cover,
+        return GestureDetector(
+          onTap: () => _showImagePreviewDialog(context, images[index]),
+          child: Padding(
+            padding: const EdgeInsets.only(left: 6),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: CachedNetworkImage(
+                imageUrl: images[index],
+                width: 120,
+                height: 120,
+                fit: BoxFit.cover,
+              ),
             ),
           ),
         );
@@ -341,6 +344,56 @@ Widget _buildImageStrip(Post post) {
       itemCount: images.length,
       scrollDirection: Axis.horizontal,
     ),
+  );
+}
+
+void _showImagePreviewDialog(BuildContext context, String imageUrl) {
+  showDialog(
+    context: context,
+    barrierColor: Colors.black87,
+    builder: (_) {
+      return Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.all(16),
+        child: Stack(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: InteractiveViewer(
+                child: CachedNetworkImage(
+                  height: MediaQuery.of(context).size.height * 0.6,
+                  width: double.infinity,
+                  imageUrl: imageUrl,
+                  fit: BoxFit.cover,
+                  placeholder: (context, url) =>
+                      const Center(child: CircularProgressIndicator()),
+                  errorWidget: (context, url, error) => const Center(
+                    child: Icon(Icons.error, color: Colors.white),
+                  ),
+                ),
+              ),
+            ),
+
+            // Close button
+            Positioned(
+              top: 8,
+              right: 8,
+              child: InkWell(
+                onTap: () => context.pop(),
+                child: Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.black54,
+                  ),
+                  child: const Icon(Icons.close, color: Colors.white, size: 20),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    },
   );
 }
 
