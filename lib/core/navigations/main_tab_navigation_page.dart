@@ -1,4 +1,5 @@
 import 'package:app/app/router/route_constants.dart';
+import 'package:app/core/constants/ui_constants.dart';
 import 'package:app/core/navigations/adaptive_app_bar.dart';
 import 'package:app/core/navigations/adaptive_navigation.dart';
 import 'package:app/core/navigations/responsive_navigation_controller.dart';
@@ -223,7 +224,10 @@ class _MainTabNavigationPageState extends State<MainTabNavigationPage>
                         color: isSelected
                             ? theme.primaryColor.withAlpha(30)
                             : Colors.transparent,
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: BorderRadius.circular(
+                          UiConstants.radiusRound,
+                          // UiConstants.radiusMd,
+                        ),
                       ),
                       child: Icon(
                         isSelected ? item.selectedIcon : item.icon,
