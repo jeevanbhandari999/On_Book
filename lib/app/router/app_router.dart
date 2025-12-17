@@ -6,6 +6,7 @@ import 'package:app/features/auth/presentation/pages/forgot_password_page.dart';
 import 'package:app/features/auth/presentation/pages/login_page.dart';
 import 'package:app/features/auth/presentation/pages/register_page.dart';
 import 'package:app/features/auth/presentation/pages/select_hotel_organization_page.dart';
+import 'package:app/features/booking/presentation/pages/booking_page.dart';
 import 'package:app/features/chat/presentation/pages/chat_user_list_page.dart';
 import 'package:app/features/home/presentation/pages/another.dart';
 import 'package:app/features/home/presentation/pages/home_page.dart';
@@ -82,7 +83,9 @@ class AppRouter {
                 pageBuilder: (context, state) {
                   final extraData = state.extra as UserModel?;
                   final userId = extraData?.userId;
-                  return NoTransitionPage(child: HomePage(userId: userId ?? ''));
+                  return NoTransitionPage(
+                    child: HomePage(userId: userId ?? ''),
+                  );
                 },
               ),
             ],
@@ -178,6 +181,18 @@ class AppRouter {
           final post = extraData['post'];
           final userId = extraData['userId'];
           return EditPostPage(postId: postId, post: post, userId: userId);
+        },
+      ),
+
+      // Booking routs
+      GoRoute(
+        path: RouteConstants.bookingFormPage,
+        builder: (context, state) {
+          final extraData = state.extra as Map<String, dynamic>;
+          // print(extraData);
+          final postId = extraData['postId'];
+          final userId = extraData['userId'];
+          return BookingFormScreen(postId: postId, userId: userId);
         },
       ),
 

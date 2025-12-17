@@ -45,13 +45,14 @@ class HomePage extends StatelessWidget {
               //  ?? 85.446681,
             ),
           ),
-      child: const HomeView(),
+      child: HomeView(userId: userId),
     );
   }
 }
 
 class HomeView extends StatelessWidget {
-  const HomeView({super.key});
+  final String userId;
+  const HomeView({super.key, required this.userId});
 
   @override
   Widget build(BuildContext context) {
@@ -85,7 +86,7 @@ class HomeView extends StatelessWidget {
 
                   return const Center(child: CircularProgressIndicator());
                 }
-                return _buildImagePageView(context, post, organization);
+                return _buildImagePageView(context, post, organization, userId);
               },
               pageSnapping: false,
               physics: const BouncingScrollPhysics(
@@ -105,6 +106,7 @@ Widget _buildImagePageView(
   BuildContext context,
   Post post,
   Organization organization,
+  String userId,
 ) {
   return SizedBox.expand(
     child: Stack(
@@ -297,7 +299,7 @@ Widget _buildImagePageView(
                   },
                 ),
                 const SizedBox(height: UiConstants.spacingSm),
-                _buildActionButtons(context),
+                _buildActionButtons(context, postId: post.id, userId: userId),
               ],
             ),
           ),
@@ -546,7 +548,7 @@ Widget _buildDescriptionSection(
   );
 }
 
-Widget _buildActionButtons(BuildContext context) {
+Widget _buildActionButtons(BuildContext context,{required String userId, required String postId}) {
   return Row(
     mainAxisAlignment: MainAxisAlignment.center,
     mainAxisSize: MainAxisSize.min,
@@ -564,7 +566,12 @@ Widget _buildActionButtons(BuildContext context) {
       Expanded(
         child: CustomButton(
           text: 'Book Now',
-          onPressed: () {},
+          onPressed: () {
+            context.push(
+              RouteConstants.bookingFormPage,
+              extra: {'userId': userId, 'postId': postId},
+            );
+          },
           icon: const Icon(Icons.event_available),
         ),
       ),

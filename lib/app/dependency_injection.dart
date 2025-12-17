@@ -1,5 +1,6 @@
 import 'package:app/core/services/session_manager.dart';
 import 'package:app/features/auth/auth_dependencies.dart';
+import 'package:app/features/booking/booking_dependencies.dart';
 import 'package:app/features/home/home_dependencies.dart';
 import 'package:app/features/post/post_dependencies.dart';
 import 'package:get_it/get_it.dart';
@@ -53,8 +54,11 @@ abstract class DependencyInjection {
     // Post feature depenencies
     await _registerPostDependencies();
 
-    // Post feature depenencies
+    // Home feature depenencies
     await _registerHomeDependencies();
+
+    // Booking feature dependencies
+    await _registerBookingDependencies();
   }
 
   // Register auth dependencies
@@ -70,6 +74,11 @@ abstract class DependencyInjection {
   // Register home dependencies
   static Future<void> _registerHomeDependencies() async {
     await HomeDependencies.register(instance);
+  }
+
+  // Register home dependencies
+  static Future<void> _registerBookingDependencies() async {
+    await BookingDependencies.register(instance);
   }
 
   static void reset() {
