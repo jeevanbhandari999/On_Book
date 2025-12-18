@@ -1,5 +1,6 @@
 import 'package:app/core/errors/failures.dart';
 import 'package:app/features/booking/domain/entities/booking.dart';
+import 'package:app/features/booking/domain/entities/payment_enums.dart';
 import 'package:app/features/booking/domain/repositories/booking_repository.dart';
 import 'package:app/features/post/domain/repositories/post_repository.dart';
 import 'package:dartz/dartz.dart';
@@ -67,6 +68,7 @@ class CreateBookingUseCase {
       totalAmount: totalAmount,
       status: BookingStatus.pending,
       paymentStatus: PaymentStatus.pending,
+      paymentMethod: params.paymentMethod ?? PaymentMethod.cash,
       notes: params.notes,
 
       createdAt: now,
@@ -83,6 +85,7 @@ class CreateBookingParams extends Equatable {
   final DateTime checkInDate;
   final DateTime checkOutDate;
   final String? notes;
+  final PaymentMethod? paymentMethod;
 
   const CreateBookingParams({
     required this.userId,
@@ -90,10 +93,18 @@ class CreateBookingParams extends Equatable {
     required this.checkInDate,
     required this.checkOutDate,
     this.notes,
+    this.paymentMethod,
   });
 
   @override
-  List<Object?> get props => [userId, postId, checkInDate, checkOutDate, notes];
+  List<Object?> get props => [
+    userId,
+    postId,
+    checkInDate,
+    checkOutDate,
+    notes,
+    paymentMethod,
+  ];
 
   CreateBookingParams copyWith({
     String? userId,
@@ -101,6 +112,7 @@ class CreateBookingParams extends Equatable {
     DateTime? checkInDate,
     DateTime? checkOutDate,
     String? notes,
+    PaymentMethod? paymentMethod,
   }) {
     return CreateBookingParams(
       userId: userId ?? this.userId,
@@ -108,6 +120,7 @@ class CreateBookingParams extends Equatable {
       checkInDate: checkInDate ?? this.checkInDate,
       checkOutDate: checkOutDate ?? this.checkOutDate,
       notes: notes ?? this.notes,
+      paymentMethod: paymentMethod ?? this.paymentMethod,
     );
   }
 

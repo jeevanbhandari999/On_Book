@@ -1,4 +1,8 @@
+import 'package:app/app/dependency_injection.dart';
 import 'package:app/core/errors/failures.dart';
+import 'package:app/features/auth/domain/entities/user.dart';
+import 'package:app/features/auth/domain/repositories/auth_repository.dart';
+import 'package:app/features/booking/domain/entities/payment_enums.dart';
 import 'package:app/features/booking/domain/usecases/create_booking_use_case.dart';
 import 'package:equatable/equatable.dart';
 import 'package:app/features/booking/domain/entities/booking.dart';
@@ -67,6 +71,14 @@ class BookingFormAdminNotesChanged extends BookingFormEvent {
   List<Object> get props => [adminNotes];
 }
 
+class BookingFormPaymentMethodChanged extends BookingFormEvent {
+  final PaymentMethod paymentMethod;
+  const BookingFormPaymentMethodChanged(this.paymentMethod);
+
+  @override
+  List<Object> get props => [paymentMethod];
+}
+
 class BookingFormSubmitted extends BookingFormEvent {
   const BookingFormSubmitted();
 }
@@ -102,6 +114,9 @@ class BookingFormReady extends BookingFormState {
   final bool isValid;
   final bool isEditMode;
   final Booking? originalBooking;
+  final User user;
+  final PaymentMethod paymentMethod;
+  final bool hasUserInteracted;
 
   const BookingFormReady({
     required this.userId,
@@ -116,6 +131,9 @@ class BookingFormReady extends BookingFormState {
     this.isValid = false,
     this.isEditMode = false,
     this.originalBooking,
+    required this.user,
+    this.paymentMethod = PaymentMethod.cash,
+    this.hasUserInteracted = false,
   });
 
   int get nights => checkOutDate.difference(checkInDate).inDays;
@@ -133,6 +151,9 @@ class BookingFormReady extends BookingFormState {
     bool? isValid,
     bool? isEditMode,
     Booking? originalBooking,
+    User? user,
+    PaymentMethod? paymentMethod,
+    bool? hasUserInteracted,
   }) {
     return BookingFormReady(
       userId: userId ?? this.userId,
@@ -147,6 +168,9 @@ class BookingFormReady extends BookingFormState {
       isValid: isValid ?? this.isValid,
       isEditMode: isEditMode ?? this.isEditMode,
       originalBooking: originalBooking ?? this.originalBooking,
+      user: user ?? this.user,
+      paymentMethod: paymentMethod ?? this.paymentMethod,
+      hasUserInteracted: hasUserInteracted ?? this.hasUserInteracted,
     );
   }
 
@@ -164,6 +188,9 @@ class BookingFormReady extends BookingFormState {
     isValid,
     isEditMode,
     originalBooking,
+    user,
+    paymentMethod,
+    hasUserInteracted,
   ];
 }
 
@@ -213,6 +240,8 @@ class BookingFormBloc extends Bloc<BookingFormEvent, BookingFormState> {
     on<BookingFormStatusChanged>(_onStatusChanged);
     on<BookingFormPaymentStatusChanged>(_onPaymentStatusChanged);
     on<BookingFormAdminNotesChanged>(_onAdminNotesChanged);
+    on<BookingFormPaymentMethodChanged>(_onPaymentMethodChanged);
+
     on<BookingFormSubmitted>(_onSubmitted);
     on<BookingFormReset>(_onReset);
   }
@@ -221,44 +250,58 @@ class BookingFormBloc extends Bloc<BookingFormEvent, BookingFormState> {
     BookingFormInitialized event,
     Emitter<BookingFormState> emit,
   ) async {
-    if (event.existingBooking == null) {
-      // Create mode
-      final tomorrow = DateTime.now().add(const Duration(days: 1));
-      final dayAfter = tomorrow.add(const Duration(days: 2));
+    final authRepository = DependencyInjection.get<AuthRepository>();
+    final userEither = await authRepository.getCurrentUser();
 
-      emit(
-        BookingFormReady(
-          userId: event.userId,
-          postId: event.postId,
-          checkInDate: tomorrow,
-          checkOutDate: dayAfter,
-          isEditMode: false,
-        ),
-      );
-    } else {
-      // Edit mode
-      final booking = event.existingBooking!;
-      emit(
-        BookingFormReady(
-          userId: event.userId,
-          postId: event.postId,
-          checkInDate: booking.checkInDate,
-          checkOutDate: booking.checkOutDate,
-          notes: booking.notes ?? '',
-          status: booking.status,
-          paymentStatus: booking.paymentStatus,
-          // adminNotes: booking.adminNotes, // assuming you have this field
-          isEditMode: true,
-          originalBooking: booking,
-        ),
-      );
-    }
+    userEither.fold(
+      (failure) {
+        emit(BookingFormError(message: failure.message));
+      },
+      (user) {
+        if (event.existingBooking == null) {
+          final now = DateTime.now().add(const Duration(hours: 1));
+          final tomorrow = now.add(const Duration(days: 1));
+          emit(
+            _validate(
+              BookingFormReady(
+                userId: event.userId,
+                postId: event.postId,
+                checkInDate: now,
+                checkOutDate: tomorrow,
+                isEditMode: false,
+                user: user,
+              ),
+            ),
+          );
+        } else {
+          final booking = event.existingBooking!;
+          emit(
+            BookingFormReady(
+              userId: event.userId,
+              postId: event.postId,
+              checkInDate: booking.checkInDate,
+              checkOutDate: booking.checkOutDate,
+              notes: booking.notes ?? '',
+              status: booking.status,
+              paymentStatus: booking.paymentStatus,
+              isEditMode: true,
+              originalBooking: booking,
+              user: user,
+            ),
+          );
+        }
+      },
+    );
   }
 
   void _onCheckInChanged(BookingFormCheckInChanged e, Emitter emit) {
     if (state is BookingFormReady) {
       final s = state as BookingFormReady;
-      emit(_validate(s.copyWith(checkInDate: e.checkInDate)));
+      emit(
+        _validate(
+          s.copyWith(checkInDate: e.checkInDate, hasUserInteracted: true),
+        ),
+      );
     }
   }
 
@@ -297,6 +340,16 @@ class BookingFormBloc extends Bloc<BookingFormEvent, BookingFormState> {
     if (state is BookingFormReady) {
       final s = state as BookingFormReady;
       emit(_validate(s.copyWith(adminNotes: e.adminNotes)));
+    }
+  }
+
+  void _onPaymentMethodChanged(
+    BookingFormPaymentMethodChanged e,
+    Emitter emit,
+  ) {
+    if (state is BookingFormReady) {
+      final s = state as BookingFormReady;
+      emit(_validate(s.copyWith(paymentMethod: e.paymentMethod)));
     }
   }
 
@@ -344,6 +397,7 @@ class BookingFormBloc extends Bloc<BookingFormEvent, BookingFormState> {
         checkInDate: current.checkInDate,
         checkOutDate: current.checkOutDate,
         notes: current.notes.trim().isEmpty ? null : current.notes.trim(),
+        paymentMethod: current.paymentMethod,
       );
 
       final result = await _createBookingUseCase(params);
@@ -376,16 +430,17 @@ class BookingFormBloc extends Bloc<BookingFormEvent, BookingFormState> {
   BookingFormReady _validate(BookingFormReady state) {
     final errors = <String, String>{};
 
-    if (!state.isEditMode) {
-      // Only validate dates/notes on create
-      if (!state.checkOutDate.isAfter(state.checkInDate)) {
-        errors['dates'] = 'Check-out must be after check-in';
-      }
+    if (!state.isEditMode && state.hasUserInteracted) {
+      // For valiations
+      // final now = DateTime.now();
+      // final tolerance = now.subtract(const Duration(minutes: 1));
 
-      if (state.checkInDate.isBefore(
-        DateTime.now().add(const Duration(days: 1)),
-      )) {
-        errors['checkIn'] = 'Check-in must be at least tomorrow';
+      // if (state.checkInDate.isBefore(tolerance)) {
+      //   errors['checkIn'] = 'Check-in cannot be in the past';
+      // }
+
+      if (!state.checkOutDate.isAfter(state.checkInDate)) {
+        errors['checkOut'] = 'Check-out must be after check-in';
       }
     }
 

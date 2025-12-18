@@ -1,3 +1,4 @@
+import 'package:app/features/booking/domain/entities/payment_enums.dart';
 import 'package:equatable/equatable.dart';
 import '../../domain/entities/booking.dart';
 
@@ -30,6 +31,7 @@ class BookingModel extends Equatable {
 
   final BookingStatus status;
   final PaymentStatus paymentStatus;
+  final PaymentMethod paymentMethod;
   final String? paymentId;
   final String? notes;
 
@@ -61,6 +63,7 @@ class BookingModel extends Equatable {
     required this.totalAmount,
     this.status = BookingStatus.pending,
     this.paymentStatus = PaymentStatus.pending,
+    this.paymentMethod = PaymentMethod.cash,
     this.paymentId,
     this.notes,
     required this.createdAt,
@@ -99,6 +102,7 @@ class BookingModel extends Equatable {
       totalAmount: (json['total_amount'] as num).toDouble(),
       status: BookingStatus.values.byName(json['status']),
       paymentStatus: PaymentStatus.values.byName(json['payment_status']),
+      paymentMethod: PaymentMethod.values.byName(json['payment_method']),
       paymentId: json['payment_id'] as String?,
       notes: json['notes'] as String?,
       createdAt: DateTime.parse(json['created_at']),
@@ -132,6 +136,7 @@ class BookingModel extends Equatable {
       'total_amount': totalAmount,
       'status': status.name,
       'payment_status': paymentStatus.name,
+      'payment_method': paymentMethod.name,
       'payment_id': paymentId,
       'notes': notes,
       'created_at': createdAt.toIso8601String(),
@@ -158,6 +163,8 @@ class BookingModel extends Equatable {
       'tags': tags,
       'longitude': longitude,
       'latitude': latitude,
+      'notes': notes,
+      'payment_method': paymentMethod.name,
       'check_in_date': checkInDate.toIso8601String(),
       'check_out_date': checkOutDate.toIso8601String(),
       'total_amount': totalAmount,
@@ -168,6 +175,7 @@ class BookingModel extends Equatable {
     return {
       'status': status.name,
       'payment_status': paymentStatus.name,
+      'payment_method': paymentMethod.name,
       'payment_id': paymentId,
       'notes': notes,
       'updated_at': DateTime.now().toIso8601String(),
@@ -199,6 +207,7 @@ class BookingModel extends Equatable {
     double? totalAmount,
     BookingStatus? status,
     PaymentStatus? paymentStatus,
+    PaymentMethod? paymentMethod,
     String? paymentId,
     String? notes,
     DateTime? createdAt,
@@ -229,6 +238,7 @@ class BookingModel extends Equatable {
       totalAmount: totalAmount ?? this.totalAmount,
       status: status ?? this.status,
       paymentStatus: paymentStatus ?? this.paymentStatus,
+      paymentMethod: paymentMethod ?? this.paymentMethod,
       paymentId: paymentId ?? this.paymentId,
       notes: notes ?? this.notes,
       createdAt: createdAt ?? this.createdAt,
@@ -261,6 +271,7 @@ class BookingModel extends Equatable {
     totalAmount: totalAmount,
     status: status,
     paymentStatus: paymentStatus,
+    paymentMethod: paymentMethod,
     paymentId: paymentId,
     notes: notes,
     createdAt: createdAt,
@@ -293,6 +304,7 @@ class BookingModel extends Equatable {
       totalAmount: booking.totalAmount,
       status: booking.status,
       paymentStatus: booking.paymentStatus,
+      paymentMethod: booking.paymentMethod,
       paymentId: booking.paymentId,
       notes: booking.notes,
       createdAt: booking.createdAt,
@@ -326,6 +338,7 @@ class BookingModel extends Equatable {
     totalAmount,
     status,
     paymentStatus,
+    paymentMethod,
     paymentId,
     notes,
     createdAt,

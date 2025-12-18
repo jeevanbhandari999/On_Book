@@ -548,7 +548,11 @@ Widget _buildDescriptionSection(
   );
 }
 
-Widget _buildActionButtons(BuildContext context,{required String userId, required String postId}) {
+Widget _buildActionButtons(
+  BuildContext context, {
+  required String userId,
+  required String postId,
+}) {
   return Row(
     mainAxisAlignment: MainAxisAlignment.center,
     mainAxisSize: MainAxisSize.min,

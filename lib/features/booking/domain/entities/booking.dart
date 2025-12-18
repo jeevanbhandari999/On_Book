@@ -1,3 +1,4 @@
+import 'package:app/features/booking/domain/entities/payment_enums.dart';
 import 'package:equatable/equatable.dart';
 
 enum BookingStatus { pending, confirmed, cancelled, completed }
@@ -34,6 +35,7 @@ class Booking extends Equatable {
 
   final BookingStatus status;
   final PaymentStatus paymentStatus;
+  final PaymentMethod paymentMethod;
   final String? paymentId;
   final String? notes;
 
@@ -65,6 +67,7 @@ class Booking extends Equatable {
     required this.totalAmount,
     this.status = BookingStatus.pending,
     this.paymentStatus = PaymentStatus.pending,
+    this.paymentMethod = PaymentMethod.cash,
     this.paymentId,
     this.notes,
     required this.createdAt,
@@ -101,6 +104,7 @@ class Booking extends Equatable {
 
     BookingStatus? status,
     PaymentStatus? paymentStatus,
+    PaymentMethod? paymentMethod,
     String? paymentId,
     String? notes,
 
@@ -132,6 +136,7 @@ class Booking extends Equatable {
       totalAmount: totalAmount ?? this.totalAmount,
       status: status ?? this.status,
       paymentStatus: paymentStatus ?? this.paymentStatus,
+      paymentMethod: paymentMethod ?? this.paymentMethod,
       paymentId: paymentId ?? this.paymentId,
       notes: notes ?? this.notes,
       createdAt: createdAt ?? this.createdAt,
@@ -165,6 +170,7 @@ class Booking extends Equatable {
     totalAmount,
     status,
     paymentStatus,
+    paymentMethod,
     paymentId,
     notes,
     createdAt,
