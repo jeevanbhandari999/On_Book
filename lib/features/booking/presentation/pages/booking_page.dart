@@ -93,7 +93,7 @@ class BookingFormView extends StatelessWidget {
           if (state is BookingFormReady) {
             return _buildForm(context, state);
           }
-          return const Center(child: Text('Something went wrong'));
+          return const SizedBox.shrink();
         },
       ),
     );
@@ -407,7 +407,10 @@ class BookingFormView extends StatelessWidget {
             ),
             width: double.infinity,
             child: LoadingButton(
-              onPressed: state.isValid
+              isLoading: state is BookingFormReady && state.isSubmitting,
+              onPressed:
+                  state.isValid &&
+                      !(state is BookingFormReady && state.isSubmitting)
                   ? () => context.read<BookingFormBloc>().add(
                       const BookingFormSubmitted(),
                     )

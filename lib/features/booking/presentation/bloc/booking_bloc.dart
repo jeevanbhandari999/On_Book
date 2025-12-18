@@ -117,6 +117,7 @@ class BookingFormReady extends BookingFormState {
   final User user;
   final PaymentMethod paymentMethod;
   final bool hasUserInteracted;
+  final bool isSubmitting;
 
   const BookingFormReady({
     required this.userId,
@@ -134,6 +135,7 @@ class BookingFormReady extends BookingFormState {
     required this.user,
     this.paymentMethod = PaymentMethod.cash,
     this.hasUserInteracted = false,
+    this.isSubmitting = false,
   });
 
   int get nights => checkOutDate.difference(checkInDate).inDays;
@@ -154,6 +156,7 @@ class BookingFormReady extends BookingFormState {
     User? user,
     PaymentMethod? paymentMethod,
     bool? hasUserInteracted,
+    bool? isSubmitting,
   }) {
     return BookingFormReady(
       userId: userId ?? this.userId,
@@ -171,6 +174,7 @@ class BookingFormReady extends BookingFormState {
       user: user ?? this.user,
       paymentMethod: paymentMethod ?? this.paymentMethod,
       hasUserInteracted: hasUserInteracted ?? this.hasUserInteracted,
+      isSubmitting: isSubmitting ?? this.isSubmitting,
     );
   }
 
@@ -191,6 +195,7 @@ class BookingFormReady extends BookingFormState {
     user,
     paymentMethod,
     hasUserInteracted,
+    isSubmitting,
   ];
 }
 
@@ -360,7 +365,7 @@ class BookingFormBloc extends Bloc<BookingFormEvent, BookingFormState> {
     final current = state;
     if (current is! BookingFormReady || !current.isValid) return;
 
-    emit(const BookingFormSubmitting());
+    emit(current.copyWith(isSubmitting: true));
 
     try {
       // if (current.isEditMode) {
@@ -417,6 +422,7 @@ class BookingFormBloc extends Bloc<BookingFormEvent, BookingFormState> {
           ),
         ),
       );
+      emit(current.copyWith(isSubmitting: false));
       // }
     } catch (e) {
       emit(BookingFormError(message: 'Unexpected error: $e'));
