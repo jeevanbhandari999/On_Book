@@ -415,14 +415,17 @@ class BookingFormBloc extends Bloc<BookingFormEvent, BookingFormState> {
                 : 'Failed to create booking',
           ),
         ),
-        (newBooking) => emit(
-          BookingFormSuccess(
-            booking: newBooking,
-            message: 'Booking created successfully!',
-          ),
-        ),
+        (newBooking) {
+          emit(current.copyWith(isSubmitting: false));
+          emit(
+            BookingFormSuccess(
+              booking: newBooking,
+              message: 'Booking created successfully!',
+            ),
+          );
+        },
       );
-      emit(current.copyWith(isSubmitting: false));
+
       // }
     } catch (e) {
       emit(BookingFormError(message: 'Unexpected error: $e'));
