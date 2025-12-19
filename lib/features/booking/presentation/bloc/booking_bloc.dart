@@ -425,7 +425,6 @@ class BookingFormBloc extends Bloc<BookingFormEvent, BookingFormState> {
           );
         },
       );
-
       // }
     } catch (e) {
       emit(BookingFormError(message: 'Unexpected error: $e'));

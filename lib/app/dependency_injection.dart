@@ -2,6 +2,7 @@ import 'package:app/core/services/session_manager.dart';
 import 'package:app/features/auth/auth_dependencies.dart';
 import 'package:app/features/booking/booking_dependencies.dart';
 import 'package:app/features/home/home_dependencies.dart';
+import 'package:app/features/library/library_dependencies.dart';
 import 'package:app/features/post/post_dependencies.dart';
 import 'package:get_it/get_it.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -59,6 +60,9 @@ abstract class DependencyInjection {
 
     // Booking feature dependencies
     await _registerBookingDependencies();
+    
+    // Library feature dependencies
+    await _registerLibraryDependencies();
   }
 
   // Register auth dependencies
@@ -76,9 +80,13 @@ abstract class DependencyInjection {
     await HomeDependencies.register(instance);
   }
 
-  // Register home dependencies
+  // Register booking dependencies
   static Future<void> _registerBookingDependencies() async {
     await BookingDependencies.register(instance);
+  }
+  // Register library dependencies
+  static Future<void> _registerLibraryDependencies() async {
+    await LibraryDependencies.register(instance);
   }
 
   static void reset() {
