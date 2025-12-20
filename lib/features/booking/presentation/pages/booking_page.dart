@@ -7,18 +7,24 @@ import 'package:app/features/booking/domain/entities/booking.dart';
 import 'package:app/features/booking/domain/entities/payment_enums.dart';
 import 'package:app/features/booking/domain/usecases/create_booking_use_case.dart';
 import 'package:app/features/booking/presentation/bloc/booking_bloc.dart';
+import 'package:app/features/booking/presentation/widgets/booking_posst_summary.dart';
+import 'package:app/features/post/domain/entities/post.dart';
+import 'package:app/features/post/domain/entities/post_enums.dart';
+import 'package:app/features/post/presentation/pages/post_details_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class BookingFormScreen extends StatelessWidget {
   final String userId;
   final String postId;
+  final Post post;
   final Booking? existingBooking; // null = create, not null = edit
 
   const BookingFormScreen({
     super.key,
     required this.userId,
     required this.postId,
+    required this.post,
     this.existingBooking,
   });
 
@@ -39,6 +45,7 @@ class BookingFormScreen extends StatelessWidget {
       child: BookingFormView(
         userId: userId,
         postId: postId,
+        post: post,
         existingBooking: existingBooking,
       ),
     );
@@ -48,12 +55,14 @@ class BookingFormScreen extends StatelessWidget {
 class BookingFormView extends StatelessWidget {
   final String userId;
   final String postId;
+  final Post post;
   final Booking? existingBooking; // null = create, not null = edit
 
   const BookingFormView({
     super.key,
     required this.userId,
     required this.postId,
+    required this.post,
     this.existingBooking,
   });
 
@@ -126,7 +135,7 @@ class BookingFormView extends StatelessWidget {
                     ),
                     // Profile Picture of the user
                     CircleAvatar(
-                      radius: 50,
+                      radius: 34,
                       child: Container(
                         child:
                             (state.user.imageUrl != null &&
@@ -157,7 +166,7 @@ class BookingFormView extends StatelessWidget {
                           child: Text(
                             state.user.fullName,
                             textAlign: TextAlign.left,
-                            style: const TextStyle(fontSize: 20),
+                            style: const TextStyle(fontSize: 18),
                           ),
                         ),
                       ],
@@ -170,7 +179,7 @@ class BookingFormView extends StatelessWidget {
                           child: Text(
                             state.user.phone ?? 'Not Added',
                             textAlign: TextAlign.left,
-                            style: TextStyle(fontSize: 20),
+                            style: const TextStyle(fontSize: 18),
                           ),
                         ),
                       ],
@@ -184,7 +193,7 @@ class BookingFormView extends StatelessWidget {
                           child: Text(
                             state.user.fullName,
                             textAlign: TextAlign.left,
-                            style: TextStyle(fontSize: 20),
+                            style: const TextStyle(fontSize: 18),
                           ),
                         ),
                       ],
@@ -198,7 +207,7 @@ class BookingFormView extends StatelessWidget {
                           child: Text(
                             state.user.address ?? 'Not provided',
                             textAlign: TextAlign.left,
-                            style: TextStyle(fontSize: 20),
+                            style: const TextStyle(fontSize: 18),
                           ),
                         ),
                       ],
@@ -207,6 +216,9 @@ class BookingFormView extends StatelessWidget {
                 ),
               ),
             ),
+
+            // Post details to book
+            BookingPostSummary(post: post),
 
             // Booking details
             SectionContainer(

@@ -1,13 +1,19 @@
 import 'package:app/app/dependency_injection.dart';
+import 'package:app/app/router/route_constants.dart';
 import 'package:app/core/constants/ui_constants.dart';
 import 'package:app/core/utils/date_formatter.dart';
 import 'package:app/core/widgets/common_widgets.dart';
 import 'package:app/core/widgets/loading_widget.dart';
+import 'package:app/features/auth/auth_dependencies.dart';
+import 'package:app/features/auth/domain/repositories/auth_repository.dart';
+import 'package:app/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:app/features/auth/services/auth_service.dart';
 import 'package:app/features/booking/domain/entities/booking.dart';
 import 'package:app/features/library/domain/usecases/get_all_booking_by_user_id_use_case.dart';
 import 'package:app/features/library/presentation/bloc/library_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 class LibraryPage extends StatelessWidget {
   // final String userId;
@@ -19,18 +25,26 @@ class LibraryPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final authDependency = DependencyInjection.get<AuthService>();
+    final userId = authDependency.getCurrentUserId();
+
+    if (userId == null) {
+      return const Center(child: LoadingWidget());
+    }
+
     return BlocProvider(
       create: (context) => LibraryBloc(
         getAllBookingsByUserIdUseCase:
             DependencyInjection.get<GetAllBookingsByUserIdUseCase>(),
-      )..add(LoadUserLibrary('9cbe8449-9772-453a-8257-544c5c7ab415')),
-      child: const LibraryView(),
+      )..add(LoadUserLibrary(userId)),
+      child: LibraryView(userId: userId),
     );
   }
 }
 
 class LibraryView extends StatelessWidget {
-  const LibraryView({super.key});
+  final String userId;
+  const LibraryView({super.key, required this.userId});
 
   @override
   Widget build(BuildContext context) {
@@ -60,9 +74,9 @@ class LibraryView extends StatelessWidget {
                   ),
                   const SizedBox(height: UiConstants.spacingMd),
                   ElevatedButton(
-                    onPressed: () => context
-                        .read<LibraryBloc>()
-                        .add(LoadUserLibrary('9cbe8449-9772-453a-8257-544c5c7ab415')),
+                    onPressed: () => context.read<LibraryBloc>().add(
+                      LoadUserLibrary(userId),
+                    ),
                     child: const Text('Retry'),
                   ),
                 ],
@@ -76,11 +90,18 @@ class LibraryView extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.library_books_outlined, size: 100, color: Colors.grey),
+                    Icon(
+                      Icons.library_books_outlined,
+                      size: 100,
+                      color: Colors.grey,
+                    ),
                     SizedBox(height: UiConstants.spacingLg),
                     Text(
                       'No bookings yet',
-                      style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     SizedBox(height: UiConstants.spacingSm),
                     Text(
@@ -94,28 +115,34 @@ class LibraryView extends StatelessWidget {
 
             return RefreshIndicator(
               onRefresh: () async {
-                context.read<LibraryBloc>().add(RefreshUserLibrary(
-                      '9cbe8449-9772-453a-8257-544c5c7ab415',
-                    ));
+                context.read<LibraryBloc>().add(RefreshUserLibrary(userId));
               },
               child: ListView(
                 padding: const EdgeInsets.all(UiConstants.spacingMd),
                 children: [
                   if (state.ongoingBookings.isNotEmpty) ...[
                     _buildSectionHeader('Currently Staying'),
-                    ...state.ongoingBookings.map((booking) => _buildBookingCard(context, booking, isOngoing: true)),
+                    ...state.ongoingBookings.map(
+                      (booking) =>
+                          _buildBookingCard(context, booking, isOngoing: true),
+                    ),
                     const SizedBox(height: UiConstants.spacingLg),
                   ],
 
                   if (state.upcomingBookings.isNotEmpty) ...[
                     _buildSectionHeader('Upcoming Bookings'),
-                    ...state.upcomingBookings.map((booking) => _buildBookingCard(context, booking)),
+                    ...state.upcomingBookings.map(
+                      (booking) => _buildBookingCard(context, booking),
+                    ),
                     const SizedBox(height: UiConstants.spacingLg),
                   ],
 
                   if (state.pastBookings.isNotEmpty) ...[
                     _buildSectionHeader('Past Bookings'),
-                    ...state.pastBookings.map((booking) => _buildBookingCard(context, booking, isPast: true)),
+                    ...state.pastBookings.map(
+                      (booking) =>
+                          _buildBookingCard(context, booking, isPast: true),
+                    ),
                   ],
                 ],
               ),
@@ -154,8 +181,14 @@ class LibraryView extends StatelessWidget {
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
         onTap: () {
-          // TODO: Navigate to booking detail screen
-          // Navigator.push(context, MaterialPageRoute(builder: (_) => BookingDetailScreen(booking: booking)));
+          context.push(
+            RouteConstants.bookingFormPage,
+            extra: {
+              'userId': booking.userId,
+              'postId': booking.postId,
+              'editBooking': booking,
+            },
+          );
         },
         child: Padding(
           padding: const EdgeInsets.all(UiConstants.spacingMd),
@@ -179,7 +212,11 @@ class LibraryView extends StatelessWidget {
                             width: 110,
                             height: 110,
                             color: Colors.grey[300],
-                            child: const Icon(Icons.hotel, size: 50, color: Colors.grey),
+                            child: const Icon(
+                              Icons.hotel,
+                              size: 50,
+                              color: Colors.grey,
+                            ),
                           ),
                   ),
                   const SizedBox(width: UiConstants.spacingMd),
@@ -200,7 +237,10 @@ class LibraryView extends StatelessWidget {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          DateFormatter.range(booking.checkInDate, booking.checkOutDate),
+                          DateFormatter.range(
+                            booking.checkInDate,
+                            booking.checkOutDate,
+                          ),
                           style: const TextStyle(fontSize: 15),
                         ),
                         const SizedBox(height: 4),
@@ -229,7 +269,10 @@ class LibraryView extends StatelessWidget {
                       Chip(
                         label: Text(
                           booking.status.name.toUpperCase(),
-                          style: const TextStyle(color: Colors.white, fontSize: 12),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                          ),
                         ),
                         backgroundColor: statusColor,
                         padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -237,14 +280,21 @@ class LibraryView extends StatelessWidget {
                       if (isOngoing) ...[
                         const SizedBox(width: 8),
                         const Chip(
-                          label: Text('ONGOING', style: TextStyle(fontSize: 12)),
+                          label: Text(
+                            'ONGOING',
+                            style: TextStyle(fontSize: 12),
+                          ),
                           backgroundColor: Colors.orange,
                         ),
                       ],
-                      if (isPast && booking.status == BookingStatus.cancelled) ...[
+                      if (isPast &&
+                          booking.status == BookingStatus.cancelled) ...[
                         const SizedBox(width: 8),
                         const Chip(
-                          label: Text('CANCELLED', style: TextStyle(fontSize: 12)),
+                          label: Text(
+                            'CANCELLED',
+                            style: TextStyle(fontSize: 12),
+                          ),
                           backgroundColor: Colors.red,
                         ),
                       ],
@@ -273,8 +323,6 @@ class LibraryView extends StatelessWidget {
         return Colors.red;
       case BookingStatus.completed:
         return Colors.blue;
-      default:
-        return Colors.grey;
     }
   }
 }

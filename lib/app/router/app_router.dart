@@ -193,8 +193,14 @@ class AppRouter {
           // print(extraData);
           final postId = extraData['postId'];
           final userId = extraData['userId'];
+          final post = extraData['post'] as Post;
           final editBooking = extraData['editBooking'] as Booking?;
-          return BookingFormScreen(postId: postId, userId: userId, existingBooking: editBooking,);
+          return BookingFormScreen(
+            postId: postId,
+            userId: userId,
+            post: post,
+            existingBooking: editBooking,
+          );
         },
       ),
 

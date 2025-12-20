@@ -299,7 +299,7 @@ Widget _buildImagePageView(
                   },
                 ),
                 const SizedBox(height: UiConstants.spacingSm),
-                _buildActionButtons(context, postId: post.id, userId: userId),
+                _buildActionButtons(context, post: post, userId: userId),
               ],
             ),
           ),
@@ -551,7 +551,7 @@ Widget _buildDescriptionSection(
 Widget _buildActionButtons(
   BuildContext context, {
   required String userId,
-  required String postId,
+  required Post post,
 }) {
   return Row(
     mainAxisAlignment: MainAxisAlignment.center,
@@ -573,7 +573,7 @@ Widget _buildActionButtons(
           onPressed: () {
             context.push(
               RouteConstants.bookingFormPage,
-              extra: {'userId': userId, 'postId': postId},
+              extra: {'userId': userId, 'postId': post.id, 'post': post},
             );
           },
           icon: const Icon(Icons.event_available),
