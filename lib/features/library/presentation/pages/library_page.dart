@@ -51,55 +51,11 @@ class LibraryView extends StatelessWidget {
             return const Center(child: LoadingWidget());
           }
           if (state is LibraryError) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.error_outline, size: 80, color: Colors.grey),
-                  const SizedBox(height: UiConstants.spacingMd),
-                  Text(
-                    state.message,
-                    style: const TextStyle(fontSize: 18, color: Colors.grey),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: UiConstants.spacingMd),
-                  ElevatedButton(
-                    onPressed: () => context.read<LibraryBloc>().add(
-                      LoadUserLibrary(userId),
-                    ),
-                    child: const Text('Retry'),
-                  ),
-                ],
-              ),
-            );
+            return _buildErrorState(state, context);
           }
           if (state is LibraryLoaded) {
             if (!state.hasBookings) {
-              return const Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.library_books_outlined,
-                      size: 100,
-                      color: Colors.grey,
-                    ),
-                    SizedBox(height: UiConstants.spacingLg),
-                    Text(
-                      'No bookings yet',
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    SizedBox(height: UiConstants.spacingSm),
-                    Text(
-                      'Your booking history will appear here',
-                      style: TextStyle(color: Colors.grey, fontSize: 16),
-                    ),
-                  ],
-                ),
-              );
+              return _buildEmptyState();
             }
             return Padding(
               padding: const EdgeInsets.all(UiConstants.spacingMd),
@@ -108,9 +64,6 @@ class LibraryView extends StatelessWidget {
                   // Filter tabs
                   BlocBuilder<LibraryBloc, LibraryState>(
                     builder: (context, state) {
-                      if (state is LibraryRefreshing) {
-                        return const Center(child: LoadingWidget());
-                      }
                       if (state is! LibraryLoaded) {
                         return const SizedBox.shrink();
                       }
@@ -145,31 +98,44 @@ class LibraryView extends StatelessWidget {
                     },
                   ),
                   const SizedBox(height: UiConstants.spacingMd),
-                  Expanded(
-                    child: RefreshIndicator(
-                      onRefresh: () async {
-                        context.read<LibraryBloc>().add(
-                          RefreshUserLibrary(userId),
-                        );
-                      },
-                      child: ListView.separated(
-                        physics: const AlwaysScrollableScrollPhysics(),
-                        padding: EdgeInsets.zero,
-                        itemCount: _getFilteredBookings(state).length,
-                        separatorBuilder: (_, __) =>
-                            const SizedBox(height: UiConstants.spacingSm),
-                        itemBuilder: (context, index) {
-                          final booking = _getFilteredBookings(state)[index];
-                          return _buildBookingCard(
-                            context,
-                            booking,
-                            isOngoing:
-                                state.activeFilter == LibraryFilter.ongoing,
-                            isPast: state.activeFilter == LibraryFilter.past,
-                          );
-                        },
-                      ),
-                    ),
+                  BlocBuilder<LibraryBloc, LibraryState>(
+                    builder: (context, state) {
+                      if (state is LibraryRefreshing) {
+                        return const Center(child: LoadingWidget());
+                      }
+                      if (state is! LibraryLoaded) {
+                        return const SizedBox.shrink();
+                      }
+                      return Expanded(
+                        child: RefreshIndicator(
+                          onRefresh: () async {
+                            context.read<LibraryBloc>().add(
+                              RefreshUserLibrary(userId),
+                            );
+                          },
+                          child: ListView.separated(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            padding: EdgeInsets.zero,
+                            itemCount: _getFilteredBookings(state).length,
+                            separatorBuilder: (_, __) =>
+                                const SizedBox(height: UiConstants.spacingSm),
+                            itemBuilder: (context, index) {
+                              final booking = _getFilteredBookings(
+                                state,
+                              )[index];
+                              return _buildBookingCard(
+                                context,
+                                booking,
+                                isOngoing:
+                                    state.activeFilter == LibraryFilter.ongoing,
+                                isPast:
+                                    state.activeFilter == LibraryFilter.past,
+                              );
+                            },
+                          ),
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),
@@ -177,6 +143,50 @@ class LibraryView extends StatelessWidget {
           }
           return const SizedBox.shrink();
         },
+      ),
+    );
+  }
+
+  Center _buildErrorState(LibraryError state, BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.error_outline, size: 80, color: Colors.grey),
+          const SizedBox(height: UiConstants.spacingMd),
+          Text(
+            state.message,
+            style: const TextStyle(fontSize: 18, color: Colors.grey),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: UiConstants.spacingMd),
+          ElevatedButton(
+            onPressed: () =>
+                context.read<LibraryBloc>().add(LoadUserLibrary(userId)),
+            child: const Text('Retry'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Center _buildEmptyState() {
+    return const Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.library_books_outlined, size: 100, color: Colors.grey),
+          SizedBox(height: UiConstants.spacingLg),
+          Text(
+            'No bookings yet',
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+          ),
+          SizedBox(height: UiConstants.spacingSm),
+          Text(
+            'Your booking history will appear here',
+            style: TextStyle(color: Colors.grey, fontSize: 16),
+          ),
+        ],
       ),
     );
   }

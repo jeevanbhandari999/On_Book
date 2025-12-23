@@ -1,5 +1,4 @@
 import 'package:app/app/dependency_injection.dart';
-import 'package:app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:app/features/auth/services/auth_service.dart';
 import 'package:equatable/equatable.dart';
 import 'package:app/features/auth/domain/entities/user.dart';

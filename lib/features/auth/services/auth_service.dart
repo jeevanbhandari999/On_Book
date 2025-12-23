@@ -1,5 +1,3 @@
-import 'dart:developer' as dev;
-
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:app/features/auth/data/models/user_model.dart';
 import 'package:app/features/auth/data/models/orgnization_model.dart';
