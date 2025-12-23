@@ -21,52 +21,33 @@ class BookingPostSummary extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          const Align(
+            alignment: Alignment.topLeft,
+            child: Text('Hotel Details', style: TextStyle(fontSize: 20)),
+          ),
+          const SizedBox(height: UiConstants.spacingSm),
           // Images
           SizedBox(
-            height: 150,
-            child: Row(
-              children: [
-                // Primary image (bigger)
-                Expanded(
-                  flex: 3,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(10),
-                    child: Image.network(
-                      post.primaryImageUrl,
-                      fit: BoxFit.cover,
-                    ),
+            height: 200,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemBuilder: (context, index) {
+                return ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.network(
+                    images[index],
+                    width: 200,
+                    fit: BoxFit.cover,
                   ),
-                ),
-                const SizedBox(width: 8),
-
-                // Additional images
-                if (post.additionalImagesForHomeFeed.isNotEmpty)
-                  Expanded(
-                    flex: 2,
-                    child: ListView.separated(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: post.additionalImagesForHomeFeed
-                          .take(4)
-                          .length,
-                      separatorBuilder: (_, __) => const SizedBox(width: 6),
-                      itemBuilder: (_, index) {
-                        return ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: Image.network(
-                            post.additionalImagesForHomeFeed[index],
-                            width: 70,
-                            fit: BoxFit.cover,
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-              ],
+                );
+              },
+              separatorBuilder: (context, index) =>
+                  const SizedBox(width: UiConstants.spacingMd),
+              itemCount: images.length,
             ),
           ),
 
           const SizedBox(height: UiConstants.spacingSm),
-
           // Title + Status
           Row(
             children: [
@@ -98,8 +79,12 @@ class BookingPostSummary extends StatelessWidget {
               ),
             ],
           ),
-
-          const SizedBox(height: 6),
+          Text(
+            post.description ?? '',
+            maxLines: 3,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(height: UiConstants.spacingSm),
 
           // Price
           Text(
@@ -107,8 +92,10 @@ class BookingPostSummary extends StatelessWidget {
             style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
           ),
 
-          const SizedBox(height: 8),
-
+          const SizedBox(height: UiConstants.spacingSm),
+          _buildAmeniticsSection(context, amenityType: post.amenities),
+          const SizedBox(height: UiConstants.spacingSm),
+          _buildTagsSection(context, postTag: post.tags),
           // Key features (minimal)
           Wrap(
             spacing: 12,
@@ -126,15 +113,68 @@ class BookingPostSummary extends StatelessWidget {
       ),
     );
   }
+}
 
-  Widget _feature(IconData icon, String text) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
+Widget _feature(IconData icon, String text) {
+  return Row(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      Icon(icon, size: 16),
+      const SizedBox(width: 4),
+      Text(text, style: const TextStyle(fontSize: 13)),
+    ],
+  );
+}
+
+Widget _buildAmeniticsSection(
+  BuildContext context, {
+  required List<AmenityType>? amenityType,
+}) {
+  if (amenityType == null) return const SizedBox.shrink();
+  return Padding(
+    padding: const EdgeInsets.all(UiConstants.spacingSm),
+    child: Column(
       children: [
-        Icon(icon, size: 16),
-        const SizedBox(width: 4),
-        Text(text, style: const TextStyle(fontSize: 13)),
+        CustomMultiSelect<AmenityType>(
+          label: 'Amenities',
+          items: AmenityType.values,
+          selected: amenityType,
+          itemLabel: (a) => _amenityLabel(a),
+          readOnly: true,
+          onChanged: null,
+        ),
       ],
-    );
-  }
+    ),
+  );
+}
+
+Widget _buildTagsSection(
+  BuildContext context, {
+  required List<PostTag>? postTag,
+}) {
+  if (postTag == null) return const SizedBox.shrink();
+  return Padding(
+    padding: const EdgeInsets.all(UiConstants.spacingSm),
+    child: Column(
+      children: [
+        CustomMultiSelect<PostTag>(
+          label: 'Tags',
+          items: PostTag.values,
+          selected: postTag,
+          itemLabel: (p) => _tagLabel(p),
+          readOnly: true,
+          onChanged: null,
+        ),
+      ],
+    ),
+  );
+}
+
+String _amenityLabel(AmenityType a) =>
+    StringExt(a.name.replaceAll('_', ' ')).capitalize();
+String _tagLabel(PostTag p) =>
+    StringExt(p.name.replaceAll('_', ' ')).capitalize();
+
+extension StringExt on String {
+  String capitalize() => this[0].toUpperCase() + substring(1);
 }

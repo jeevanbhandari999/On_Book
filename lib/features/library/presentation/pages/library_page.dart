@@ -4,9 +4,6 @@ import 'package:app/core/constants/ui_constants.dart';
 import 'package:app/core/utils/date_formatter.dart';
 import 'package:app/core/widgets/common_widgets.dart';
 import 'package:app/core/widgets/loading_widget.dart';
-import 'package:app/features/auth/auth_dependencies.dart';
-import 'package:app/features/auth/domain/repositories/auth_repository.dart';
-import 'package:app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:app/features/auth/services/auth_service.dart';
 import 'package:app/features/booking/domain/entities/booking.dart';
 import 'package:app/features/library/domain/usecases/get_all_booking_by_user_id_use_case.dart';
@@ -27,11 +24,9 @@ class LibraryPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final authDependency = DependencyInjection.get<AuthService>();
     final userId = authDependency.getCurrentUserId();
-
     if (userId == null) {
       return const Center(child: LoadingWidget());
     }
-
     return BlocProvider(
       create: (context) => LibraryBloc(
         getAllBookingsByUserIdUseCase:
@@ -49,17 +44,11 @@ class LibraryView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('My Bookings'),
-        centerTitle: true,
-        elevation: 0,
-      ),
       body: BlocBuilder<LibraryBloc, LibraryState>(
         builder: (context, state) {
           if (state is LibraryLoading) {
             return const Center(child: LoadingWidget());
           }
-
           if (state is LibraryError) {
             return Center(
               child: Column(
@@ -118,27 +107,23 @@ class LibraryView extends StatelessWidget {
                 context.read<LibraryBloc>().add(RefreshUserLibrary(userId));
               },
               child: ListView(
-                padding: const EdgeInsets.all(UiConstants.spacingMd),
                 children: [
                   if (state.ongoingBookings.isNotEmpty) ...[
-                    _buildSectionHeader('Currently Staying'),
                     ...state.ongoingBookings.map(
                       (booking) =>
                           _buildBookingCard(context, booking, isOngoing: true),
                     ),
-                    const SizedBox(height: UiConstants.spacingLg),
+                    const SizedBox(height: UiConstants.spacingSm),
                   ],
 
                   if (state.upcomingBookings.isNotEmpty) ...[
-                    _buildSectionHeader('Upcoming Bookings'),
                     ...state.upcomingBookings.map(
                       (booking) => _buildBookingCard(context, booking),
                     ),
-                    const SizedBox(height: UiConstants.spacingLg),
+                    const SizedBox(height: UiConstants.spacingSm),
                   ],
 
                   if (state.pastBookings.isNotEmpty) ...[
-                    _buildSectionHeader('Past Bookings'),
                     ...state.pastBookings.map(
                       (booking) =>
                           _buildBookingCard(context, booking, isPast: true),
@@ -155,20 +140,6 @@ class LibraryView extends StatelessWidget {
     );
   }
 
-  Widget _buildSectionHeader(String title) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: UiConstants.spacingSm),
-      child: Text(
-        title,
-        style: const TextStyle(
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
-          color: Colors.deepPurple,
-        ),
-      ),
-    );
-  }
-
   Widget _buildBookingCard(
     BuildContext context,
     Booking booking, {
@@ -178,8 +149,9 @@ class LibraryView extends StatelessWidget {
     final statusColor = _getStatusColor(booking.status);
 
     return SectionContainer(
+      padding: const EdgeInsets.all(UiConstants.spacingSm),
       child: InkWell(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(UiConstants.radiusMd),
         onTap: () {
           context.push(
             RouteConstants.bookingFormPage,
@@ -191,7 +163,7 @@ class LibraryView extends StatelessWidget {
           );
         },
         child: Padding(
-          padding: const EdgeInsets.all(UiConstants.spacingMd),
+          padding: const EdgeInsets.all(UiConstants.spacingSm),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -200,7 +172,7 @@ class LibraryView extends StatelessWidget {
                 children: [
                   // Primary Image
                   ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(UiConstants.radiusMd),
                     child: booking.primaryImageUrl.isNotEmpty
                         ? Image.network(
                             booking.primaryImageUrl,
@@ -245,7 +217,7 @@ class LibraryView extends StatelessWidget {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          '${booking.nights} night${booking.nights > 1 ? 's' : ''} • \$${booking.totalAmount}',
+                          '${booking.nights} night${booking.nights > 1 ? 's' : ''} • Rs.${booking.totalAmount}',
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
@@ -258,7 +230,7 @@ class LibraryView extends StatelessWidget {
                 ],
               ),
 
-              const SizedBox(height: UiConstants.spacingMd),
+              const SizedBox(height: UiConstants.spacingSm),
 
               // Status Chips & Date
               Row(
@@ -302,7 +274,7 @@ class LibraryView extends StatelessWidget {
                   ),
                   Text(
                     'Booked ${DateFormatter.format(booking.createdAt)}',
-                    style: const TextStyle(color: Colors.grey, fontSize: 13),
+                    style: const TextStyle(fontSize: 13),
                   ),
                 ],
               ),

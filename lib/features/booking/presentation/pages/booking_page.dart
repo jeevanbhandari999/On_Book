@@ -9,22 +9,20 @@ import 'package:app/features/booking/domain/usecases/create_booking_use_case.dar
 import 'package:app/features/booking/presentation/bloc/booking_bloc.dart';
 import 'package:app/features/booking/presentation/widgets/booking_posst_summary.dart';
 import 'package:app/features/post/domain/entities/post.dart';
-import 'package:app/features/post/domain/entities/post_enums.dart';
-import 'package:app/features/post/presentation/pages/post_details_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class BookingFormScreen extends StatelessWidget {
   final String userId;
   final String postId;
-  final Post post;
+  final Post? post;
   final Booking? existingBooking; // null = create, not null = edit
 
   const BookingFormScreen({
     super.key,
     required this.userId,
     required this.postId,
-    required this.post,
+    this.post,
     this.existingBooking,
   });
 
@@ -55,14 +53,14 @@ class BookingFormScreen extends StatelessWidget {
 class BookingFormView extends StatelessWidget {
   final String userId;
   final String postId;
-  final Post post;
+  final Post? post;
   final Booking? existingBooking; // null = create, not null = edit
 
   const BookingFormView({
     super.key,
     required this.userId,
     required this.postId,
-    required this.post,
+    this.post,
     this.existingBooking,
   });
 
@@ -174,7 +172,7 @@ class BookingFormView extends StatelessWidget {
                     const SizedBox(height: UiConstants.spacingSm),
                     Row(
                       children: [
-                        Expanded(child: Text('Phone')),
+                        const Expanded(child: Text('Phone')),
                         Expanded(
                           child: Text(
                             state.user.phone ?? 'Not Added',
@@ -188,7 +186,7 @@ class BookingFormView extends StatelessWidget {
 
                     Row(
                       children: [
-                        Expanded(child: Text('email')),
+                        const Expanded(child: Text('email')),
                         Expanded(
                           child: Text(
                             state.user.fullName,
@@ -202,7 +200,7 @@ class BookingFormView extends StatelessWidget {
 
                     Row(
                       children: [
-                        Expanded(child: Text('address')),
+                        const Expanded(child: Text('address')),
                         Expanded(
                           child: Text(
                             state.user.address ?? 'Not provided',
@@ -218,11 +216,11 @@ class BookingFormView extends StatelessWidget {
             ),
 
             // Post details to book
-            BookingPostSummary(post: post),
+            if (post != null) BookingPostSummary(post: post!),
 
             // Booking details
             SectionContainer(
-              child: Container(
+              child: SizedBox(
                 width: double.infinity,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -419,10 +417,8 @@ class BookingFormView extends StatelessWidget {
             ),
             width: double.infinity,
             child: LoadingButton(
-              isLoading: state is BookingFormReady && state.isSubmitting,
-              onPressed:
-                  state.isValid &&
-                      !(state is BookingFormReady && state.isSubmitting)
+              isLoading: state.isSubmitting,
+              onPressed: state.isValid && !(state.isSubmitting)
                   ? () => context.read<BookingFormBloc>().add(
                       const BookingFormSubmitted(),
                     )
