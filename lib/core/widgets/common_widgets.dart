@@ -128,7 +128,7 @@ class CustomButton extends StatelessWidget {
           const SizedBox(width: UiConstants.spacingSm),
           Text(
             text,
-            style: TextStyle(fontSize: 10, color: textColor),
+            style: TextStyle(color: textColor),
             overflow: TextOverflow.ellipsis,
           ),
         ],
@@ -324,12 +324,12 @@ class SectionContainer extends StatelessWidget {
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final container = Container(
-      margin:
-          margin ??
-          const EdgeInsets.symmetric(
-            horizontal: UiConstants.spacingMd,
-            vertical: UiConstants.spacingSm,
-          ),
+      margin: margin,
+      //  ??
+      // const EdgeInsets.symmetric(
+      //   horizontal: UiConstants.spacingMd,
+      //   vertical: UiConstants.spacingSm,
+      // ),
       padding: padding ?? const EdgeInsets.all(UiConstants.spacingMd),
       decoration: BoxDecoration(
         color: backgroundColor ?? colorScheme.surface,

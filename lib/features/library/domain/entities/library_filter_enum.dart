@@ -1,0 +1,57 @@
+enum LibraryFilter {
+  all,
+  recent,
+  myBooking,
+
+  // Owner / Staff
+  newBooking,
+  cancelled,
+  rejected,
+  completed,
+
+  // Time based
+  ongoing,
+  upcoming,
+  past,
+
+  saved,
+}
+
+extension LibraryFilterExtension on LibraryFilter {
+  String get displayName {
+    switch (this) {
+      case LibraryFilter.all:
+        return 'All';
+
+      case LibraryFilter.recent:
+        return 'Recent';
+
+      case LibraryFilter.myBooking:
+        return 'My Bookings';
+
+      case LibraryFilter.newBooking:
+        return 'New Bookings';
+
+      case LibraryFilter.cancelled:
+        return 'Cancelled';
+
+      case LibraryFilter.rejected:
+        return 'Rejected';
+
+      case LibraryFilter.completed:
+        return 'Completed';
+
+      case LibraryFilter.ongoing:
+        return 'Ongoing';
+
+      case LibraryFilter.upcoming:
+        return 'Upcoming';
+
+      case LibraryFilter.past:
+        return 'Past';
+
+      case LibraryFilter.saved:
+        return 'Saved';
+    }
+  }
+}

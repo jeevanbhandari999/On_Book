@@ -1,5 +1,6 @@
 import 'package:app/core/errors/failures.dart';
 import 'package:app/features/booking/domain/entities/booking.dart';
+import 'package:app/features/library/domain/entities/library_filter_enum.dart';
 import 'package:app/features/library/domain/usecases/get_all_booking_by_user_id_use_case.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -20,6 +21,15 @@ class LoadUserLibrary extends LibraryEvent {
 
   @override
   List<Object> get props => [userId];
+}
+
+class ChangeLibraryFilterTabRequested extends LibraryEvent {
+  final LibraryFilter filter;
+
+  const ChangeLibraryFilterTabRequested({required this.filter});
+
+  @override
+  List<Object> get props => [filter];
 }
 
 class RefreshUserLibrary extends LibraryEvent {
@@ -48,12 +58,18 @@ class LibraryLoading extends LibraryState {
   const LibraryLoading();
 }
 
+class LibraryRefreshing extends LibraryState {
+  const LibraryRefreshing();
+}
+
 class LibraryLoaded extends LibraryState {
+  final LibraryFilter activeFilter;
   final List<Booking> upcomingBookings;
   final List<Booking> ongoingBookings;
   final List<Booking> pastBookings;
 
   const LibraryLoaded({
+    required this.activeFilter,
     required this.upcomingBookings,
     required this.ongoingBookings,
     required this.pastBookings,
@@ -64,8 +80,27 @@ class LibraryLoaded extends LibraryState {
       ongoingBookings.isNotEmpty ||
       pastBookings.isNotEmpty;
 
+  LibraryLoaded copyWith({
+    LibraryFilter? activeFilter,
+    List<Booking>? ongoingBookings,
+    List<Booking>? upcomingBookings,
+    List<Booking>? pastBookings,
+  }) {
+    return LibraryLoaded(
+      activeFilter: activeFilter ?? this.activeFilter,
+      ongoingBookings: ongoingBookings ?? this.ongoingBookings,
+      upcomingBookings: upcomingBookings ?? this.upcomingBookings,
+      pastBookings: pastBookings ?? this.pastBookings,
+    );
+  }
+
   @override
-  List<Object?> get props => [upcomingBookings, ongoingBookings, pastBookings];
+  List<Object?> get props => [
+    activeFilter,
+    upcomingBookings,
+    ongoingBookings,
+    pastBookings,
+  ];
 }
 
 class LibraryError extends LibraryState {
@@ -88,12 +123,16 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
        super(const LibraryInitial()) {
     on<LoadUserLibrary>(_onLoadUserLibrary);
     on<RefreshUserLibrary>(_onRefreshUserLibrary);
+    on<ChangeLibraryFilterTabRequested>(_onChangeFilter);
   }
 
   Future<void> _onLoadUserLibrary(
     LoadUserLibrary event,
     Emitter<LibraryState> emit,
   ) async {
+    final previousFilter = state is LibraryLoaded
+        ? (state as LibraryLoaded).activeFilter
+        : null;
     emit(const LibraryLoading());
 
     final result = await _getAllBookingsByUserIdUseCase(
@@ -106,7 +145,7 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
       },
       (bookings) async {
         print(bookings.length);
-        emit(_buildLoadedState(bookings));
+        emit(_buildLoadedState(bookings, previousFilter));
       },
     );
   }
@@ -115,9 +154,12 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
     RefreshUserLibrary event,
     Emitter<LibraryState> emit,
   ) async {
+    final previousFilter = state is LibraryLoaded
+        ? (state as LibraryLoaded).activeFilter
+        : null;
     // Optional: show loading only if current state is not loading
     if (state is! LibraryLoading) {
-      emit(const LibraryLoading());
+      emit(const LibraryRefreshing());
     }
 
     final result = await _getAllBookingsByUserIdUseCase(
@@ -128,12 +170,26 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
       (failure) => emit(LibraryError(message: _mapFailureToMessage(failure))),
       (bookings) {
         print(bookings.length);
-        emit(_buildLoadedState(bookings));
+        emit(_buildLoadedState(bookings, previousFilter));
       },
     );
   }
 
-  LibraryLoaded _buildLoadedState(List<Booking> bookings) {
+  void _onChangeFilter(
+    ChangeLibraryFilterTabRequested event,
+    Emitter<LibraryState> emit,
+  ) {
+    if (state is! LibraryLoaded) return;
+
+    final current = state as LibraryLoaded;
+
+    emit(current.copyWith(activeFilter: event.filter));
+  }
+
+  LibraryLoaded _buildLoadedState(
+    List<Booking> bookings,
+    LibraryFilter? previousFilter,
+  ) {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
 
@@ -169,11 +225,16 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
           ..sort((a, b) => b.checkOutDate.compareTo(a.checkOutDate));
 
     return LibraryLoaded(
+      activeFilter: previousFilter ?? LibraryFilter.all,
+
       upcomingBookings: upcoming,
       ongoingBookings: ongoing,
       pastBookings: past,
     );
   }
+
+  
+
 
   String _mapFailureToMessage(Failure failure) {
     if (failure is ServerFailure) {

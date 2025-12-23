@@ -6,6 +6,7 @@ import 'package:app/core/widgets/common_widgets.dart';
 import 'package:app/core/widgets/loading_widget.dart';
 import 'package:app/features/auth/services/auth_service.dart';
 import 'package:app/features/booking/domain/entities/booking.dart';
+import 'package:app/features/library/domain/entities/library_filter_enum.dart';
 import 'package:app/features/library/domain/usecases/get_all_booking_by_user_id_use_case.dart';
 import 'package:app/features/library/presentation/bloc/library_bloc.dart';
 import 'package:flutter/material.dart';
@@ -72,7 +73,6 @@ class LibraryView extends StatelessWidget {
               ),
             );
           }
-
           if (state is LibraryLoaded) {
             if (!state.hasBookings) {
               return const Center(
@@ -101,43 +101,103 @@ class LibraryView extends StatelessWidget {
                 ),
               );
             }
-
-            return RefreshIndicator(
-              onRefresh: () async {
-                context.read<LibraryBloc>().add(RefreshUserLibrary(userId));
-              },
-              child: ListView(
+            return Padding(
+              padding: const EdgeInsets.all(UiConstants.spacingMd),
+              child: Column(
                 children: [
-                  if (state.ongoingBookings.isNotEmpty) ...[
-                    ...state.ongoingBookings.map(
-                      (booking) =>
-                          _buildBookingCard(context, booking, isOngoing: true),
-                    ),
-                    const SizedBox(height: UiConstants.spacingSm),
-                  ],
+                  // Filter tabs
+                  BlocBuilder<LibraryBloc, LibraryState>(
+                    builder: (context, state) {
+                      if (state is LibraryRefreshing) {
+                        return const Center(child: LoadingWidget());
+                      }
+                      if (state is! LibraryLoaded) {
+                        return const SizedBox.shrink();
+                      }
+                      final activeFilter = state.activeFilter;
+                      return SizedBox(
+                        width: double.infinity,
+                        height: 40,
+                        child: ListView.separated(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: LibraryFilter.values.length,
+                          separatorBuilder: (_, __) =>
+                              const SizedBox(width: UiConstants.spacingSm),
+                          itemBuilder: (context, index) {
+                            final filter = LibraryFilter.values[index];
+                            final isActive = filter == activeFilter;
 
-                  if (state.upcomingBookings.isNotEmpty) ...[
-                    ...state.upcomingBookings.map(
-                      (booking) => _buildBookingCard(context, booking),
+                            return CustomButton(
+                              icon: isActive ? const Icon(Icons.check) : null,
+                              text: filter.displayName,
+                              isOutlined: !isActive,
+                              onPressed: () {
+                                context.read<LibraryBloc>().add(
+                                  ChangeLibraryFilterTabRequested(
+                                    filter: filter,
+                                  ),
+                                );
+                              },
+                            );
+                          },
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: UiConstants.spacingMd),
+                  Expanded(
+                    child: RefreshIndicator(
+                      onRefresh: () async {
+                        context.read<LibraryBloc>().add(
+                          RefreshUserLibrary(userId),
+                        );
+                      },
+                      child: ListView.separated(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        padding: EdgeInsets.zero,
+                        itemCount: _getFilteredBookings(state).length,
+                        separatorBuilder: (_, __) =>
+                            const SizedBox(height: UiConstants.spacingSm),
+                        itemBuilder: (context, index) {
+                          final booking = _getFilteredBookings(state)[index];
+                          return _buildBookingCard(
+                            context,
+                            booking,
+                            isOngoing:
+                                state.activeFilter == LibraryFilter.ongoing,
+                            isPast: state.activeFilter == LibraryFilter.past,
+                          );
+                        },
+                      ),
                     ),
-                    const SizedBox(height: UiConstants.spacingSm),
-                  ],
-
-                  if (state.pastBookings.isNotEmpty) ...[
-                    ...state.pastBookings.map(
-                      (booking) =>
-                          _buildBookingCard(context, booking, isPast: true),
-                    ),
-                  ],
+                  ),
                 ],
               ),
             );
           }
-
           return const SizedBox.shrink();
         },
       ),
     );
+  }
+
+  List<Booking> _getFilteredBookings(LibraryLoaded state) {
+    switch (state.activeFilter) {
+      case LibraryFilter.ongoing:
+        return state.ongoingBookings;
+      case LibraryFilter.upcoming:
+        return state.upcomingBookings;
+      case LibraryFilter.past:
+        return state.pastBookings;
+      case LibraryFilter.recent:
+        return [];
+      default:
+        return [
+          ...state.ongoingBookings,
+          ...state.upcomingBookings,
+          ...state.pastBookings,
+        ];
+    }
   }
 
   Widget _buildBookingCard(
