@@ -35,4 +35,36 @@ class LibraryRepositoryImpl implements LibraryRepository {
       return const Left(ServerFailure('Failed to load your bookings'));
     }
   }
+
+  @override
+  Future<Either<Failure, List<Booking>>> getAllBookingsRelatedToOrganization(
+    String organizationId,
+  ) async {
+    try {
+      final remoteBookings = await remoteDataSource
+          .getAllBookingsRelatedToOrganization(organizationId);
+
+      // Cache fresh data
+      await localDataSource.cacheOrganizationBookings(
+        organizationId,
+        remoteBookings,
+      );
+
+      return Right(remoteBookings.map((model) => model.toEntity()).toList());
+    } catch (e) {
+      // Fallback to cache
+      try {
+        final cached = await localDataSource.getCachedOrganizationBookings(
+          organizationId,
+        );
+        if (cached != null && cached.isNotEmpty) {
+          return Right(cached.map((model) => model.toEntity()).toList());
+        }
+      } catch (_) {}
+
+      return const Left(
+        ServerFailure('Failed to load your organization bookings'),
+      );
+    }
+  }
 }

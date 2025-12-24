@@ -8,39 +8,65 @@ import 'package:app/features/auth/services/auth_service.dart';
 import 'package:app/features/booking/domain/entities/booking.dart';
 import 'package:app/features/library/domain/entities/library_filter_enum.dart';
 import 'package:app/features/library/domain/usecases/get_all_booking_by_user_id_use_case.dart';
+import 'package:app/features/library/domain/usecases/get_all_booking_related_to_organization_use_case.dart';
 import 'package:app/features/library/presentation/bloc/library_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 class LibraryPage extends StatelessWidget {
-  // final String userId;
-
-  const LibraryPage({
-    super.key,
-    // required this.userId,
-  });
+  const LibraryPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     final authDependency = DependencyInjection.get<AuthService>();
     final userId = authDependency.getCurrentUserId();
-    if (userId == null) {
-      return const Center(child: LoadingWidget());
-    }
-    return BlocProvider(
-      create: (context) => LibraryBloc(
-        getAllBookingsByUserIdUseCase:
-            DependencyInjection.get<GetAllBookingsByUserIdUseCase>(),
-      )..add(LoadUserLibrary(userId)),
-      child: LibraryView(userId: userId),
+
+    // Handle the future for organizationId
+    return FutureBuilder<String?>(
+      future: authDependency
+          .getCurrentUserOrganizationId(), // The future for organizationId
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          // While waiting for the organizationId to resolve, show a loading widget
+          return const Center(child: LoadingWidget());
+        }
+
+        if (snapshot.hasError) {
+          // If there's an error fetching organizationId, handle it here (optional)
+          return Center(child: Text('Error: ${snapshot.error}'));
+        }
+
+        final organizationId = snapshot.data;
+        print(organizationId);
+
+        if (userId == null) {
+          return const Center(child: LoadingWidget());
+        }
+
+        return BlocProvider(
+          create: (context) =>
+              LibraryBloc(
+                getAllBookingsByUserIdUseCase:
+                    DependencyInjection.get<GetAllBookingsByUserIdUseCase>(),
+                getAllBookingRelatedToOrganizationUseCase:
+                    DependencyInjection.get<
+                      GetAllBookingRelatedToOrganizationUseCase
+                    >(),
+              )..add(
+                LoadUserLibrary(userId: userId, organizationId: organizationId),
+              ),
+          child: LibraryView(userId: userId, organizationId: organizationId),
+        );
+      },
     );
   }
 }
 
 class LibraryView extends StatelessWidget {
   final String userId;
-  const LibraryView({super.key, required this.userId});
+  final String? organizationId;
+  const LibraryView({super.key, required this.userId, this.organizationId});
 
   @override
   Widget build(BuildContext context) {
@@ -54,9 +80,6 @@ class LibraryView extends StatelessWidget {
             return _buildErrorState(state, context);
           }
           if (state is LibraryLoaded) {
-            if (!state.hasBookings) {
-              return _buildEmptyState();
-            }
             return Padding(
               padding: const EdgeInsets.all(UiConstants.spacingMd),
               child: Column(
@@ -100,39 +123,53 @@ class LibraryView extends StatelessWidget {
                   const SizedBox(height: UiConstants.spacingMd),
                   BlocBuilder<LibraryBloc, LibraryState>(
                     builder: (context, state) {
-                      if (state is LibraryRefreshing) {
-                        return const Center(child: LoadingWidget());
-                      }
                       if (state is! LibraryLoaded) {
                         return const SizedBox.shrink();
                       }
+
+                      final isRefreshing = state is LibraryRefreshing;
+                      final filteredBookings = _getFilteredBookings(state);
+
                       return Expanded(
                         child: RefreshIndicator(
                           onRefresh: () async {
                             context.read<LibraryBloc>().add(
-                              RefreshUserLibrary(userId),
+                              RefreshUserLibrary(
+                                userId: userId,
+                                organizationId: organizationId,
+                              ),
+                            );
+                            // Wait for refresh to complete
+                            await context.read<LibraryBloc>().stream.firstWhere(
+                              (newState) => newState is! LibraryRefreshing,
                             );
                           },
-                          child: ListView.separated(
-                            physics: const AlwaysScrollableScrollPhysics(),
-                            padding: EdgeInsets.zero,
-                            itemCount: _getFilteredBookings(state).length,
-                            separatorBuilder: (_, __) =>
-                                const SizedBox(height: UiConstants.spacingSm),
-                            itemBuilder: (context, index) {
-                              final booking = _getFilteredBookings(
-                                state,
-                              )[index];
-                              return _buildBookingCard(
-                                context,
-                                booking,
-                                isOngoing:
-                                    state.activeFilter == LibraryFilter.ongoing,
-                                isPast:
-                                    state.activeFilter == LibraryFilter.past,
-                              );
-                            },
-                          ),
+                          child: isRefreshing
+                              ? const Center(child: LoadingWidget())
+                              : filteredBookings.isEmpty
+                              ? _buildEmptyState()
+                              : ListView.separated(
+                                  physics:
+                                      const AlwaysScrollableScrollPhysics(),
+                                  padding: EdgeInsets.zero,
+                                  itemCount: filteredBookings.length,
+                                  separatorBuilder: (_, __) => const SizedBox(
+                                    height: UiConstants.spacingSm,
+                                  ),
+                                  itemBuilder: (context, index) {
+                                    final booking = filteredBookings[index];
+                                    return _buildBookingCard(
+                                      context,
+                                      booking,
+                                      isOngoing:
+                                          state.activeFilter ==
+                                          LibraryFilter.ongoing,
+                                      isPast:
+                                          state.activeFilter ==
+                                          LibraryFilter.past,
+                                    );
+                                  },
+                                ),
                         ),
                       );
                     },
@@ -141,7 +178,7 @@ class LibraryView extends StatelessWidget {
               ),
             );
           }
-          return const SizedBox.shrink();
+          return const LoadingWidget();
         },
       ),
     );
@@ -161,8 +198,9 @@ class LibraryView extends StatelessWidget {
           ),
           const SizedBox(height: UiConstants.spacingMd),
           ElevatedButton(
-            onPressed: () =>
-                context.read<LibraryBloc>().add(LoadUserLibrary(userId)),
+            onPressed: () => context.read<LibraryBloc>().add(
+              LoadUserLibrary(userId: userId, organizationId: organizationId),
+            ),
             child: const Text('Retry'),
           ),
         ],
@@ -199,10 +237,13 @@ class LibraryView extends StatelessWidget {
         return state.upcomingBookings;
       case LibraryFilter.past:
         return state.pastBookings;
+      case LibraryFilter.newBooking:
+        return state.newBookings;
       case LibraryFilter.recent:
         return [];
       default:
         return [
+          ...state.newBookings,
           ...state.ongoingBookings,
           ...state.upcomingBookings,
           ...state.pastBookings,

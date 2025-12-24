@@ -5,4 +5,6 @@ import 'package:dartz/dartz.dart';
 abstract class LibraryRepository {
   // Get user bookings lists
   Future<Either<Failure, List<Booking>>> getUserBookings(String userId);
+  // Get organization requests bookings lists
+  Future<Either<Failure, List<Booking>>> getAllBookingsRelatedToOrganization(String organizationId);
 }

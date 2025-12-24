@@ -3,6 +3,7 @@ import 'package:app/features/library/data/datasources/library_remote_data_source
 import 'package:app/features/library/data/repositories/library_repository_impl.dart';
 import 'package:app/features/library/domain/repositories/library_repository.dart';
 import 'package:app/features/library/domain/usecases/get_all_booking_by_user_id_use_case.dart';
+import 'package:app/features/library/domain/usecases/get_all_booking_related_to_organization_use_case.dart';
 import 'package:app/features/library/presentation/bloc/library_bloc.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
@@ -33,12 +34,17 @@ class LibraryDependencies {
     getIt.registerLazySingleton<GetAllBookingsByUserIdUseCase>(
       () => GetAllBookingsByUserIdUseCase(getIt<LibraryRepository>()),
     );
+    
+    getIt.registerLazySingleton<GetAllBookingRelatedToOrganizationUseCase>(
+      () => GetAllBookingRelatedToOrganizationUseCase(getIt<LibraryRepository>()),
+    );
 
 
   // BLoC
     getIt.registerFactory<LibraryBloc>(
       () => LibraryBloc(
         getAllBookingsByUserIdUseCase: getIt<GetAllBookingsByUserIdUseCase>(),
+        getAllBookingRelatedToOrganizationUseCase: getIt<GetAllBookingRelatedToOrganizationUseCase>(),
       ),
     );
   }
