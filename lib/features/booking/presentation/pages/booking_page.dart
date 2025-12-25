@@ -214,10 +214,10 @@ class BookingFormView extends StatelessWidget {
                 ),
               ),
             ),
-
+            const SizedBox(height: UiConstants.spacingSm),
             // Post details to book
             if (post != null) BookingPostSummary(post: post!),
-
+            const SizedBox(height: UiConstants.spacingSm),
             // Booking details
             SectionContainer(
               child: SizedBox(

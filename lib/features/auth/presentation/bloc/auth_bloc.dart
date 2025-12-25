@@ -409,7 +409,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           final sessionManager = DependencyInjection.get<SessionManager>();
           if (sessionManager.isLoggedIn == true &&
               sessionManager.user != null) {
-            // print('✅ Using cached session data as fallback');
 
             final cachedUser = sessionManager.user!;
             final organization = await _authService.getUserOrganization();
@@ -426,7 +425,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             return;
           }
         } catch (e) {
-          // print('⚠️ Failed to check cached session: $e');
           throw CacheException('Failed to check cache session $e');
         }
 

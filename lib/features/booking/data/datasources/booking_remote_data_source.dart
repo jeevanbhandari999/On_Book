@@ -27,6 +27,8 @@ class BookingRemoteDataSourceImpl implements BookingRemoteDataSource {
           .select()
           .single();
 
+      // After booking created then update the post (hotel rooms), for now let's just make availabel to booked later we will handle the number of available rooms
+      
       return BookingModel.fromJson(response);
     } catch (e) {
       throw core_exceptions.ServerException('Failed to create booking: $e');
