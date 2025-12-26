@@ -75,7 +75,7 @@ class CreateBookingUseCase {
       updatedAt: now,
     );
 
-    return bookingRepository.createBooking(booking);
+    return bookingRepository.createBooking(booking, params.postId);
   }
 }
 

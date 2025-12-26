@@ -93,6 +93,12 @@ abstract class PostRemoteDataSource {
 
   // Subscribe to real-time post updates
   Stream<List<PostModel>> subscribeToPosts(String organizationId);
+
+  // Booking related updation
+  Future<void> updatePostStatus({
+    required String postId,
+    required String status,
+  });
 }
 
 class PostRemoteDataSourceImpl implements PostRemoteDataSource {
@@ -655,6 +661,21 @@ class PostRemoteDataSourceImpl implements PostRemoteDataSource {
       return await canManagePosts(userId, organizationId);
     } catch (e) {
       return false;
+    }
+  }
+
+  @override
+  Future<void> updatePostStatus({
+    required String postId,
+    required String status,
+  }) async {
+    try {
+      await supabaseClient
+          .from('posts')
+          .update({'status': status})
+          .eq('id', postId);
+    } catch (e) {
+      throw core_exceptions.ServerException('Failed to update post status: $e');
     }
   }
 }

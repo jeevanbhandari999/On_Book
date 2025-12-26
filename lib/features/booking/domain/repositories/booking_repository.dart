@@ -4,7 +4,7 @@ import 'package:dartz/dartz.dart';
 
 abstract class BookingRepository {
   /// Create a new booking
-  Future<Either<Failure, Booking>> createBooking(Booking booking);
+  Future<Either<Failure, Booking>> createBooking(Booking booking, String postId);
 
   /// Get a specific booking by Id
   Future<Either<Failure, Booking>> getBookingById(String bookingId);

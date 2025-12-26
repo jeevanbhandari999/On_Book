@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:app/core/errors/failures.dart';
 import 'package:app/features/post/domain/entities/post.dart';
+import 'package:app/features/post/domain/entities/post_enums.dart';
 import 'package:app/features/post/domain/entities/post_image.dart';
 import 'package:app/features/post/domain/entities/post_video.dart';
 import 'package:dartz/dartz.dart';
@@ -133,5 +134,11 @@ abstract class PostRepository {
     String organizationId, {
     int page = 1,
     int limit = 20,
+  });
+
+  // For booking updation
+   Future<Either<Failure, void>> updatePostStatus({
+    required String postId,
+    required String status,
   });
 }

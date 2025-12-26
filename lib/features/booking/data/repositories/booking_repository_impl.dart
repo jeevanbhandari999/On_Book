@@ -11,10 +11,11 @@ class BookingRepositoryImpl implements BookingRepository {
   const BookingRepositoryImpl({required this.remoteDataSource});
 
   @override
-  Future<Either<Failure, Booking>> createBooking(Booking booking) async {
+  Future<Either<Failure, Booking>> createBooking(Booking booking, String postId) async {
     try {
       final bookingModel = await remoteDataSource.createBooking(
         BookingModel.fromEntity(booking),
+        postId,
       );
       return Right(bookingModel.toEntity());
     } catch (e) {

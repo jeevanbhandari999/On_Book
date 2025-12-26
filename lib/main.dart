@@ -21,7 +21,6 @@ Future<void> main() async {
   try {
     // Initialize app configuration
     await AppConfig.initialize();
-    // appLogger.info('✅ App configuration initialized');
 
     // Initialize Supabase
     if (AppConfig.isConfigured) {

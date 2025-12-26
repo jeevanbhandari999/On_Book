@@ -1,10 +1,13 @@
+import 'package:app/app/dependency_injection.dart';
 import 'package:app/core/errors/exceptions.dart' as core_exceptions;
 import 'package:app/features/booking/data/models/booking_model.dart';
+import 'package:app/features/post/domain/entities/post_enums.dart';
+import 'package:app/features/post/domain/repositories/post_repository.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 abstract class BookingRemoteDataSource {
   /// Create a new booking
-  Future<BookingModel> createBooking(BookingModel booking);
+  Future<BookingModel> createBooking(BookingModel booking, String postId);
 
   /// Get a specific booking by Id
   Future<BookingModel> getBookingById(String bookingId);
@@ -19,7 +22,10 @@ class BookingRemoteDataSourceImpl implements BookingRemoteDataSource {
   const BookingRemoteDataSourceImpl({required this.supabaseClient});
 
   @override
-  Future<BookingModel> createBooking(BookingModel booking) async {
+  Future<BookingModel> createBooking(
+    BookingModel booking,
+    String postId,
+  ) async {
     try {
       final response = await supabaseClient
           .from('bookings')
@@ -28,7 +34,11 @@ class BookingRemoteDataSourceImpl implements BookingRemoteDataSource {
           .single();
 
       // After booking created then update the post (hotel rooms), for now let's just make availabel to booked later we will handle the number of available rooms
-      
+      final postDependency = DependencyInjection.get<PostRepository>();
+      await postDependency.updatePostStatus(
+        postId: postId,
+        status: PostStatus.booked.name,
+      );
       return BookingModel.fromJson(response);
     } catch (e) {
       throw core_exceptions.ServerException('Failed to create booking: $e');

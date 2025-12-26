@@ -942,4 +942,21 @@ class PostRepositoryImpl implements PostRepository {
       return Left(UnknownFailure(e.toString()));
     }
   }
+
+  @override
+  Future<Either<Failure, void>> updatePostStatus({
+    required String postId,
+    required String status,
+  }) async {
+    try {
+      await remoteDataSource.updatePostStatus(postId: postId, status: status);
+      return const Right(null);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
+    } catch (e) {
+      return Left(UnknownFailure(e.toString()));
+    }
+  }
 }
