@@ -161,6 +161,11 @@ class LibraryView extends StatelessWidget {
                                     return _buildBookingCard(
                                       context,
                                       booking,
+                                      isUserBookingOwner:
+                                          userId == booking.userId,
+                                      isOrganizationMember:
+                                          organizationId ==
+                                          booking.organizationId,
                                       isOngoing:
                                           state.activeFilter ==
                                           LibraryFilter.ongoing,
@@ -239,11 +244,13 @@ class LibraryView extends StatelessWidget {
         return state.pastBookings;
       case LibraryFilter.newBooking:
         return state.newBookings;
+      case LibraryFilter.myBooking:
+        return state.myBooking;
       case LibraryFilter.recent:
         return [];
+      case LibraryFilter.all:
       default:
         return [
-          ...state.newBookings,
           ...state.ongoingBookings,
           ...state.upcomingBookings,
           ...state.pastBookings,
@@ -254,6 +261,8 @@ class LibraryView extends StatelessWidget {
   Widget _buildBookingCard(
     BuildContext context,
     Booking booking, {
+    required bool isUserBookingOwner,
+    required bool isOrganizationMember,
     bool isOngoing = false,
     bool isPast = false,
   }) {
@@ -344,6 +353,12 @@ class LibraryView extends StatelessWidget {
                       ],
                     ),
                   ),
+
+                  _BookingActionMenu(
+                    booking: booking,
+                    isUserBookingOwner: isUserBookingOwner,
+                    isOrganizationMember: isOrganizationMember,
+                  ),
                 ],
               ),
 
@@ -415,3 +430,94 @@ class LibraryView extends StatelessWidget {
     }
   }
 }
+
+class _BookingActionMenu extends StatelessWidget {
+  final Booking booking;
+  final bool isUserBookingOwner;
+  final bool isOrganizationMember;
+
+  const _BookingActionMenu({
+    required this.booking,
+    required this.isUserBookingOwner,
+    required this.isOrganizationMember,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return PopupMenuButton<_BookingAction>(
+      icon: const Icon(Icons.more_vert, size: 20),
+      itemBuilder: (context) {
+        final items = <PopupMenuEntry<_BookingAction>>[];
+
+        // USER ACTION
+        if (isUserBookingOwner && booking.status == BookingStatus.pending) {
+          items.add(
+            const PopupMenuItem(
+              value: _BookingAction.cancel,
+              child: Text('Cancel booking'),
+            ),
+          );
+        }
+
+        // ORGANIZATION ACTIONS
+        if (isOrganizationMember) {
+          if (booking.status == BookingStatus.pending) {
+            items.add(
+              const PopupMenuItem(
+                value: _BookingAction.confirm,
+                child: Text('Confirm booking'),
+              ),
+            );
+          }
+
+          items.add(
+            const PopupMenuItem(
+              value: _BookingAction.cancel,
+              child: Text('Cancel booking'),
+            ),
+          );
+
+          items.add(
+            const PopupMenuItem(
+              value: _BookingAction.updatePayment,
+              child: Text('Update payment'),
+            ),
+          );
+        }
+
+        return items;
+      },
+      onSelected: (action) {
+        _handleBookingAction(context, action, booking);
+      },
+    );
+  }
+
+  void _handleBookingAction(
+    BuildContext context,
+    _BookingAction action,
+    Booking booking,
+  ) {
+    switch (action) {
+      case _BookingAction.confirm:
+        // context.read<BookingBloc>().add(
+        //   ConfirmBookingRequested(booking.id),
+        // );
+        break;
+
+      case _BookingAction.cancel:
+        // context.read<BookingBloc>().add(
+        //   CancelBookingRequested(booking.id),
+        // );
+        break;
+
+      case _BookingAction.updatePayment:
+        // context.read<BookingBloc>().add(
+        //   UpdatePaymentStatusRequested(booking.id),
+        // );
+        break;
+    }
+  }
+}
+
+enum _BookingAction { confirm, cancel, updatePayment }

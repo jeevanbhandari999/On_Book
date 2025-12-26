@@ -569,14 +569,27 @@ Widget _buildActionButtons(
       const SizedBox(width: UiConstants.spacingSm),
       Expanded(
         child: CustomButton(
-          text: 'Book Now',
-          onPressed: () {
-            context.push(
-              RouteConstants.bookingFormPage,
-              extra: {'userId': userId, 'postId': post.id, 'post': post},
-            );
-          },
-          icon: const Icon(Icons.event_available),
+          text:
+              enumFromString(PostStatus.values, post.status.name) ==
+                  PostStatus.available
+              ? 'Book Now'
+              : 'Booked',
+          onPressed:
+              enumFromString(PostStatus.values, post.status.name) ==
+                  PostStatus.available
+              ? () {
+                  context.push(
+                    RouteConstants.bookingFormPage,
+                    extra: {'userId': userId, 'postId': post.id, 'post': post},
+                  );
+                }
+              : null,
+          icon: Icon(
+            enumFromString(PostStatus.values, post.status.name) ==
+                    PostStatus.available
+                ? Icons.event_available
+                : Icons.event_busy_sharp,
+          ),
         ),
       ),
     ],

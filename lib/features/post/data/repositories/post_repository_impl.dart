@@ -950,6 +950,14 @@ class PostRepositoryImpl implements PostRepository {
   }) async {
     try {
       await remoteDataSource.updatePostStatus(postId: postId, status: status);
+
+      final updatedPost = await remoteDataSource.getPostById(postId);
+
+      // Cache the updated post
+      await localDataSource.cachePost(updatedPost);
+
+      // Invalidate organization posts cache
+      await localDataSource.clearCachedPosts(updatedPost.organizationId);
       return const Right(null);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));

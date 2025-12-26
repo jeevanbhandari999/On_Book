@@ -68,6 +68,7 @@ class LibraryLoading extends LibraryState {
 class LibraryRefreshing extends LibraryLoaded {
   const LibraryRefreshing({
     required super.activeFilter,
+    required super.myBooking,
     required super.upcomingBookings,
     required super.ongoingBookings,
     required super.pastBookings,
@@ -78,6 +79,7 @@ class LibraryRefreshing extends LibraryLoaded {
   @override
   LibraryRefreshing copyWith({
     LibraryFilter? activeFilter,
+    List<Booking>? myBooking,
     List<Booking>? ongoingBookings,
     List<Booking>? upcomingBookings,
     List<Booking>? pastBookings,
@@ -85,6 +87,7 @@ class LibraryRefreshing extends LibraryLoaded {
   }) {
     return LibraryRefreshing(
       activeFilter: activeFilter ?? this.activeFilter,
+      myBooking: myBooking ?? this.myBooking,
       ongoingBookings: ongoingBookings ?? this.ongoingBookings,
       upcomingBookings: upcomingBookings ?? this.upcomingBookings,
       pastBookings: pastBookings ?? this.pastBookings,
@@ -95,6 +98,7 @@ class LibraryRefreshing extends LibraryLoaded {
 
 class LibraryLoaded extends LibraryState {
   final LibraryFilter activeFilter;
+  final List<Booking> myBooking;
   final List<Booking> upcomingBookings;
   final List<Booking> ongoingBookings;
   final List<Booking> pastBookings;
@@ -103,6 +107,7 @@ class LibraryLoaded extends LibraryState {
 
   const LibraryLoaded({
     required this.activeFilter,
+    required this.myBooking,
     required this.upcomingBookings,
     required this.ongoingBookings,
     required this.pastBookings,
@@ -113,10 +118,12 @@ class LibraryLoaded extends LibraryState {
       upcomingBookings.isNotEmpty ||
       ongoingBookings.isNotEmpty ||
       pastBookings.isNotEmpty ||
-      newBookings.isNotEmpty;
+      newBookings.isNotEmpty ||
+      myBooking.isNotEmpty;
 
   LibraryLoaded copyWith({
     LibraryFilter? activeFilter,
+    List<Booking>? myBooking,
     List<Booking>? ongoingBookings,
     List<Booking>? upcomingBookings,
     List<Booking>? pastBookings,
@@ -124,6 +131,7 @@ class LibraryLoaded extends LibraryState {
   }) {
     return LibraryLoaded(
       activeFilter: activeFilter ?? this.activeFilter,
+      myBooking: myBooking ?? this.myBooking,
       ongoingBookings: ongoingBookings ?? this.ongoingBookings,
       upcomingBookings: upcomingBookings ?? this.upcomingBookings,
       pastBookings: pastBookings ?? this.pastBookings,
@@ -134,6 +142,7 @@ class LibraryLoaded extends LibraryState {
   @override
   List<Object?> get props => [
     activeFilter,
+    myBooking,
     upcomingBookings,
     ongoingBookings,
     pastBookings,
@@ -202,8 +211,14 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
               emit(LibraryError(message: _mapFailureToMessage(failure)));
             },
             (organizationBookings) async {
+              final mergedBookings = _mergeUniqueBookings(
+                userBookings,
+                organizationBookings,
+              );
+
               emit(
                 _buildLoadedState(
+                  mergedBookings,
                   userBookings,
                   organizationBookings,
                   previousFilter,
@@ -220,7 +235,7 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
           emit(LibraryError(message: _mapFailureToMessage(failure)));
         },
         (userBookings) async {
-          emit(_buildLoadedState(userBookings, [], previousFilter));
+          emit(_buildLoadedState(userBookings, userBookings, [], previousFilter));
         },
       );
     }
@@ -235,6 +250,7 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
       emit(
         LibraryRefreshing(
           activeFilter: currentState.activeFilter,
+          myBooking: currentState.myBooking,
           upcomingBookings: currentState.upcomingBookings,
           ongoingBookings: currentState.ongoingBookings,
           pastBookings: currentState.pastBookings,
@@ -269,8 +285,14 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
               emit(LibraryError(message: _mapFailureToMessage(failure)));
             },
             (organizationBookings) async {
+              final mergedBookings = _mergeUniqueBookings(
+                userBookings,
+                organizationBookings,
+              );
+
               emit(
                 _buildLoadedState(
+                  mergedBookings,
                   userBookings,
                   organizationBookings,
                   previousFilter,
@@ -286,7 +308,7 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
           emit(LibraryError(message: _mapFailureToMessage(failure)));
         },
         (userBookings) async {
-          emit(_buildLoadedState(userBookings, [], previousFilter));
+          emit(_buildLoadedState(userBookings, userBookings, [], previousFilter));
         },
       );
     }
@@ -305,6 +327,7 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
 
   LibraryLoaded _buildLoadedState(
     List<Booking> bookings,
+    List<Booking> myBooking,
     List<Booking> newBookings,
     LibraryFilter? previousFilter,
   ) {
@@ -345,6 +368,7 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
     return LibraryLoaded(
       activeFilter: previousFilter ?? LibraryFilter.all,
       upcomingBookings: upcoming,
+       myBooking: myBooking,
       ongoingBookings: ongoing,
       pastBookings: past,
       newBookings: newBookings,
@@ -362,5 +386,22 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
       return 'Failed to load from cache';
     }
     return 'Failed to load your bookings. Please try again.';
+  }
+
+  List<Booking> _mergeUniqueBookings(
+    List<Booking> userBookings,
+    List<Booking> organizationBookings,
+  ) {
+    final map = <String, Booking>{};
+
+    for (final booking in userBookings) {
+      map[booking.id] = booking;
+    }
+
+    for (final booking in organizationBookings) {
+      map[booking.id] = booking; // overrides if duplicate
+    }
+
+    return map.values.toList();
   }
 }
