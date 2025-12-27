@@ -3,11 +3,16 @@ import 'package:app/features/booking/data/models/booking_model.dart'; // reuse i
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 abstract class LibraryRemoteDataSource {
+  // Get user booking lists
   Future<List<BookingModel>> getUserBookings(String userId);
 
+  // Get all booking related to the organization
   Future<List<BookingModel>> getAllBookingsRelatedToOrganization(
     String organizationId,
   );
+
+  // Update the booking status
+  Future<BookingModel> updateBookingStatus(String bookingId, String status);
 }
 
 class LibraryRemoteDataSourceImpl implements LibraryRemoteDataSource {
@@ -59,6 +64,24 @@ class LibraryRemoteDataSourceImpl implements LibraryRemoteDataSource {
       throw ServerException(e.message);
     } catch (e) {
       throw ServerException('Failed to fetch organization bookings: $e');
+    }
+  }
+
+  @override
+  Future<BookingModel> updateBookingStatus(
+    String bookingId,
+    String status,
+  ) async {
+    try {
+      final response = await supabaseClient
+          .from('bookings')
+          .update({'status': status})
+          .eq('id', bookingId);
+      return BookingModel.fromJson(response);
+    } on PostgrestException catch (e) {
+      throw ServerException(e.message);
+    } catch (e) {
+      throw ServerException('Failed to update user bookings: $e');
     }
   }
 }

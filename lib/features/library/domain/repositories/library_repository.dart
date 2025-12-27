@@ -7,4 +7,7 @@ abstract class LibraryRepository {
   Future<Either<Failure, List<Booking>>> getUserBookings(String userId);
   // Get organization requests bookings lists
   Future<Either<Failure, List<Booking>>> getAllBookingsRelatedToOrganization(String organizationId);
+
+  // Update the booking status
+  Future<Either<Failure, Booking>> updateBookingStatus(String bookingId, String status);
 }

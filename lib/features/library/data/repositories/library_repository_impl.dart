@@ -67,4 +67,21 @@ class LibraryRepositoryImpl implements LibraryRepository {
       );
     }
   }
+
+  @override
+  Future<Either<Failure, Booking>> updateBookingStatus(
+    String bookingId,
+    String status,
+  ) async {
+    try {
+      final updatedBooking = await remoteDataSource.updateBookingStatus(
+        bookingId,
+        status,
+      );
+
+      return Right(updatedBooking.toEntity());
+    } catch (e) {
+      return const Left(ServerFailure('Failed to load your bookings'));
+    }
+  }
 }
