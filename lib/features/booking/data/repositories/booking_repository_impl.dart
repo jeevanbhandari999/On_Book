@@ -1,3 +1,4 @@
+import 'package:app/core/errors/exceptions.dart';
 import 'package:app/core/errors/failures.dart';
 import 'package:app/features/booking/data/datasources/booking_remote_data_source.dart';
 import 'package:app/features/booking/data/models/booking_model.dart';
@@ -43,6 +44,23 @@ class BookingRepositoryImpl implements BookingRepository {
       return Right(bookingModel.toEntity());
     } catch (e) {
       return Left(ServerFailure( 'Failed to update booking: $e'));
+    }
+  }
+  
+  @override
+  Future<Either<Failure, bool>> isOwnerLogin(String userId, String bookingId)async {
+    try {
+      final canManage = await remoteDataSource.isOwnerLogin(
+        userId,
+        bookingId,
+      );
+      return Right(canManage);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
+    } catch (e) {
+      return Left(UnknownFailure(e.toString()));
     }
   }
 }

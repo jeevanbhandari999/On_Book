@@ -274,12 +274,8 @@ class LibraryView extends StatelessWidget {
         borderRadius: BorderRadius.circular(UiConstants.radiusMd),
         onTap: () {
           context.push(
-            RouteConstants.bookingFormPage,
-            extra: {
-              'userId': booking.userId,
-              'postId': booking.postId,
-              'editBooking': booking,
-            },
+            RouteConstants.bookingDetailsPage,
+            extra: {'userId': booking.userId, 'bookingId': booking.id},
           );
         },
         child: Padding(

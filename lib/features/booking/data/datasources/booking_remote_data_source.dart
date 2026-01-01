@@ -14,6 +14,7 @@ abstract class BookingRemoteDataSource {
 
   /// Update an existing booking
   Future<BookingModel> updateBooking(String bookingId, BookingModel booking);
+  Future<bool> isOwnerLogin(String userId, String organizationId);
 }
 
 class BookingRemoteDataSourceImpl implements BookingRemoteDataSource {
@@ -76,6 +77,38 @@ class BookingRemoteDataSourceImpl implements BookingRemoteDataSource {
       return BookingModel.fromJson(response);
     } catch (e) {
       throw core_exceptions.ServerException('Failed to update booking: $e');
+    }
+  }
+
+  @override
+  Future<bool> isOwnerLogin(String userId, String bookingId) async {
+    try {
+      final user = await supabaseClient
+          .from('users')
+          .select('role, organization_id')
+          .eq('user_id', userId)
+          .single();
+
+      final role = user['role'] as String?;
+      final userOrgId = user['organization_id'] as String?;
+
+      // Admin can manage all bookings
+      if (role == 'admin') return true;
+
+      final booking = await supabaseClient
+          .from('bookings')
+          .select('organization_id')
+          .eq('id', bookingId)
+          .single();
+
+      final bookingOrgId = booking['organization_id'] as String?;
+
+      // Owner / Manager can manage bookings in their org
+      return bookingOrgId == userOrgId;
+    } catch (e) {
+      throw core_exceptions.ServerException(
+        'Failed to check booking permissions: $e',
+      );
     }
   }
 }

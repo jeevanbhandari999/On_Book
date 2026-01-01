@@ -11,4 +11,6 @@ abstract class BookingRepository {
 
   /// Update an existing booking
   Future<Either<Failure, Booking>> updateBooking(String bookingId, Booking booking);
+  /// Update an existing booking
+  Future<Either<Failure, bool>> isOwnerLogin(String userId, String bookingId);
 }

@@ -309,13 +309,103 @@ class BookingFormView extends StatelessWidget {
 
           // Only show status & payment controls in edit mode (for staff/admin)
           if (isEditMode) ...[
-            const Divider(),
-            const Text(
-              'Admin Controls',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
+            SectionContainer(
+              child: Container(
+                width: double.infinity,
+                decoration: const BoxDecoration(),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const Align(
+                      alignment: Alignment.topLeft,
+                      child: Text('Booked By', style: TextStyle(fontSize: 20)),
+                    ),
+                    // Profile Picture of the user
+                    CircleAvatar(
+                      radius: 34,
+                      child: Container(
+                        child:
+                            (state.user.imageUrl != null &&
+                                state.user.imageUrl!.isNotEmpty)
+                            ? Image.network(
+                                state.user.imageUrl!,
+                                fit: BoxFit.cover,
+                              )
+                            : Center(
+                                child: Text(
+                                  _getInitialCharactrOfOrganization(
+                                    state.user.fullName,
+                                  ),
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                    fontSize: 24,
+                                  ),
+                                ),
+                              ),
+                      ),
+                    ),
+                    const SizedBox(height: UiConstants.spacingMd),
+                    Row(
+                      children: [
+                        const Expanded(child: Text('Full Name')),
+                        Expanded(
+                          child: Text(
+                            state.user.fullName,
+                            textAlign: TextAlign.left,
+                            style: const TextStyle(fontSize: 18),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: UiConstants.spacingSm),
+                    Row(
+                      children: [
+                        const Expanded(child: Text('Phone')),
+                        Expanded(
+                          child: Text(
+                            state.user.phone ?? 'Not Added',
+                            textAlign: TextAlign.left,
+                            style: const TextStyle(fontSize: 18),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: UiConstants.spacingSm),
 
+                    Row(
+                      children: [
+                        const Expanded(child: Text('email')),
+                        Expanded(
+                          child: Text(
+                            state.user.fullName,
+                            textAlign: TextAlign.left,
+                            style: const TextStyle(fontSize: 18),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: UiConstants.spacingSm),
+
+                    Row(
+                      children: [
+                        const Expanded(child: Text('address')),
+                        Expanded(
+                          child: Text(
+                            state.user.address ?? 'Not provided',
+                            textAlign: TextAlign.left,
+                            style: const TextStyle(fontSize: 18),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: UiConstants.spacingSm),
+            if (post != null) BookingPostSummary(post: post!),
+            const SizedBox(height: UiConstants.spacingSm),
             // Booking Status
             DropdownButtonFormField<BookingStatus>(
               initialValue: state.status,

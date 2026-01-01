@@ -34,4 +34,5 @@ class RouteConstants {
 
   // Booking routes
   static const String bookingFormPage = '/bookingFormPage';
+  static const String bookingDetailsPage = '/bookingDetailsPage';
 }

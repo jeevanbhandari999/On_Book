@@ -7,6 +7,7 @@ import 'package:app/features/auth/presentation/pages/login_page.dart';
 import 'package:app/features/auth/presentation/pages/register_page.dart';
 import 'package:app/features/auth/presentation/pages/select_hotel_organization_page.dart';
 import 'package:app/features/booking/domain/entities/booking.dart';
+import 'package:app/features/booking/presentation/pages/booking_deails_page.dart';
 import 'package:app/features/booking/presentation/pages/booking_page.dart';
 import 'package:app/features/chat/presentation/pages/chat_user_list_page.dart';
 import 'package:app/features/home/presentation/pages/another.dart';
@@ -201,6 +202,17 @@ class AppRouter {
             post: post,
             existingBooking: editBooking,
           );
+        },
+      ),
+      
+      GoRoute(
+        path: RouteConstants.bookingDetailsPage,
+        builder: (context, state) {
+          final extraData = state.extra as Map<String, dynamic>;
+          // print(extraData);
+          final bookingId = extraData['bookingId'];
+          final userId = extraData['userId'];
+          return BookingDetailsPage(bookingId: bookingId, userId: userId);
         },
       ),
 
