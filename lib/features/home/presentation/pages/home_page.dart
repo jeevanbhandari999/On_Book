@@ -236,17 +236,6 @@ Widget _buildImagePageView(
           ),
         ),
 
-        if (post.additionalImagesForHomeFeed.isNotEmpty)
-          Positioned(
-            bottom: 140,
-            right: 0,
-            left: 0,
-            child: Container(
-              padding: const EdgeInsets.only(top: 8.0),
-              color: Colors.black54,
-              child: _buildImageStrip(post),
-            ),
-          ),
         Positioned(
           bottom: 0,
           left: 0,
@@ -257,6 +246,10 @@ Widget _buildImagePageView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                if (post.additionalImagesForHomeFeed.isNotEmpty) ...[
+                  _buildImageStrip(post),
+                  const SizedBox(height: UiConstants.spacingSm),
+                ],
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -323,21 +316,18 @@ Widget _buildImageStrip(Post post) {
 
   return SizedBox(
     width: double.infinity,
-    height: 120,
+    height: 100,
     child: ListView.separated(
       itemBuilder: (context, index) {
         return GestureDetector(
           onTap: () => _showImagePreviewDialog(context, images[index]),
-          child: Padding(
-            padding: const EdgeInsets.only(left: 6),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: CachedNetworkImage(
-                imageUrl: images[index],
-                width: 120,
-                height: 120,
-                fit: BoxFit.cover,
-              ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: CachedNetworkImage(
+              imageUrl: images[index],
+              width: 100,
+              height: 100,
+              fit: BoxFit.cover,
             ),
           ),
         );

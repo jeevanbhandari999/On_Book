@@ -296,13 +296,13 @@ class LibraryView extends StatelessWidget {
                     child: booking.primaryImageUrl.isNotEmpty
                         ? Image.network(
                             booking.primaryImageUrl,
-                            width: 110,
-                            height: 110,
+                            width: 100,
+                            height: 100,
                             fit: BoxFit.cover,
                           )
                         : Container(
-                            width: 110,
-                            height: 110,
+                            width: 100,
+                            height: 100,
                             color: Colors.grey[300],
                             child: const Icon(
                               Icons.hotel,
@@ -320,11 +320,8 @@ class LibraryView extends StatelessWidget {
                       children: [
                         Text(
                           booking.title,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          maxLines: 2,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                          maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
                         Text(
@@ -332,8 +329,6 @@ class LibraryView extends StatelessWidget {
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
-                        const SizedBox(height: 8),
-
                         Text(
                           DateFormatter.range(
                             booking.checkInDate,
@@ -343,11 +338,11 @@ class LibraryView extends StatelessWidget {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          '${booking.nights} night${booking.nights > 1 ? 's' : ''} • Rs.${booking.totalAmount}',
-                          style: const TextStyle(
+                          '${booking.nights} Night${booking.nights > 1 ? 's' : ''} • Rs.${booking.totalAmount}',
+                          style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
-                            color: Colors.deepPurple,
+                            color: Theme.of(context).colorScheme.primary,
                           ),
                         ),
                       ],
