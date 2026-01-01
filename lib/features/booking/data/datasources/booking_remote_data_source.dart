@@ -85,13 +85,12 @@ class BookingRemoteDataSourceImpl implements BookingRemoteDataSource {
     try {
       final user = await supabaseClient
           .from('users')
-          .select('role, organization_id')
+          .select()
           .eq('user_id', userId)
           .single();
-
+      print(user);
       final role = user['role'] as String?;
       final userOrgId = user['organization_id'] as String?;
-
       // Admin can manage all bookings
       if (role == 'admin') return true;
 
@@ -102,7 +101,7 @@ class BookingRemoteDataSourceImpl implements BookingRemoteDataSource {
           .single();
 
       final bookingOrgId = booking['organization_id'] as String?;
-
+      print('$bookingOrgId  $userOrgId');
       // Owner / Manager can manage bookings in their org
       return bookingOrgId == userOrgId;
     } catch (e) {

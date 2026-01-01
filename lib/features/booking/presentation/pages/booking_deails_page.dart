@@ -410,41 +410,46 @@ class StatusActionChip<T> extends StatelessWidget {
   Widget build(BuildContext context) {
     final isClickable = actions.isNotEmpty && onSelected != null;
 
-    return PopupMenuButton<T>(
-      enabled: isClickable,
-      onSelected: onSelected,
-      itemBuilder: (context) {
-        return actions
-            .map(
-              (a) => PopupMenuItem<T>(
-                value: a.value,
-                child: Row(
-                  children: [
-                    Icon(a.icon, size: 18, color: a.color),
-                    const SizedBox(width: 8),
-                    Text(a.label),
-                  ],
+    return SizedBox(
+      width: double.infinity,
+      child: PopupMenuButton<T>(
+        enabled: isClickable,
+        onSelected: onSelected,
+        itemBuilder: (context) {
+          return actions
+              .map(
+                (a) => PopupMenuItem<T>(
+                  value: a.value,
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: Row(
+                      children: [
+                        Icon(a.icon, size: 18, color: a.color),
+                        const SizedBox(width: 8),
+                        Text(a.label),
+                      ],
+                    ),
+                  ),
                 ),
+              )
+              .toList();
+        },
+        child: SectionContainer(
+          borderRadius: BorderRadius.circular(UiConstants.radiusSm),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                label.toUpperCase(),
+                style: TextStyle(color: color, fontWeight: FontWeight.bold),
               ),
-            )
-            .toList();
-      },
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            label.toUpperCase(),
-            style: TextStyle(
-              color: color,
-              fontSize: 11,
-              fontWeight: FontWeight.bold,
-            ),
+              if (isClickable) ...[
+                const SizedBox(width: 6),
+                Icon(Icons.arrow_drop_down, size: 18, color: color),
+              ],
+            ],
           ),
-          if (isClickable) ...[
-            const SizedBox(width: 6),
-            Icon(Icons.arrow_drop_down, size: 18, color: color),
-          ],
-        ],
+        ),
       ),
     );
   }

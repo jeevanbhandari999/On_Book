@@ -34,7 +34,6 @@ class BookingImageViewClosed extends BookingDetailsEvent {
   const BookingImageViewClosed();
 }
 
-
 abstract class BookingDetailsState extends Equatable {
   const BookingDetailsState();
 
@@ -59,8 +58,10 @@ class BookingDetailsLoaded extends BookingDetailsState {
     this.isViewingImage = false,
   });
 
-  List<String> get allImages =>
-      [booking.primaryImageUrl, ...booking.additionalImageUrls];
+  List<String> get allImages => [
+    booking.primaryImageUrl,
+    ...booking.additionalImageUrls,
+  ];
 
   BookingDetailsLoaded copyWith({
     int? viewingImageIndex,
@@ -75,10 +76,13 @@ class BookingDetailsLoaded extends BookingDetailsState {
   }
 
   @override
-  List<Object?> get props =>
-      [booking, canManage, viewingImageIndex, isViewingImage];
+  List<Object?> get props => [
+    booking,
+    canManage,
+    viewingImageIndex,
+    isViewingImage,
+  ];
 }
-
 
 class BookingDetailsError extends BookingDetailsState {
   final String message;
@@ -98,23 +102,19 @@ class BookingDetailsBloc
       super(BookingDetailsInitial()) {
     on<LoadBookingDetails>(_onLoadBookingDetails);
     on<BookingImageViewRequested>((e, emit) {
-  final s = state as BookingDetailsLoaded;
-  emit(s.copyWith(viewingImageIndex: e.index));
-});
+      final s = state as BookingDetailsLoaded;
+      emit(s.copyWith(viewingImageIndex: e.index));
+    });
 
-on<BookingFullImageViewRequested>((e, emit) {
-  final s = state as BookingDetailsLoaded;
-  emit(s.copyWith(
-    viewingImageIndex: e.index,
-    isViewingImage: true,
-  ));
-});
+    on<BookingFullImageViewRequested>((e, emit) {
+      final s = state as BookingDetailsLoaded;
+      emit(s.copyWith(viewingImageIndex: e.index, isViewingImage: true));
+    });
 
-on<BookingImageViewClosed>((e, emit) {
-  final s = state as BookingDetailsLoaded;
-  emit(s.copyWith(isViewingImage: false));
-});
-
+    on<BookingImageViewClosed>((e, emit) {
+      final s = state as BookingDetailsLoaded;
+      emit(s.copyWith(isViewingImage: false));
+    });
   }
 
   Future<void> _onLoadBookingDetails(
@@ -137,7 +137,7 @@ on<BookingImageViewClosed>((e, emit) {
             .isOwnerLogin(event.userId, booking.id);
 
         final canManage = permissionResult.fold((_) => false, (value) => value);
-
+        print('In use bloc $canManage');
         emit(BookingDetailsLoaded(booking: booking, canManage: canManage));
       },
     );

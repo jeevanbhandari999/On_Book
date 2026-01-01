@@ -275,7 +275,7 @@ class LibraryView extends StatelessWidget {
         onTap: () {
           context.push(
             RouteConstants.bookingDetailsPage,
-            extra: {'userId': booking.userId, 'bookingId': booking.id},
+            extra: {'userId': userId, 'bookingId': booking.id},
           );
         },
         child: Padding(

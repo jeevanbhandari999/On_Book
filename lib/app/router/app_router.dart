@@ -204,14 +204,14 @@ class AppRouter {
           );
         },
       ),
-      
+
       GoRoute(
         path: RouteConstants.bookingDetailsPage,
         builder: (context, state) {
           final extraData = state.extra as Map<String, dynamic>;
-          // print(extraData);
-          final bookingId = extraData['bookingId'];
-          final userId = extraData['userId'];
+          print('The extra data is $extraData');
+          final bookingId = extraData['bookingId'] as String;
+          final userId = extraData['userId'] as String;
           return BookingDetailsPage(bookingId: bookingId, userId: userId);
         },
       ),
