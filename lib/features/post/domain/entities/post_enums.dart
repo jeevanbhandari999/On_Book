@@ -1,7 +1,5 @@
-
 // enums roomtype
 enum RoomType { single, double, twin, suite, deluxe, family, apartment }
-
 
 extension RoomTypeExtension on RoomType {
   String get displayName {
@@ -101,4 +99,19 @@ T? enumFromString<T>(List<T> values, String? value) {
     (v) => value == v.toString().split('.').last,
     orElse: () => values.first,
   );
+}
+
+/// Converts a list of strings to a list of enum values of type T
+List<T>? enumListFromStrings<T extends Enum>(
+  List<String>? values,
+  List<T> enumValues,
+) {
+  if (values == null || values.isEmpty) {
+    return [];
+  }
+  return values
+      .map((a) => enumFromString(enumValues, a))
+      .where((e) => e != null)
+      .cast<T>()
+      .toList();
 }

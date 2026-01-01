@@ -6,6 +6,8 @@ import 'package:app/core/widgets/common_widgets.dart';
 import 'package:app/features/booking/domain/entities/booking.dart';
 import 'package:app/features/booking/domain/usecases/get_booking_by_id_use_case.dart';
 import 'package:app/features/booking/presentation/bloc/booking_details_bloc.dart';
+import 'package:app/features/post/domain/entities/post_enums.dart';
+import 'package:app/features/post/presentation/widgets/detail_info_tile.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -162,6 +164,11 @@ void _onRefresh(BuildContext context) {}
 
 Widget _buildBookingContent(BuildContext context, BookingDetailsLoaded state) {
   final booking = state.booking;
+  final List<AmenityType>? selectedAmenities = booking.amenities!
+      .map((a) => amenityTypeFromString(a))
+      .where((e) => e != null)
+      .cast<AmenityType>()
+      .toList();
 
   return RefreshIndicator(
     onRefresh: () async {
@@ -187,6 +194,27 @@ Widget _buildBookingContent(BuildContext context, BookingDetailsLoaded state) {
 
           _buildPriceSection(booking),
 
+          _buildAmeniticsSection(
+            context,
+            amenityType: enumListFromStrings(
+              booking.amenities,
+              AmenityType.values,
+            ),
+          ),
+          const SizedBox(height: UiConstants.spacingSm),
+
+          _buildTagsSection(
+            context,
+            postTag: enumListFromStrings(booking.tags, PostTag.values),
+          ),
+          const SizedBox(height: UiConstants.spacingSm),
+          _buildOthersDetails(
+            context,
+            roomType: enumFromString(RoomType.values, booking.roomType),
+            area: booking.area,
+            capacity: booking.capacity,
+          ),
+          const SizedBox(height: UiConstants.spacingSm),
           if (booking.notes?.isNotEmpty == true)
             _buildNotesSection(context, booking.notes!),
 
@@ -199,6 +227,111 @@ Widget _buildBookingContent(BuildContext context, BookingDetailsLoaded state) {
       ),
     ),
   );
+}
+
+Widget _buildAmeniticsSection(
+  BuildContext context, {
+  required List<AmenityType>? amenityType,
+}) {
+  if (amenityType == null) return const SizedBox.shrink();
+  return Padding(
+    padding: const EdgeInsets.all(UiConstants.spacingSm),
+    child: Column(
+      children: [
+        CustomMultiSelect<AmenityType>(
+          label: 'Amenities',
+          items: AmenityType.values,
+          selected: amenityType,
+          itemLabel: (a) => _amenityLabel(a),
+          readOnly: true,
+          onChanged: null,
+        ),
+      ],
+    ),
+  );
+}
+
+Widget _buildTagsSection(
+  BuildContext context, {
+  required List<PostTag>? postTag,
+}) {
+  if (postTag == null) return const SizedBox.shrink();
+  return Padding(
+    padding: const EdgeInsets.all(UiConstants.spacingSm),
+    child: Column(
+      children: [
+        CustomMultiSelect<PostTag>(
+          label: 'Tags',
+          items: PostTag.values,
+          selected: postTag,
+          itemLabel: (p) => _tagLabel(p),
+          readOnly: true,
+          onChanged: null,
+        ),
+      ],
+    ),
+  );
+}
+
+Widget _buildOthersDetails(
+  BuildContext context, {
+  required RoomType? roomType,
+  required double? area,
+  required int? capacity,
+}) {
+  if (roomType == null && area == null && capacity == null) {
+    return const SizedBox.shrink();
+  }
+  return Padding(
+    padding: const EdgeInsets.all(UiConstants.spacingSm),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Others details!!!',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: UiConstants.spacingSm),
+        if (roomType != null)
+          DetailInfoTile(
+            icon: Icons.bed,
+            title: "Room Type",
+            value: roomType.displayName,
+          ),
+        const SizedBox(height: UiConstants.spacingSm),
+        if (area != null)
+          DetailInfoTile(
+            icon: Icons.square_foot,
+            title: "Area",
+            value: "$area sqft",
+          ),
+        const SizedBox(height: UiConstants.spacingSm),
+        if (capacity != null)
+          DetailInfoTile(
+            icon: Icons.people,
+            title: "Capacity",
+            value: "$capacity guests",
+          ),
+      ],
+    ),
+  );
+}
+
+String _amenityLabel(AmenityType a) => a.name.replaceAll('_', ' ').capitalize();
+String _tagLabel(PostTag p) => p.name.replaceAll('_', ' ').capitalize();
+
+extension StringExt on String {
+  String capitalize() => this[0].toUpperCase() + substring(1);
+}
+
+AmenityType? amenityTypeFromString(String value) {
+  try {
+    return AmenityType.values.firstWhere(
+      (e) => e.name.toLowerCase() == value.toLowerCase(),
+    );
+  } catch (e) {
+    return null; // if string doesn't match any enum
+  }
 }
 
 _buildNotesSection(BuildContext context, String s) {}
