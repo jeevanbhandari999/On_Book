@@ -491,21 +491,15 @@ class _BookingActionMenu extends StatelessWidget {
   ) {
     switch (action) {
       case _BookingAction.confirm:
-        // context.read<BookingBloc>().add(
-        //   ConfirmBookingRequested(booking.id),
-        // );
+        
         break;
 
       case _BookingAction.cancel:
-        // context.read<BookingBloc>().add(
-        //   CancelBookingRequested(booking.id),
-        // );
+        
         break;
 
       case _BookingAction.updatePayment:
-        // context.read<BookingBloc>().add(
-        //   UpdatePaymentStatusRequested(booking.id),
-        // );
+       
         break;
     }
   }
