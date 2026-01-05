@@ -189,10 +189,13 @@ Widget _buildBookingContent(BuildContext context, BookingDetailsLoaded state) {
           ),
 
           _buildStatus(context, booking, state.canManage),
+          const SizedBox(height: UiConstants.spacingSm),
 
           _buildDateSection(booking),
+          const SizedBox(height: UiConstants.spacingSm),
 
           _buildPriceSection(booking),
+          const SizedBox(height: UiConstants.spacingSm),
 
           _buildAmeniticsSection(
             context,
@@ -202,7 +205,6 @@ Widget _buildBookingContent(BuildContext context, BookingDetailsLoaded state) {
             ),
           ),
           const SizedBox(height: UiConstants.spacingSm),
-
           _buildTagsSection(
             context,
             postTag: enumListFromStrings(booking.tags, PostTag.values),
@@ -217,7 +219,6 @@ Widget _buildBookingContent(BuildContext context, BookingDetailsLoaded state) {
           const SizedBox(height: UiConstants.spacingSm),
           if (booking.notes?.isNotEmpty == true)
             _buildNotesSection(context, booking.notes!),
-
           const SizedBox(height: UiConstants.spacingLg),
 
           if (state.canManage) _ManageActions(booking: booking),
@@ -234,19 +235,23 @@ Widget _buildAmeniticsSection(
   required List<AmenityType>? amenityType,
 }) {
   if (amenityType == null) return const SizedBox.shrink();
-  return Padding(
-    padding: const EdgeInsets.all(UiConstants.spacingSm),
-    child: Column(
-      children: [
-        CustomMultiSelect<AmenityType>(
-          label: 'Amenities',
-          items: AmenityType.values,
-          selected: amenityType,
-          itemLabel: (a) => _amenityLabel(a),
-          readOnly: true,
-          onChanged: null,
-        ),
-      ],
+  return SectionContainer(
+    borderRadius: BorderRadius.zero,
+    child: SizedBox(
+      width: double.infinity,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CustomMultiSelect<AmenityType>(
+            label: 'Amenities',
+            items: AmenityType.values,
+            selected: amenityType,
+            itemLabel: (a) => _amenityLabel(a),
+            readOnly: true,
+            onChanged: null,
+          ),
+        ],
+      ),
     ),
   );
 }
@@ -256,19 +261,23 @@ Widget _buildTagsSection(
   required List<PostTag>? postTag,
 }) {
   if (postTag == null) return const SizedBox.shrink();
-  return Padding(
-    padding: const EdgeInsets.all(UiConstants.spacingSm),
-    child: Column(
-      children: [
-        CustomMultiSelect<PostTag>(
-          label: 'Tags',
-          items: PostTag.values,
-          selected: postTag,
-          itemLabel: (p) => _tagLabel(p),
-          readOnly: true,
-          onChanged: null,
-        ),
-      ],
+  return SectionContainer(
+    borderRadius: BorderRadius.zero,
+    child: SizedBox(
+      width: double.infinity,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CustomMultiSelect<PostTag>(
+            label: 'Tags',
+            items: PostTag.values,
+            selected: postTag,
+            itemLabel: (p) => _tagLabel(p),
+            readOnly: true,
+            onChanged: null,
+          ),
+        ],
+      ),
     ),
   );
 }
@@ -282,37 +291,40 @@ Widget _buildOthersDetails(
   if (roomType == null && area == null && capacity == null) {
     return const SizedBox.shrink();
   }
-  return Padding(
-    padding: const EdgeInsets.all(UiConstants.spacingSm),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Others details!!!',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: UiConstants.spacingSm),
-        if (roomType != null)
-          DetailInfoTile(
-            icon: Icons.bed,
-            title: "Room Type",
-            value: roomType.displayName,
+  return SectionContainer(
+    borderRadius: BorderRadius.zero,
+    child: SizedBox(
+      width: double.infinity,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Others details!!!',
+            style: TextStyle(fontWeight: FontWeight.bold),
           ),
-        const SizedBox(height: UiConstants.spacingSm),
-        if (area != null)
-          DetailInfoTile(
-            icon: Icons.square_foot,
-            title: "Area",
-            value: "$area sqft",
-          ),
-        const SizedBox(height: UiConstants.spacingSm),
-        if (capacity != null)
-          DetailInfoTile(
-            icon: Icons.people,
-            title: "Capacity",
-            value: "$capacity guests",
-          ),
-      ],
+          const SizedBox(height: UiConstants.spacingSm),
+          if (roomType != null)
+            DetailInfoTile(
+              icon: Icons.bed,
+              title: "Room Type",
+              value: roomType.displayName,
+            ),
+          const SizedBox(height: UiConstants.spacingSm),
+          if (area != null)
+            DetailInfoTile(
+              icon: Icons.square_foot,
+              title: "Area",
+              value: "$area sqft",
+            ),
+          const SizedBox(height: UiConstants.spacingSm),
+          if (capacity != null)
+            DetailInfoTile(
+              icon: Icons.people,
+              title: "Capacity",
+              value: "$capacity guests",
+            ),
+        ],
+      ),
     ),
   );
 }
@@ -567,26 +579,31 @@ class StatusActionChip<T> extends StatelessWidget {
               )
               .toList();
         },
-        child: SectionContainer(
-          borderRadius: BorderRadius.circular(UiConstants.radiusSm),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                label.toUpperCase(),
-                style: TextStyle(color: color, fontWeight: FontWeight.bold),
-              ),
-              if (isClickable) ...[
-                const SizedBox(width: 6),
-                Icon(Icons.arrow_drop_down, size: 18, color: color),
-              ],
-            ],
-          ),
+        child: CustomButton(
+          text: label.toUpperCase(),
+          isOutlined: true,
+          icon: isClickable
+              ? Icon(Icons.keyboard_arrow_down, color: color)
+              : null,
         ),
       ),
     );
   }
 }
+
+// Row(
+//             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//             children: [
+//               Text(
+//                 label.toUpperCase(),
+//                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+//               ),
+//               if (isClickable) ...[
+//                 const SizedBox(width: 6),
+//                 Icon(Icons.keyboard_arrow_down, color: color),
+//               ],
+//             ],
+//           ),
 
 class StatusAction<T> {
   final T value;
@@ -704,8 +721,8 @@ class _StatusChip extends StatelessWidget {
 }
 
 Widget _buildDateSection(Booking booking) {
-  return Padding(
-    padding: const EdgeInsets.all(UiConstants.spacingSm),
+  return SectionContainer(
+    borderRadius: BorderRadius.zero,
     child: Column(
       children: [
         _InfoRow(
@@ -723,8 +740,8 @@ Widget _buildDateSection(Booking booking) {
 }
 
 Widget _buildPriceSection(Booking booking) {
-  return Padding(
-    padding: const EdgeInsets.all(UiConstants.spacingSm),
+  return SectionContainer(
+    borderRadius: BorderRadius.zero,
     child: Column(
       children: [
         _InfoRow(label: 'Price / Night', value: 'Rs. ${booking.price}'),
@@ -903,6 +920,37 @@ class _InfoRow extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _DateInfoRow extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String value;
+
+  const _DateInfoRow({
+    required this.icon,
+    required this.label,
+    required this.value,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Row(
+      children: [
+        Icon(icon, size: 20, color: theme.colorScheme.primary),
+        const SizedBox(width: 12),
+        Expanded(child: Text(label, style: theme.textTheme.bodyMedium)),
+        Text(
+          value,
+          style: theme.textTheme.bodyLarge?.copyWith(
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
     );
   }
 }
