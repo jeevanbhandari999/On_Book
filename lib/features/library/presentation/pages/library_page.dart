@@ -38,7 +38,7 @@ class LibraryPage extends StatelessWidget {
         }
 
         final organizationId = snapshot.data;
-        print(organizationId);
+        // print(organizationId);
 
         if (userId == null) {
           return const Center(child: LoadingWidget());
@@ -288,7 +288,7 @@ class LibraryView extends StatelessWidget {
                 children: [
                   // Primary Image
                   ClipRRect(
-                    borderRadius: BorderRadius.circular(UiConstants.radiusMd),
+                    borderRadius: BorderRadius.circular(UiConstants.radiusSm),
                     child: booking.primaryImageUrl.isNotEmpty
                         ? Image.network(
                             booking.primaryImageUrl,
@@ -362,6 +362,11 @@ class LibraryView extends StatelessWidget {
                   Row(
                     children: [
                       Chip(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadiusGeometry.circular(
+                            UiConstants.radiusSm,
+                          ),
+                        ),
                         label: Text(
                           booking.status.name.toUpperCase(),
                           style: const TextStyle(
