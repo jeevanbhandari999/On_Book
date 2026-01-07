@@ -515,6 +515,9 @@ Color getBookingStatusColor(BookingStatus status) {
 
     case BookingStatus.cancelled:
       return Colors.redAccent;
+      
+    case BookingStatus.rejected:
+      return Colors.redAccent;
 
     case BookingStatus.completed:
       return Colors.indigo;

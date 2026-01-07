@@ -9,6 +9,7 @@ import 'package:app/features/booking/domain/entities/booking.dart';
 import 'package:app/features/library/domain/entities/library_filter_enum.dart';
 import 'package:app/features/library/domain/usecases/get_all_booking_by_user_id_use_case.dart';
 import 'package:app/features/library/domain/usecases/get_all_booking_related_to_organization_use_case.dart';
+import 'package:app/features/library/domain/usecases/update_booking_status_by_id_use_case.dart';
 import 'package:app/features/library/presentation/bloc/library_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -53,6 +54,8 @@ class LibraryPage extends StatelessWidget {
                     DependencyInjection.get<
                       GetAllBookingRelatedToOrganizationUseCase
                     >(),
+                updateBookingStatusByIdUseCase:
+                    DependencyInjection.get<UpdateBookingStatusByIdUseCase>(),
               )..add(
                 LoadUserLibrary(userId: userId, organizationId: organizationId),
               ),
@@ -420,6 +423,8 @@ class LibraryView extends StatelessWidget {
       case BookingStatus.confirmed:
         return Colors.green;
       case BookingStatus.cancelled:
+        return Colors.red;
+      case BookingStatus.rejected:
         return Colors.red;
       case BookingStatus.completed:
         return Colors.blue;
