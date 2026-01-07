@@ -453,14 +453,21 @@ class _BookingActionMenu extends StatelessWidget {
         // User related action
         if (isUserBookingOwner && booking.status == BookingStatus.pending) {
           items.add(
-            const PopupMenuItem(
+            PopupMenuItem(
               value: _BookingAction.cancel,
-              child: Row(
-                children: [
-                  Icon(Icons.close, size: 18, color: Colors.red),
-                  SizedBox(width: 8),
-                  Text('Cancel Booking'),
-                ],
+              child: BlocBuilder<LibraryBloc, LibraryState>(
+                builder: (context, state) {
+                  return Row(
+                    key: ValueKey(booking.status.name),
+                    children: [
+                      state is UpdatingBookingStatusFromLibraryPage
+                          ? const CircularProgressIndicator()
+                          : Icon(Icons.close, size: 18, color: Colors.red),
+                      SizedBox(width: 8),
+                      Text('Cancel Booking'),
+                    ],
+                  );
+                },
               ),
             ),
           );
@@ -470,22 +477,34 @@ class _BookingActionMenu extends StatelessWidget {
         if (isOrganizationMember) {
           if (booking.status == BookingStatus.pending) {
             items.add(
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: _BookingAction.confirm,
-                child: Row(
-                  children: [
-                    Icon(Icons.check_circle, size: 18, color: Colors.green),
-                    SizedBox(width: 8),
-                    Text('Confirm Booking'),
-                  ],
+                child: BlocBuilder<LibraryBloc, LibraryState>(
+                  builder: (context, state) {
+                    return Row(
+                      key: ValueKey(booking.status.name),
+                      children: [
+                        state is UpdatingBookingStatusFromLibraryPage
+                            ? const CircularProgressIndicator()
+                            : Icon(
+                                Icons.check_circle,
+                                size: 18,
+                                color: Colors.green,
+                              ),
+                        SizedBox(width: 8),
+                        Text('Confirm Booking'),
+                      ],
+                    );
+                  },
                 ),
               ),
             );
           }
           items.add(
-            const PopupMenuItem(
+            PopupMenuItem(
               value: _BookingAction.updatePayment,
               child: Row(
+                key: ValueKey(booking.status.name),
                 children: [
                   Icon(Icons.currency_exchange, size: 18, color: Colors.blue),
                   SizedBox(width: 8),
@@ -495,9 +514,10 @@ class _BookingActionMenu extends StatelessWidget {
             ),
           );
           items.add(
-            const PopupMenuItem(
+            PopupMenuItem(
               value: _BookingAction.reject,
               child: Row(
+                key: ValueKey(booking.status.name),
                 children: [
                   Icon(Icons.do_not_disturb, size: 18, color: Colors.red),
                   SizedBox(width: 8),
@@ -523,13 +543,30 @@ class _BookingActionMenu extends StatelessWidget {
   ) {
     switch (action) {
       case _BookingAction.confirm:
+        context.read<LibraryBloc>().add(
+          UpdateBookingStatusFromLibraryPage(
+            bookingId: booking.id,
+            status: BookingStatus.confirmed.name,
+          ),
+        );
         break;
 
       case _BookingAction.cancel:
+        context.read<LibraryBloc>().add(
+          UpdateBookingStatusFromLibraryPage(
+            bookingId: booking.id,
+            status: BookingStatus.cancelled.name,
+          ),
+        );
         break;
       case _BookingAction.reject:
+        context.read<LibraryBloc>().add(
+          UpdateBookingStatusFromLibraryPage(
+            bookingId: booking.id,
+            status: BookingStatus.rejected.name,
+          ),
+        );
         break;
-
       case _BookingAction.updatePayment:
         break;
     }
