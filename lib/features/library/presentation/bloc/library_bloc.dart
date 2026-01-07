@@ -106,6 +106,9 @@ class LibraryRefreshing extends LibraryLoaded {
     required super.ongoingBookings,
     required super.pastBookings,
     required super.newBookings,
+    required super.cancledBookings,
+    required super.confirmedBookings,
+    required super.rejectedBookings,
   });
 
   // Override copyWith to return LibraryRefreshing
@@ -117,6 +120,9 @@ class LibraryRefreshing extends LibraryLoaded {
     List<Booking>? upcomingBookings,
     List<Booking>? pastBookings,
     List<Booking>? newBookings,
+    List<Booking>? cancledBookings,
+    List<Booking>? confirmedBookings,
+    List<Booking>? rejectedBookings,
   }) {
     return LibraryRefreshing(
       activeFilter: activeFilter ?? this.activeFilter,
@@ -125,6 +131,9 @@ class LibraryRefreshing extends LibraryLoaded {
       upcomingBookings: upcomingBookings ?? this.upcomingBookings,
       pastBookings: pastBookings ?? this.pastBookings,
       newBookings: newBookings ?? this.newBookings,
+      cancledBookings: cancledBookings ?? this.cancledBookings,
+      confirmedBookings: confirmedBookings ?? this.confirmedBookings,
+      rejectedBookings: rejectedBookings ?? this.rejectedBookings,
     );
   }
 }
@@ -135,8 +144,11 @@ class LibraryLoaded extends LibraryState {
   final List<Booking> upcomingBookings;
   final List<Booking> ongoingBookings;
   final List<Booking> pastBookings;
-  final List<Booking>
-  newBookings; // This booking is related to the organizations, mean booked by user
+  // This booking is related to the organizations, mean booked by user
+  final List<Booking> newBookings;
+  final List<Booking> cancledBookings;
+  final List<Booking> confirmedBookings;
+  final List<Booking> rejectedBookings;
 
   const LibraryLoaded({
     required this.activeFilter,
@@ -145,6 +157,9 @@ class LibraryLoaded extends LibraryState {
     required this.ongoingBookings,
     required this.pastBookings,
     required this.newBookings,
+    required this.cancledBookings,
+    required this.confirmedBookings,
+    required this.rejectedBookings,
   });
 
   bool get hasBookings =>
@@ -161,6 +176,9 @@ class LibraryLoaded extends LibraryState {
     List<Booking>? upcomingBookings,
     List<Booking>? pastBookings,
     List<Booking>? newBookings,
+    List<Booking>? cancledBookings,
+    List<Booking>? confirmedBookings,
+    List<Booking>? rejectedBookings,
   }) {
     return LibraryLoaded(
       activeFilter: activeFilter ?? this.activeFilter,
@@ -169,6 +187,9 @@ class LibraryLoaded extends LibraryState {
       upcomingBookings: upcomingBookings ?? this.upcomingBookings,
       pastBookings: pastBookings ?? this.pastBookings,
       newBookings: newBookings ?? this.newBookings,
+      cancledBookings: cancledBookings ?? this.cancledBookings,
+      confirmedBookings: confirmedBookings ?? this.confirmedBookings,
+      rejectedBookings: rejectedBookings ?? this.rejectedBookings,
     );
   }
 
@@ -180,6 +201,9 @@ class LibraryLoaded extends LibraryState {
     ongoingBookings,
     pastBookings,
     newBookings,
+    cancledBookings,
+    confirmedBookings,
+    rejectedBookings,
   ];
 }
 
@@ -297,6 +321,9 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
           ongoingBookings: currentState.ongoingBookings,
           pastBookings: currentState.pastBookings,
           newBookings: currentState.newBookings,
+          cancledBookings: currentState.cancledBookings,
+          confirmedBookings: currentState.confirmedBookings,
+          rejectedBookings: currentState.rejectedBookings,
         ),
       );
     }
@@ -409,15 +436,15 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
             .toList()
           ..sort((a, b) => b.checkOutDate.compareTo(a.checkOutDate));
 
-    final canceldBooking = bookings.where(
-      (b) => b.status == BookingStatus.cancelled,
-    );
-    final confirmedBooking = bookings.where(
-      (b) => b.status == BookingStatus.confirmed,
-    );
-    final rejectedBooking = bookings.where(
-      (b) => b.status == BookingStatus.rejected,
-    );
+    final canceldBooking = bookings
+        .where((b) => b.status == BookingStatus.cancelled)
+        .toList();
+    final confirmedBooking = bookings
+        .where((b) => b.status == BookingStatus.confirmed)
+        .toList();
+    final rejectedBooking = bookings
+        .where((b) => b.status == BookingStatus.rejected)
+        .toList();
 
     return LibraryLoaded(
       activeFilter: previousFilter ?? LibraryFilter.all,
@@ -426,6 +453,9 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
       ongoingBookings: ongoing,
       pastBookings: past,
       newBookings: newBookings,
+      rejectedBookings: rejectedBooking,
+      confirmedBookings: confirmedBooking,
+      cancledBookings: canceldBooking,
     );
   }
 

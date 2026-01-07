@@ -237,14 +237,28 @@ class LibraryView extends StatelessWidget {
     switch (state.activeFilter) {
       case LibraryFilter.ongoing:
         return state.ongoingBookings;
+
       case LibraryFilter.upcoming:
         return state.upcomingBookings;
+
       case LibraryFilter.past:
         return state.pastBookings;
+
       case LibraryFilter.newBooking:
         return state.newBookings;
+
       case LibraryFilter.myBooking:
         return state.myBooking;
+
+      case LibraryFilter.cancelled:
+        return state.cancledBookings;
+
+      case LibraryFilter.confirmed:
+        return state.confirmedBookings;
+
+      case LibraryFilter.rejected:
+        return state.rejectedBookings;
+
       case LibraryFilter.recent:
         return [];
       case LibraryFilter.all:
@@ -391,7 +405,7 @@ class LibraryView extends StatelessWidget {
                               UiConstants.radiusSm,
                             ),
                           ),
-                          label: Text(
+                          label: const Text(
                             'ONGOING',
                             style: TextStyle(fontSize: 12),
                           ),
@@ -407,7 +421,7 @@ class LibraryView extends StatelessWidget {
                               UiConstants.radiusSm,
                             ),
                           ),
-                          label: Text(
+                          label: const Text(
                             'CANCELLED',
                             style: TextStyle(fontSize: 12),
                           ),
@@ -480,7 +494,7 @@ class _BookingActionMenu extends StatelessWidget {
                   value: _BookingAction.cancel,
                   child: Row(
                     key: ValueKey(booking.status.name),
-                    children: [
+                    children: const [
                       Icon(Icons.close, size: 18, color: Colors.red),
                       SizedBox(width: 8),
                       Text('Cancel Booking'),
@@ -498,7 +512,7 @@ class _BookingActionMenu extends StatelessWidget {
                     value: _BookingAction.confirm,
                     child: Row(
                       key: ValueKey(booking.status.name),
-                      children: [
+                      children: const [
                         Icon(Icons.check_circle, size: 18, color: Colors.green),
                         SizedBox(width: 8),
                         Text('Confirm Booking'),
@@ -512,7 +526,7 @@ class _BookingActionMenu extends StatelessWidget {
                   value: _BookingAction.updatePayment,
                   child: Row(
                     key: ValueKey(booking.status.name),
-                    children: [
+                    children: const [
                       Icon(
                         Icons.currency_exchange,
                         size: 18,
@@ -529,7 +543,7 @@ class _BookingActionMenu extends StatelessWidget {
                   value: _BookingAction.reject,
                   child: Row(
                     key: ValueKey(booking.status.name),
-                    children: [
+                    children: const [
                       Icon(Icons.do_not_disturb, size: 18, color: Colors.red),
                       SizedBox(width: 8),
                       Text('Reject Booking'),

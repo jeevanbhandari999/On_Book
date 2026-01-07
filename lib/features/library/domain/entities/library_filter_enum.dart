@@ -6,6 +6,7 @@ enum LibraryFilter {
   // Owner / Staff
   newBooking,
   cancelled,
+  confirmed,
   rejected,
   completed,
 
@@ -34,6 +35,9 @@ extension LibraryFilterExtension on LibraryFilter {
 
       case LibraryFilter.cancelled:
         return 'Cancelled';
+        
+      case LibraryFilter.confirmed:
+        return 'Confirmed';
 
       case LibraryFilter.rejected:
         return 'Rejected';
