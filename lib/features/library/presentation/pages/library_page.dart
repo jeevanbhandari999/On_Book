@@ -440,38 +440,60 @@ class _BookingActionMenu extends StatelessWidget {
       itemBuilder: (context) {
         final items = <PopupMenuEntry<_BookingAction>>[];
 
-        // USER ACTION
+        // User related action
         if (isUserBookingOwner && booking.status == BookingStatus.pending) {
           items.add(
             const PopupMenuItem(
               value: _BookingAction.cancel,
-              child: Text('Cancel booking'),
+              child: Row(
+                children: [
+                  Icon(Icons.close, size: 18, color: Colors.red),
+                  SizedBox(width: 8),
+                  Text('Cancel Booking'),
+                ],
+              ),
             ),
           );
         }
 
-        // ORGANIZATION ACTIONS
+        // Organization related action
         if (isOrganizationMember) {
           if (booking.status == BookingStatus.pending) {
             items.add(
               const PopupMenuItem(
                 value: _BookingAction.confirm,
-                child: Text('Confirm booking'),
+                child: Row(
+                  children: [
+                    Icon(Icons.check_circle, size: 18, color: Colors.green),
+                    SizedBox(width: 8),
+                    Text('Confirm Booking'),
+                  ],
+                ),
               ),
             );
           }
-
-          items.add(
-            const PopupMenuItem(
-              value: _BookingAction.cancel,
-              child: Text('Cancel booking'),
-            ),
-          );
-
           items.add(
             const PopupMenuItem(
               value: _BookingAction.updatePayment,
-              child: Text('Update payment'),
+              child: Row(
+                children: [
+                  Icon(Icons.currency_exchange, size: 18, color: Colors.blue),
+                  SizedBox(width: 8),
+                  Text('Update Payment'),
+                ],
+              ),
+            ),
+          );
+          items.add(
+            const PopupMenuItem(
+              value: _BookingAction.reject,
+              child: Row(
+                children: [
+                  Icon(Icons.do_not_disturb, size: 18, color: Colors.red),
+                  SizedBox(width: 8),
+                  Text('Reject Booking'),
+                ],
+              ),
             ),
           );
         }
@@ -491,18 +513,17 @@ class _BookingActionMenu extends StatelessWidget {
   ) {
     switch (action) {
       case _BookingAction.confirm:
-        
         break;
 
       case _BookingAction.cancel:
-        
+        break;
+      case _BookingAction.reject:
         break;
 
       case _BookingAction.updatePayment:
-       
         break;
     }
   }
 }
 
-enum _BookingAction { confirm, cancel, updatePayment }
+enum _BookingAction { confirm, cancel, reject, updatePayment }

@@ -14,7 +14,11 @@ abstract class BookingRemoteDataSource {
 
   /// Update an existing booking
   Future<BookingModel> updateBooking(String bookingId, BookingModel booking);
+
+  // Check whether the user is logged in or not
   Future<bool> isOwnerLogin(String userId, String organizationId);
+
+  // Change the booking status by user()
 }
 
 class BookingRemoteDataSourceImpl implements BookingRemoteDataSource {
