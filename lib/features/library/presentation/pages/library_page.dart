@@ -129,8 +129,6 @@ class LibraryView extends StatelessWidget {
                       if (state is! LibraryLoaded) {
                         return const SizedBox.shrink();
                       }
-
-                      final isRefreshing = state is LibraryRefreshing;
                       final filteredBookings = _getFilteredBookings(state);
 
                       return Expanded(
@@ -147,9 +145,7 @@ class LibraryView extends StatelessWidget {
                               (newState) => newState is! LibraryRefreshing,
                             );
                           },
-                          child: isRefreshing
-                              ? const Center(child: LoadingWidget())
-                              : filteredBookings.isEmpty
+                          child: filteredBookings.isEmpty
                               ? _buildEmptyState()
                               : ListView.separated(
                                   physics:
@@ -380,9 +376,14 @@ class LibraryView extends StatelessWidget {
                         backgroundColor: statusColor,
                         padding: const EdgeInsets.symmetric(horizontal: 8),
                       ),
-                      if (isOngoing) ...[
+                      if (!isOngoing) ...[
                         const SizedBox(width: 8),
-                        const Chip(
+                        Chip(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadiusGeometry.circular(
+                              UiConstants.radiusSm,
+                            ),
+                          ),
                           label: Text(
                             'ONGOING',
                             style: TextStyle(fontSize: 12),
@@ -393,7 +394,12 @@ class LibraryView extends StatelessWidget {
                       if (isPast &&
                           booking.status == BookingStatus.cancelled) ...[
                         const SizedBox(width: 8),
-                        const Chip(
+                        Chip(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadiusGeometry.circular(
+                              UiConstants.radiusSm,
+                            ),
+                          ),
                           label: Text(
                             'CANCELLED',
                             style: TextStyle(fontSize: 12),

@@ -286,6 +286,7 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
     RefreshUserLibrary event,
     Emitter<LibraryState> emit,
   ) async {
+    if (state is LibraryRefreshing) return;
     if (state is LibraryLoaded && state is! LibraryRefreshing) {
       final currentState = state as LibraryLoaded;
       emit(
@@ -407,6 +408,16 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
             )
             .toList()
           ..sort((a, b) => b.checkOutDate.compareTo(a.checkOutDate));
+
+    final canceldBooking = bookings.where(
+      (b) => b.status == BookingStatus.cancelled,
+    );
+    final confirmedBooking = bookings.where(
+      (b) => b.status == BookingStatus.confirmed,
+    );
+    final rejectedBooking = bookings.where(
+      (b) => b.status == BookingStatus.rejected,
+    );
 
     return LibraryLoaded(
       activeFilter: previousFilter ?? LibraryFilter.all,

@@ -76,7 +76,10 @@ class LibraryRemoteDataSourceImpl implements LibraryRemoteDataSource {
       final response = await supabaseClient
           .from('bookings')
           .update({'status': status})
-          .eq('id', bookingId);
+          .eq('id', bookingId)
+          .select()
+          .single();
+      print('the response is : $response');
       return BookingModel.fromJson(response);
     } on PostgrestException catch (e) {
       throw ServerException(e.message);
