@@ -445,93 +445,93 @@ class _BookingActionMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return PopupMenuButton<_BookingAction>(
-      icon: const Icon(Icons.more_vert, size: 20),
-      itemBuilder: (context) {
-        final items = <PopupMenuEntry<_BookingAction>>[];
+    return BlocBuilder<LibraryBloc, LibraryState>(
+      builder: (context, state) {
+        final isUpdating = state is UpdatingBookingStatusFromLibraryPage;
+        return PopupMenuButton<_BookingAction>(
+          enabled: !isUpdating,
+          icon: isUpdating
+              ? const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : const Icon(Icons.more_vert, size: 20),
+          itemBuilder: (context) {
+            final items = <PopupMenuEntry<_BookingAction>>[];
 
-        // User related action
-        if (isUserBookingOwner && booking.status == BookingStatus.pending) {
-          items.add(
-            PopupMenuItem(
-              value: _BookingAction.cancel,
-              child: BlocBuilder<LibraryBloc, LibraryState>(
-                builder: (context, state) {
-                  return Row(
+            // User related action
+            if (isUserBookingOwner && booking.status == BookingStatus.pending) {
+              items.add(
+                PopupMenuItem(
+                  value: _BookingAction.cancel,
+                  child: Row(
                     key: ValueKey(booking.status.name),
                     children: [
-                      state is UpdatingBookingStatusFromLibraryPage
-                          ? const CircularProgressIndicator()
-                          : Icon(Icons.close, size: 18, color: Colors.red),
+                      Icon(Icons.close, size: 18, color: Colors.red),
                       SizedBox(width: 8),
                       Text('Cancel Booking'),
                     ],
-                  );
-                },
-              ),
-            ),
-          );
-        }
+                  ),
+                ),
+              );
+            }
 
-        // Organization related action
-        if (isOrganizationMember) {
-          if (booking.status == BookingStatus.pending) {
-            items.add(
-              PopupMenuItem(
-                value: _BookingAction.confirm,
-                child: BlocBuilder<LibraryBloc, LibraryState>(
-                  builder: (context, state) {
-                    return Row(
+            // Organization related action
+            if (isOrganizationMember) {
+              if (booking.status == BookingStatus.pending) {
+                items.add(
+                  PopupMenuItem(
+                    value: _BookingAction.confirm,
+                    child: Row(
                       key: ValueKey(booking.status.name),
                       children: [
-                        state is UpdatingBookingStatusFromLibraryPage
-                            ? const CircularProgressIndicator()
-                            : Icon(
-                                Icons.check_circle,
-                                size: 18,
-                                color: Colors.green,
-                              ),
+                        Icon(Icons.check_circle, size: 18, color: Colors.green),
                         SizedBox(width: 8),
                         Text('Confirm Booking'),
                       ],
-                    );
-                  },
+                    ),
+                  ),
+                );
+              }
+              items.add(
+                PopupMenuItem(
+                  value: _BookingAction.updatePayment,
+                  child: Row(
+                    key: ValueKey(booking.status.name),
+                    children: [
+                      Icon(
+                        Icons.currency_exchange,
+                        size: 18,
+                        color: Colors.blue,
+                      ),
+                      SizedBox(width: 8),
+                      Text('Update Payment'),
+                    ],
+                  ),
                 ),
-              ),
-            );
-          }
-          items.add(
-            PopupMenuItem(
-              value: _BookingAction.updatePayment,
-              child: Row(
-                key: ValueKey(booking.status.name),
-                children: [
-                  Icon(Icons.currency_exchange, size: 18, color: Colors.blue),
-                  SizedBox(width: 8),
-                  Text('Update Payment'),
-                ],
-              ),
-            ),
-          );
-          items.add(
-            PopupMenuItem(
-              value: _BookingAction.reject,
-              child: Row(
-                key: ValueKey(booking.status.name),
-                children: [
-                  Icon(Icons.do_not_disturb, size: 18, color: Colors.red),
-                  SizedBox(width: 8),
-                  Text('Reject Booking'),
-                ],
-              ),
-            ),
-          );
-        }
+              );
+              items.add(
+                PopupMenuItem(
+                  value: _BookingAction.reject,
+                  child: Row(
+                    key: ValueKey(booking.status.name),
+                    children: [
+                      Icon(Icons.do_not_disturb, size: 18, color: Colors.red),
+                      SizedBox(width: 8),
+                      Text('Reject Booking'),
+                    ],
+                  ),
+                ),
+              );
+            }
 
-        return items;
-      },
-      onSelected: (action) {
-        _handleBookingAction(context, action, booking);
+            return items;
+          },
+          onSelected: (action) {
+            _handleBookingAction(context, action, booking);
+          },
+        );
       },
     );
   }
