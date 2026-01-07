@@ -1,7 +1,7 @@
 import 'package:app/features/booking/domain/entities/payment_enums.dart';
 import 'package:equatable/equatable.dart';
 
-enum BookingStatus { pending, confirmed, cancelled, completed }
+enum BookingStatus { pending, confirmed, cancelled, rejected, completed }
 
 enum PaymentStatus { pending, paid, refunded, failed }
 

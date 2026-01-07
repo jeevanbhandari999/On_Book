@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:app/core/errors/failures.dart';
 import 'package:app/features/booking/domain/entities/booking.dart';
 import 'package:app/features/library/domain/entities/library_filter_enum.dart';
 import 'package:app/features/library/domain/usecases/get_all_booking_by_user_id_use_case.dart';
 import 'package:app/features/library/domain/usecases/get_all_booking_related_to_organization_use_case.dart';
+import 'package:app/features/library/domain/usecases/update_booking_status_by_id_use_case.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -44,10 +47,21 @@ class RefreshUserLibrary extends LibraryEvent {
   List<Object?> get props => [userId, organizationId];
 }
 
+/// Update the booking status (cancel(through user(the booked user, who actually booked the resturant)), reject, comfirm)
+class UpdateBookingStatusFromLibraryPage extends LibraryEvent {
+  final String bookingId;
+  final String status;
 
+  const UpdateBookingStatusFromLibraryPage({
+    required this.bookingId,
+    required this.status,
+  });
+
+  @override
+  List<Object> get props => [bookingId, status];
+}
 
 /// STATES
-
 abstract class LibraryState extends Equatable {
   const LibraryState();
 
@@ -66,6 +80,23 @@ class LibraryLoading extends LibraryState {
 // class LibraryRefreshing extends LibraryState {
 //   const LibraryRefreshing();
 // }
+
+class UpdatingBookingStatusFromLibraryPage extends LibraryState {
+  const UpdatingBookingStatusFromLibraryPage();
+}
+
+class UpdateBookingStatusFromLibraryPageSuccess extends LibraryState {
+  final Booking booking;
+  final String? successMessage;
+
+  const UpdateBookingStatusFromLibraryPageSuccess({
+    required this.booking,
+    this.successMessage,
+  });
+
+  @override
+  List<Object?> get props => [booking, successMessage];
+}
 
 class LibraryRefreshing extends LibraryLoaded {
   const LibraryRefreshing({
@@ -167,18 +198,24 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
   final GetAllBookingsByUserIdUseCase _getAllBookingsByUserIdUseCase;
   final GetAllBookingRelatedToOrganizationUseCase
   _getAllBookingRelatedToOrganizationUseCase;
+  final UpdateBookingStatusByIdUseCase _updateBookingStatusByIdUseCase;
 
   LibraryBloc({
     required GetAllBookingsByUserIdUseCase getAllBookingsByUserIdUseCase,
     required GetAllBookingRelatedToOrganizationUseCase
     getAllBookingRelatedToOrganizationUseCase,
+    required UpdateBookingStatusByIdUseCase updateBookingStatusByIdUseCase,
   }) : _getAllBookingsByUserIdUseCase = getAllBookingsByUserIdUseCase,
        _getAllBookingRelatedToOrganizationUseCase =
            getAllBookingRelatedToOrganizationUseCase,
+       _updateBookingStatusByIdUseCase = updateBookingStatusByIdUseCase,
        super(const LibraryInitial()) {
     on<LoadUserLibrary>(_onLoadUserLibrary);
     on<RefreshUserLibrary>(_onRefreshUserLibrary);
     on<ChangeLibraryFilterTabRequested>(_onChangeFilter);
+    on<UpdateBookingStatusFromLibraryPage>(
+      _onUpdateBookingStatusFromLibraryPage,
+    );
   }
 
   Future<void> _onLoadUserLibrary(
@@ -237,7 +274,9 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
           emit(LibraryError(message: _mapFailureToMessage(failure)));
         },
         (userBookings) async {
-          emit(_buildLoadedState(userBookings, userBookings, [], previousFilter));
+          emit(
+            _buildLoadedState(userBookings, userBookings, [], previousFilter),
+          );
         },
       );
     }
@@ -310,7 +349,9 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
           emit(LibraryError(message: _mapFailureToMessage(failure)));
         },
         (userBookings) async {
-          emit(_buildLoadedState(userBookings, userBookings, [], previousFilter));
+          emit(
+            _buildLoadedState(userBookings, userBookings, [], previousFilter),
+          );
         },
       );
     }
@@ -370,7 +411,7 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
     return LibraryLoaded(
       activeFilter: previousFilter ?? LibraryFilter.all,
       upcomingBookings: upcoming,
-       myBooking: myBooking,
+      myBooking: myBooking,
       ongoingBookings: ongoing,
       pastBookings: past,
       newBookings: newBookings,
@@ -405,5 +446,53 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
     }
 
     return map.values.toList();
+  }
+
+  Future<void> _onUpdateBookingStatusFromLibraryPage(
+    UpdateBookingStatusFromLibraryPage event,
+    Emitter<LibraryState> emit,
+  ) async {
+    emit(const UpdatingBookingStatusFromLibraryPage());
+    try {
+      final updateBookingStatusParams = UpdateBookingStatusByIdParams(
+        bookingId: event.bookingId,
+        status: event.status,
+      );
+
+      final response = await _updateBookingStatusByIdUseCase(
+        updateBookingStatusParams,
+      );
+
+      response.fold(
+        (failure) => emit(LibraryError(message: failure.message)),
+        (statusUpdatedData) => emit(
+          UpdateBookingStatusFromLibraryPageSuccess(
+            booking: statusUpdatedData,
+            successMessage: _getSuccessMessage(statusUpdatedData.status),
+          ),
+        ),
+      );
+    } catch (e) {
+      emit(LibraryError(message: e.toString()));
+    }
+  }
+}
+
+String? _getSuccessMessage(BookingStatus status) {
+  switch (status) {
+    case BookingStatus.pending:
+      return 'Booking request has been sent and is awaiting confirmation.';
+
+    case BookingStatus.confirmed:
+      return 'Your booking has been confirmed successfully.';
+
+    case BookingStatus.cancelled:
+      return 'Your booking has been cancelled successfully.';
+
+    case BookingStatus.rejected:
+      return 'The booking request has been rejected.';
+
+    case BookingStatus.completed:
+      return 'Your booking has been completed successfully.';
   }
 }
