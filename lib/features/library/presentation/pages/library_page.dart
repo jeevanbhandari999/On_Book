@@ -366,12 +366,19 @@ class LibraryView extends StatelessWidget {
                             UiConstants.radiusSm,
                           ),
                         ),
-                        label: Text(
-                          booking.status.name.toUpperCase(),
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                          ),
+                        label: BlocBuilder<LibraryBloc, LibraryState>(
+                          builder: (context, state) {
+                            if (state is UpdatingBookingStatusFromLibraryPage) {
+                              return const CircularProgressIndicator();
+                            }
+                            return Text(
+                              booking.status.name.toUpperCase(),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                              ),
+                            );
+                          },
                         ),
                         backgroundColor: statusColor,
                         padding: const EdgeInsets.symmetric(horizontal: 8),

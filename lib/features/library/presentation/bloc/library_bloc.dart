@@ -463,8 +463,10 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
     UpdateBookingStatusFromLibraryPage event,
     Emitter<LibraryState> emit,
   ) async {
-    emit(const UpdatingBookingStatusFromLibraryPage());
     try {
+      if (state is! LibraryLoaded) return;
+
+      final currentState = state as LibraryLoaded;
       final updateBookingStatusParams = UpdateBookingStatusByIdParams(
         bookingId: event.bookingId,
         status: event.status,
@@ -474,14 +476,36 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
         updateBookingStatusParams,
       );
 
+      // response.fold(
+      //   (failure) => emit(LibraryError(message: failure.message)),
+      //   (statusUpdatedData) => emit(
+      //     UpdateBookingStatusFromLibraryPageSuccess(
+      //       booking: statusUpdatedData,
+      //       successMessage: _getSuccessMessage(statusUpdatedData.status),
+      //     ),
+      //   ),
+      // );
       response.fold(
-        (failure) => emit(LibraryError(message: failure.message)),
-        (statusUpdatedData) => emit(
-          UpdateBookingStatusFromLibraryPageSuccess(
-            booking: statusUpdatedData,
-            successMessage: _getSuccessMessage(statusUpdatedData.status),
-          ),
-        ),
+        (failure) {
+          emit(LibraryError(message: failure.message));
+        },
+        (updatedBooking) {
+          List<Booking> updateList(List<Booking> list) {
+            return list
+                .map((b) => b.id == updatedBooking.id ? updatedBooking : b)
+                .toList();
+          }
+
+          emit(
+            currentState.copyWith(
+              myBooking: updateList(currentState.myBooking),
+              upcomingBookings: updateList(currentState.upcomingBookings),
+              ongoingBookings: updateList(currentState.ongoingBookings),
+              pastBookings: updateList(currentState.pastBookings),
+              newBookings: updateList(currentState.newBookings),
+            ),
+          );
+        },
       );
     } catch (e) {
       emit(LibraryError(message: e.toString()));

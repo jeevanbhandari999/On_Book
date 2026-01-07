@@ -79,7 +79,7 @@ class LibraryRemoteDataSourceImpl implements LibraryRemoteDataSource {
           .eq('id', bookingId)
           .select()
           .single();
-      print('the response is : $response');
+      // print('the response is : $response');
       return BookingModel.fromJson(response);
     } on PostgrestException catch (e) {
       throw ServerException(e.message);
