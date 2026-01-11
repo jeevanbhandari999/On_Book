@@ -6,7 +6,8 @@ abstract class LibraryRemoteDataSource {
   // Get user booking lists
   Future<List<BookingModel>> getUserBookings(String userId);
 
-  // Get all booking related to the organization
+
+  // Get all booking related to the organization(All bookings),
   Future<List<BookingModel>> getAllBookingsRelatedToOrganization(
     String organizationId,
   );

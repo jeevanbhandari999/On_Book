@@ -14,8 +14,7 @@ abstract class LibraryLocalDataSource {
   Future<void> clearCachedUserBookings(String userId);
 
   // Oganizations related
-
-  // Get the ceched userr booking lists
+  // Get the ceched organizations booking lists
   Future<List<BookingModel>?> getCachedOrganizationBookings(
     String organizationId,
   );
@@ -28,6 +27,21 @@ abstract class LibraryLocalDataSource {
 
   // Clear cached bookings
   Future<void> clearCachedOrganizationBookings(String organizationId);
+
+  /// Clear all cached announcements
+  Future<void> clearAllCachedBookings();
+
+  /// Get cache timestamp for an organization
+  Future<DateTime?> getCacheTimestamp(String organizationId);
+
+  /// Update cache timestamp for an organization
+  Future<void> updateCacheTimestamp(String organizationId);
+
+  /// Check if cache is expired for an organization
+  Future<bool> isCacheExpired(
+    String organizationId, {
+    Duration maxAge = const Duration(hours: 1),
+  });
 }
 
 class LibraryLocalDataSourceImpl implements LibraryLocalDataSource {
@@ -36,6 +50,7 @@ class LibraryLocalDataSourceImpl implements LibraryLocalDataSource {
   // Storage keys
   static const String _bookingPrefix = 'library_booking_';
   static const String _bookingsPrefix = 'library_bookings_';
+  static const String _timestampPrefix = 'bookings_timestamp_';
 
   LibraryLocalDataSourceImpl({FlutterSecureStorage? secureStorage})
     : secureStorage = secureStorage ?? const FlutterSecureStorage();
@@ -122,5 +137,45 @@ class LibraryLocalDataSourceImpl implements LibraryLocalDataSource {
     } catch (e) {
       throw CacheException('Failed to read cached library bookings: $e');
     }
+  }
+
+  @override
+  Future<void> clearAllCachedBookings() async {
+    try {
+      final allKeys = await secureStorage.readAll();
+
+      final bookingKeys = allKeys.keys.where(
+        (key) =>
+            key.startsWith(_bookingPrefix) ||
+            key.startsWith(_bookingsPrefix) ||
+            key.startsWith(_timestampPrefix),
+      );
+      for (final key in bookingKeys) {
+        await secureStorage.delete(key: key);
+      }
+    } catch (e) {
+      throw CacheException('Failed to clear all cached bookings: $e');
+    }
+  }
+
+  @override
+  Future<DateTime?> getCacheTimestamp(String organizationId) {
+    // TODO: implement getCacheTimestamp
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<bool> isCacheExpired(
+    String organizationId, {
+    Duration maxAge = const Duration(hours: 1),
+  }) {
+    // TODO: implement isCacheExpired
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> updateCacheTimestamp(String organizationId) {
+    // TODO: implement updateCacheTimestamp
+    throw UnimplementedError();
   }
 }
