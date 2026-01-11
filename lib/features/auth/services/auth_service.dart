@@ -54,8 +54,11 @@ class AuthService {
         'updated_at': now.toIso8601String(),
       };
 
-      final profileResponse =
-          await _supabase.from('users').insert(profileData).select().single();
+      final profileResponse = await _supabase
+          .from('users')
+          .insert(profileData)
+          .select()
+          .single();
 
       // 3. Return full UserModel from DB
       return UserModel.fromJson({
@@ -63,9 +66,6 @@ class AuthService {
         ...profileResponse,
       });
     } on AuthException catch (e) {
-      print('❌ Registration AuthException: ${e.message}');
-      print('❌ Status Code: ${e.statusCode}');
-
       // Handle specific registration errors
       if (e.message.toLowerCase().contains('user already registered') ||
           e.message.toLowerCase().contains('email already registered') ||
@@ -83,8 +83,6 @@ class AuthService {
         throw Exception('Registration failed: ${e.message}');
       }
     } catch (e) {
-      print('❌ Registration General Exception: ${e.toString()}');
-
       if (e.toString().contains('Failed to fetch') ||
           e.toString().contains('ClientException')) {
         throw Exception(
@@ -102,51 +100,22 @@ class AuthService {
     required String password,
   }) async {
     try {
-      // Run network diagnostics before attempting login
-      // print('🔧 Running network diagnostics...');
-      // final diagnostics = await NetworkHelper.runNetworkDiagnostics();
-      // print('📊 Network Diagnostics: $diagnostics');
-
-      // // Use smart connectivity check that considers platform limitations
-      // final hasReliableConnection = await NetworkHelper.hasReliableConnection();
-      // if (!hasReliableConnection) {
-      //   throw Exception(
-      //       'No internet connection. Please check your network settings.');
-      // }
-
-      // if (!diagnostics['canReachSupabase']) {
-      //   throw Exception(
-      //       'Cannot reach Supabase servers. Please try again later.');
-      // }
-
-      print('🔧 Attempting login for: $email');
-
       final response = await _supabase.auth.signInWithPassword(
         email: email,
         password: password,
       );
 
-      print('✅ Login response received');
-
       if (response.user == null) {
         throw Exception('Login failed: No user returned');
       }
-
-      print('✅ User found: ${response.user!.id}');
-
       if (response.user!.emailConfirmedAt == null) {
         throw Exception('Email not confirmed. Please check your inbox.');
       }
-
-      print('✅ Email confirmed, getting user profile...');
 
       // Get user profile from database
       final userProfile = await _getUserProfile(response.user!.id);
 
       if (userProfile == null) {
-        print(
-          '⚠️ User profile not found, creating basic user model for profile completion',
-        );
         // Profile not found - create basic user model for profile completion
         final role = UserRoleExtension.fromString(
           response.user!.userMetadata?['role'] as String? ?? 'user',
@@ -162,9 +131,6 @@ class AuthService {
           updatedAt: DateTime.now(),
         );
       }
-
-      print('✅ User profile retrieved successfully');
-
       // Persist session data to secure storage
       try {
         final sessionManager = DependencyInjection.get<SessionManager>();
@@ -175,17 +141,11 @@ class AuthService {
         if (accessToken != null) {
           await sessionManager.saveToken(accessToken);
         }
-        print('✅ Session data persisted successfully');
       } catch (e) {
-        print('⚠️ Failed to persist session data: $e');
         // Don't throw exception here as login was successful
       }
-
       return userProfile;
     } on AuthException catch (e) {
-      print('❌ AuthException: ${e.message}');
-      print('❌ Status Code: ${e.statusCode}');
-
       // Handle specific auth errors
       if (e.message.contains('Invalid login credentials')) {
         throw Exception(
@@ -202,8 +162,6 @@ class AuthService {
         throw Exception('Login failed: ${e.message}');
       }
     } catch (e) {
-      print('❌ General Exception: ${e.toString()}');
-
       if (e.toString().contains('Failed to fetch') ||
           e.toString().contains('ClientException')) {
         throw Exception(
@@ -224,9 +182,7 @@ class AuthService {
       try {
         final sessionManager = DependencyInjection.get<SessionManager>();
         await sessionManager.clearUserPreference();
-        print('✅ Session data cleared successfully');
       } catch (e) {
-        print('⚠️ Failed to clear session data: $e');
         // Don't throw exception here as logout was successful
       }
     } catch (e) {
@@ -237,12 +193,11 @@ class AuthService {
   // Get user profile from database
   Future<UserModel?> _getUserProfile(String userId) async {
     try {
-      final response =
-          await _supabase
-              .from('users')
-              .select()
-              .eq('user_id', userId)
-              .maybeSingle(); // Use maybeSingle instead of single to handle missing profile
+      final response = await _supabase
+          .from('users')
+          .select()
+          .eq('user_id', userId)
+          .maybeSingle(); // Use maybeSingle instead of single to handle missing profile
 
       if (response == null) {
         // Profile not found - return null instead of throwing exception
@@ -294,8 +249,11 @@ class AuthService {
         'updated_at': now.toIso8601String(),
       };
 
-      final response =
-          await _supabase.from('users').insert(profileData).select().single();
+      final response = await _supabase
+          .from('users')
+          .insert(profileData)
+          .select()
+          .single();
 
       final userModel = UserModel.fromJson({
         'user_id': currentUser!.id,
@@ -306,9 +264,7 @@ class AuthService {
       try {
         final sessionManager = DependencyInjection.get<SessionManager>();
         await sessionManager.saveUserPreference(userModel);
-        print('✅ Profile completion session data updated');
       } catch (e) {
-        print('⚠️ Failed to update session data after profile completion: $e');
         // Don't throw exception here as profile completion was successful
       }
 
@@ -342,12 +298,11 @@ class AuthService {
         'updated_at': now.toIso8601String(),
       };
 
-      final response =
-          await _supabase
-              .from('organizations')
-              .insert(orgData)
-              .select()
-              .single();
+      final response = await _supabase
+          .from('organizations')
+          .insert(orgData)
+          .select()
+          .single();
 
       // if (response == null) {
       //   throw Exception('Failed to create organization');
@@ -364,7 +319,6 @@ class AuthService {
 
       // try to update the users table( insert the organization id to the organizationId column )
       try {} catch (e) {
-        print('Failed to update the profile $e');
         throw Exception('Failed to update the organization id');
       }
       updateProfile(organizationId: organization.id);
@@ -378,12 +332,8 @@ class AuthService {
             organizationId: organization.id,
           );
           await sessionManager.saveUserPreference(updatedUser);
-          print('✅ Organization creation session data updated');
         }
       } catch (e) {
-        print(
-          '⚠️ Failed to update session data after organization creation: $e',
-        );
         // Don't throw exception here as organization creation was successful
       }
 
@@ -415,12 +365,11 @@ class AuthService {
       }
 
       // Get organization details
-      final response =
-          await _supabase
-              .from('organizations')
-              .select()
-              .eq('id', profile.organizationId!)
-              .single();
+      final response = await _supabase
+          .from('organizations')
+          .select()
+          .eq('id', profile.organizationId!)
+          .single();
 
       return OrganizationModel.fromJson(response);
     } catch (e) {
@@ -487,13 +436,12 @@ class AuthService {
         updateData['organization_id'] = organizationId;
       }
 
-      final response =
-          await _supabase
-              .from('users')
-              .update(updateData)
-              .eq('user_id', currentUser!.id)
-              .select()
-              .single();
+      final response = await _supabase
+          .from('users')
+          .update(updateData)
+          .eq('user_id', currentUser!.id)
+          .select()
+          .single();
 
       return UserModel.fromJson({'id': currentUser!.id, ...response});
     } catch (e) {
@@ -530,12 +478,11 @@ class AuthService {
     try {
       if (currentUser == null) return false;
 
-      final response =
-          await _supabase
-              .from('users')
-              .select('id')
-              .eq('user_id', currentUser!.id)
-              .maybeSingle();
+      final response = await _supabase
+          .from('users')
+          .select('id')
+          .eq('user_id', currentUser!.id)
+          .maybeSingle();
 
       return response == null;
     } catch (e) {

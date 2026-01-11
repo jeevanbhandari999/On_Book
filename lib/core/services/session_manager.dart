@@ -27,11 +27,8 @@ class SessionManager {
   /// to restore previously saved session data from secure storage.
   Future<void> initializeFromStorage() async {
     try {
-      print('🔄 Initializing session data from storage...');
       await getUserPreference();
-      print('✅ Session data initialization completed');
     } catch (e) {
-      print('❌ Failed to initialize session data from storage: $e');
       // Reset state on initialization failure
       user = null;
       isLoggedIn = false;
@@ -50,7 +47,6 @@ class SessionManager {
 
       // Check for required user fields
       if (user!.id.isEmpty || user!.userId.isEmpty) {
-        print('⚠️ Cached session missing required user fields');
         return false;
       }
 
@@ -59,7 +55,6 @@ class SessionManager {
 
       return true;
     } catch (e) {
-      print('⚠️ Error validating cached session: $e');
       return false;
     }
   }
@@ -73,8 +68,6 @@ class SessionManager {
   /// Throws an exception if storage operations fail.
   Future<void> saveUserPreference(UserModel user) async {
     try {
-      print('💾 Saving user preferences to secure storage...');
-
       final userData = jsonEncode(user.toJson());
       await _secureStorage.write(
         key: AppConstants.userDataKey,
@@ -86,12 +79,7 @@ class SessionManager {
       // Update in-memory state
       this.user = user;
       isLoggedIn = true;
-
-      print(
-        '✅ User preferences saved successfully for user: ${user.userId} and ${user.fullName}',
-      );
     } catch (e) {
-      print('❌ Failed to save user preferences: $e');
       throw Exception('Failed to save user data: ${e.toString()}');
     }
   }
@@ -105,8 +93,6 @@ class SessionManager {
   /// Throws an exception if storage operations fail.
   Future<void> clearUserPreference() async {
     try {
-      print('🗑️ Clearing user preferences from secure storage...');
-
       // Clear in-memory state first
       user = null;
       isLoggedIn = false;
@@ -115,10 +101,7 @@ class SessionManager {
       await _secureStorage.delete(key: AppConstants.userDataKey);
       await _secureStorage.delete(key: AppConstants.userTokenKey);
       await _secureStorage.delete(key: 'isLoggedIn');
-
-      print('✅ User preferences cleared successfully');
     } catch (e) {
-      print('❌ Failed to clear user preferences: $e');
       throw Exception('Failed to clear user data: ${e.toString()}');
     }
   }
@@ -133,8 +116,6 @@ class SessionManager {
   /// the in-memory state to null/false rather than throwing exceptions.
   Future<void> getUserPreference() async {
     try {
-      print('📖 Loading user preferences from secure storage...');
-
       final userData = await _secureStorage.read(key: AppConstants.userDataKey);
       final isLoggedInData = await _secureStorage.read(key: 'isLoggedIn');
 
@@ -142,24 +123,15 @@ class SessionManager {
         try {
           final userMap = jsonDecode(userData) as Map<String, dynamic>;
           user = UserModel.fromJson(userMap);
-          print(
-            '✅ User data loaded successfully for user: ${user?.userId ?? 'unknown'} and ${user?.fullName ?? 'Unknown'}',
-          );
         } catch (decodeError) {
-          print('⚠️ Failed to decode user data: $decodeError');
           user = null;
         }
       } else {
-        print('ℹ️ No user data found in storage');
         user = null;
       }
 
       isLoggedIn = isLoggedInData == 'true';
-      print(
-        'ℹ️ Login state: ${isLoggedIn == true ? 'logged in' : 'not logged in'}',
-      );
     } catch (e) {
-      print('❌ Failed to load user preferences: $e');
       // Reset state on error
       user = null;
       isLoggedIn = false;
@@ -182,7 +154,6 @@ class SessionManager {
       }
       return null;
     } catch (e) {
-      print('⚠️ Failed to retrieve user data: $e');
       return null;
     }
   }
@@ -199,7 +170,6 @@ class SessionManager {
       }
       return null;
     } catch (e) {
-      print('⚠️ Failed to retrieve token: $e');
       return null;
     }
   }
@@ -217,9 +187,7 @@ class SessionManager {
       }
 
       await _secureStorage.write(key: AppConstants.userTokenKey, value: token);
-      print('✅ Authentication token saved successfully');
     } catch (e) {
-      print('❌ Failed to save authentication token: $e');
       throw Exception('Failed to save token: ${e.toString()}');
     }
   }
