@@ -159,23 +159,50 @@ class LibraryLocalDataSourceImpl implements LibraryLocalDataSource {
   }
 
   @override
-  Future<DateTime?> getCacheTimestamp(String organizationId) {
-    // TODO: implement getCacheTimestamp
-    throw UnimplementedError();
+  Future<DateTime?> getCacheTimestamp(String organizationId) async {
+    try {
+      final key = '$_timestampPrefix$organizationId';
+      final timestampString = await secureStorage.read(key: key);
+
+      if (timestampString != null) {
+        return DateTime.parse(timestampString);
+      }
+
+      return null;
+    } catch (e) {
+      throw CacheException('Failed to get cache timestamp: $e');
+    }
   }
 
   @override
   Future<bool> isCacheExpired(
     String organizationId, {
     Duration maxAge = const Duration(hours: 1),
-  }) {
-    // TODO: implement isCacheExpired
-    throw UnimplementedError();
+  }) async {
+    try {
+      final timestamp = await getCacheTimestamp(organizationId);
+      if (timestamp == null) {
+        return true;
+      }
+
+      final now = DateTime.now();
+      final difference = now.difference(timestamp);
+
+      return difference > maxAge;
+    } catch (e) {
+      return true;
+    }
   }
 
   @override
-  Future<void> updateCacheTimestamp(String organizationId) {
-    // TODO: implement updateCacheTimestamp
-    throw UnimplementedError();
+  Future<void> updateCacheTimestamp(String organizationId) async {
+    try {
+      final key = '$_timestampPrefix$organizationId';
+      final timestamp = DateTime.now().toIso8601String();
+
+      await secureStorage.write(key: key, value: timestamp);
+    } catch (e) {
+      throw CacheException('Failed to update cache timestamp: $e');
+    }
   }
 }
