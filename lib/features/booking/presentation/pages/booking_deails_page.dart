@@ -221,8 +221,7 @@ Widget _buildBookingContent(BuildContext context, BookingDetailsLoaded state) {
             _buildNotesSection(context, booking.notes!),
           const SizedBox(height: UiConstants.spacingLg),
 
-          if (state.canManage) _ManageActions(booking: booking),
-
+          // if (state.canManage) _ManageActions(booking: booking),
           const SizedBox(height: UiConstants.spacingXxl),
         ],
       ),
@@ -515,7 +514,7 @@ Color getBookingStatusColor(BookingStatus status) {
 
     case BookingStatus.cancelled:
       return Colors.redAccent;
-      
+
     case BookingStatus.rejected:
       return Colors.redAccent;
 
