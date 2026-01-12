@@ -229,11 +229,14 @@ Widget _buildPostDetailSection(
               const SizedBox(height: UiConstants.spacingSm),
               _buildActionButtons(context),
               const SizedBox(height: UiConstants.spacingSm),
+
               _buildLocationSection(
                 context,
                 latitude: post.latitude,
                 longitude: post.longitude,
               ),
+              const SizedBox(height: UiConstants.spacingSm),
+              _buildCustomerReviewSection(context),
               const SizedBox(height: UiConstants.spacingSm),
               _buildAmeniticsSection(context, amenityType: post.amenities),
               const SizedBox(height: UiConstants.spacingSm),
@@ -253,6 +256,25 @@ Widget _buildPostDetailSection(
         ),
       );
     },
+  );
+}
+
+Widget _buildCustomerReviewSection(BuildContext context) {
+  return const SectionContainer(
+    borderRadius: BorderRadius.zero,
+    child: SizedBox(
+      width: double.infinity,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Customer Reviews!!!',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: UiConstants.spacingSm),
+        ],
+      ),
+    ),
   );
 }
 
