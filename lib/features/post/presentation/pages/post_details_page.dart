@@ -4,6 +4,7 @@ import 'package:app/app/router/route_constants.dart';
 import 'package:app/core/constants/ui_constants.dart';
 import 'package:app/core/theme/app_colors.dart';
 import 'package:app/core/widgets/common_widgets.dart';
+import 'package:app/features/customer_review/presentation/widgets/rating_progress_bar_widget.dart';
 import 'package:app/features/post/domain/entities/post.dart';
 import 'package:app/features/post/domain/entities/post_enums.dart';
 import 'package:app/features/post/domain/usecases/delete_post_use_case.dart';
@@ -322,6 +323,12 @@ Widget _buildCustomerReviewSection(
                 ),
               ),
             ],
+          ),
+          const SizedBox(height: UiConstants.spacingMd),
+          const RatingProgressBar(
+            ratingRange: '5 stars',
+            percent: 65,
+            peopleNumber: 21,
           ),
         ],
       ),
