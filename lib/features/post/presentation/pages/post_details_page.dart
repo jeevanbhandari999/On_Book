@@ -439,8 +439,8 @@ Widget _buildLocationSection(
     return const SizedBox.shrink();
   } else {
     final location = LatLng(latitude!, longitude!);
-    return Padding(
-      padding: const EdgeInsets.all(UiConstants.spacingSm),
+    return SectionContainer(
+      borderRadius: BorderRadius.zero,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -619,58 +619,65 @@ Widget _buildDescriptionSection(
 
         final bool textExceedsThreeLines = textPainter.didExceedMaxLines;
 
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (isExpanded || !textExceedsThreeLines)
-              Text(description, style: textStyle, textAlign: TextAlign.justify)
-            else
-              Stack(
-                children: [
-                  Text(
-                    description,
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
-                    style: textStyle,
-                    textAlign: TextAlign.justify,
-                  ),
-                  Positioned(
-                    bottom: 0,
-                    right: 0,
-                    child: GestureDetector(
-                      onTap: onToggleExpand,
-                      child: Container(
-                        color: Theme.of(context).scaffoldBackgroundColor,
-                        padding: const EdgeInsets.only(left: 8),
-                        child: Text(
-                          isExpanded ? 'View Less' : 'View More',
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.primary,
-                            fontWeight: FontWeight.bold,
-                            backgroundColor: Theme.of(
-                              context,
-                            ).scaffoldBackgroundColor,
+        return SizedBox(
+          width: double.infinity,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (isExpanded || !textExceedsThreeLines)
+                Text(
+                  description,
+                  style: textStyle,
+                  textAlign: TextAlign.justify,
+                )
+              else
+                Stack(
+                  children: [
+                    Text(
+                      description,
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                      style: textStyle,
+                      textAlign: TextAlign.justify,
+                    ),
+                    Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: GestureDetector(
+                        onTap: onToggleExpand,
+                        child: Container(
+                          color: Theme.of(context).scaffoldBackgroundColor,
+                          padding: const EdgeInsets.only(left: 8),
+                          child: Text(
+                            isExpanded ? 'View Less' : 'View More',
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.primary,
+                              fontWeight: FontWeight.bold,
+                              backgroundColor: Theme.of(
+                                context,
+                              ).scaffoldBackgroundColor,
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                ],
-              ),
+                  ],
+                ),
 
-            // Show "View Less" when expanded and text was long
-            if (isExpanded && textExceedsThreeLines)
-              GestureDetector(
-                onTap: onToggleExpand,
-                child: Text(
-                  'View Less',
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.primary,
-                    fontWeight: FontWeight.bold,
+              // Show "View Less" when expanded and text was long
+              if (isExpanded && textExceedsThreeLines)
+                GestureDetector(
+                  onTap: onToggleExpand,
+                  child: Text(
+                    'View Less',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.primary,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
-              ),
-          ],
+            ],
+          ),
         );
       },
     ),
@@ -682,19 +689,23 @@ Widget _buildAmeniticsSection(
   required List<AmenityType>? amenityType,
 }) {
   if (amenityType == null) return const SizedBox.shrink();
-  return Padding(
-    padding: const EdgeInsets.all(UiConstants.spacingSm),
-    child: Column(
-      children: [
-        CustomMultiSelect<AmenityType>(
-          label: 'Amenities',
-          items: AmenityType.values,
-          selected: amenityType,
-          itemLabel: (a) => _amenityLabel(a),
-          readOnly: true,
-          onChanged: null,
-        ),
-      ],
+  return SectionContainer(
+    borderRadius: BorderRadius.zero,
+    child: SizedBox(
+      width: double.infinity,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CustomMultiSelect<AmenityType>(
+            label: 'Amenities',
+            items: AmenityType.values,
+            selected: amenityType,
+            itemLabel: (a) => _amenityLabel(a),
+            readOnly: true,
+            onChanged: null,
+          ),
+        ],
+      ),
     ),
   );
 }
@@ -704,19 +715,23 @@ Widget _buildTagsSection(
   required List<PostTag>? postTag,
 }) {
   if (postTag == null) return const SizedBox.shrink();
-  return Padding(
-    padding: const EdgeInsets.all(UiConstants.spacingSm),
-    child: Column(
-      children: [
-        CustomMultiSelect<PostTag>(
-          label: 'Tags',
-          items: PostTag.values,
-          selected: postTag,
-          itemLabel: (p) => _tagLabel(p),
-          readOnly: true,
-          onChanged: null,
-        ),
-      ],
+  return SectionContainer(
+    borderRadius: BorderRadius.zero,
+    child: SizedBox(
+      width: double.infinity,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CustomMultiSelect<PostTag>(
+            label: 'Tags',
+            items: PostTag.values,
+            selected: postTag,
+            itemLabel: (p) => _tagLabel(p),
+            readOnly: true,
+            onChanged: null,
+          ),
+        ],
+      ),
     ),
   );
 }
@@ -730,8 +745,8 @@ Widget _buildOthersDetails(
   if (roomType == null && area == null && capacity == null) {
     return const SizedBox.shrink();
   }
-  return Padding(
-    padding: const EdgeInsets.all(UiConstants.spacingSm),
+  return SectionContainer(
+    borderRadius: BorderRadius.zero,
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -786,8 +801,8 @@ Widget _buildYoutubeVideoPreview(
 
   final thumbnailUrl = "https://img.youtube.com/vi/$videoId/0.jpg";
 
-  return Padding(
-    padding: const EdgeInsets.all(UiConstants.spacingSm),
+  return SectionContainer(
+    borderRadius: BorderRadius.zero,
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
