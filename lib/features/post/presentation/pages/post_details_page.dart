@@ -2,6 +2,7 @@ import 'package:app/app/app_config.dart';
 import 'package:app/app/dependency_injection.dart';
 import 'package:app/app/router/route_constants.dart';
 import 'package:app/core/constants/ui_constants.dart';
+import 'package:app/core/theme/app_colors.dart';
 import 'package:app/core/widgets/common_widgets.dart';
 import 'package:app/features/post/domain/entities/post.dart';
 import 'package:app/features/post/domain/entities/post_enums.dart';
@@ -13,6 +14,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
 
@@ -236,7 +238,7 @@ Widget _buildPostDetailSection(
                 longitude: post.longitude,
               ),
               const SizedBox(height: UiConstants.spacingSm),
-              _buildCustomerReviewSection(context),
+              _buildCustomerReviewSection(context, ratingValue: 4.5),
               const SizedBox(height: UiConstants.spacingSm),
               _buildAmeniticsSection(context, amenityType: post.amenities),
               const SizedBox(height: UiConstants.spacingSm),
@@ -259,8 +261,11 @@ Widget _buildPostDetailSection(
   );
 }
 
-Widget _buildCustomerReviewSection(BuildContext context) {
-  return const SectionContainer(
+Widget _buildCustomerReviewSection(
+  BuildContext context, {
+  required double ratingValue,
+}) {
+  return SectionContainer(
     borderRadius: BorderRadius.zero,
     child: SizedBox(
       width: double.infinity,
@@ -271,7 +276,53 @@ Widget _buildCustomerReviewSection(BuildContext context) {
             'Customer Reviews!!!',
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
+          const SizedBox(height: UiConstants.spacingMd),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text('$ratingValue out of 5.0'),
+                  const SizedBox(width: 8),
+                  RatingBarIndicator(
+                    rating: ratingValue,
+                    itemBuilder: (context, index) =>
+                        const Icon(Icons.star, color: Colors.amber),
+                    itemCount: 5,
+                    itemSize: 20,
+                    direction: Axis.horizontal,
+                  ),
+                ],
+              ),
+              InkWell(
+                onTap: () {
+                  // Later we will handle the review
+                },
+                child: const Text(
+                  'White a Review',
+                  style: TextStyle(color: Colors.blue),
+                ),
+              ),
+            ],
+          ),
           const SizedBox(height: UiConstants.spacingSm),
+          Row(
+            children: [
+              const Text('25 Reviews:'),
+              const SizedBox(width: 8),
+              InkWell(
+                onTap: () {
+                  // Later we will handle the review
+                },
+                child: const Text(
+                  'See all',
+                  style: TextStyle(color: Colors.blue),
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     ),
