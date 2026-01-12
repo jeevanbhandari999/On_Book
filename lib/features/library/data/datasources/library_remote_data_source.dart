@@ -1,11 +1,14 @@
+import 'package:app/app/dependency_injection.dart';
 import 'package:app/core/errors/exceptions.dart';
 import 'package:app/features/booking/data/models/booking_model.dart'; // reuse if exists
+import 'package:app/features/booking/domain/entities/booking.dart';
+import 'package:app/features/post/domain/entities/post_enums.dart';
+import 'package:app/features/post/domain/repositories/post_repository.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 abstract class LibraryRemoteDataSource {
   // Get user booking lists
   Future<List<BookingModel>> getUserBookings(String userId);
-
 
   // Get all booking related to the organization(All bookings),
   Future<List<BookingModel>> getAllBookingsRelatedToOrganization(
@@ -80,6 +83,20 @@ class LibraryRemoteDataSourceImpl implements LibraryRemoteDataSource {
           .eq('id', bookingId)
           .select()
           .single();
+
+      final bookingModel = BookingModel.fromJson(response);
+
+      if ((enumFromString(BookingStatus.values, status) ==
+              BookingStatus.cancelled) ||
+          (enumFromString(BookingStatus.values, status) ==
+              BookingStatus.rejected)) {
+        // Update the post status , back to the available
+        final postDependency = DependencyInjection.get<PostRepository>();
+        await postDependency.updatePostStatus(
+          postId: bookingModel.postId!,
+          status: PostStatus.available.name,
+        );
+      }
       // print('the response is : $response');
       return BookingModel.fromJson(response);
     } on PostgrestException catch (e) {
