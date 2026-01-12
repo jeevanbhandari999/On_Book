@@ -10,6 +10,8 @@ import 'package:app/features/booking/domain/entities/booking.dart';
 import 'package:app/features/booking/presentation/pages/booking_deails_page.dart';
 import 'package:app/features/booking/presentation/pages/booking_page.dart';
 import 'package:app/features/chat/presentation/pages/chat_user_list_page.dart';
+import 'package:app/features/customer_review/presentation/pages/customer_review_page.dart';
+import 'package:app/features/customer_review/presentation/pages/write_a_review_page.dart';
 import 'package:app/features/home/presentation/pages/another.dart';
 import 'package:app/features/home/presentation/pages/home_page.dart';
 import 'package:app/features/library/presentation/pages/library_page.dart';
@@ -231,6 +233,19 @@ class AppRouter {
       //     return const DummyPostPage();
       //   },
       // ),
+
+      //// Customer review related routes
+      // Customer review
+      GoRoute(
+        path: RouteConstants.customerReviewPage,
+        builder: (context, state) => const CustomerReviewPage(),
+      ),
+
+      // Write a review
+      GoRoute(
+        path: RouteConstants.writeAReviewPage,
+        builder: (context, state) => const WriteAReviewPage(),
+      ),
     ],
   );
 }

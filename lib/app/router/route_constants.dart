@@ -35,4 +35,8 @@ class RouteConstants {
   // Booking routes
   static const String bookingFormPage = '/bookingFormPage';
   static const String bookingDetailsPage = '/bookingDetailsPage';
+
+  // Customer reviews routes
+  static const String customerReviewPage = '/customerReviewPage';
+  static const String writeAReviewPage = '/writeAReviewPage';
 }
