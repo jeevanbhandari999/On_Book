@@ -2,7 +2,6 @@ import 'package:app/app/app_config.dart';
 import 'package:app/app/dependency_injection.dart';
 import 'package:app/app/router/route_constants.dart';
 import 'package:app/core/constants/ui_constants.dart';
-import 'package:app/core/theme/app_colors.dart';
 import 'package:app/core/widgets/common_widgets.dart';
 import 'package:app/features/customer_review/presentation/widgets/rating_progress_bar_widget.dart';
 import 'package:app/features/post/domain/entities/post.dart';
@@ -300,6 +299,7 @@ Widget _buildCustomerReviewSection(
               InkWell(
                 onTap: () {
                   // Later we will handle the review
+                  context.push(RouteConstants.writeAReviewPage);
                 },
                 child: const Text(
                   'White a Review',
@@ -316,6 +316,7 @@ Widget _buildCustomerReviewSection(
               InkWell(
                 onTap: () {
                   // Later we will handle the review
+                  context.push(RouteConstants.customerReviewPage);
                 },
                 child: const Text(
                   'See all',
