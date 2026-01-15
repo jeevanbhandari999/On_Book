@@ -33,3 +33,28 @@
 // Unique constraints, one review per post per user
 // ALTER TABLE public.ratings
 // ADD CONSTRAINT unique_user_post_rating UNIQUE (post_id, given_by_user_id);
+
+
+
+// ALTER TABLE public.ratings ENABLE ROW LEVEL SECURITY;
+
+// CREATE POLICY "Users can insert their own ratings"
+// ON public.ratings
+// FOR INSERT
+// WITH CHECK (auth.uid() = given_by_user_id);
+
+// CREATE POLICY "Users can update own ratings"
+// ON public.ratings
+// FOR UPDATE
+// USING (auth.uid() = given_by_user_id)
+// WITH CHECK (auth.uid() = given_by_user_id);
+
+// CREATE POLICY "Users can delete own ratings"
+// ON public.ratings
+// FOR DELETE
+// USING (auth.uid() = given_by_user_id);
+
+// CREATE POLICY "Only logged in users can view ratings"
+// ON public.ratings
+// FOR SELECT
+// USING (auth.role() = 'authenticated');
