@@ -202,7 +202,7 @@ Widget _buildPostDetailSection(
           ? state.isViewingImage
           : false;
       if (isViewingImage) {
-        return _buildImageViewer(context, state);
+        return _buildImageViewer(context, state);                               
       }
       return RefreshIndicator(
         onRefresh: () => _onRefresh(context),
