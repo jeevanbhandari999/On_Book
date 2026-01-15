@@ -1,3 +1,4 @@
+import 'package:app/features/customer_review/domain/entities/rating.dart';
 import 'package:equatable/equatable.dart';
 
 class RatingModel extends Equatable {
@@ -31,7 +32,59 @@ class RatingModel extends Equatable {
     );
   }
 
-  
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'post_id': postId,
+      'user_id': userId,
+      'rating_value': ratingValue,
+      'comment': comment,
+      'created_at': createdAt.toIso8601String(),
+      'updated_at': updatedAt.toIso8601String(),
+    };
+  }
+
+  Map<String, dynamic> toCreateJson() {
+    return {
+      'post_id': postId,
+      'user_id': userId,
+      'rating_value': ratingValue,
+      'comment': comment,
+      // // No need just provide the current date time also in the db there is already a default current time
+      // 'created_at': createdAt.toIso8601String(),
+      // 'updated_at': updatedAt.toIso8601String(),
+    };
+  }
+
+  Map<String, dynamic> toUpdateJson() {
+    return {
+      'rating_value': ratingValue,
+      'comment': comment,
+      'updated_at': updatedAt.toIso8601String(),
+    };
+  }
+
+  factory RatingModel.fromEntity(Rating entity) {
+    return RatingModel(
+      id: entity.id,
+      postId: entity.postId,
+      userId: entity.userId,
+      ratingValue: entity.ratingValue,
+      comment: entity.comment,
+      createdAt: entity.createdAt,
+      updatedAt: entity.updatedAt,
+    );
+  }
+
+  Rating toEntity() => Rating(
+    id: id,
+    postId: postId,
+    userId: userId,
+    ratingValue: ratingValue,
+    comment: comment,
+    createdAt: createdAt,
+    updatedAt: updatedAt,
+  );
 
   RatingModel copyWith({
     String? id,
