@@ -1,4 +1,3 @@
-import 'package:app/core/errors/exceptions.dart' as core_exceptions;
 import 'package:app/core/errors/failures.dart';
 import 'package:app/features/auth/data/models/orgnization_model.dart';
 import 'package:app/features/post/data/models/post_model.dart';
@@ -147,7 +146,6 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
         final posts = (response as List)
             .map((json) => PostModel.fromJson(json))
             .toList();
-        print(posts);
 
         String? nextCursor;
         if (posts.length > limit) {
@@ -170,8 +168,6 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
           'p_cursor': cursorDate?.toIso8601String(),
         },
       );
-
-      print('the response is: $response');
 
       // Assuming the response is a list of rows as the function returns a table.
       final List<dynamic> data = response as List;

@@ -57,46 +57,56 @@ class HomeView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: BlocBuilder<HomeBloc, HomeState>(
-        builder: (context, state) {
-          if (state is HomeLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          if (state is HomeError) {
-            // print(state.message);
-            return Center(child: Text(state.message));
-          }
-
-          if (state is HomeLoaded) {
-            if (state.posts.isEmpty) {
-              return const Center(child: Text("No posts found"));
+      body: RefreshIndicator(
+        onRefresh: () async {
+          context.read<HomeBloc>().add(RefreshNearbyPosts(userId: userId));
+        },
+        child: BlocBuilder<HomeBloc, HomeState>(
+          builder: (context, state) {
+            if (state is HomeLoading) {
+              return const Center(child: CircularProgressIndicator());
             }
 
-            return PageView.builder(
-              scrollDirection: Axis.vertical,
-              itemCount: state.posts.length,
-              itemBuilder: (_, index) {
-                final post = state.posts[index];
-                final organization = state.organizations[post.organizationId];
-                if (organization == null) {
-                  context.read<HomeBloc>().add(
-                    FetchOrganizationDetails(post.organizationId),
+            if (state is HomeError) {
+              // print(state.message);
+              return Center(child: Text(state.message));
+            }
+
+            if (state is HomeLoaded) {
+              if (state.posts.isEmpty) {
+                return const Center(child: Text("No posts found"));
+              }
+
+              return PageView.builder(
+                scrollDirection: Axis.vertical,
+                itemCount: state.posts.length,
+                itemBuilder: (_, index) {
+                  final post = state.posts[index];
+                  final organization = state.organizations[post.organizationId];
+                  if (organization == null) {
+                    context.read<HomeBloc>().add(
+                      FetchOrganizationDetails(post.organizationId),
+                    );
+
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  return _buildImagePageView(
+                    context,
+                    post,
+                    organization,
+                    userId,
                   );
+                },
+                pageSnapping: false,
+                physics: const BouncingScrollPhysics(
+                  parent: ClampingScrollPhysics(),
+                ),
+              );
+            }
 
-                  return const Center(child: CircularProgressIndicator());
-                }
-                return _buildImagePageView(context, post, organization, userId);
-              },
-              pageSnapping: false,
-              physics: const BouncingScrollPhysics(
-                parent: ClampingScrollPhysics(),
-              ),
-            );
-          }
-
-          return const SizedBox();
-        },
+            return const SizedBox();
+          },
+        ),
       ),
     );
   }
@@ -113,10 +123,6 @@ Widget _buildImagePageView(
       fit: StackFit.expand,
       children: [
         Positioned.fill(
-          // top: 0,
-          // left: 0,
-          // right: 0,
-          // bottom: 280,
           child: GestureDetector(
             onTap: () {
               context.push(
@@ -214,8 +220,8 @@ Widget _buildImagePageView(
                       child: Row(
                         children: [
                           Icon(Icons.chat, size: UiConstants.iconMd),
-                          const SizedBox(width: UiConstants.spacingSm),
-                          const Text('Message'),
+                          SizedBox(width: UiConstants.spacingSm),
+                          Text('Message'),
                         ],
                       ),
                     ),
@@ -224,7 +230,7 @@ Widget _buildImagePageView(
                       child: Row(
                         children: [
                           Icon(Icons.info, size: UiConstants.iconMd),
-                          const SizedBox(width: UiConstants.spacingSm),
+                          SizedBox(width: UiConstants.spacingSm),
                           Text('Details'),
                         ],
                       ),
@@ -389,34 +395,34 @@ void _showImagePreviewDialog(BuildContext context, String imageUrl) {
   );
 }
 
-Widget _showMoreOptions(BuildContext context) {
-  return PopupMenuButton<String>(
-    elevation: 3,
-    onSelected: (value) {},
-    itemBuilder: (context) => [
-      const PopupMenuItem(
-        value: 'edit',
-        child: Row(
-          children: [
-            Icon(Icons.edit, size: UiConstants.iconMd),
-            SizedBox(width: UiConstants.spacingSm),
-            Text('Edit'),
-          ],
-        ),
-      ),
-      const PopupMenuItem(
-        value: 'delete',
-        child: Row(
-          children: [
-            Icon(Icons.delete, size: UiConstants.iconMd, color: Colors.red),
-            SizedBox(width: UiConstants.spacingSm),
-            Text('Delete', style: TextStyle(color: Colors.red)),
-          ],
-        ),
-      ),
-    ],
-  );
-}
+// Widget _showMoreOptions(BuildContext context) {
+//   return PopupMenuButton<String>(
+//     elevation: 3,
+//     onSelected: (value) {},
+//     itemBuilder: (context) => [
+//       const PopupMenuItem(
+//         value: 'edit',
+//         child: Row(
+//           children: [
+//             Icon(Icons.edit, size: UiConstants.iconMd),
+//             SizedBox(width: UiConstants.spacingSm),
+//             Text('Edit'),
+//           ],
+//         ),
+//       ),
+//       const PopupMenuItem(
+//         value: 'delete',
+//         child: Row(
+//           children: [
+//             Icon(Icons.delete, size: UiConstants.iconMd, color: Colors.red),
+//             SizedBox(width: UiConstants.spacingSm),
+//             Text('Delete', style: TextStyle(color: Colors.red)),
+//           ],
+//         ),
+//       ),
+//     ],
+//   );
+// }
 
 Widget _buildTitleAndPriceSection(
   BuildContext context, {

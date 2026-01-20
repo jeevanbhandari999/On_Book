@@ -32,6 +32,21 @@ class FetchNearbyPosts extends HomeEvent {
   List<Object?> get props => [userId, latitude, longitude, cursor, limit];
 }
 
+class RefreshNearbyPosts extends HomeEvent {
+  final String userId;
+  final double? latitude;
+  final double? longitude;
+
+  const RefreshNearbyPosts({
+    required this.userId,
+    this.latitude,
+    this.longitude,
+  });
+
+  @override
+  List<Object?> get props => [userId, latitude, longitude];
+}
+
 class FetchOrganizationDetails extends HomeEvent {
   final String organizationId;
   const FetchOrganizationDetails(this.organizationId);
@@ -39,7 +54,6 @@ class FetchOrganizationDetails extends HomeEvent {
   @override
   List<Object?> get props => [organizationId];
 }
-
 
 // States
 
@@ -60,9 +74,11 @@ class HomeLoading extends HomeState {
 class HomeLoaded extends HomeState {
   final List<Post> posts;
   final String? nextCursor;
-   final Map<String, Organization> organizations; 
+  final Map<String, Organization> organizations;
 
-  const HomeLoaded(this.posts, this.nextCursor,  {
+  const HomeLoaded(
+    this.posts,
+    this.nextCursor, {
     this.organizations = const {},
   });
 
@@ -103,7 +119,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   }) : super(const HomeInitial()) {
     on<FetchNearbyPosts>(_onFetchNearbyPosts);
     on<FetchOrganizationDetails>(_onFetchOrganizationDetails);
-
+    on<RefreshNearbyPosts>(_onRefreshNearbyPosts);
   }
 
   Future<void> _onFetchNearbyPosts(
@@ -129,35 +145,58 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   }
 
   Future<void> _onFetchOrganizationDetails(
-  FetchOrganizationDetails event,
-  Emitter<HomeState> emit,
-) async {
-  if (state is! HomeLoaded) return;
+    FetchOrganizationDetails event,
+    Emitter<HomeState> emit,
+  ) async {
+    if (state is! HomeLoaded) return;
 
-  final currentState = state as HomeLoaded;
+    final currentState = state as HomeLoaded;
 
-  // Already cached? Don’t fetch again.
-  if (currentState.organizations.containsKey(event.organizationId)) {
-    return;
+    // Already cached? Don’t fetch again.
+    if (currentState.organizations.containsKey(event.organizationId)) {
+      return;
+    }
+
+    final result = await getOrganizationDetailByPostOrganizationIdUseCase(
+      GetOrganizationDetailByPostOrganizationIdParams(
+        organizationId: event.organizationId,
+      ),
+    );
+
+    result.fold(
+      (failure) {
+        // You can ignore or show error
+      },
+      (organization) {
+        final updatedMap = Map<String, Organization>.from(
+          currentState.organizations,
+        );
+        updatedMap[event.organizationId] = organization;
+
+        emit(currentState.copyWith(organizations: updatedMap));
+      },
+    );
   }
 
-  final result = await getOrganizationDetailByPostOrganizationIdUseCase(
-    GetOrganizationDetailByPostOrganizationIdParams(
-      organizationId: event.organizationId,
-    ),
-  );
+  Future<void> _onRefreshNearbyPosts(
+    RefreshNearbyPosts event,
+    Emitter<HomeState> emit,
+  ) async {
+    final result = await getNearbyPostsUseCase(
+      GetAllPostsNearByUserParams(
+        userId: event.userId,
+        latitude: event.latitude,
+        longitude: event.longitude,
+        limit: 15,
+        cursor: null,
+      ),
+    );
 
-  result.fold(
-    (failure) {
-      // You can ignore or show error
-    },
-    (organization) {
-      final updatedMap = Map<String, Organization>.from(currentState.organizations);
-      updatedMap[event.organizationId] = organization;
-
-      emit(currentState.copyWith(organizations: updatedMap));
-    },
-  );
-}
-
+    result.fold(
+      (failure) => emit(HomeError(failure.message)),
+      (data) => emit(
+        HomeLoaded(data.posts, data.nextCursor, organizations: const {}),
+      ),
+    );
+  }
 }
