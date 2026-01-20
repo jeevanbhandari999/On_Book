@@ -6,7 +6,7 @@ class RatingModel extends Equatable {
   final String postId;
   final String userId;
   final int ratingValue;
-  final String comment;
+  final String? comment;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -15,7 +15,7 @@ class RatingModel extends Equatable {
     required this.postId,
     required this.userId,
     required this.ratingValue,
-    required this.comment,
+    this.comment,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -107,7 +107,7 @@ class RatingModel extends Equatable {
   }
 
   @override
-  List<Object> get props => [
+  List<Object?> get props => [
     id,
     postId,
     userId,
