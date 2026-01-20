@@ -1,6 +1,8 @@
+import 'package:app/core/errors/exceptions.dart';
 import 'package:app/core/errors/failures.dart';
 import 'package:app/features/customer_review/data/datasources/customer_review_local_data_source.dart';
 import 'package:app/features/customer_review/data/datasources/customer_review_remote_data_source.dart';
+import 'package:app/features/customer_review/data/models/rating_model.dart';
 import 'package:app/features/customer_review/domain/entities/rating.dart';
 import 'package:app/features/customer_review/domain/repositories/customer_review_repository.dart';
 import 'package:dartz/dartz.dart';
@@ -19,20 +21,38 @@ class CustomerReviewRepositoryImpl implements CustomerReviewRepository {
     String postId,
     List<Rating> ratings,
   ) async {
-
-
-
-    // 
-    // TODO: implement cacheUserRatingsRelatedToThePost
-    throw UnimplementedError();
+    try {
+      final models = ratings.map(RatingModel.fromEntity).toList();
+      await localDataSource.cacheUseRatingRelatedToThePost(postId, models);
+      await localDataSource.updateCacheTimestamp(postId);
+      return const Right(null);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
+    } on AuthException catch (e) {
+      return Left(AuthFailure(e.message));
+    } catch (e) {
+      return Left(UnknownFailure(e.toString()));
+    }
   }
 
   @override
   Future<Either<Failure, void>> clearCachedRatingsRelatedToThePost(
     String postId,
   ) async {
-    // TODO: implement clearCachedRatingsRelatedToThePost
-    throw UnimplementedError();
+    try {
+      await localDataSource.clearCachedUserRatings(postId);
+      return const Right(null);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
+    } on AuthException catch (e) {
+      return Left(AuthFailure(e.message));
+    } catch (e) {
+      return Left(UnknownFailure(e.toString()));
+    }
   }
 
   @override
@@ -41,25 +61,80 @@ class CustomerReviewRepositoryImpl implements CustomerReviewRepository {
     String postId,
     Rating rating,
   ) async {
-    // TODO: implement createRating
-    throw UnimplementedError();
+    try {
+      final model = RatingModel.fromEntity(rating);
+      final result = await remoteDataSource.createRating(userId, postId, model);
+      await localDataSource.clearCachedUserRatings(postId);
+
+      return Right(result.toEntity());
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
+    } on AuthException catch (e) {
+      return Left(AuthFailure(e.message));
+    } catch (e) {
+      return Left(UnknownFailure(e.toString()));
+    }
   }
 
   @override
   Future<Either<Failure, List<Rating>>> getAllCachedUserRatingsRelatedToThePost(
     String postId,
   ) async {
-    // TODO: implement getAllCachedUserRatingsRelatedToThePost
-    throw UnimplementedError();
+    try {
+      final cached = await localDataSource.getCachedUserRatingsRelatedToThePost(
+        postId,
+      );
+
+      if (cached == null) {
+        return const Left(CacheFailure('No cached ratings'));
+      }
+
+      return Right(cached.map((e) => e.toEntity()).toList());
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
+    } on AuthException catch (e) {
+      return Left(AuthFailure(e.message));
+    } catch (e) {
+      return Left(UnknownFailure(e.toString()));
+    }
   }
 
   @override
   Future<Either<Failure, List<Rating>>> getAllUserRatingsRelatedToThePost(
     String postId,
   ) async {
-    // TODO: implement getAllUserRatingsRelatedToThePost
+    try {
+      final isExpired = await localDataSource.isCacheExpired(postId);
 
-    throw UnimplementedError();
+      if (!isExpired) {
+        final cached = await localDataSource
+            .getCachedUserRatingsRelatedToThePost(postId);
+        if (cached != null) {
+          return Right(cached.map((e) => e.toEntity()).toList());
+        }
+      }
+
+      final remote = await remoteDataSource.getUserRatingRelatedToThePost(
+        postId,
+      );
+
+      await localDataSource.cacheUseRatingRelatedToThePost(postId, remote);
+      await localDataSource.updateCacheTimestamp(postId);
+
+      return Right(remote.map((e) => e.toEntity()).toList());
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
+    } on AuthException catch (e) {
+      return Left(AuthFailure(e.message));
+    } catch (e) {
+      return Left(UnknownFailure(e.toString()));
+    }
   }
 
   @override
@@ -68,20 +143,39 @@ class CustomerReviewRepositoryImpl implements CustomerReviewRepository {
     int page = 1,
     int limit = 20,
   }) async {
-    // TODO: implement getPaginatedUserRatingRelatedToThePost
-    throw UnimplementedError();
+    try {
+      // TODO
+      throw UnimplementedError();
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
+    } on AuthException catch (e) {
+      return Left(AuthFailure(e.message));
+    } catch (e) {
+      return Left(UnknownFailure(e.toString()));
+    }
   }
 
   @override
   Future<Either<Failure, bool>> isRatingOwnerLoggedIn(String userId) async {
-    // TODO: implement isRatingOwnerLoggedIn
-    throw UnimplementedError();
+    try {
+      final result = await remoteDataSource.isRatingOwnerLoggedIn(userId);
+      return Right(result);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
+    } on AuthException catch (e) {
+      return Left(AuthFailure(e.message));
+    } catch (e) {
+      return Left(UnknownFailure(e.toString()));
+    }
   }
 
   @override
   Stream<Either<Failure, List<Rating>>> subscribeToRatings(String postId) {
-    // TODO: implement subscribeToRatings
-    throw UnimplementedError();
+    throw Exception();
   }
 
   @override
@@ -90,7 +184,26 @@ class CustomerReviewRepositoryImpl implements CustomerReviewRepository {
     String userId,
     Rating existingRating,
   ) async {
-    // TODO: implement updateRating
-    throw UnimplementedError();
+    try {
+      final model = RatingModel.fromEntity(existingRating);
+
+      final updated = await remoteDataSource.updateRating(
+        ratingId,
+        userId,
+        model,
+      );
+
+      await localDataSource.clearCachedUserRatings(existingRating.postId);
+
+      return Right(updated.toEntity());
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
+    } on AuthException catch (e) {
+      return Left(AuthFailure(e.message));
+    } catch (e) {
+      return Left(UnknownFailure(e.toString()));
+    }
   }
 }
