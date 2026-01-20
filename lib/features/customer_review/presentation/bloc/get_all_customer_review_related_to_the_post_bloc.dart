@@ -1,5 +1,9 @@
+import 'dart:async';
+
 import 'package:app/features/customer_review/domain/entities/rating.dart';
+import 'package:app/features/customer_review/domain/usecases/get_all_customer_review_related_to_post_use_case.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 // Events
 abstract class GetAllCustomerReviewRelatedToThePostEvent extends Equatable {
@@ -61,4 +65,60 @@ class GetAllCustomerReviewRelatedToThePostError
 
   @override
   List<Object> get props => [message];
+}
+
+// BLoC
+class GetAllCustomerReviewRelatedToThePostBloc
+    extends
+        Bloc<
+          GetAllCustomerReviewRelatedToThePostEvent,
+          GetAllCustomerReviewRelatedToThePostState
+        > {
+  final GetAllCustomerReviewRelatedToPostUseCase
+  _getAllCustomerReviewRelatedToPostUseCase;
+
+  GetAllCustomerReviewRelatedToThePostBloc({
+    required GetAllCustomerReviewRelatedToPostUseCase
+    getAllCustomerReviewRelatedToPostUseCase,
+  }) : _getAllCustomerReviewRelatedToPostUseCase =
+           getAllCustomerReviewRelatedToPostUseCase,
+       super(const GetAllCustomerReviewRelatedToThePostInitial()) {
+    on<GetAllCustomerReviewRelatedToThePostRequested>(
+      _onGetAllCustomerReviewRelatedToThePostRequested,
+    );
+  }
+
+  Future<void> _onGetAllCustomerReviewRelatedToThePostRequested(
+    GetAllCustomerReviewRelatedToThePostRequested event,
+    Emitter<GetAllCustomerReviewRelatedToThePostState> emit,
+  ) async {
+    try {
+      final getAllCustomerReviewRelatedToPostParams =
+          GetAllCustomerReviewRelatedToPostParams(
+            postId: event.postId,
+            userId: event.userId,
+          );
+
+      final response = await _getAllCustomerReviewRelatedToPostUseCase(
+        getAllCustomerReviewRelatedToPostParams,
+      );
+
+      response.fold(
+        (failure) => emit(
+          GetAllCustomerReviewRelatedToThePostError(message: failure.message),
+        ),
+        (customerReviewRatings) => emit(
+          GetAllCustomerReviewRelatedToThePostSuccess(
+            ratings: customerReviewRatings,
+          ),
+        ),
+      );
+    } catch (e) {
+      emit(
+        GetAllCustomerReviewRelatedToThePostError(
+          message: 'Failed to fetch the customer review $e',
+        ),
+      );
+    }
+  }
 }
