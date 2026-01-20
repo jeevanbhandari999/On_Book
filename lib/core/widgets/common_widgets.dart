@@ -121,17 +121,21 @@ class CustomButton extends StatelessWidget {
     }
 
     if (icon != null) {
-      return Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          icon!,
-          const SizedBox(width: UiConstants.spacingSm),
-          Text(
-            text,
-            style: TextStyle(color: textColor),
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
+      return Expanded(
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            icon!,
+            const SizedBox(width: UiConstants.spacingSm),
+            Flexible(
+              child: Text(
+                text,
+                style: TextStyle(color: textColor),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
       );
     }
 
