@@ -1,23 +1,11 @@
-import 'package:app/features/auth/services/auth_service.dart';
 import 'package:app/features/customer_review/data/datasources/customer_review_local_data_source.dart';
 import 'package:app/features/customer_review/data/datasources/customer_review_remote_data_source.dart';
 import 'package:app/features/customer_review/data/repositories/customer_review_repository_impl.dart';
 import 'package:app/features/customer_review/domain/repositories/customer_review_repository.dart';
-import 'package:app/features/post/data/datasources/post_local_data_source.dart';
-import 'package:app/features/post/data/datasources/post_remote_data_source.dart';
-import 'package:app/features/post/data/repositories/post_repository_impl.dart';
-import 'package:app/features/post/domain/repositories/post_repository.dart';
-import 'package:app/features/post/domain/usecases/create_post_use_case.dart';
-import 'package:app/features/post/domain/usecases/delete_post_use_case.dart';
-import 'package:app/features/post/domain/usecases/get_all_posts_by_organization_id_use_case.dart';
-import 'package:app/features/post/domain/usecases/get_all_posts_with_images_by_orgnization_id.dart';
-import 'package:app/features/post/domain/usecases/get_all_posts_with_videos_by_organization_id.dart';
-import 'package:app/features/post/domain/usecases/get_post_by_id_use_case.dart';
-import 'package:app/features/post/domain/usecases/update_post_use_case.dart';
-import 'package:app/features/post/presentation/bloc/post_details_bloc.dart';
-import 'package:app/features/post/presentation/bloc/post_form_bloc.dart';
-import 'package:app/features/post/presentation/bloc/posts_bloc.dart';
-import 'package:app/features/post/services/post_services.dart';
+import 'package:app/features/customer_review/domain/usecases/create_customer_review_for_specific_post_use_case.dart';
+import 'package:app/features/customer_review/domain/usecases/get_all_customer_review_related_to_post_use_case.dart';
+import 'package:app/features/customer_review/presentation/bloc/create_customer_review_bloc.dart';
+import 'package:app/features/customer_review/presentation/bloc/get_all_customer_review_related_to_the_post_bloc.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -26,12 +14,15 @@ class CustomerReviewDependencies {
   static Future<void> register(GetIt getIt) async {
     // Data sources
     getIt.registerLazySingleton<CustomerReviewRemoteDataSource>(
-      () => CustomerReviewRemoteDataSourceImpl(supabaseClient: Supabase.instance.client),
+      () => CustomerReviewRemoteDataSourceImpl(
+        supabaseClient: Supabase.instance.client,
+      ),
     );
 
     getIt.registerLazySingleton<CustomerReviewLocalDataSource>(
-      () =>
-          CustomerReviewLocalDataSourceImpl(secureStorage: const FlutterSecureStorage()),
+      () => CustomerReviewLocalDataSourceImpl(
+        secureStorage: const FlutterSecureStorage(),
+      ),
     );
 
     // Repository
@@ -42,66 +33,34 @@ class CustomerReviewDependencies {
       ),
     );
 
-    // Services
-    getIt.registerLazySingleton<PostServices>(
-      () => PostServices(authService: getIt<AuthService>()),
-    );
-
     // Usecases
-    getIt.registerLazySingleton<CreatePostUseCase>(
-      () => CreatePostUseCase(getIt<PostRepository>()),
+    getIt.registerLazySingleton<CreateCustomerReviewForSpecificPostUseCase>(
+      () => CreateCustomerReviewForSpecificPostUseCase(
+        getIt<CustomerReviewRepository>(),
+      ),
     );
-     getIt.registerLazySingleton<UpdatePostUseCase>(
-      () => UpdatePostUseCase(getIt<PostRepository>()),
-    );
-    getIt.registerLazySingleton<GetAllPostsByOrganizationIdUseCase>(
-      () => GetAllPostsByOrganizationIdUseCase(getIt<PostRepository>()),
-    );
-
-    getIt.registerLazySingleton<GetAllPostsWithImagesByOrganizationIdUseCase>(
-      () =>
-          GetAllPostsWithImagesByOrganizationIdUseCase(getIt<PostRepository>()),
-    );
-
-    getIt.registerLazySingleton<GetAllPostsWithVideosByOrganizationId>(
-      () => GetAllPostsWithVideosByOrganizationId(getIt<PostRepository>()),
-    );
-
-    getIt.registerLazySingleton<GetPostByIdUseCase>(
-      () => GetPostByIdUseCase(getIt<PostRepository>()),
-    );
-
-    getIt.registerLazySingleton<DeletePostUseCase>(
-      () => DeletePostUseCase(getIt<PostRepository>()),
+    getIt.registerLazySingleton<GetAllCustomerReviewRelatedToPostUseCase>(
+      () => GetAllCustomerReviewRelatedToPostUseCase(
+        getIt<CustomerReviewRepository>(),
+      ),
     );
 
     // BLoC
-    getIt.registerFactory<PostFormBloc>(
-      () => PostFormBloc(
-        createPostUseCase: CreatePostUseCase(getIt<PostRepository>()),
-        updatePostUseCase: UpdatePostUseCase(getIt<PostRepository>()),
-      ),
-    );
-
-    getIt.registerFactory<OrganizationPostsBloc>(
-      () => OrganizationPostsBloc(
-        getAllPostsByOrganizationId: GetAllPostsByOrganizationIdUseCase(
-          getIt<PostRepository>(),
-        ),
-        getAllPostsWithImagesByOrganizationId:
-            GetAllPostsWithImagesByOrganizationIdUseCase(
-              getIt<PostRepository>(),
+    getIt.registerFactory<GetAllCustomerReviewRelatedToThePostBloc>(
+      () => GetAllCustomerReviewRelatedToThePostBloc(
+        getAllCustomerReviewRelatedToPostUseCase:
+            GetAllCustomerReviewRelatedToPostUseCase(
+              getIt<CustomerReviewRepository>(),
             ),
-        getAllPostsWithVideosByOrganizationId:
-            GetAllPostsWithVideosByOrganizationId(getIt<PostRepository>()),
-        postServices: PostServices(authService: getIt<AuthService>()),
       ),
     );
 
-    getIt.registerFactory<PostDetailsBloc>(
-      () => PostDetailsBloc(
-        getPostByIdUseCase: GetPostByIdUseCase(getIt<PostRepository>()),
-        deletePostUseCase: DeletePostUseCase(getIt<PostRepository>()),
+    getIt.registerFactory<CreateReviewBloc>(
+      () => CreateReviewBloc(
+        createCustomerReviewForSpecificPostUseCase:
+            CreateCustomerReviewForSpecificPostUseCase(
+              getIt<CustomerReviewRepository>(),
+            ),
       ),
     );
   }
