@@ -21,37 +21,25 @@ class RatingProgressBar extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Expanded(child: Text(ratingRange, textAlign: TextAlign.left)),
-          SizedBox(
-            width: MediaQuery.of(context).size.width * 0.6,
+          Flexible(flex: 2, child: Text(ratingRange)),
+          const SizedBox(width: 8),
+          Expanded(
+            flex: 5,
             child: ClipRRect(
               borderRadius: BorderRadius.circular(20),
-              child: LinearProgressIndicator(
-                value: normalized,
-                backgroundColor: Colors.grey[300]!,
-                color: progressColor,
-                minHeight: 14,
-                borderRadius: BorderRadius.circular(20),
-              ),
+              child: LinearProgressIndicator(value: normalized, minHeight: 14),
             ),
           ),
-          const SizedBox(width: 12),
-          Expanded(
+          const SizedBox(width: 8),
+          Flexible(
+            flex: 3,
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                Text(
-                  '${percent.toStringAsFixed(0)}%',
-                  textAlign: TextAlign.left,
-                ),
-                const SizedBox(width: 2),
-                Text(
-                  '(${peopleNumber.toString()})',
-                  textAlign: TextAlign.right,
-                ),
+                Text('${percent.toStringAsFixed(0)}%'),
+                const SizedBox(width: 4),
+                Text('($peopleNumber)'),
               ],
             ),
           ),

@@ -144,11 +144,14 @@ class PostDetailsView extends StatelessWidget {
             return const Center(child: CircularProgressIndicator());
           }
           if (state is PostDetailLoaded) {
-            return _buildPostDetailSection(
-              context,
-              post: state.post,
-              stateLoaded: state,
-            );
+            if (userId != null) {
+              return _buildPostDetailSection(
+                context,
+                post: state.post,
+                stateLoaded: state,
+                userId: userId!,
+              );
+            }
           }
           if (state is PostDetailNotFound) {
             return _buildNotFoundState(context);
@@ -195,6 +198,7 @@ Widget _buildPostDetailSection(
   BuildContext context, {
   required Post post,
   required PostDetailLoaded stateLoaded,
+  required String userId,
 }) {
   return BlocBuilder<PostDetailsBloc, PostDetailState>(
     builder: (context, state) {
@@ -202,7 +206,7 @@ Widget _buildPostDetailSection(
           ? state.isViewingImage
           : false;
       if (isViewingImage) {
-        return _buildImageViewer(context, state);                               
+        return _buildImageViewer(context, state);
       }
       return RefreshIndicator(
         onRefresh: () => _onRefresh(context),
@@ -238,7 +242,12 @@ Widget _buildPostDetailSection(
                 longitude: post.longitude,
               ),
               const SizedBox(height: UiConstants.spacingSm),
-              _buildCustomerReviewSection(context, ratingValue: 4.5),
+              _buildCustomerReviewSection(
+                context,
+                ratingValue: 4.5,
+                post: post,
+                userId: userId,
+              ),
               const SizedBox(height: UiConstants.spacingSm),
               _buildAmeniticsSection(context, amenityType: post.amenities),
               const SizedBox(height: UiConstants.spacingSm),
@@ -264,6 +273,8 @@ Widget _buildPostDetailSection(
 Widget _buildCustomerReviewSection(
   BuildContext context, {
   required double ratingValue,
+  required Post post,
+  required String userId,
 }) {
   return SectionContainer(
     borderRadius: BorderRadius.zero,
@@ -277,12 +288,43 @@ Widget _buildCustomerReviewSection(
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: UiConstants.spacingMd),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          // Row(
+          //   crossAxisAlignment: CrossAxisAlignment.center,
+          //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          //   children: [
+          //     Row(
+          //       crossAxisAlignment: CrossAxisAlignment.center,
+          //       children: [
+          //         Text('$ratingValue out of 5.0'),
+          //         const SizedBox(width: 8),
+          //         RatingBarIndicator(
+          //           rating: ratingValue,
+          //           itemBuilder: (context, index) =>
+          //               const Icon(Icons.star, color: Colors.amber),
+          //           itemCount: 5,
+          //           itemSize: 20,
+          //           direction: Axis.horizontal,
+          //         ),
+          //       ],
+          //     ),
+          //     InkWell(
+          //       onTap: () {
+          //         // Later we will handle the review
+          //         context.push(RouteConstants.writeAReviewPage);
+          //       },
+          //       child: const Text(
+          //         'White a Review',
+          //         style: TextStyle(color: Colors.blue),
+          //       ),
+          //     ),
+          //   ],
+          // ),
+          Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            runSpacing: 8,
             children: [
               Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Text('$ratingValue out of 5.0'),
                   const SizedBox(width: 8),
@@ -296,10 +338,14 @@ Widget _buildCustomerReviewSection(
                   ),
                 ],
               ),
+              const Spacer(),
               InkWell(
                 onTap: () {
                   // Later we will handle the review
-                  context.push(RouteConstants.writeAReviewPage);
+                  context.push(
+                    RouteConstants.writeAReviewPage,
+                    extra: {'post': post, 'userId': userId},
+                  );
                 },
                 child: const Text(
                   'White a Review',
@@ -316,7 +362,10 @@ Widget _buildCustomerReviewSection(
               InkWell(
                 onTap: () {
                   // Later we will handle the review
-                  context.push(RouteConstants.customerReviewPage);
+                  context.push(
+                    RouteConstants.customerReviewPage,
+                    extra: {'post': post, 'userId': userId},
+                  );
                 },
                 child: const Text(
                   'See all',

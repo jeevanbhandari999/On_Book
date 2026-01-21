@@ -334,7 +334,7 @@ class LibraryView extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                         ),
                         Text(
-                          booking.title,
+                          booking.description ?? '',
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -370,71 +370,66 @@ class LibraryView extends StatelessWidget {
 
               // Status Chips & Date
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    children: [
-                      Chip(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadiusGeometry.circular(
-                            UiConstants.radiusSm,
-                          ),
-                        ),
-                        label: BlocBuilder<LibraryBloc, LibraryState>(
-                          builder: (context, state) {
-                            if (state is UpdatingBookingStatusFromLibraryPage) {
-                              return const CircularProgressIndicator();
-                            }
-                            return Text(
-                              booking.status.name.toUpperCase(),
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 12,
-                              ),
-                            );
-                          },
-                        ),
-                        backgroundColor: statusColor,
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                  Chip(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadiusGeometry.circular(
+                        UiConstants.radiusSm,
                       ),
-                      if (!isOngoing) ...[
-                        const SizedBox(width: 8),
-                        Chip(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadiusGeometry.circular(
-                              UiConstants.radiusSm,
-                            ),
+                    ),
+                    label: BlocBuilder<LibraryBloc, LibraryState>(
+                      builder: (context, state) {
+                        if (state is UpdatingBookingStatusFromLibraryPage) {
+                          return const CircularProgressIndicator();
+                        }
+                        return Text(
+                          booking.status.name.toUpperCase(),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
                           ),
-                          label: const Text(
-                            'ONGOING',
-                            style: TextStyle(fontSize: 12),
-                          ),
-                          backgroundColor: Colors.orange,
-                        ),
-                      ],
-                      if (isPast &&
-                          booking.status == BookingStatus.cancelled) ...[
-                        const SizedBox(width: 8),
-                        Chip(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadiusGeometry.circular(
-                              UiConstants.radiusSm,
-                            ),
-                          ),
-                          label: const Text(
-                            'CANCELLED',
-                            style: TextStyle(fontSize: 12),
-                          ),
-                          backgroundColor: Colors.red,
-                        ),
-                      ],
-                    ],
+                        );
+                      },
+                    ),
+                    backgroundColor: statusColor,
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
                   ),
-                  Text(
-                    'Booked ${DateFormatter.format(booking.createdAt)}',
-                    style: const TextStyle(fontSize: 13),
-                  ),
+                  if (!isOngoing) ...[
+                    const SizedBox(width: 8),
+                    Chip(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadiusGeometry.circular(
+                          UiConstants.radiusSm,
+                        ),
+                      ),
+                      label: const Text(
+                        'ONGOING',
+                        style: TextStyle(fontSize: 12),
+                      ),
+                      backgroundColor: Colors.orange,
+                    ),
+                  ],
+                  if (isPast && booking.status == BookingStatus.cancelled) ...[
+                    const SizedBox(width: 8),
+                    Chip(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadiusGeometry.circular(
+                          UiConstants.radiusSm,
+                        ),
+                      ),
+                      label: const Text(
+                        'CANCELLED',
+                        style: TextStyle(fontSize: 12),
+                      ),
+                      backgroundColor: Colors.red,
+                    ),
+                  ],
                 ],
+              ),
+              Text(
+                'Booked ${DateFormatter.format(booking.createdAt)}',
+                style: const TextStyle(fontSize: 13),
+                overflow: TextOverflow.ellipsis,
               ),
             ],
           ),

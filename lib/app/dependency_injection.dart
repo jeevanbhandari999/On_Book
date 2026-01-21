@@ -1,6 +1,7 @@
 import 'package:app/core/services/session_manager.dart';
 import 'package:app/features/auth/auth_dependencies.dart';
 import 'package:app/features/booking/booking_dependencies.dart';
+import 'package:app/features/customer_review/customer_review_dependencies.dart';
 import 'package:app/features/home/home_dependencies.dart';
 import 'package:app/features/library/library_dependencies.dart';
 import 'package:app/features/post/post_dependencies.dart';
@@ -60,9 +61,12 @@ abstract class DependencyInjection {
 
     // Booking feature dependencies
     await _registerBookingDependencies();
-    
+
     // Library feature dependencies
     await _registerLibraryDependencies();
+
+    // Customer review dependencies
+    await _registerCustomerReviewDependencies();
   }
 
   // Register auth dependencies
@@ -84,9 +88,15 @@ abstract class DependencyInjection {
   static Future<void> _registerBookingDependencies() async {
     await BookingDependencies.register(instance);
   }
+
   // Register library dependencies
   static Future<void> _registerLibraryDependencies() async {
     await LibraryDependencies.register(instance);
+  }
+
+  // Register Customer review dependencies
+  static Future<void> _registerCustomerReviewDependencies() async {
+    await CustomerReviewDependencies.register(instance);
   }
 
   static void reset() {

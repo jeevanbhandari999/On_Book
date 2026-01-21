@@ -244,7 +244,12 @@ class AppRouter {
       // Write a review
       GoRoute(
         path: RouteConstants.writeAReviewPage,
-        builder: (context, state) => const WriteAReviewPage(),
+        builder: (context, state) {
+          final extraData = state.extra as Map<String, dynamic>;
+          final post = extraData['post'] as Post;
+          final userId = extraData['userId'] as String;
+          return WriteAReviewPage(post: post, userId: userId);
+        },
       ),
     ],
   );
