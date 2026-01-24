@@ -1,6 +1,7 @@
 import 'package:app/app/dependency_injection.dart';
 import 'package:app/app/router/route_constants.dart';
 import 'package:app/core/constants/ui_constants.dart';
+import 'package:app/features/customer_review/domain/entities/rating.dart';
 import 'package:app/features/customer_review/domain/usecases/get_all_customer_review_related_to_post_use_case.dart';
 import 'package:app/features/customer_review/presentation/bloc/get_all_customer_review_related_to_the_post_bloc.dart';
 import 'package:app/features/customer_review/presentation/widgets/rating_progress_bar_widget.dart';
@@ -61,8 +62,8 @@ class CustomerReviewView extends StatelessWidget {
                   padding: const EdgeInsets.all(UiConstants.spacingMd),
                   child: Column(
                     children: [
-                      _buildCustomerReviewHeader(context),
-                      _ratingDetailInPercentage(context),
+                      _buildCustomerReviewHeader(context, state.ratings),
+                      _ratingDetailInPercentage(context, state.ratings),
                       const SizedBox(height: UiConstants.spacingLg),
                       Expanded(
                         child: ListView.separated(
@@ -74,7 +75,9 @@ class CustomerReviewView extends StatelessWidget {
                             );
                           },
                           separatorBuilder: (context, index) {
-                            return SizedBox(height: UiConstants.spacingMd);
+                            return const SizedBox(
+                              height: UiConstants.spacingMd,
+                            );
                           },
                           itemCount: state.ratings.length,
                         ),
@@ -83,36 +86,61 @@ class CustomerReviewView extends StatelessWidget {
                   ),
                 );
               }
-              return SizedBox.shrink();
+              return const SizedBox.shrink();
             },
           ),
     );
   }
 
-  Widget _buildCustomerReviewHeader(BuildContext context) {
+  Map<int, int> _groupRatingsByStar(List ratings) {
+    final Map<int, int> result = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0};
+
+    for (final rating in ratings) {
+      result[rating.ratingValue] = (result[rating.ratingValue] ?? 0) + 1;
+    }
+
+    return result;
+  }
+
+  // double _calculateAverageRating(List ratings) {
+  //   if (ratings.isEmpty) return 0;
+
+  //   final total = ratings.fold<int>(
+  //     0,
+  //     (sum, item) => sum + item.ratingValue,
+  //   );
+
+  //   return total / ratings.length;
+  // }
+
+  Widget _buildCustomerReviewHeader(
+    BuildContext context,
+    List<Rating> ratings,
+  ) {
     return Column(
       spacing: 5,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Customer Reviews', style: TextStyle(fontSize: 16)),
-        Text('Ratings', style: TextStyle(fontSize: 16)),
-        _buildRatingStarIcon(context),
-        Text('rating length'),
+        const Text('Customer Reviews', style: TextStyle(fontSize: 16)),
+        const Text('Ratings', style: TextStyle(fontSize: 16)),
+        _buildRatingStarIcon(context, ratings),
+        const Text('rating length'),
       ],
     );
   }
 
-  Widget _buildRatingStarIcon(BuildContext context) {
+  Widget _buildRatingStarIcon(BuildContext context, List<Rating> ratings) {
+    final average = _calculateAverageRating(ratings);
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('4 out of 5.0'),
+            Text('${average.toStringAsFixed(1)} out of 5.0'),
             const SizedBox(width: 8),
             RatingBarIndicator(
-              rating: 2,
+              rating: average.toDouble(),
               itemBuilder: (context, index) =>
                   const Icon(Icons.star, color: Colors.amber),
               itemCount: 5,
@@ -139,19 +167,34 @@ class CustomerReviewView extends StatelessWidget {
     );
   }
 
-  Widget _ratingDetailInPercentage(BuildContext context) {
-    return const Column(
-      children: [
-        RatingProgressBar(
-          ratingRange: "5 stars",
-          percent: 65,
-          peopleNumber: 21,
-        ),
-        RatingProgressBar(ratingRange: "4 stars", percent: 14, peopleNumber: 4),
-        RatingProgressBar(ratingRange: "3 stars", percent: 9, peopleNumber: 5),
-        RatingProgressBar(ratingRange: "2 stars", percent: 6, peopleNumber: 1),
-        RatingProgressBar(ratingRange: "1 star", percent: 7, peopleNumber: 2),
-      ],
+  double _calculateAverageRating(List<Rating> ratings) {
+    if (ratings.isEmpty) return 0;
+    final total = ratings.fold<double>(
+      0,
+      (sum, item) => sum + item.ratingValue,
+    );
+
+    return total / ratings.length;
+  }
+
+  Widget _ratingDetailInPercentage(BuildContext context, List ratings) {
+    final totalReviews = ratings.length;
+    final groupedRatings = _groupRatingsByStar(ratings);
+
+    return Column(
+      children: List.generate(5, (index) {
+        final star = 5 - index; // 5 → 1
+        final count = groupedRatings[star] ?? 0;
+        final percent = totalReviews == 0
+            ? 0
+            : ((count / totalReviews) * 100).round();
+
+        return RatingProgressBar(
+          ratingRange: star == 1 ? '1 star' : '$star stars',
+          percent: percent.toDouble(),
+          peopleNumber: count,
+        );
+      }),
     );
   }
 }

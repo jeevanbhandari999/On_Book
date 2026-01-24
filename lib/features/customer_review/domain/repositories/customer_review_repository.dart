@@ -11,8 +11,8 @@ abstract class CustomerReviewRepository {
 
   // Create a new rating, or rate a post
   Future<Either<Failure, Rating>> createRating(
-    // String userId,
-    // String postId,
+    String userId,
+    String postId,
     Rating rating,
   );
 

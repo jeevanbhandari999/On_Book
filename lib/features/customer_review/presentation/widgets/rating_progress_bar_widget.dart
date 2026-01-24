@@ -1,3 +1,4 @@
+import 'package:app/core/constants/ui_constants.dart';
 import 'package:flutter/material.dart';
 
 class RatingProgressBar extends StatelessWidget {
@@ -39,6 +40,10 @@ class RatingProgressBar extends StatelessWidget {
                 value: normalized,
                 minHeight: 14,
                 backgroundColor: Colors.grey[300],
+                borderRadius: const BorderRadius.only(
+                  topRight: Radius.circular(UiConstants.radiusRound),
+                  bottomRight: Radius.circular(UiConstants.radiusRound),
+                ),
                 // valueColor: const AlwaysStoppedAnimation<Color>(Colors.blue),
               ),
             ),

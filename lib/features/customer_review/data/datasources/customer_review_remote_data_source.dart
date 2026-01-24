@@ -10,8 +10,8 @@ abstract class CustomerReviewRemoteDataSource {
 
   // Create the rating or save the rating data provided by the user
   Future<RatingModel> createRating(
-    // String userId,
-    // String postId,
+    String userId,
+    String postId,
     RatingModel rating,
   );
 
@@ -38,8 +38,8 @@ class CustomerReviewRemoteDataSourceImpl
   const CustomerReviewRemoteDataSourceImpl({required this.supabaseClient});
   @override
   Future<RatingModel> createRating(
-    // String userId,
-    // String postId,
+    String userId,
+    String postId,
     RatingModel rating,
   ) async {
     try {
