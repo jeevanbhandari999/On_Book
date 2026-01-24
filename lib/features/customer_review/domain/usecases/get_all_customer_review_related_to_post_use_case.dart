@@ -19,6 +19,7 @@ class GetAllCustomerReviewRelatedToPostUseCase {
 
     final data = await repository.getAllUserRatingsRelatedToThePost(
       params.postId,
+      params.userId,
     );
 
     return data;
@@ -31,7 +32,7 @@ class GetAllCustomerReviewRelatedToPostParams extends Equatable {
 
   const GetAllCustomerReviewRelatedToPostParams({
     required this.postId,
-    required this.userId,
+    this.userId,
   });
 
   @override

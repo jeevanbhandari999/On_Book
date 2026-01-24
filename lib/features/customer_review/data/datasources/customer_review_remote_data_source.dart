@@ -85,11 +85,12 @@ class CustomerReviewRemoteDataSourceImpl
     try {
       final response = await supabaseClient
           .from('ratings')
-          .select('id')
+          .select()
           .eq('post_id', postId)
           .order('updated_at', ascending: true);
 
       final List<dynamic> data = response;
+      print(response.first);
       return data
           .map((json) => RatingModel.fromJson(json as Map<String, dynamic>))
           .toList();

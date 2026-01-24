@@ -106,6 +106,7 @@ class CustomerReviewRepositoryImpl implements CustomerReviewRepository {
   @override
   Future<Either<Failure, List<Rating>>> getAllUserRatingsRelatedToThePost(
     String postId,
+    String? userId,
   ) async {
     try {
       final isExpired = await localDataSource.isCacheExpired(postId);

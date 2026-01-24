@@ -6,6 +6,7 @@ abstract class CustomerReviewRepository {
   // Get all user rating data related to the post
   Future<Either<Failure, List<Rating>>> getAllUserRatingsRelatedToThePost(
     String postId,
+    String? userId,
   );
 
   // Create a new rating, or rate a post

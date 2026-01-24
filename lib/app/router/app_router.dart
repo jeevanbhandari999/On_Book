@@ -238,7 +238,13 @@ class AppRouter {
       // Customer review
       GoRoute(
         path: RouteConstants.customerReviewPage,
-        builder: (context, state) => const CustomerReviewPage(),
+        builder: (context, state) {
+          final extraData = state.extra as Map<String, dynamic>;
+          final post = extraData['post'] as Post;
+          final postId = post.id;
+          final userId = extraData['userId'] as String;
+          return CustomerReviewPage(postId: postId, userId: userId);
+        },
       ),
 
       // Write a review
