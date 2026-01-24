@@ -26,7 +26,7 @@ class RatingModel extends Equatable {
       postId: json['post_id'] as String,
       userId: json['user_id'] as String,
       ratingValue: json['rating_value'] as int,
-      comment: json['comment'] as String,
+      comment: json['comment'] as String?,
       createdAt: DateTime.parse(json['created_at']),
       updatedAt: DateTime.parse(json['updated_at']),
     );

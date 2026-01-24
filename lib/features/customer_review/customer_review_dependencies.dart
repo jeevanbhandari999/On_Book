@@ -57,7 +57,7 @@ class CustomerReviewDependencies {
 
     getIt.registerFactory<CreateCustomerReviewBloc>(
       () => CreateCustomerReviewBloc(
-        useCase:
+        createCustomerReviewForSpecificPostUseCase:
             CreateCustomerReviewForSpecificPostUseCase(
               getIt<CustomerReviewRepository>(),
             ),

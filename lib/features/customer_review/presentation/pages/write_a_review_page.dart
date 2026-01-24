@@ -1,6 +1,10 @@
 import 'package:app/app/dependency_injection.dart';
 import 'package:app/core/constants/ui_constants.dart';
+import 'package:app/core/theme/app_colors.dart';
+import 'package:app/core/utils/extensions/context_extensions.dart';
 import 'package:app/core/widgets/common_widgets.dart';
+import 'package:app/core/widgets/loading_widget.dart';
+import 'package:app/features/customer_review/domain/entities/rating.dart';
 import 'package:app/features/customer_review/domain/usecases/create_customer_review_for_specific_post_use_case.dart';
 import 'package:app/features/customer_review/presentation/bloc/create_customer_review_bloc.dart';
 import 'package:app/features/post/domain/entities/post.dart';
@@ -18,7 +22,7 @@ class WriteAReviewPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => CreateCustomerReviewBloc(
-        useCase:
+        createCustomerReviewForSpecificPostUseCase:
             DependencyInjection.get<
               CreateCustomerReviewForSpecificPostUseCase
             >(),
@@ -28,91 +32,145 @@ class WriteAReviewPage extends StatelessWidget {
   }
 }
 
-class WriteAReviewView extends StatelessWidget {
+class WriteAReviewView extends StatefulWidget {
   final Post post;
   final String userId;
 
   const WriteAReviewView({super.key, required this.post, required this.userId});
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Write A Review')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Align(
-              alignment: Alignment.center,
-              child: Text(
-                'How was your experience?',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-              ),
-            ),
-            const SizedBox(height: UiConstants.spacingXl),
+  State<WriteAReviewView> createState() => _WriteAReviewViewState();
+}
 
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.blue[300]!.withAlpha(70),
-                borderRadius: BorderRadius.circular(8),
+class _WriteAReviewViewState extends State<WriteAReviewView> {
+  double ratingValue = 0;
+  final _commentCtrl = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocListener<CreateCustomerReviewBloc, CreateCustomerReviewState>(
+      listener: (context, state) {
+        if (state is CreateCustomerReviewSuccess) {
+          ScaffoldMessenger.of(context).clearSnackBars();
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Thank you for your rating!'),
+              backgroundColor: AppColors.success,
+            ),
+          );
+          context.pop();
+        }
+        if (state is CreateCustomerReviewError) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(state.message),
+              backgroundColor: AppColors.error,
+            ),
+          );
+          print(state.message);
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(title: const Text('Write A Review')),
+        body: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Align(
+                alignment: Alignment.center,
+                child: Text(
+                  'How was your experience?',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                ),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'What do you think of the product overall?',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 4),
-                  const Text('Tell us everything!'),
-                  const SizedBox(height: 12),
-                  Center(
-                    child: RatingBar.builder(
-                      initialRating: 5,
-                      minRating: 0,
-                      direction: Axis.horizontal,
-                      allowHalfRating: false,
-                      itemCount: 5,
-                      itemSize: 42,
-                      unratedColor: Colors.grey,
-                      itemPadding: const EdgeInsets.symmetric(horizontal: 4.0),
-                      itemBuilder: (context, _) =>
-                          const Icon(Icons.star, color: Colors.amber),
-                      onRatingUpdate: (rating) {
-                        // Add logic
+              const SizedBox(height: UiConstants.spacingXl),
+
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.blue[300]!.withAlpha(70),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'What do you think of the product overall?',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 4),
+                    const Text('Tell us everything!'),
+                    const SizedBox(height: 12),
+                    Center(
+                      child: RatingBar.builder(
+                        initialRating: 0,
+                        minRating: 0,
+                        direction: Axis.horizontal,
+                        allowHalfRating: false,
+                        itemCount: 5,
+                        itemSize: 42,
+                        unratedColor: Colors.grey,
+                        itemPadding: const EdgeInsets.symmetric(
+                          horizontal: 4.0,
+                        ),
+                        itemBuilder: (context, _) =>
+                            const Icon(Icons.star, color: Colors.amber),
+                        onRatingUpdate: (rating) {
+                          setState(() {
+                            ratingValue = rating;
+                          });
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: UiConstants.spacingLg),
+
+              const Text(
+                'Write a comment',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+              ),
+              const SizedBox(height: 8),
+
+              CustomTextField(
+                hint: 'Tell us more about your experience...',
+                maxLines: 4,
+                controller: _commentCtrl,
+              ),
+
+              const SizedBox(height: UiConstants.spacingLg),
+              SizedBox(
+                width: double.infinity,
+                child:
+                    BlocBuilder<
+                      CreateCustomerReviewBloc,
+                      CreateCustomerReviewState
+                    >(
+                      builder: (context, state) {
+                        return LoadingButton(
+                          text: 'Done',
+                          isLoading: state is CreateCustomerReviewLoading,
+                          onPressed: () {
+                            context.read<CreateCustomerReviewBloc>().add(
+                              CreateReviewRequested(
+                                postId: widget.post.id,
+                                userId: widget.userId,
+                                ratingValue: ratingValue.toInt(),
+                                comment: _commentCtrl.text,
+                              ),
+                            );
+                          },
+                        );
                       },
                     ),
-                  ),
-                ],
               ),
-            ),
-
-            const SizedBox(height: UiConstants.spacingLg),
-
-            const Text(
-              'Write a comment',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-            ),
-            const SizedBox(height: 8),
-
-            CustomTextField(
-              hint: 'Tell us more about your experience...',
-              maxLines: 4,
-
-              onChanged: (value) {},
-            ),
-
-            const SizedBox(height: UiConstants.spacingLg),
-
-            SizedBox(
-              width: double.infinity,
-              child: CustomButton(text: 'Done', onPressed: () {}),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

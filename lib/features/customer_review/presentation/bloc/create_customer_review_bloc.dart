@@ -34,12 +34,14 @@ class CommentChanged extends CreateCustomerReviewEvent {
 class CreateReviewRequested extends CreateCustomerReviewEvent {
   final String postId;
   final String userId;
-  final Rating rating;
+  final int ratingValue;
+  final String? comment;
 
   const CreateReviewRequested({
     required this.postId,
     required this.userId,
-    required this.rating,
+    required this.ratingValue,
+    this.comment,
   });
 
   @override
@@ -238,12 +240,11 @@ class CreateCustomerReviewBloc
     Emitter<CreateCustomerReviewState> emit,
   ) async {
     emit(const CreateCustomerReviewLoading());
-
     try {
       final createRatingParams = CreateCustomerReviewForSpecificPostParams(
         userId: event.userId,
         postId: event.postId,
-        ratingValue: event.rating.ratingValue,
+        ratingValue: event.ratingValue,
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
       );

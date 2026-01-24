@@ -50,6 +50,29 @@ class CustomerReviewRemoteDataSourceImpl
           .single();
 
       return RatingModel.fromJson(response);
+    } on PostgrestException catch (e) {
+      if (e.code == '23505') {
+        // You can be more precise by checking the constraint name
+        if (e.message.contains('unique_user_post_rating') ||
+            e.message.contains('unique') &&
+                e.message.contains('user_id') &&
+                e.message.contains('post_id')) {
+          throw const core_exceptions.ServerException(
+            'You have already rated this post.',
+          );
+        } else {
+          throw const core_exceptions.ServerException(
+            'This action is not allowed (duplicate entry detected).',
+          );
+        }
+      } else if (e.code == '23503') {
+        throw const core_exceptions.ServerException(
+          'Invalid reference (user or post not found).',
+        );
+      }
+      throw const core_exceptions.ServerException(
+        'Something went wrong. Please try again.',
+      );
     } catch (e) {
       throw core_exceptions.ServerException(
         'Failed to create/save user rating data: $e',
