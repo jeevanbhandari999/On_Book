@@ -98,12 +98,11 @@ class HomeView extends StatelessWidget {
                   );
                 },
                 pageSnapping: false,
-                physics: const BouncingScrollPhysics(
+                physics: const AlwaysScrollableScrollPhysics(
                   parent: ClampingScrollPhysics(),
                 ),
               );
             }
-
             return const SizedBox();
           },
         ),
