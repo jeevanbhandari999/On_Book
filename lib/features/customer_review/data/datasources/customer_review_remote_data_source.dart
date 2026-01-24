@@ -10,8 +10,8 @@ abstract class CustomerReviewRemoteDataSource {
 
   // Create the rating or save the rating data provided by the user
   Future<RatingModel> createRating(
-    String userId,
-    String postId,
+    // String userId,
+    // String postId,
     RatingModel rating,
   );
 
@@ -38,8 +38,8 @@ class CustomerReviewRemoteDataSourceImpl
   const CustomerReviewRemoteDataSourceImpl({required this.supabaseClient});
   @override
   Future<RatingModel> createRating(
-    String userId,
-    String postId,
+    // String userId,
+    // String postId,
     RatingModel rating,
   ) async {
     try {
@@ -70,8 +70,9 @@ class CustomerReviewRemoteDataSourceImpl
           'Invalid reference (user or post not found).',
         );
       }
-      throw const core_exceptions.ServerException(
-        'Something went wrong. Please try again.',
+      print('the error i am encountering is ::: $e');
+      throw core_exceptions.ServerException(
+        'Something went wrong. Please try again. $e',
       );
     } catch (e) {
       throw core_exceptions.ServerException(

@@ -245,6 +245,7 @@ class CreateCustomerReviewBloc
         userId: event.userId,
         postId: event.postId,
         ratingValue: event.ratingValue,
+        comment: event.comment,
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
       );

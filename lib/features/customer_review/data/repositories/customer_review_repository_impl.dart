@@ -57,14 +57,16 @@ class CustomerReviewRepositoryImpl implements CustomerReviewRepository {
 
   @override
   Future<Either<Failure, Rating>> createRating(
-    String userId,
-    String postId,
+    // String userId,
+    // String postId,
     Rating rating,
   ) async {
     try {
       final model = RatingModel.fromEntity(rating);
-      final result = await remoteDataSource.createRating(userId, postId, model);
-      await localDataSource.clearCachedUserRatings(postId);
+      final result = await remoteDataSource.createRating(
+        // userId, postId,
+         model);
+      await localDataSource.clearCachedUserRatings(model.postId);
 
       return Right(result.toEntity());
     } on ServerException catch (e) {

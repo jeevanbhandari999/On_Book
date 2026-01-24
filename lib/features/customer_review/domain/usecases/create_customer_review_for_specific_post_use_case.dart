@@ -38,8 +38,8 @@ class CreateCustomerReviewForSpecificPostUseCase {
 
     // Finally create the custoemr review
     return await repository.createRating(
-      params.postId,
-      params.postId,
+      // params.postId,
+      // params.postId,
       customerRating,
     );
   }

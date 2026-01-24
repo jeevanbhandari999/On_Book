@@ -11,6 +11,7 @@ import 'package:app/features/post/domain/entities/post.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class WriteAReviewPage extends StatelessWidget {
   final Post post;
@@ -156,6 +157,9 @@ class _WriteAReviewViewState extends State<WriteAReviewView> {
                           text: 'Done',
                           isLoading: state is CreateCustomerReviewLoading,
                           onPressed: () {
+                            print(
+                              '${widget.post.id} and the user id is ${widget.userId}',
+                            );
                             context.read<CreateCustomerReviewBloc>().add(
                               CreateReviewRequested(
                                 postId: widget.post.id,

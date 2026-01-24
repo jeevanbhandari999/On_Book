@@ -126,11 +126,7 @@ Widget _buildImagePageView(
             onTap: () {
               context.push(
                 RouteConstants.postDetailsPage,
-                extra: {
-                  'postId': post.id,
-                  'post': post,
-                  'userId': post.createdBy,
-                },
+                extra: {'postId': post.id, 'post': post, 'userId': userId},
               );
             },
             child: CachedNetworkImage(
