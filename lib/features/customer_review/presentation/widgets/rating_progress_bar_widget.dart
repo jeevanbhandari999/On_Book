@@ -16,8 +16,6 @@ class RatingProgressBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final double normalized = (percent.clamp(0, 100)) / 100;
 
-    Color progressColor = Colors.blue[300]!.withAlpha(200);
-
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
