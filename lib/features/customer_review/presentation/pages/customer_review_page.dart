@@ -233,6 +233,9 @@ class CustomerReviewView extends StatelessWidget {
     return result;
   }
 
+
+
+
   // double _calculateAverageRating(List ratings) {
   //   if (ratings.isEmpty) return 0;
 
