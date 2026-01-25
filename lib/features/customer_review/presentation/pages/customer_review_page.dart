@@ -233,20 +233,6 @@ class CustomerReviewView extends StatelessWidget {
     return result;
   }
 
-
-
-
-  // double _calculateAverageRating(List ratings) {
-  //   if (ratings.isEmpty) return 0;
-
-  //   final total = ratings.fold<int>(
-  //     0,
-  //     (sum, item) => sum + item.ratingValue,
-  //   );
-
-  //   return total / ratings.length;
-  // }
-
   Widget _buildCustomerReviewHeader(
     BuildContext context,
     List<Rating> ratings,
