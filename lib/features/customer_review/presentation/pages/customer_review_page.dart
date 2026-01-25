@@ -1,6 +1,7 @@
 import 'package:app/app/dependency_injection.dart';
 import 'package:app/app/router/route_constants.dart';
 import 'package:app/core/constants/ui_constants.dart';
+import 'package:app/core/utils/date_formatter.dart';
 import 'package:app/features/customer_review/domain/entities/rating.dart';
 import 'package:app/features/customer_review/domain/usecases/get_all_customer_review_related_to_post_use_case.dart';
 import 'package:app/features/customer_review/presentation/bloc/get_all_customer_review_related_to_the_post_bloc.dart';
@@ -48,7 +49,7 @@ class CustomerReviewView extends StatelessWidget {
             GetAllCustomerReviewRelatedToThePostState
           >(
             builder: (context, state) {
-              print(state);
+              // print(state);
               if (state is GetAllCustomerReviewRelatedToThePostLoading) {
                 return const Center(child: CircularProgressIndicator());
               }
@@ -58,6 +59,7 @@ class CustomerReviewView extends StatelessWidget {
                 ).showSnackBar(SnackBar(content: Text(state.message)));
               }
               if (state is GetAllCustomerReviewRelatedToThePostSuccess) {
+                final ratings = state.ratings;
                 return Padding(
                   padding: const EdgeInsets.all(UiConstants.spacingMd),
                   child: Column(
@@ -68,9 +70,138 @@ class CustomerReviewView extends StatelessWidget {
                       Expanded(
                         child: ListView.separated(
                           itemBuilder: (context, index) {
+                            final rating = ratings[index];
                             return Container(
-                              child: Text(
-                                state.ratings[index].ratingValue.toString(),
+                              width: double.infinity,
+                              padding: const EdgeInsets.all(
+                                UiConstants.spacingMd,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.blue[300]!.withAlpha(70),
+                                borderRadius: BorderRadius.circular(
+                                  UiConstants.radiusSm,
+                                ),
+                                border: Border.all(color: Colors.grey[300]!),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      CircleAvatar(
+                                        radius: 16,
+                                        backgroundColor: Colors.grey[400],
+                                        child: const Icon(
+                                          Icons.person,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      const Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              'Username',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+
+                                                color: Colors.black,
+                                              ),
+                                            ),
+                                            SizedBox(height: 4),
+                                          ],
+                                        ),
+                                      ),
+                                      RatingBarIndicator(
+                                        rating: rating.ratingValue.toDouble(),
+                                        itemBuilder: (context, index) =>
+                                            const Icon(
+                                              Icons.star,
+                                              color: Colors.amber,
+                                            ),
+                                        itemCount: 5,
+                                        itemSize: 16,
+                                        direction: Axis.horizontal,
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: UiConstants.spacingSm),
+
+                                  if (rating.comment != null &&
+                                      rating.comment!.isNotEmpty)
+                                    Text(
+                                      rating.comment!,
+                                      style: const TextStyle(
+                                        color: Colors.black87,
+                                      ),
+                                    ),
+                                  const SizedBox(height: UiConstants.spacingXs),
+                                  Text(
+                                    DateFormatter.format(rating.createdAt),
+                                    style: TextStyle(color: Colors.grey[600]),
+                                  ),
+                                  const SizedBox(height: UiConstants.spacingMd),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Text(
+                                            'Helpful ?',
+                                            style: TextStyle(
+                                              color: Colors.grey[600],
+                                            ),
+                                          ),
+                                          const SizedBox(
+                                            width: UiConstants.spacingSm,
+                                          ),
+                                          const Icon(
+                                            Icons.thumb_up_alt_outlined,
+                                          ),
+                                          const SizedBox(width: 2),
+                                          const Text(
+                                            '10',
+                                            style: TextStyle(
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                          const SizedBox(
+                                            width: UiConstants.spacingXs,
+                                          ),
+                                          const Icon(
+                                            Icons.thumb_down_alt_outlined,
+                                          ),
+                                          const SizedBox(
+                                            width: UiConstants.spacingXs,
+                                          ),
+                                          const Text(
+                                            '10',
+                                            style: TextStyle(
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      InkWell(
+                                        onTap: () {
+                                          //navigate to the report page later
+                                        },
+                                        child: const Text(
+                                          'Report',
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            color: Colors.black,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
                               ),
                             );
                           },
@@ -124,7 +255,8 @@ class CustomerReviewView extends StatelessWidget {
         const Text('Customer Reviews', style: TextStyle(fontSize: 16)),
         const Text('Ratings', style: TextStyle(fontSize: 16)),
         _buildRatingStarIcon(context, ratings),
-        const Text('rating length'),
+        Text('${ratings.length} Ratings'),
+        const SizedBox(height: UiConstants.spacingXs),
       ],
     );
   }
