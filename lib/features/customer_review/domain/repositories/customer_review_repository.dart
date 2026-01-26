@@ -57,13 +57,13 @@ abstract class CustomerReviewRepository {
   });
 
 
-  Future<void> toggleReaction({
+  Future<Either<Failure, void>> toggleReaction({
     required String ratingId,
     required String userId,
     required ReviewReactionType reaction,
   });
 
-  Stream<List<ReviewReaction>> streamReactions(String ratingId);
+  Stream<Either<Failure, List<ReviewReaction>>> streamReactions(String ratingId);
 
-  Future<Map<String, int>> getReactionCounts(String ratingId);
+  Future<Either<Failure, Map<String, int>>> getReactionCounts(String ratingId);
 }

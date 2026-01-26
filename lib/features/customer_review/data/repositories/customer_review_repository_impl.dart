@@ -210,20 +210,70 @@ class CustomerReviewRepositoryImpl implements CustomerReviewRepository {
   }
 
   @override
-  Future<Map<String, int>> getReactionCounts(String ratingId) {
-    // TODO: implement getReactionCounts
-    throw UnimplementedError();
+  Future<Either<Failure, Map<String, int>>> getReactionCounts(
+    String ratingId,
+  ) async {
+    try {
+      final count = await remoteDataSource.getReactionCounts(ratingId);
+      return Right(count);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
+    } on AuthException catch (e) {
+      return Left(AuthFailure(e.message));
+    } catch (e) {
+      return Left(UnknownFailure(e.toString()));
+    }
   }
 
   @override
-  Stream<List<ReviewReaction>> streamReactions(String ratingId) {
-    // TODO: implement streamReactions
-    throw UnimplementedError();
+  Stream<Either<Failure, List<ReviewReaction>>> streamReactions(
+    String ratingId,
+  ) {
+    try {
+      return remoteDataSource
+          .streamReactions(ratingId)
+          .map<Either<Failure, List<ReviewReaction>>>(
+            (models) => Right(models.map((m) => m.toEntity()).toList()),
+          )
+          .handleError((error) {
+            if (error is ServerException) {
+              return Left(ServerFailure(error.message));
+            } else if (error is NetworkException) {
+              return Left(NetworkFailure(error.message));
+            } else if (error is AuthException) {
+              return Left(AuthFailure(error.message));
+            } else {
+              return Left(UnknownFailure(error.toString()));
+            }
+          });
+    } catch (e) {
+      return Stream.value(Left(UnknownFailure(e.toString())));
+    }
   }
 
   @override
-  Future<void> toggleReaction({required String ratingId, required String userId, required ReviewReactionType reaction}) {
-    // TODO: implement toggleReaction
-    throw UnimplementedError();
+  Future<Either<Failure, void>> toggleReaction({
+    required String ratingId,
+    required String userId,
+    required ReviewReactionType reaction,
+  }) async {
+    try {
+      await remoteDataSource.toggleReaction(
+        ratingId: ratingId,
+        userId: userId,
+        reaction: reaction,
+      );
+      return const Right(null);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
+    } on AuthException catch (e) {
+      return Left(AuthFailure(e.message));
+    } catch (e) {
+      return Left(UnknownFailure(e.toString()));
+    }
   }
 }
