@@ -145,10 +145,109 @@ class ReviewReactionBloc
     );
   }
 
+  // Future<void> _onToggle(
+  //   ReviewReactionToggleRequested event,
+  //   Emitter<ReviewReactionState> emit,
+  // ) async {
+  //   final result = await _toggleUseCase(
+  //     ToggleReviewReactionParams(
+  //       ratingId: event.ratingId,
+  //       userId: event.userId,
+  //       reaction: event.reaction,
+  //     ),
+  //   );
+
+  //   result.fold(
+  //     (failure) {
+  //       emit(state.copyWith(error: _mapFailure(failure)));
+  //     },
+  //     (_) {
+  //       // No state update here
+  //       // Realtime stream will update automatically, we don't have to do
+  //     },
+  //   );
+  // }
+
+  // inside review_reaction_bloc.dart
+
   Future<void> _onToggle(
     ReviewReactionToggleRequested event,
     Emitter<ReviewReactionState> emit,
   ) async {
+    // 1. KEEP A COPY OF THE OLD STATE (For rollback if API fails)
+    final previousState = state;
+
+    // 2. CALCULATE OPTIMISTIC DATA
+    // We need to determine:
+    // - Did the user already react?
+    // - Are they removing a like? Switching from like to dislike? Adding a new like?
+
+    final existingReactionIndex = state.reactions.indexWhere(
+      (r) => r.userId == event.userId,
+    );
+
+    ReviewReaction? existingReaction;
+    if (existingReactionIndex != -1) {
+      existingReaction = state.reactions[existingReactionIndex];
+    }
+
+    // Create a modifiable copy of the list
+    List<ReviewReaction> newReactionsList = List.from(state.reactions);
+
+    // Calculate new counts
+    int newLikes = state.likes;
+    int newDislikes = state.dislikes;
+
+    if (existingReaction == null) {
+      // SCENARIO A: No previous reaction -> ADD NEW REACTION
+      newReactionsList.add(
+        ReviewReaction(
+          id: 'temp_id', // distinct ID not needed for UI logic usually
+          ratingId: event.ratingId,
+          userId: event.userId,
+          reaction: event.reaction,
+          createdAt: DateTime.now(), // Use standard package if needed
+          updatedAt: DateTime.now(),
+        ),
+      );
+
+      if (event.reaction == ReviewReactionType.like) newLikes++;
+      if (event.reaction == ReviewReactionType.dislike) newDislikes++;
+    } else {
+      if (existingReaction.reaction == event.reaction) {
+        // SCENARIO B: Tapping same reaction -> REMOVE REACTION
+        newReactionsList.removeAt(existingReactionIndex);
+
+        if (event.reaction == ReviewReactionType.like) newLikes--;
+        if (event.reaction == ReviewReactionType.dislike) newDislikes--;
+      } else {
+        // SCENARIO C: Switching (e.g., Like -> Dislike) -> UPDATE REACTION
+        // Remove old count
+        if (existingReaction.reaction == ReviewReactionType.like) newLikes--;
+        if (existingReaction.reaction == ReviewReactionType.dislike)
+          newDislikes--;
+
+        // Add new count
+        if (event.reaction == ReviewReactionType.like) newLikes++;
+        if (event.reaction == ReviewReactionType.dislike) newDislikes++;
+
+        // Update the object in the list
+        newReactionsList[existingReactionIndex] = existingReaction.copyWith(
+          reaction: event.reaction,
+        );
+      }
+    }
+
+    // 3. EMIT OPTIMISTIC STATE IMMEDIATELY
+    emit(
+      state.copyWith(
+        reactions: newReactionsList,
+        likes: newLikes,
+        dislikes: newDislikes,
+      ),
+    );
+
+    // 4. CALL THE API
     final result = await _toggleUseCase(
       ToggleReviewReactionParams(
         ratingId: event.ratingId,
@@ -157,13 +256,16 @@ class ReviewReactionBloc
       ),
     );
 
+    // 5. HANDLE FAILURE (Rollback)
     result.fold(
       (failure) {
-        emit(state.copyWith(error: _mapFailure(failure)));
+        // If server failed, revert to the previous state immediately
+        emit(previousState.copyWith(error: _mapFailure(failure)));
       },
       (_) {
-        // No state update here
-        // Realtime stream will update automatically, we don't have to do
+        // Success! Do nothing.
+        // The Supabase Stream will eventually arrive with the "real" server data,
+        // which should match our optimistic data closely.
       },
     );
   }
