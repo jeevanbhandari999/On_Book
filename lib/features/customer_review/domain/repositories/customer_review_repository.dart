@@ -1,5 +1,6 @@
 import 'package:app/core/errors/failures.dart';
 import 'package:app/features/customer_review/domain/entities/rating.dart';
+import 'package:app/features/customer_review/domain/entities/review_reaction.dart';
 import 'package:dartz/dartz.dart';
 
 abstract class CustomerReviewRepository {
@@ -54,4 +55,15 @@ abstract class CustomerReviewRepository {
     int page = 1,
     int limit = 20,
   });
+
+
+  Future<void> toggleReaction({
+    required String ratingId,
+    required String userId,
+    required ReviewReactionType reaction,
+  });
+
+  Stream<List<ReviewReaction>> streamReactions(String ratingId);
+
+  Future<Map<String, int>> getReactionCounts(String ratingId);
 }

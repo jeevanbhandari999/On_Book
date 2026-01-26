@@ -2,6 +2,8 @@ import 'package:app/app/dependency_injection.dart';
 import 'package:app/core/errors/exceptions.dart' as core_exceptions;
 import 'package:app/features/auth/services/auth_service.dart';
 import 'package:app/features/customer_review/data/models/rating_model.dart';
+import 'package:app/features/customer_review/data/models/review_reaction_model.dart';
+import 'package:app/features/customer_review/domain/entities/review_reaction.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 abstract class CustomerReviewRemoteDataSource {
@@ -25,8 +27,18 @@ abstract class CustomerReviewRemoteDataSource {
   // Check whether the logged in user have already rated the post
   Future<bool> isRatingOwnerLoggedIn(String userId);
 
-  // Get the paginated rating list
   // TODO
+  // Get the paginated rating list
+
+  Future<void> toggleReaction({
+    required String ratingId,
+    required String userId,
+    required ReviewReactionType reaction,
+  });
+
+  Stream<List<ReviewReactionModel>> streamReactions(String ratingId);
+
+  Future<Map<String, int>> getReactionCounts(String ratingId);
 
   // We can add more logic according to our need later on
 }
@@ -70,7 +82,7 @@ class CustomerReviewRemoteDataSourceImpl
           'Invalid reference (user or post not found).',
         );
       }
-      print('the error i am encountering is ::: $e');
+      // print('the error i am encountering is ::: $e');
       throw core_exceptions.ServerException(
         'Something went wrong. Please try again. $e',
       );
@@ -91,7 +103,6 @@ class CustomerReviewRemoteDataSourceImpl
           .order('updated_at', ascending: true);
 
       final List<dynamic> data = response;
-      print(response.first);
       return data
           .map((json) => RatingModel.fromJson(json as Map<String, dynamic>))
           .toList();
@@ -134,6 +145,89 @@ class CustomerReviewRemoteDataSourceImpl
       return RatingModel.fromJson(response);
     } catch (e) {
       throw core_exceptions.ServerException('Failed to update booking: $e');
+    }
+  }
+
+  @override
+  Future<Map<String, int>> getReactionCounts(String ratingId) async {
+    try {
+      final data = await supabaseClient
+          .from('review_reactions')
+          .select('reaction')
+          .eq('rating_id', ratingId);
+
+      int likes = 0;
+      int dislikes = 0;
+
+      for (final r in data) {
+        if (r['reaction'] == 'like') likes++;
+        if (r['reaction'] == 'dislike') dislikes++;
+      }
+
+      return {'likes': likes, 'dislikes': dislikes};
+    } catch (e) {
+      throw core_exceptions.ServerException(
+        'Failed to get the review reaction count: $e',
+      );
+    }
+  }
+
+  @override
+  Stream<List<ReviewReactionModel>> streamReactions(String ratingId) {
+    return supabaseClient
+        .from('review_reactions')
+        .stream(primaryKey: ['id'])
+        .eq('rating_id', ratingId)
+        .map(
+          (data) => data.map((e) => ReviewReactionModel.fromJson(e)).toList(),
+        );
+  }
+
+  @override
+  Future<void> toggleReaction({
+    required String ratingId,
+    required String userId,
+    required ReviewReactionType reaction,
+  }) async {
+    try {
+      // First check if it existing or not
+      final existing = await supabaseClient
+          .from('review_reactions')
+          .select()
+          .eq('rating_id', ratingId)
+          .eq('user_id', userId)
+          .maybeSingle();
+
+      if (existing == null) {
+        // Insert in the table
+        await supabaseClient.from('review_reactions').insert({
+          'rating_id': ratingId,
+          'user_id': userId,
+          'reaction': reaction.name,
+        });
+      } else {
+        final existingReaction = existing['reaction'];
+        if (existingReaction == reaction.name) {
+          // Delete the reaction
+          await supabaseClient
+              .from('review_reactions')
+              .delete()
+              .eq('id', existing['id']);
+        } else {
+          // Update the reaction
+          await supabaseClient
+              .from('review_reactions')
+              .update({
+                'reaction': reaction.name,
+                'updated_at': DateTime.now().toIso8601String(),
+              })
+              .eq('id', existing['id']);
+        }
+      }
+    } catch (e) {
+      throw core_exceptions.ServerException(
+        'Failed to toggle review reaction: $e',
+      );
     }
   }
 }

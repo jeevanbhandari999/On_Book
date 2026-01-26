@@ -4,6 +4,7 @@ import 'package:app/features/customer_review/data/datasources/customer_review_lo
 import 'package:app/features/customer_review/data/datasources/customer_review_remote_data_source.dart';
 import 'package:app/features/customer_review/data/models/rating_model.dart';
 import 'package:app/features/customer_review/domain/entities/rating.dart';
+import 'package:app/features/customer_review/domain/entities/review_reaction.dart';
 import 'package:app/features/customer_review/domain/repositories/customer_review_repository.dart';
 import 'package:dartz/dartz.dart';
 
@@ -206,5 +207,23 @@ class CustomerReviewRepositoryImpl implements CustomerReviewRepository {
     } catch (e) {
       return Left(UnknownFailure(e.toString()));
     }
+  }
+
+  @override
+  Future<Map<String, int>> getReactionCounts(String ratingId) {
+    // TODO: implement getReactionCounts
+    throw UnimplementedError();
+  }
+
+  @override
+  Stream<List<ReviewReaction>> streamReactions(String ratingId) {
+    // TODO: implement streamReactions
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> toggleReaction({required String ratingId, required String userId, required ReviewReactionType reaction}) {
+    // TODO: implement toggleReaction
+    throw UnimplementedError();
   }
 }
