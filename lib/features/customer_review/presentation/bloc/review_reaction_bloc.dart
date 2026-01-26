@@ -5,6 +5,7 @@ import 'package:app/features/customer_review/domain/entities/review_reaction.dar
 // import 'package:app/features/customer_review/domain/usecases/get_review_reaction_count_use_case.dart';
 import 'package:app/features/customer_review/domain/usecases/stream_review_reaction_use_case.dart';
 import 'package:app/features/customer_review/domain/usecases/toggle_review_reaction_use_case.dart';
+import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -117,34 +118,31 @@ class ReviewReactionBloc
 
     await _reactionSubscription?.cancel();
 
-    _reactionSubscription =
-        _streamUseCase(
-          StreamReviewReactionsParams(ratingId: event.ratingId),
-        ).listen((either) {
-          either.fold(
-            (failure) {
-              emit(state.copyWith(error: _mapFailure(failure), loading: false));
-            },
-            (reactions) {
-              final likes = reactions
-                  .where((r) => r.reaction == ReviewReactionType.like)
-                  .length;
-              final dislikes = reactions
-                  .where((r) => r.reaction == ReviewReactionType.dislike)
-                  .length;
+    await emit.forEach<Either<Failure, List<ReviewReaction>>>(
+      _streamUseCase(StreamReviewReactionsParams(ratingId: event.ratingId)),
+      onData: (either) => either.fold(
+        (failure) =>
+            state.copyWith(loading: false, error: _mapFailure(failure)),
+        (reactions) {
+          final likes = reactions
+              .where((r) => r.reaction == ReviewReactionType.like)
+              .length;
+          final dislikes = reactions
+              .where((r) => r.reaction == ReviewReactionType.dislike)
+              .length;
 
-              emit(
-                state.copyWith(
-                  loading: false,
-                  reactions: reactions,
-                  likes: likes,
-                  dislikes: dislikes,
-                  error: null,
-                ),
-              );
-            },
+          return state.copyWith(
+            loading: false,
+            reactions: reactions,
+            likes: likes,
+            dislikes: dislikes,
+            error: null,
           );
-        });
+        },
+      ),
+      onError: (error, stackTrace) =>
+          state.copyWith(loading: false, error: error.toString()),
+    );
   }
 
   Future<void> _onToggle(

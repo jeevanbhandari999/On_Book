@@ -3,8 +3,12 @@ import 'package:app/app/router/route_constants.dart';
 import 'package:app/core/constants/ui_constants.dart';
 import 'package:app/core/utils/date_formatter.dart';
 import 'package:app/features/customer_review/domain/entities/rating.dart';
+import 'package:app/features/customer_review/domain/entities/review_reaction.dart';
 import 'package:app/features/customer_review/domain/usecases/get_all_customer_review_related_to_post_use_case.dart';
+import 'package:app/features/customer_review/domain/usecases/stream_review_reaction_use_case.dart';
+import 'package:app/features/customer_review/domain/usecases/toggle_review_reaction_use_case.dart';
 import 'package:app/features/customer_review/presentation/bloc/get_all_customer_review_related_to_the_post_bloc.dart';
+import 'package:app/features/customer_review/presentation/bloc/review_reaction_bloc.dart';
 import 'package:app/features/customer_review/presentation/widgets/rating_progress_bar_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -18,26 +22,39 @@ class CustomerReviewPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) =>
-          GetAllCustomerReviewRelatedToThePostBloc(
-            getAllCustomerReviewRelatedToPostUseCase:
-                DependencyInjection.get<
-                  GetAllCustomerReviewRelatedToPostUseCase
-                >(),
-          )..add(
-            GetAllCustomerReviewRelatedToThePostRequested(
-              postId: postId,
-              userId: userId,
-            ),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) =>
+              GetAllCustomerReviewRelatedToThePostBloc(
+                getAllCustomerReviewRelatedToPostUseCase:
+                    DependencyInjection.get<
+                      GetAllCustomerReviewRelatedToPostUseCase
+                    >(),
+              )..add(
+                GetAllCustomerReviewRelatedToThePostRequested(
+                  postId: postId,
+                  userId: userId,
+                ),
+              ),
+        ),
+        BlocProvider(
+          create: (context) => ReviewReactionBloc(
+            toggleUseCase:
+                DependencyInjection.get<ToggleReviewReactionUseCase>(),
+            streamUseCase:
+                DependencyInjection.get<StreamReviewReactionsUseCase>(),
           ),
-      child: const CustomerReviewView(),
+        ),
+      ],
+      child: CustomerReviewView(userId: userId),
     );
   }
 }
 
 class CustomerReviewView extends StatelessWidget {
-  const CustomerReviewView({super.key});
+  final String? userId;
+  const CustomerReviewView({super.key, this.userId});
 
   @override
   Widget build(BuildContext context) {
@@ -71,6 +88,9 @@ class CustomerReviewView extends StatelessWidget {
                         child: ListView.separated(
                           itemBuilder: (context, index) {
                             final rating = ratings[index];
+                            context.read<ReviewReactionBloc>().add(
+                              ReviewReactionStarted(rating.id),
+                            );
                             return Container(
                               width: double.infinity,
                               padding: const EdgeInsets.all(
@@ -149,43 +169,89 @@ class CustomerReviewView extends StatelessWidget {
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Row(
-                                        children: [
-                                          Text(
-                                            'Helpful ?',
-                                            style: TextStyle(
-                                              color: Colors.grey[600],
-                                            ),
-                                          ),
-                                          const SizedBox(
-                                            width: UiConstants.spacingSm,
-                                          ),
-                                          const Icon(
-                                            Icons.thumb_up_alt_outlined,
-                                          ),
-                                          const SizedBox(width: 2),
-                                          const Text(
-                                            '10',
-                                            style: TextStyle(
-                                              color: Colors.black,
-                                            ),
-                                          ),
-                                          const SizedBox(
-                                            width: UiConstants.spacingXs,
-                                          ),
-                                          const Icon(
-                                            Icons.thumb_down_alt_outlined,
-                                          ),
-                                          const SizedBox(
-                                            width: UiConstants.spacingXs,
-                                          ),
-                                          const Text(
-                                            '10',
-                                            style: TextStyle(
-                                              color: Colors.black,
-                                            ),
-                                          ),
-                                        ],
+                                      BlocBuilder<
+                                        ReviewReactionBloc,
+                                        ReviewReactionState
+                                      >(
+                                        builder: (context, reactionState) {
+                                          print(reactionState);
+                                          return Row(
+                                            children: [
+                                              Text(
+                                                'Helpful ?',
+                                                style: TextStyle(
+                                                  color: Colors.grey[600],
+                                                ),
+                                              ),
+                                              const SizedBox(
+                                                width: UiConstants.spacingSm,
+                                              ),
+                                              InkWell(
+                                                onTap: () {
+                                                  print('Liked, $userId');
+                                                  context
+                                                      .read<
+                                                        ReviewReactionBloc
+                                                      >()
+                                                      .add(
+                                                        ReviewReactionToggleRequested(
+                                                          ratingId: rating.id,
+                                                          userId: userId!,
+                                                          reaction:
+                                                              ReviewReactionType
+                                                                  .like,
+                                                        ),
+                                                      );
+                                                },
+                                                child: Row(
+                                                  children: [
+                                                    const Icon(
+                                                      Icons
+                                                          .thumb_up_alt_outlined,
+                                                    ),
+                                                    const SizedBox(width: 4),
+                                                    Text(
+                                                      '${reactionState.likes}',
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              const SizedBox(
+                                                width: UiConstants.spacingXs,
+                                              ),
+                                              InkWell(
+                                                onTap: () {
+                                                  print('dislike, $userId');
+                                                  context
+                                                      .read<
+                                                        ReviewReactionBloc
+                                                      >()
+                                                      .add(
+                                                        ReviewReactionToggleRequested(
+                                                          ratingId: rating.id,
+                                                          userId: userId!,
+                                                          reaction:
+                                                              ReviewReactionType
+                                                                  .dislike,
+                                                        ),
+                                                      );
+                                                },
+                                                child: Row(
+                                                  children: [
+                                                    const Icon(
+                                                      Icons
+                                                          .thumb_down_alt_outlined,
+                                                    ),
+                                                    const SizedBox(width: 4),
+                                                    Text(
+                                                      '${reactionState.dislikes}',
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          );
+                                        },
                                       ),
                                       InkWell(
                                         onTap: () {
