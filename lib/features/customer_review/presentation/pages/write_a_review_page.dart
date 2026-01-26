@@ -4,14 +4,12 @@ import 'package:app/core/theme/app_colors.dart';
 import 'package:app/core/utils/extensions/context_extensions.dart';
 import 'package:app/core/widgets/common_widgets.dart';
 import 'package:app/core/widgets/loading_widget.dart';
-import 'package:app/features/customer_review/domain/entities/rating.dart';
 import 'package:app/features/customer_review/domain/usecases/create_customer_review_for_specific_post_use_case.dart';
 import 'package:app/features/customer_review/presentation/bloc/create_customer_review_bloc.dart';
 import 'package:app/features/post/domain/entities/post.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class WriteAReviewPage extends StatelessWidget {
   final Post post;
@@ -68,7 +66,6 @@ class _WriteAReviewViewState extends State<WriteAReviewView> {
               backgroundColor: AppColors.error,
             ),
           );
-          print(state.message);
         }
       },
       child: Scaffold(
@@ -157,9 +154,6 @@ class _WriteAReviewViewState extends State<WriteAReviewView> {
                           text: 'Done',
                           isLoading: state is CreateCustomerReviewLoading,
                           onPressed: () {
-                            print(
-                              '${widget.post.id} and the user id is ${widget.userId}',
-                            );
                             context.read<CreateCustomerReviewBloc>().add(
                               CreateReviewRequested(
                                 postId: widget.post.id,
