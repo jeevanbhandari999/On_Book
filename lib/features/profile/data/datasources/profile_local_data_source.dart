@@ -16,8 +16,6 @@ abstract class ProfileLocalDataSource {
   // Clear all cached profiles detail
   Future<void> clearAllCachedProfiles();
 
-  // Organizations details
-
   // Get cache timestamp for the profile, Last update time
   Future<DateTime?> getCacheTimestamp(String userId);
 
