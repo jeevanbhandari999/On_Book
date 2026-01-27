@@ -12,13 +12,16 @@ abstract class ProfileRemoteDataSource {
   Future<UserModel> updateProfile(String userId, UserModel profile);
 
   // Upload the image to the bucket
-  Future<String> uploadAvatar(File avatarFile, String userId);
+  Future<String> uploadProfilePicture(File profilePictureFile, String userId);
 
   // Delete the image from the bucket
-  Future<void> deleteAvatar(String avatarUrl);
+  Future<void> deleteProfilePicture(String profilePictureUrl);
 
-  // Update the avatar image of the user
-  Future<UserModel> updateAvatarUrl(String userId, String avatarUrl);
+  // Update the profile image of the user
+  Future<UserModel> updateProfilePictureUrl(
+    String userId,
+    String profilePictureUrl,
+  );
 }
 
 class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
@@ -57,57 +60,69 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
   }
 
   @override
-  Future<String> uploadAvatar(File avatarFile, String userId) async {
+  Future<String> uploadProfilePicture(
+    File profilePictureFile,
+    String userId,
+  ) async {
     try {
-      final fileExt = avatarFile.path.split('.').last;
+      final fileExt = profilePictureFile.path.split('.').last;
       final fileName =
           '${userId}_${DateTime.now().millisecondsSinceEpoch}.$fileExt';
 
-      // upload the avatar in the supabase storage, in bucket (avatars) so to say
-      await supabaseClient.storage.from('avatars').upload(fileName, avatarFile);
+      // upload the profile in the supabase storage, in bucket (profiles) so to say
+      await supabaseClient.storage
+          .from('profiles')
+          .upload(fileName, profilePictureFile);
 
       // Now get the public url
-      final url = supabaseClient.storage.from('avatars').getPublicUrl(fileName);
+      final url = supabaseClient.storage
+          .from('profiles')
+          .getPublicUrl(fileName);
 
       // Return the url
       return url;
     } catch (e) {
-      throw core_exception.ServerException('Failed to upload the avatar : $e');
-    }
-  }
-
-  @override
-  Future<void> deleteAvatar(String avatarUrl) async {
-    try {
-      // First extract the file path from url
-      final uri = Uri.parse(avatarUrl);
-      final pathSegments = uri.pathSegments;
-      final publicIndex = pathSegments.indexOf('public');
-
-      if (publicIndex != -1 && publicIndex < pathSegments.length - 1) {
-        final filePath = pathSegments.sublist(publicIndex + 1).join('/');
-        await supabaseClient.storage.from('avatars').remove([filePath]);
-      }
-    } catch (e) {
       throw core_exception.ServerException(
-        'Failed to delete an avatar image : $e',
+        'Failed to upload the profile picture : $e',
       );
     }
   }
 
   @override
-  Future<UserModel> updateAvatarUrl(String userId, String avatarUrl) async {
+  Future<void> deleteProfilePicture(String profilePictureUrl) async {
+    try {
+      // First extract the file path from url
+      final uri = Uri.parse(profilePictureUrl);
+      final pathSegments = uri.pathSegments;
+      final publicIndex = pathSegments.indexOf('public');
+
+      if (publicIndex != -1 && publicIndex < pathSegments.length - 1) {
+        final filePath = pathSegments.sublist(publicIndex + 1).join('/');
+        await supabaseClient.storage.from('profiles').remove([filePath]);
+      }
+    } catch (e) {
+      throw core_exception.ServerException(
+        'Failed to delete an profile image : $e',
+      );
+    }
+  }
+
+  @override
+  Future<UserModel> updateProfilePictureUrl(
+    String userId,
+    String profilePictureUrl,
+  ) async {
     try {
       final response = await supabaseClient
           .from('users')
-          .update({'image_url': avatarUrl})
+          .update({'image_url': profilePictureUrl})
           .eq('user_id', userId)
           .select()
           .single();
 
       return UserModel.fromJson(response);
     } catch (e) {
-      throw core_exception.ServerException('Failed to update the avatar : $e');
+      throw core_exception.ServerException('Failed to update the profile : $e');
     }
   }
 }
