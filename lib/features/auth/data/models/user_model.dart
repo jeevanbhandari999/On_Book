@@ -104,6 +104,19 @@ class UserModel extends Equatable {
     };
   }
 
+  // For update
+  Map<String, dynamic> toUpdateJson() {
+    return {
+      'full_name': fullName,
+      'image_url': imageUrl,
+      'phone': phone,
+      'address': address,
+      'role': role.value,
+      'contacts': contacts,
+      'updated_at': updatedAt.toIso8601String(),
+    };
+  }
+
   /// Copy with
   UserModel copyWith({
     String? id,
