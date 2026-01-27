@@ -104,6 +104,22 @@ class UserModel extends Equatable {
     };
   }
 
+  factory UserModel.fromEntity(User entity) {
+    return UserModel(
+      id: entity.id,
+      userId: entity.userId,
+      fullName: entity.fullName,
+      imageUrl: entity.imageUrl,
+      role: entity.role,
+      organizationId: entity.organizationId,
+      phone: entity.phone,
+      address: entity.address,
+      contacts: entity.contacts,
+      createdAt: entity.createdAt,
+      updatedAt: entity.updatedAt,
+    );
+  }
+
   // For update
   Map<String, dynamic> toUpdateJson() {
     return {
@@ -221,6 +237,7 @@ class UserModel extends Equatable {
     userId,
     fullName,
     imageUrl,
+    email,
     role,
     organizationId,
     phone,
