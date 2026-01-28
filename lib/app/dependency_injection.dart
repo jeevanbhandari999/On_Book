@@ -5,6 +5,7 @@ import 'package:app/features/customer_review/customer_review_dependencies.dart';
 import 'package:app/features/home/home_dependencies.dart';
 import 'package:app/features/library/library_dependencies.dart';
 import 'package:app/features/post/post_dependencies.dart';
+import 'package:app/features/profile/profile_dependencies.dart';
 import 'package:get_it/get_it.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -67,6 +68,9 @@ abstract class DependencyInjection {
 
     // Customer review dependencies
     await _registerCustomerReviewDependencies();
+
+    // Profile feature dependencies
+    await _registerProfileDependencies();
   }
 
   // Register auth dependencies
@@ -97,6 +101,11 @@ abstract class DependencyInjection {
   // Register Customer review dependencies
   static Future<void> _registerCustomerReviewDependencies() async {
     await CustomerReviewDependencies.register(instance);
+  }
+
+  // Regisetr Profile dependencies
+  static Future<void> _registerProfileDependencies() async {
+    await ProfileDependencies.register(instance);
   }
 
   static void reset() {
