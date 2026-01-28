@@ -167,24 +167,130 @@ class _MainTabNavigationPageState extends State<MainTabNavigationPage>
         : _buildPortraitBottomNavigationBar(context);
   }
 
+  // Widget _buildPortraitBottomNavigationBar(BuildContext context) {
+  //   final theme = Theme.of(context);
+
+  //   return Container(
+  //     width: double.infinity,
+  //     decoration: BoxDecoration(
+  //       color:
+  //           theme.bottomNavigationBarTheme.backgroundColor ??
+  //           theme.colorScheme.surface,
+  //       boxShadow: [
+  //         BoxShadow(
+  //           color: Colors.black.withAlpha(13),
+  //           blurRadius: 6,
+  //           offset: const Offset(0, -2),
+  //         ),
+  //       ],
+  //     ),
+  //     child: SafeArea(
+  //       child: Row(
+  //         mainAxisAlignment: MainAxisAlignment.spaceAround,
+  //         children: _items.asMap().entries.map((entry) {
+  //           final index = entry.key;
+  //           final item = entry.value;
+  //           final isSelected = _tabController.index == index;
+
+  //           return Expanded(
+  //             child: InkWell(
+  //               onTap: () => _tabController.animateTo(index),
+  //               child: Column(
+  //                 mainAxisSize: MainAxisSize.min,
+  //                 children: [
+  //                   // Top indicator bar
+  //                   AnimatedContainer(
+  //                     duration: const Duration(milliseconds: 250),
+  //                     height: 3,
+  //                     decoration: BoxDecoration(
+  //                       color: isSelected
+  //                           ? theme.primaryColor
+  //                           : Colors.transparent,
+  //                       borderRadius: const BorderRadius.vertical(
+  //                         bottom: Radius.circular(8),
+  //                       ),
+  //                     ),
+  //                   ),
+  //                   const SizedBox(height: 4),
+  //                   // Icon with rounded background
+  //                   AnimatedContainer(
+  //                     duration: const Duration(milliseconds: 200),
+  //                     curve: Curves.easeInOut,
+  //                     padding: const EdgeInsets.symmetric(
+  //                       horizontal: 24,
+  //                       vertical: 8,
+  //                     ),
+  //                     decoration: BoxDecoration(
+  //                       color: isSelected
+  //                           ? theme.primaryColor.withAlpha(30)
+  //                           : Colors.transparent,
+  //                       borderRadius: BorderRadius.circular(
+  //                         UiConstants.radiusRound,
+  //                         // UiConstants.radiusMd,
+  //                       ),
+  //                     ),
+  //                     child: Icon(
+  //                       isSelected ? item.selectedIcon : item.icon,
+  //                       color: isSelected
+  //                           ? theme.primaryColor
+  //                           : theme.unselectedWidgetColor,
+  //                       size:
+  //                           ResponsiveNavigationController.getNavigationIconSize(
+  //                             NavigationType.mobileBottomNav,
+  //                           ),
+  //                     ),
+  //                   ),
+  //                   const SizedBox(height: 4),
+  //                   // Label
+  //                   Text(
+  //                     item.label,
+  //                     style: TextStyle(
+  //                       fontSize: 11,
+  //                       fontWeight: isSelected
+  //                           ? FontWeight.w600
+  //                           : FontWeight.w400,
+  //                       color: isSelected
+  //                           ? theme.primaryColor
+  //                           : theme.unselectedWidgetColor,
+  //                     ),
+  //                     maxLines: 1,
+  //                     overflow: TextOverflow.ellipsis,
+  //                   ),
+  //                 ],
+  //               ),
+  //             ),
+  //           );
+  //         }).toList(),
+  //       ),
+  //     ),
+  //   );
+  // }
+
   Widget _buildPortraitBottomNavigationBar(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color:
-            theme.bottomNavigationBarTheme.backgroundColor ??
-            theme.colorScheme.surface,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withAlpha(13),
-            blurRadius: 6,
-            offset: const Offset(0, -2),
-          ),
-        ],
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        UiConstants.spacingMd,
+        0,
+        UiConstants.spacingMd,
+        UiConstants.spacingMd,
       ),
-      child: SafeArea(
+      child: Container(
+        decoration: BoxDecoration(
+          color:
+              theme.bottomNavigationBarTheme.backgroundColor ??
+              theme.colorScheme.surface,
+          borderRadius: BorderRadius.circular(UiConstants.radiusXl),
+          border: Border.all(color: theme.colorScheme.primary),
+          boxShadow: [
+            BoxShadow(
+              color: theme.colorScheme.primary.withAlpha(100),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: _items.asMap().entries.map((entry) {
@@ -194,69 +300,58 @@ class _MainTabNavigationPageState extends State<MainTabNavigationPage>
 
             return Expanded(
               child: InkWell(
+                borderRadius: BorderRadius.circular(UiConstants.radiusXl),
                 onTap: () => _tabController.animateTo(index),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Top indicator bar
-                    AnimatedContainer(
-                      duration: const Duration(milliseconds: 250),
-                      height: 3,
-                      decoration: BoxDecoration(
-                        color: isSelected
-                            ? theme.primaryColor
-                            : Colors.transparent,
-                        borderRadius: const BorderRadius.vertical(
-                          bottom: Radius.circular(8),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      /// ICON CONTAINER
+                      AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        curve: Curves.easeInOut,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 18,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color: isSelected
+                              ? theme.colorScheme.primary
+                              : Colors.transparent,
+                          borderRadius: BorderRadius.circular(
+                            UiConstants.radiusRound,
+                          ),
+                        ),
+                        child: Icon(
+                          isSelected ? item.selectedIcon : item.icon,
+                          color: isSelected
+                              ? theme.colorScheme.onPrimary
+                              : theme.unselectedWidgetColor,
+                          size:
+                              ResponsiveNavigationController.getNavigationIconSize(
+                                NavigationType.mobileBottomNav,
+                              ),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 4),
-                    // Icon with rounded background
-                    AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      curve: Curves.easeInOut,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 8,
-                      ),
-                      decoration: BoxDecoration(
-                        color: isSelected
-                            ? theme.primaryColor.withAlpha(30)
-                            : Colors.transparent,
-                        borderRadius: BorderRadius.circular(
-                          UiConstants.radiusRound,
-                          // UiConstants.radiusMd,
+                      const SizedBox(height: 4),
+                      // Label
+                      Text(
+                        item.label,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: isSelected
+                              ? FontWeight.w600
+                              : FontWeight.w400,
+                          color: isSelected
+                              ? theme.primaryColor
+                              : theme.unselectedWidgetColor,
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      child: Icon(
-                        isSelected ? item.selectedIcon : item.icon,
-                        color: isSelected
-                            ? theme.primaryColor
-                            : theme.unselectedWidgetColor,
-                        size:
-                            ResponsiveNavigationController.getNavigationIconSize(
-                              NavigationType.mobileBottomNav,
-                            ),
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    // Label
-                    Text(
-                      item.label,
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: isSelected
-                            ? FontWeight.w600
-                            : FontWeight.w400,
-                        color: isSelected
-                            ? theme.primaryColor
-                            : theme.unselectedWidgetColor,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             );
@@ -342,192 +437,4 @@ class _MainTabNavigationPageState extends State<MainTabNavigationPage>
       ),
     );
   }
-
-  // Widget? _buildBottomNavigationBar(
-  //   BuildContext context,
-  //   Orientation orientation,
-  // ) {
-  //   if (!ResponsiveNavigationController.shouldShowBottomNavigation(
-  //     NavigationType.mobileBottomNav,
-  //   )) {
-  //     return null;
-  //   }
-  //   return orientation == Orientation.landscape
-  //       ? _buildLandscapeBottomNavigationBar(context)
-  //       : _buildPortraitBottomNavigationBar(context);
-  // }
-
-  // Widget _buildPortraitBottomNavigationBar(BuildContext context) {
-  //   return BottomNavigationBar(
-  //     type: BottomNavigationBarType.fixed,
-  //     currentIndex: _tabController.index,
-  //     onTap: _tabController.animateTo,
-  //     elevation: ResponsiveNavigationController.getNavigationElevation(
-  //       NavigationType.mobileBottomNav,
-  //     ),
-  //     selectedItemColor: Theme.of(context).primaryColor,
-  //     unselectedItemColor: Theme.of(context).unselectedWidgetColor,
-  //     selectedFontSize: 12,
-  //     unselectedFontSize: 10,
-  //     iconSize: ResponsiveNavigationController.getNavigationIconSize(
-  //       NavigationType.mobileBottomNav,
-  //     ),
-  //     items: _items
-  //         .map((item) => _buildBottomNavigationBarItem(context, item))
-  //         .toList(),
-  //   );
-  // }
-
-  // Widget _buildLandscapeBottomNavigationBar(BuildContext context) {
-  //   return Container(
-  //     height: 60,
-  //     decoration: BoxDecoration(
-  //       color:
-  //           Theme.of(context).bottomNavigationBarTheme.backgroundColor ??
-  //           Theme.of(context).colorScheme.surface,
-  //       boxShadow: [
-  //         BoxShadow(
-  //           color: Colors.black.withAlpha(26),
-  //           blurRadius: 4,
-  //           offset: const Offset(0, -2),
-  //         ),
-  //       ],
-  //     ),
-  //     child: SafeArea(
-  //       child: Row(
-  //         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-  //         children: _items.asMap().entries.map((entry) {
-  //           final index = entry.key;
-  //           final item = entry.value;
-  //           return _buildLandscapeNavigationItem(context, item, index);
-  //         }).toList(),
-  //       ),
-  //     ),
-  //   );
-  // }
-
-  // Widget _buildLandscapeNavigationItem(
-  //   BuildContext context,
-  //   NavigationItem item,
-  //   int index,
-  // ) {
-  //   final isSelected = _tabController.index == index;
-  //   final theme = Theme.of(context);
-
-  //   return Expanded(
-  //     child: InkWell(
-  //       onTap: () => _tabController.animateTo(index),
-  //       borderRadius:
-  //           ResponsiveNavigationController.getNavigationItemBorderRadius(
-  //             NavigationType.mobileBottomNav,
-  //           ),
-  //       child: Container(
-  //         height: double.infinity,
-  //         padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-  //         child: Column(
-  //           mainAxisAlignment: MainAxisAlignment.center,
-  //           mainAxisSize: MainAxisSize.min,
-  //           children: [
-  //             Icon(
-  //               isSelected ? item.selectedIcon : item.icon,
-  //               size: 20,
-  //               color: isSelected
-  //                   ? theme.primaryColor
-  //                   : theme.unselectedWidgetColor,
-  //             ),
-  //             const SizedBox(height: 2),
-  //             Text(
-  //               item.label,
-  //               style: TextStyle(
-  //                 fontSize: 10,
-  //                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-  //                 color: isSelected
-  //                     ? theme.primaryColor
-  //                     : theme.unselectedWidgetColor,
-  //               ),
-  //               maxLines: 1,
-  //               overflow: TextOverflow.ellipsis,
-  //             ),
-  //           ],
-  //         ),
-  //       ),
-  //     ),
-  //   );
-  // }
-
-  // BottomNavigationBarItem _buildBottomNavigationBarItem(
-  //   BuildContext context,
-  //   NavigationItem item,
-  // ) {
-  //   final semanticProperties =
-  //       ResponsiveNavigationController.getSemanticProperties(
-  //         item,
-  //         NavigationType.mobileBottomNav,
-  //         _tabController.index == _items.indexOf(item),
-  //       );
-
-  //   return BottomNavigationBarItem(
-  //     icon: Semantics(
-  //       label: semanticProperties['label'],
-  //       hint: semanticProperties['hint'],
-  //       button: true,
-  //       enabled: semanticProperties['enabled'],
-  //       selected: semanticProperties['selected'],
-  //       child: Container(
-  //         constraints: BoxConstraints(
-  //           minWidth:
-  //               ResponsiveNavigationController.getMinimumTouchTargetSize(),
-  //           minHeight:
-  //               ResponsiveNavigationController.getMinimumTouchTargetSize(),
-  //         ),
-  //         child: Icon(
-  //           item.icon,
-  //           size: ResponsiveNavigationController.getNavigationIconSize(
-  //             NavigationType.mobileBottomNav,
-  //           ),
-  //         ),
-  //       ),
-  //     ),
-  //     activeIcon: Semantics(
-  //       label: semanticProperties['label'],
-  //       hint: semanticProperties['hint'],
-  //       button: true,
-  //       enabled: semanticProperties['enabled'],
-  //       selected: semanticProperties['selected'],
-  //       child: Container(
-  //         constraints: BoxConstraints(
-  //           minWidth:
-  //               ResponsiveNavigationController.getMinimumTouchTargetSize(),
-  //           minHeight:
-  //               ResponsiveNavigationController.getMinimumTouchTargetSize(),
-  //         ),
-  //         child: Icon(
-  //           item.selectedIcon,
-  //           size: ResponsiveNavigationController.getNavigationIconSize(
-  //             NavigationType.mobileBottomNav,
-  //           ),
-  //         ),
-  //       ),
-  //     ),
-  //     label: item.label,
-  //     tooltip: item.tooltipText,
-  //   );
-  // }
-
-  // Widget _getPageForRoute(String route) {
-  //   switch (route) {
-  //     case RouteConstants.home:
-  //       return const HomePage();
-  //     case RouteConstants.homeSecond:
-  //       return const HomePage1();
-  //     case RouteConstants.searchPage:
-  //       return const SearchPage();
-  //     case RouteConstants.postPage:
-  //       return const PostPage();
-  //     case RouteConstants.profilePage:
-  //       return const ProfilePage();
-  //     default:
-  //       return const HomePage(); // Fallback
-  //   }
-  // }
 }
