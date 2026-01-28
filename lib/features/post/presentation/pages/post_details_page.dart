@@ -288,12 +288,13 @@ Widget _buildCustomerReviewSection(
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: UiConstants.spacingMd),
-          // Row(
-          //   crossAxisAlignment: CrossAxisAlignment.center,
-          //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
+          // Wrap(
+          //   alignment: WrapAlignment.spaceBetween,
+          //   runSpacing: 8,
           //   children: [
           //     Row(
-          //       crossAxisAlignment: CrossAxisAlignment.center,
+          //       mainAxisSize: MainAxisSize.min,
           //       children: [
           //         Text('$ratingValue out of 5.0'),
           //         const SizedBox(width: 8),
@@ -310,7 +311,10 @@ Widget _buildCustomerReviewSection(
           //     InkWell(
           //       onTap: () {
           //         // Later we will handle the review
-          //         context.push(RouteConstants.writeAReviewPage);
+          //         context.push(
+          //           RouteConstants.writeAReviewPage,
+          //           extra: {'post': post, 'userId': userId},
+          //         );
           //       },
           //       child: const Text(
           //         'White a Review',
@@ -319,9 +323,8 @@ Widget _buildCustomerReviewSection(
           //     ),
           //   ],
           // ),
-          Wrap(
-            alignment: WrapAlignment.spaceBetween,
-            runSpacing: 8,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Row(
                 mainAxisSize: MainAxisSize.min,
@@ -338,7 +341,6 @@ Widget _buildCustomerReviewSection(
                   ),
                 ],
               ),
-              const Spacer(),
               InkWell(
                 onTap: () {
                   // Later we will handle the review
@@ -354,6 +356,7 @@ Widget _buildCustomerReviewSection(
               ),
             ],
           ),
+
           const SizedBox(height: UiConstants.spacingSm),
           Row(
             children: [
@@ -389,27 +392,28 @@ Widget _buildCustomerReviewSection(
 Widget _buildActionButtons(BuildContext context) {
   return Padding(
     padding: const EdgeInsets.symmetric(horizontal: UiConstants.spacingSm),
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Expanded(
-          child: CustomButton(
-            text: 'Add to Library',
-            icon: const Icon(Icons.bookmark_outline),
-            onPressed: () {},
-            isOutlined: true,
+    child: SizedBox(
+      width: double.infinity,
+      child: Row(
+        children: [
+          Expanded(
+            child: CustomButton(
+              text: 'Add to Library',
+              icon: const Icon(Icons.bookmark_outline),
+              onPressed: () {},
+              isOutlined: true,
+            ),
           ),
-        ),
-        const SizedBox(width: UiConstants.spacingSm),
-        Expanded(
-          child: CustomButton(
-            text: 'Book Now',
-            onPressed: () {},
-            icon: const Icon(Icons.event_available),
+          const SizedBox(width: UiConstants.spacingSm),
+          Expanded(
+            child: CustomButton(
+              text: 'Book Now',
+              onPressed: () {},
+              icon: const Icon(Icons.event_available),
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     ),
   );
 }
@@ -1189,20 +1193,6 @@ void _showDeleteConfirmDialog(
               dialogContext.pop();
             },
           ),
-          // BlocBuilder<PostDetailsBloc, PostDetailState>(
-          //   builder: (context, state) {
-          //     if (state is PostDetailLoaded) {
-          //       CustomButton(
-          //         text: 'Confirm',
-          //         isLoading: state is PostDetailDeleting,
-          //         onPressed: () => context.read<PostDetailsBloc>().add(
-          //           PostDetailDeleteRequested(userId: userId),
-          //         ),
-          //       );
-          //     }
-          //     return const SizedBox.shrink();
-          //   },
-          // ),
         ],
       );
     },

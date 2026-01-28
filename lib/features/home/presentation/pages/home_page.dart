@@ -546,7 +546,6 @@ Widget _buildActionButtons(
 }) {
   return Row(
     mainAxisAlignment: MainAxisAlignment.center,
-    mainAxisSize: MainAxisSize.min,
     children: [
       Expanded(
         child: CustomButton(

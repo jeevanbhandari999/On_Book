@@ -307,6 +307,7 @@ class _PostFormState extends State<PostForm> {
       children: [
         if (widget.onCancel != null)
           Expanded(
+            flex: 1,
             child: CustomButton(
               text: 'Cancel',
               onPressed: isSubmitting ? null : widget.onCancel,
