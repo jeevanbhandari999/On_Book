@@ -92,34 +92,7 @@ class LibraryView extends StatelessWidget {
                       return const SizedBox.shrink();
                     }
                     final activeFilter = state.activeFilter;
-                    return
-                    // SizedBox(
-                    //   width: double.infinity,
-                    //   height: 40,
-                    //   child: ListView.separated(
-                    //     scrollDirection: Axis.horizontal,
-                    //     itemCount: LibraryFilter.values.length,
-                    //     separatorBuilder: (_, __) =>
-                    //         const SizedBox(width: UiConstants.spacingSm),
-                    //     itemBuilder: (context, index) {
-                    //       final filter = LibraryFilter.values[index];
-                    //       final isActive = filter == activeFilter;
-                    //       return CustomButton(
-                    //         icon: isActive ? const Icon(Icons.check) : null,
-                    //         text: filter.displayName,
-                    //         isOutlined: !isActive,
-                    //         onPressed: () {
-                    //           context.read<LibraryBloc>().add(
-                    //             ChangeLibraryFilterTabRequested(
-                    //               filter: filter,
-                    //             ),
-                    //           );
-                    //         },
-                    //       );
-                    //     },
-                    //   ),
-                    // );
-                    Container(
+                    return Container(
                       width: double.infinity,
                       padding: const EdgeInsets.fromLTRB(
                         UiConstants.spacingLg,
