@@ -96,45 +96,7 @@ class ProfileView extends StatelessWidget {
                     ],
                   );
                 }
-
-                return Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.error_outline_rounded,
-                        size: 80,
-                        color: Theme.of(context).colorScheme.error,
-                      ),
-                      const SizedBox(height: 16),
-                      const Text(
-                        'Could not load profile',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      TextButton.icon(
-                        onPressed: () {
-                          final userId = DependencyInjection.get<AuthService>()
-                              .getCurrentUserId();
-                          if (userId != null) {
-                            context
-                                .read<GetCurrentUserProfileDetailsBloc>()
-                                .add(
-                                  GetCurrentUserProfileDetailsRequested(
-                                    userId: userId,
-                                  ),
-                                );
-                          }
-                        },
-                        icon: const Icon(Icons.refresh),
-                        label: const Text('Retry'),
-                      ),
-                    ],
-                  ),
-                );
+                return const SizedBox.shrink();
               },
             ),
       ),
