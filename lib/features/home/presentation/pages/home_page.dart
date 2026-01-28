@@ -596,6 +596,8 @@ import 'package:app/features/home/domain/usecases/get_organization_detail_by_pos
 import 'package:app/features/home/presentation/bloc/home_bloc.dart';
 import 'package:app/features/post/domain/entities/post.dart';
 import 'package:app/features/post/domain/entities/post_enums.dart';
+import 'package:app/features/profile/domain/usecases/get_current_user_profile_use_case.dart';
+import 'package:app/features/profile/presentation/bloc/get_current_user_profile_details_bloc.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -615,22 +617,32 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) =>
-          HomeBloc(
-            getNearbyPostsUseCase:
-                DependencyInjection.get<GetAllPostsNearByUserUseCase>(),
-            getOrganizationDetailByPostOrganizationIdUseCase:
-                DependencyInjection.get<
-                  GetOrganizationDetailByPostOrganizationIdUseCase
-                >(),
-          )..add(
-            FetchNearbyPosts(
-              userId: userId,
-              latitude: latitude,
-              longitude: longitude,
-            ),
-          ),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => GetCurrentUserProfileDetailsBloc(
+            getCurrentUserProfileUseCase:
+                DependencyInjection.get<GetCurrentUserProfileUseCase>(),
+          )..add(GetCurrentUserProfileDetailsRequested(userId: userId)),
+        ),
+        BlocProvider(
+          create: (context) =>
+              HomeBloc(
+                getNearbyPostsUseCase:
+                    DependencyInjection.get<GetAllPostsNearByUserUseCase>(),
+                getOrganizationDetailByPostOrganizationIdUseCase:
+                    DependencyInjection.get<
+                      GetOrganizationDetailByPostOrganizationIdUseCase
+                    >(),
+              )..add(
+                FetchNearbyPosts(
+                  userId: userId,
+                  latitude: latitude,
+                  longitude: longitude,
+                ),
+              ),
+        ),
+      ],
       child: HomeView(userId: userId),
     );
   }
@@ -665,7 +677,23 @@ class HomeView extends StatelessWidget {
                     pinned: true,
                     backgroundColor: Colors.transparent,
                     elevation: 0,
-                    expandedHeight: 120,
+                    expandedHeight: 200,
+                    actions: [
+                      IconButton(
+                        icon: const Icon(
+                          Icons.notifications_outlined,
+                          color: Colors.white,
+                        ),
+                        onPressed: () {},
+                      ),
+                      IconButton(
+                        icon: const Icon(
+                          Icons.chat_outlined,
+                          color: Colors.white,
+                        ),
+                        onPressed: () {},
+                      ),
+                    ],
                     flexibleSpace: Stack(
                       children: [
                         Positioned.fill(
@@ -679,34 +707,206 @@ class HomeView extends StatelessWidget {
                           ),
                         ),
                         const FlexibleSpaceBar(
-                          titlePadding: const EdgeInsets.only(
-                            left: 16,
-                            bottom: 12,
-                          ),
-                          title: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: const [
-                              Text(
-                                'Welcome',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.white70,
-                                ),
-                              ),
-                              Text(
-                                'John Doe', // mock user name
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
+                          titlePadding: EdgeInsets.only(left: 16, bottom: 12),
+                          title: HomeProfileHeader(),
                         ),
                       ],
                     ),
                   ),
+                  // SliverAppBar(
+                  //   pinned: true,
+                  //   backgroundColor: Colors.transparent,
+                  //   elevation: 0,
+                  //   collapsedHeight: kToolbarHeight,
+                  //   expandedHeight: 200,
+                  //   leading: Padding(
+                  //     padding: const EdgeInsets.all(8.0),
+                  //     child: CircleAvatar(),
+                  //   ),
+                  //   actions: [
+                  //     IconButton(
+                  //       icon: const Icon(
+                  //         Icons.notifications_outlined,
+                  //         color: Colors.white,
+                  //       ),
+                  //       onPressed: () {},
+                  //     ),
+                  //     IconButton(
+                  //       icon: const Icon(
+                  //         Icons.chat_outlined,
+                  //         color: Colors.white,
+                  //       ),
+                  //       onPressed: () {},
+                  //     ),
+                  //   ],
+                  //   flexibleSpace: LayoutBuilder(
+                  //     builder: (context, constraints) {
+                  //       final top = constraints.biggest.height;
+                  //       final isCollapsed =
+                  //           top <=
+                  //           kToolbarHeight + MediaQuery.of(context).padding.top;
+
+                  //       return Stack(
+                  //         children: [
+                  //           Positioned.fill(
+                  //             child: Container(
+                  //               decoration: BoxDecoration(
+                  //                 color: Theme.of(context).colorScheme.primary,
+                  //                 borderRadius: const BorderRadius.vertical(
+                  //                   bottom: Radius.circular(
+                  //                     UiConstants.radiusXl,
+                  //                   ),
+                  //                 ),
+                  //               ),
+                  //             ),
+                  //           ),
+                  //           FlexibleSpaceBar(
+                  //             centerTitle: true,
+                  //             titlePadding: const EdgeInsets.symmetric(
+                  //               horizontal: 16,
+                  //               vertical: 8,
+                  //             ),
+                  //             title: AnimatedSwitcher(
+                  //               duration: const Duration(milliseconds: 250),
+                  //               child: isCollapsed
+                  //                   ? Row(
+                  //                       key: const ValueKey('collapsed'),
+                  //                       children: [
+                  //                         // Optionally show small avatar or just name
+                  //                         CircleAvatar(
+                  //                           radius: 14,
+                  //                           backgroundImage: NetworkImage(
+                  //                             'https://via.placeholder.com/150', // replace with user's avatar if available
+                  //                           ),
+                  //                         ),
+                  //                         const SizedBox(width: 8),
+                  //                         Expanded(
+                  //                           child:
+                  //                               BlocBuilder<
+                  //                                 GetCurrentUserProfileDetailsBloc,
+                  //                                 GetCurrentUserProfileDetailsState
+                  //                               >(
+                  //                                 builder: (context, state) {
+                  //                                   if (state
+                  //                                       is GetCurrentUserProfileDetailsSuccess) {
+                  //                                     return Text(
+                  //                                       state.user.fullName,
+                  //                                       maxLines: 1,
+                  //                                       overflow: TextOverflow
+                  //                                           .ellipsis,
+                  //                                       style: const TextStyle(
+                  //                                         fontSize: 18,
+                  //                                         fontWeight:
+                  //                                             FontWeight.bold,
+                  //                                         color: Colors.white,
+                  //                                       ),
+                  //                                     );
+                  //                                   }
+                  //                                   return const Text(
+                  //                                     'Welcome',
+                  //                                     style: TextStyle(
+                  //                                       fontSize: 18,
+                  //                                       fontWeight:
+                  //                                           FontWeight.bold,
+                  //                                       color: Colors.white,
+                  //                                     ),
+                  //                                   );
+                  //                                 },
+                  //                               ),
+                  //                         ),
+                  //                       ],
+                  //                     )
+                  //                   : const HomeProfileHeader(
+                  //                       key: ValueKey('expanded'),
+                  //                     ),
+                  //             ),
+                  //           ),
+                  //         ],
+                  //       );
+                  //     },
+                  //   ),
+                  // ),
+
+                  // SliverAppBar(
+                  //   pinned: true,
+                  //   backgroundColor: Theme.of(context).colorScheme.primary,
+                  //   elevation: 0,
+                  //   expandedHeight: 200,
+                  //   leading: Padding(
+                  //     padding: const EdgeInsets.all(8.0),
+                  //     child: CircleAvatar(radius: 24),
+                  //   ),
+                  //   actions: [
+                  //     IconButton(
+                  //       icon: const Icon(Icons.notifications_outlined),
+                  //       onPressed: () {},
+                  //     ),
+                  //     IconButton(
+                  //       icon: const Icon(Icons.chat_outlined),
+                  //       onPressed: () {},
+                  //     ),
+                  //   ],
+                  //   flexibleSpace: LayoutBuilder(
+                  //     builder: (context, constraints) {
+                  //       // Detect if the appbar is collapsed
+                  //       final isCollapsed =
+                  //           constraints.maxHeight <=
+                  //           kToolbarHeight + MediaQuery.of(context).padding.top;
+
+                  //       return FlexibleSpaceBar(
+                  //         centerTitle: true,
+                  //         titlePadding: const EdgeInsets.symmetric(
+                  //           horizontal: 16,
+                  //           vertical: 8,
+                  //         ),
+                  //         title: AnimatedSwitcher(
+                  //           duration: const Duration(milliseconds: 250),
+                  //           child: isCollapsed
+                  //               ? Text(
+                  //                   "John Doe", // Replace with user's name dynamically
+                  //                   style: const TextStyle(
+                  //                     fontSize: 18,
+                  //                     fontWeight: FontWeight.bold,
+                  //                     color: Colors.white,
+                  //                   ),
+                  //                   key: const ValueKey('collapsed'),
+                  //                 )
+                  //               : Column(
+                  //                   key: const ValueKey('expanded'),
+                  //                   mainAxisAlignment: MainAxisAlignment.end,
+                  //                   crossAxisAlignment:
+                  //                       CrossAxisAlignment.start,
+                  //                   children: [
+                  //                     Text(
+                  //                       "Welcome, John!", // Dynamic greeting
+                  //                       style: const TextStyle(
+                  //                         fontSize: 14,
+                  //                         color: Colors.white70,
+                  //                       ),
+                  //                     ),
+                  //                     Text(
+                  //                       "John Doe", // Dynamic user name
+                  //                       style: const TextStyle(
+                  //                         fontSize: 20,
+                  //                         fontWeight: FontWeight.bold,
+                  //                         color: Colors.white,
+                  //                       ),
+                  //                     ),
+                  //                     const SizedBox(height: 4),
+                  //                     Text(
+                  //                       "john.doe@email.com", // Dynamic email
+                  //                       style: const TextStyle(
+                  //                         fontSize: 12,
+                  //                         color: Colors.white70,
+                  //                       ),
+                  //                     ),
+                  //                   ],
+                  //                 ),
+                  //         ),
+                  //       );
+                  //     },
+                  //   ),
+                  // ),
 
                   /// CHAT USERS STRIP (MOCK)
                   SliverToBoxAdapter(
@@ -874,6 +1074,70 @@ class _PostGridCard extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+// Profile header
+
+class HomeProfileHeader extends StatelessWidget {
+  const HomeProfileHeader({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<
+      GetCurrentUserProfileDetailsBloc,
+      GetCurrentUserProfileDetailsState
+    >(
+      builder: (context, state) {
+        if (state is GetCurrentUserProfileDetailsLoading) {
+          return const SizedBox(
+            height: 40,
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+          );
+        }
+
+        if (state is GetCurrentUserProfileDetailsError) {
+          return const Text(
+            'Welcome',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          );
+        }
+
+        if (state is GetCurrentUserProfileDetailsSuccess) {
+          final user = state.user;
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'Welcome',
+                style: TextStyle(fontSize: 12, color: Colors.white70),
+              ),
+              Text(
+                user.fullName, // ✅ dynamic
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+            ],
+          );
+        }
+
+        return const SizedBox.shrink();
+      },
     );
   }
 }
