@@ -115,7 +115,7 @@ class _MainTabNavigationPageState extends State<MainTabNavigationPage>
             }
           },
           child: Scaffold(
-            appBar: _buildAppBar(context),
+            // appBar: _buildAppBar(context),
             body: widget.navigationShell,
             // body: TabBarView(
             //   controller: _tabController,
