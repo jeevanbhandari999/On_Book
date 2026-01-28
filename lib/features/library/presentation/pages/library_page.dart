@@ -83,55 +83,141 @@ class LibraryView extends StatelessWidget {
             return _buildErrorState(state, context);
           }
           if (state is LibraryLoaded) {
-            return Padding(
-              padding: const EdgeInsets.all(UiConstants.spacingMd),
-              child: Column(
-                children: [
-                  // Filter tabs
-                  BlocBuilder<LibraryBloc, LibraryState>(
-                    builder: (context, state) {
-                      if (state is! LibraryLoaded) {
-                        return const SizedBox.shrink();
-                      }
-                      final activeFilter = state.activeFilter;
-                      return SizedBox(
-                        width: double.infinity,
+            return Column(
+              children: [
+                // Filter tabs
+                BlocBuilder<LibraryBloc, LibraryState>(
+                  builder: (context, state) {
+                    if (state is! LibraryLoaded) {
+                      return const SizedBox.shrink();
+                    }
+                    final activeFilter = state.activeFilter;
+                    return
+                    // SizedBox(
+                    //   width: double.infinity,
+                    //   height: 40,
+                    //   child: ListView.separated(
+                    //     scrollDirection: Axis.horizontal,
+                    //     itemCount: LibraryFilter.values.length,
+                    //     separatorBuilder: (_, __) =>
+                    //         const SizedBox(width: UiConstants.spacingSm),
+                    //     itemBuilder: (context, index) {
+                    //       final filter = LibraryFilter.values[index];
+                    //       final isActive = filter == activeFilter;
+                    //       return CustomButton(
+                    //         icon: isActive ? const Icon(Icons.check) : null,
+                    //         text: filter.displayName,
+                    //         isOutlined: !isActive,
+                    //         onPressed: () {
+                    //           context.read<LibraryBloc>().add(
+                    //             ChangeLibraryFilterTabRequested(
+                    //               filter: filter,
+                    //             ),
+                    //           );
+                    //         },
+                    //       );
+                    //     },
+                    //   ),
+                    // );
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.fromLTRB(
+                        UiConstants.spacingLg,
+                        UiConstants.spacingXxl + UiConstants.spacingSm,
+                        UiConstants.spacingLg,
+                        UiConstants.spacingLg,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.primary,
+                        borderRadius: const BorderRadius.vertical(
+                          bottom: Radius.circular(UiConstants.radiusXl),
+                        ),
+                      ),
+                      child: SizedBox(
                         height: 40,
                         child: ListView.separated(
                           scrollDirection: Axis.horizontal,
                           itemCount: LibraryFilter.values.length,
                           separatorBuilder: (_, __) =>
-                              const SizedBox(width: UiConstants.spacingSm),
+                              const SizedBox(width: UiConstants.spacingXs),
                           itemBuilder: (context, index) {
                             final filter = LibraryFilter.values[index];
                             final isActive = filter == activeFilter;
 
-                            return CustomButton(
-                              icon: isActive ? const Icon(Icons.check) : null,
-                              text: filter.displayName,
-                              isOutlined: !isActive,
-                              onPressed: () {
+                            return InkWell(
+                              borderRadius: BorderRadius.circular(
+                                UiConstants.radiusMd,
+                              ),
+                              onTap: () {
                                 context.read<LibraryBloc>().add(
                                   ChangeLibraryFilterTabRequested(
                                     filter: filter,
                                   ),
                                 );
                               },
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 200),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: UiConstants.spacingMd,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: isActive
+                                      ? Theme.of(
+                                          context,
+                                        ).colorScheme.primaryContainer
+                                      : Colors.transparent,
+                                  borderRadius: BorderRadius.circular(
+                                    UiConstants.radiusMd,
+                                  ),
+                                  // border: Border.all(
+                                  //   color: Theme.of(
+                                  //     context,
+                                  //   ).colorScheme.primaryContainer,
+                                  // ),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    if (isActive) ...[
+                                      const Icon(
+                                        Icons.check,
+                                        size: 16,
+                                        color: Colors.black,
+                                      ),
+                                      const SizedBox(width: 6),
+                                    ],
+                                    Text(
+                                      filter.displayName,
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: isActive
+                                            ? FontWeight.w600
+                                            : FontWeight.w500,
+                                        color: isActive
+                                            ? Colors.black87
+                                            : Colors.white,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
                             );
                           },
                         ),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: UiConstants.spacingMd),
-                  BlocBuilder<LibraryBloc, LibraryState>(
-                    builder: (context, state) {
-                      if (state is! LibraryLoaded) {
-                        return const SizedBox.shrink();
-                      }
-                      final filteredBookings = _getFilteredBookings(state);
+                      ),
+                    );
+                  },
+                ),
+                BlocBuilder<LibraryBloc, LibraryState>(
+                  builder: (context, state) {
+                    if (state is! LibraryLoaded) {
+                      return const SizedBox.shrink();
+                    }
+                    final filteredBookings = _getFilteredBookings(state);
 
-                      return Expanded(
+                    return Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.all(UiConstants.spacingMd),
                         child: RefreshIndicator(
                           onRefresh: () async {
                             context.read<LibraryBloc>().add(
@@ -175,11 +261,11 @@ class LibraryView extends StatelessWidget {
                                   },
                                 ),
                         ),
-                      );
-                    },
-                  ),
-                ],
-              ),
+                      ),
+                    );
+                  },
+                ),
+              ],
             );
           }
           return const LoadingWidget();
