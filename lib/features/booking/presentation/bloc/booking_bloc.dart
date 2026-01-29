@@ -408,13 +408,7 @@ class BookingFormBloc extends Bloc<BookingFormEvent, BookingFormState> {
       final result = await _createBookingUseCase(params);
 
       result.fold(
-        (failure) => emit(
-          BookingFormError(
-            message: failure is ValidationFailure
-                ? failure.message
-                : 'Failed to create booking',
-          ),
-        ),
+        (failure) => emit(BookingFormError(message: failure.message)),
         (newBooking) {
           emit(current.copyWith(isSubmitting: false));
           emit(

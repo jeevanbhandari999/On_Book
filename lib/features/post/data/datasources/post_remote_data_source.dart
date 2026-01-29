@@ -1,10 +1,14 @@
+import 'dart:async';
 import 'dart:io';
 
+import 'package:app/app/dependency_injection.dart';
 import 'package:app/core/errors/exceptions.dart' as core_exceptions;
 import 'package:app/core/services/cloudinary_service.dart';
+import 'package:app/features/auth/services/auth_service.dart';
 import 'package:app/features/post/data/models/post_image_model.dart';
 import 'package:app/features/post/data/models/post_model.dart';
 import 'package:app/features/post/data/models/post_video_model.dart';
+import 'package:app/features/post/services/post_services.dart';
 import 'package:cloudinary_public/cloudinary_public.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -332,7 +336,10 @@ class PostRemoteDataSourceImpl implements PostRemoteDataSource {
 
   @override
   Future<PostModel> getPostById(String postId) async {
+    final postService = DependencyInjection.get<PostServices>();
     try {
+      print('Hello');
+
       final response = await supabaseClient
           .from('posts')
           .select('''
@@ -350,7 +357,19 @@ class PostRemoteDataSourceImpl implements PostRemoteDataSource {
           .eq('id', postId)
           .single();
 
-      return PostModel.fromJson(response);
+      final post = PostModel.fromJson(response);
+      final currentUserId = postService.getCurrentUserId();
+      if (currentUserId != null) {
+        print('Trigger calling');
+        unawaited(
+          supabaseClient.rpc(
+            'add_post_view',
+            params: {'p_post_id': postId, 'p_user_id': currentUserId},
+          ),
+        );
+      }
+
+      return post;
     } catch (e) {
       throw core_exceptions.ServerException('Failed to fetch posts: $e');
     }

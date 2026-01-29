@@ -82,6 +82,7 @@ class BookingFormView extends StatelessWidget {
               ),
             );
           } else if (state is BookingFormError) {
+            print(state.message);
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(state.message),

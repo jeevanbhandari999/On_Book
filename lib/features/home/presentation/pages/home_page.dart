@@ -589,7 +589,6 @@
 import 'package:app/app/dependency_injection.dart';
 import 'package:app/app/router/route_constants.dart';
 import 'package:app/core/constants/ui_constants.dart';
-import 'package:app/core/widgets/common_widgets.dart';
 import 'package:app/features/auth/domain/entities/organization.dart';
 import 'package:app/features/home/domain/usecases/get_all_posts_near_by_user_use_case.dart';
 import 'package:app/features/home/domain/usecases/get_organization_detail_by_post_organization_id.dart';
@@ -815,7 +814,7 @@ class HomeView extends StatelessWidget {
                           );
                         }
 
-                        return _PostGridCard(
+                        return PostGridCard(
                           post: post,
                           organization: organization,
                           userId: userId,
@@ -826,7 +825,7 @@ class HomeView extends StatelessWidget {
                             crossAxisCount: 2,
                             mainAxisSpacing: UiConstants.spacingSm,
                             crossAxisSpacing: UiConstants.spacingSm,
-                            childAspectRatio: 0.75,
+                            childAspectRatio: 0.68,
                           ),
                     ),
                   ),
@@ -897,13 +896,13 @@ class HomeView extends StatelessWidget {
   }
 }
 
-/// GRID CARD (UI ONLY)
-class _PostGridCard extends StatelessWidget {
+class PostGridCard extends StatelessWidget {
   final Post post;
   final Organization organization;
   final String userId;
 
-  const _PostGridCard({
+  const PostGridCard({
+    super.key,
     required this.post,
     required this.organization,
     required this.userId,
@@ -911,79 +910,153 @@ class _PostGridCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isAvailable =
-        enumFromString(PostStatus.values, post.status.name) ==
-        PostStatus.available;
+    final theme = Theme.of(context);
+    final isAvailable = post.status == PostStatus.available;
 
     return Material(
-      color: Colors.transparent,
       borderRadius: BorderRadius.circular(UiConstants.radiusMd),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(UiConstants.radiusMd),
-          color: Theme.of(context).cardColor,
-          boxShadow: const [
-            BoxShadow(
-              color: Colors.black12, // soft shadow
-              blurRadius: 10,
-              spreadRadius: 1,
-              offset: Offset(0, 4), // downward shadow
-            ),
-          ],
-        ),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(UiConstants.radiusMd),
-          onTap: () {
-            context.push(
-              RouteConstants.postDetailsPage,
-              extra: {'postId': post.id, 'post': post, 'userId': userId},
-            );
-          },
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: ClipRRect(
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(UiConstants.radiusMd),
-                    topRight: Radius.circular(UiConstants.radiusMd),
-                  ),
-                  child: CachedNetworkImage(
+      elevation: 2, // slightly softer
+      color: theme.cardColor,
+      clipBehavior: Clip.antiAlias, // helps with rounded corners + inkwell
+      child: InkWell(
+        onTap: () {
+          context.push(
+            RouteConstants.postDetailsPage,
+            extra: {'postId': post.id, 'post': post, 'userId': userId},
+          );
+        },
+        child: Column(
+          mainAxisSize: MainAxisSize.max,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // ── Image section (fixed height) ──
+            AspectRatio(
+              aspectRatio: 1.1, // slightly portrait — adjust 1.0–1.25 as needed
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  CachedNetworkImage(
                     imageUrl: post.primaryImageUrl,
-                    width: double.infinity,
                     fit: BoxFit.cover,
+                    placeholder: (context, url) =>
+                        ColoredBox(color: Colors.grey.shade200),
+                    errorWidget: (context, url, error) =>
+                        const Icon(Icons.broken_image),
                   ),
-                ),
-              ),
-              Container(
-                decoration: const BoxDecoration(
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(UiConstants.radiusMd),
-                    bottomRight: Radius.circular(UiConstants.radiusMd),
-                  ),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      post.title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    Text(
-                      'Rs. ${post.price}',
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.primary,
-                        fontWeight: FontWeight.w600,
+
+                  // Bookmark button
+                  Positioned(
+                    top: 8,
+                    right: 8,
+                    child: Material(
+                      color: Colors.black38,
+                      borderRadius: BorderRadius.circular(20),
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(20),
+                        onTap: () {
+                          // TODO: bookmark / save logic
+                        },
+                        child: const Padding(
+                          padding: EdgeInsets.all(6),
+                          child: Icon(
+                            Icons.bookmark_border_rounded,
+                            size: 18,
+                            color: Colors.white,
+                          ),
+                        ),
                       ),
                     ),
+                  ),
+                ],
+              ),
+            ),
+
+            // ── Content section ──
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
+                child: Column(
+                  mainAxisSize: MainAxisSize.max,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Title – most important – generous space
+                    Flexible(
+                      flex: 3,
+                      child: Text(
+                        post.title,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 14.5,
+                          fontWeight: FontWeight.w600,
+                          height: 1.22,
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 4),
+
+                    // Organization – smaller & lighter
+                    Flexible(
+                      flex: 2,
+                      child: Text(
+                        organization.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey.shade700,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+
+                    const Spacer(), // pushes price/status/button to bottom
+                    // Price + Status row
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          post.price != null ? 'Rs. ${post.price}' : 'Contact',
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                            color: theme.colorScheme.primary,
+                          ),
+                        ),
+
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 3,
+                          ),
+                          decoration: BoxDecoration(
+                            color: isAvailable
+                                ? Colors.green.shade700
+                                : Colors.grey.shade600,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            isAvailable ? 'Available' : 'Booked',
+                            style: const TextStyle(
+                              fontSize: 10,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                              height: 1.1,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 10),
+
+                    // Book button – fills remaining space horizontally
                     SizedBox(
                       width: double.infinity,
-                      height: UiConstants.buttonHeightSm,
-                      child: CustomButton(
-                        text: isAvailable ? 'Book Now' : 'Booked',
-                        textColor: isAvailable ? Colors.white : Colors.black,
+                      height: 38,
+                      child: ElevatedButton(
                         onPressed: isAvailable
                             ? () {
                                 context.push(
@@ -996,13 +1069,37 @@ class _PostGridCard extends StatelessWidget {
                                 );
                               }
                             : null,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: isAvailable
+                              ? theme.colorScheme.primary
+                              : Colors.grey.shade300,
+                          foregroundColor: isAvailable
+                              ? Colors.white
+                              : Colors.black54,
+                          disabledBackgroundColor: Colors.grey.shade300,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          elevation: 0,
+                          padding: EdgeInsets.zero,
+                          textStyle: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        child: Text(
+                          isAvailable ? 'Book Now' : 'Unavailable',
+                          style: TextStyle(
+                            color: isAvailable ? Colors.white : Colors.black,
+                          ),
+                        ),
                       ),
                     ),
                   ],
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
