@@ -261,7 +261,6 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
             'id, name, logo_url, address, phone, longitude, latitude, created_by, created_at, updated_at, org_global_scores(total_score)',
           )
           .limit(10);
-
       if ((response.isEmpty)) {
         return const Right([]);
       }
