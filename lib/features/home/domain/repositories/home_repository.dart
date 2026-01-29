@@ -25,10 +25,7 @@ abstract class HomeRepository {
   Future<Either<Failure, List<Post>>> getCachedPosts(String userId);
 
   // Cache posts locally
-  Future<Either<Failure, void>> cachePosts(
-    String userId,
-    List<Post> posts,
-  );
+  Future<Either<Failure, void>> cachePosts(String userId, List<Post> posts);
 
   // Clear cached posts for a specific user
   Future<Either<Failure, void>> clearCachedPosts(String userId);
@@ -55,4 +52,8 @@ abstract class HomeRepository {
   // Get the organization detail by post id
   Future<Either<Failure, Organization>>
   getOrganizationDetailByPostOrganizationId(String organizationId);
+
+  // Get the most rated organizations according to the user ratings and the others
+  Future<Either<Failure, List<Organization>>>
+  getOrganizationsBasedOnUserAndOthersPreferences({String? userId});
 }

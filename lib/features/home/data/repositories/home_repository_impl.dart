@@ -204,4 +204,32 @@ class HomeRepositoryImpl implements HomeRepository {
       return Left(UnknownFailure(e.toString()));
     }
   }
+
+  @override
+  Future<Either<Failure, List<Organization>>>
+  getOrganizationsBasedOnUserAndOthersPreferences({String? userId}) async {
+    try {
+      final response = await remoteDataSource
+          .getOrganizationsBasedOnUserAndOthersPreferences();
+      return response.fold(
+        (failure) => Left(failure),
+        (orgDetails) =>
+            Right(orgDetails.map((orgDetail) => orgDetail.toEntity()).toList()),
+      );
+    } on ValidationException catch (e) {
+      return Left(ValidationFailure(e.message));
+    } on AuthException catch (e) {
+      return Left(AuthFailure(e.message));
+    } on PermissionException catch (e) {
+      return Left(PermissionFailure(e.message));
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
+    } on CacheException catch (e) {
+      return Left(CacheFailure(e.message));
+    } catch (e) {
+      return Left(UnknownFailure(e.toString()));
+    }
+  }
 }
