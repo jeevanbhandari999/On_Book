@@ -589,11 +589,12 @@
 import 'package:app/app/dependency_injection.dart';
 import 'package:app/app/router/route_constants.dart';
 import 'package:app/core/constants/ui_constants.dart';
-import 'package:app/core/theme/app_colors.dart';
 import 'package:app/core/widgets/common_widgets.dart';
 import 'package:app/features/auth/domain/entities/organization.dart';
 import 'package:app/features/home/domain/usecases/get_all_posts_near_by_user_use_case.dart';
 import 'package:app/features/home/domain/usecases/get_organization_detail_by_post_organization_id.dart';
+import 'package:app/features/home/domain/usecases/get_organization_list_based_on_global_score_use_case.dart';
+import 'package:app/features/home/presentation/bloc/get_organization_list_based_on_global_score_bloc.dart';
 import 'package:app/features/home/presentation/bloc/home_bloc.dart';
 import 'package:app/features/post/domain/entities/post.dart';
 import 'package:app/features/post/domain/entities/post_enums.dart';
@@ -603,6 +604,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shimmer/shimmer.dart';
 
 class HomePage extends StatelessWidget {
   final String userId;
@@ -642,6 +644,14 @@ class HomePage extends StatelessWidget {
                   longitude: longitude,
                 ),
               ),
+        ),
+        BlocProvider(
+          create: (context) => GetOrganizationListBasedOnGlobalScoreBloc(
+            getOrganizationListBasedOnGlobalScoreUseCase:
+                DependencyInjection.get<
+                  GetOrganizationListBasedOnGlobalScoreUseCase
+                >(),
+          )..add(const GetOrganizationListBasedOnGlobalScoreRequested()),
         ),
       ],
       child: HomeView(userId: userId),
@@ -717,40 +727,74 @@ class HomeView extends StatelessWidget {
                     ),
                   ),
                   SliverToBoxAdapter(
-                    child: SizedBox(
-                      height: 100,
-                      child: ListView.separated(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: UiConstants.spacingMd,
-                          vertical: UiConstants.spacingSm,
-                        ),
-                        scrollDirection: Axis.horizontal,
-                        itemCount: 10,
-                        separatorBuilder: (_, __) =>
-                            const SizedBox(width: UiConstants.spacingMd),
-                        itemBuilder: (context, index) {
-                          return Column(
-                            children: [
-                              CircleAvatar(
-                                radius: 28,
-                                backgroundColor: Theme.of(
-                                  context,
-                                ).colorScheme.primary,
-                                child: Text(
-                                  'U$index',
-                                  style: const TextStyle(color: Colors.white),
+                    child:
+                        BlocBuilder<
+                          GetOrganizationListBasedOnGlobalScoreBloc,
+                          GetOrganizationListBasedOnGlobalScoreState
+                        >(
+                          builder: (context, state) {
+                            // 🔄 LOADING
+                            if (state
+                                is GetOrganizationListBasedOnGlobalScoreLoading) {
+                              return SizedBox(
+                                height: 100,
+                                child: ListView.separated(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: UiConstants.spacingMd,
+                                    vertical: UiConstants.spacingSm,
+                                  ),
+                                  scrollDirection: Axis.horizontal,
+                                  itemCount: 8,
+                                  separatorBuilder: (_, __) => const SizedBox(
+                                    width: UiConstants.spacingMd,
+                                  ),
+                                  itemBuilder: (context, index) =>
+                                      _shimmerCircle(),
                                 ),
-                              ),
-                              const SizedBox(height: 6),
-                              Text(
-                                'User $index',
-                                style: const TextStyle(fontSize: 12),
-                              ),
-                            ],
-                          );
-                        },
-                      ),
-                    ),
+                              );
+                            }
+                            if (state
+                                is GetOrganizationListBasedOnGlobalScoreError) {
+                              return Center(child: Text(state.message));
+                            }
+                            if (state
+                                is GetOrganizationListBasedOnGlobalScoreSuccess) {
+                              final organizations = state.organizations;
+
+                              final int displayCount = organizations.length >= 8
+                                  ? organizations.length
+                                  : 8;
+
+                              return SizedBox(
+                                height: 100,
+                                child: ListView.separated(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: UiConstants.spacingMd,
+                                    vertical: UiConstants.spacingSm,
+                                  ),
+                                  scrollDirection: Axis.horizontal,
+                                  itemCount: displayCount,
+                                  separatorBuilder: (_, __) => const SizedBox(
+                                    width: UiConstants.spacingMd,
+                                  ),
+                                  itemBuilder: (context, index) {
+                                    if (index < organizations.length) {
+                                      return _orgItem(
+                                        context,
+                                        organizations[index],
+                                      );
+                                    } else {
+                                      // shimmer filler if less than 8 orgs
+                                      return _shimmerCircle();
+                                    }
+                                  },
+                                ),
+                              );
+                            }
+
+                            return const SizedBox.shrink();
+                          },
+                        ),
                   ),
 
                   /// POSTS GRID
@@ -794,6 +838,61 @@ class HomeView extends StatelessWidget {
           },
         ),
       ),
+    );
+  }
+
+  Widget _shimmerCircle() {
+    return Column(
+      children: [
+        Shimmer.fromColors(
+          baseColor: Colors.grey.shade300,
+          highlightColor: Colors.grey.shade100,
+          child: const CircleAvatar(radius: 28),
+        ),
+        const SizedBox(height: 6),
+        Shimmer.fromColors(
+          baseColor: Colors.grey.shade300,
+          highlightColor: Colors.grey.shade100,
+          child: Container(
+            height: 10,
+            width: 40,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(4),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _orgItem(BuildContext context, Organization org) {
+    return Column(
+      children: [
+        CircleAvatar(
+          radius: 28,
+          backgroundColor: Theme.of(context).colorScheme.primary,
+          backgroundImage: org.logoUrl != null && org.logoUrl!.isNotEmpty
+              ? NetworkImage(org.logoUrl!)
+              : null,
+          child: (org.logoUrl == null || org.logoUrl!.isEmpty)
+              ? Text(
+                  org.name[0].toUpperCase(),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                  ),
+                )
+              : null,
+        ),
+        const SizedBox(height: 6),
+        Text(
+          org.name,
+          style: const TextStyle(fontSize: 12),
+          overflow: TextOverflow.ellipsis,
+        ),
+      ],
     );
   }
 }
@@ -911,7 +1010,6 @@ class _PostGridCard extends StatelessWidget {
 }
 
 // Profile header
-
 class HomeProfileHeader extends StatelessWidget {
   const HomeProfileHeader({super.key});
 
@@ -955,7 +1053,7 @@ class HomeProfileHeader extends StatelessWidget {
                 style: TextStyle(fontSize: 12, color: Colors.white70),
               ),
               Text(
-                user.fullName, // ✅ dynamic
+                user.fullName,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(

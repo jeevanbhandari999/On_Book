@@ -4,6 +4,8 @@ import 'package:app/features/home/data/repositories/home_repository_impl.dart';
 import 'package:app/features/home/domain/repositories/home_repository.dart';
 import 'package:app/features/home/domain/usecases/get_all_posts_near_by_user_use_case.dart';
 import 'package:app/features/home/domain/usecases/get_organization_detail_by_post_organization_id.dart';
+import 'package:app/features/home/domain/usecases/get_organization_list_based_on_global_score_use_case.dart';
+import 'package:app/features/home/presentation/bloc/get_organization_list_based_on_global_score_bloc.dart';
 import 'package:app/features/home/presentation/bloc/home_bloc.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
@@ -33,8 +35,17 @@ class HomeDependencies {
     getIt.registerLazySingleton<GetAllPostsNearByUserUseCase>(
       () => GetAllPostsNearByUserUseCase(getIt<HomeRepository>()),
     );
-    getIt.registerLazySingleton<GetOrganizationDetailByPostOrganizationIdUseCase>(
-      () => GetOrganizationDetailByPostOrganizationIdUseCase(getIt<HomeRepository>()),
+    getIt.registerLazySingleton<
+      GetOrganizationDetailByPostOrganizationIdUseCase
+    >(
+      () => GetOrganizationDetailByPostOrganizationIdUseCase(
+        getIt<HomeRepository>(),
+      ),
+    );
+
+    getIt.registerLazySingleton<GetOrganizationListBasedOnGlobalScoreUseCase>(
+      () =>
+          GetOrganizationListBasedOnGlobalScoreUseCase(getIt<HomeRepository>()),
     );
 
     // BLoC
@@ -43,9 +54,19 @@ class HomeDependencies {
         getNearbyPostsUseCase: GetAllPostsNearByUserUseCase(
           getIt<HomeRepository>(),
         ),
-        getOrganizationDetailByPostOrganizationIdUseCase: GetOrganizationDetailByPostOrganizationIdUseCase(
-          getIt<HomeRepository>(),
-        ),
+        getOrganizationDetailByPostOrganizationIdUseCase:
+            GetOrganizationDetailByPostOrganizationIdUseCase(
+              getIt<HomeRepository>(),
+            ),
+      ),
+    );
+
+    getIt.registerFactory<GetOrganizationListBasedOnGlobalScoreBloc>(
+      () => GetOrganizationListBasedOnGlobalScoreBloc(
+        getOrganizationListBasedOnGlobalScoreUseCase:
+            GetOrganizationListBasedOnGlobalScoreUseCase(
+              getIt<HomeRepository>(),
+            ),
       ),
     );
   }
