@@ -725,6 +725,35 @@ class HomeView extends StatelessWidget {
                       ],
                     ),
                   ),
+
+                  // SliverAppBar(
+                  //   pinned: true,
+                  //   backgroundColor: Colors.transparent,
+                  //   elevation: 0,
+                  //   expandedHeight: 200,
+                  //   actions: [
+                  //     IconButton(
+                  //       icon: const Icon(
+                  //         Icons.notifications_outlined,
+                  //         color: Colors.white,
+                  //       ),
+                  //       onPressed: () {},
+                  //     ),
+                  //     IconButton(
+                  //       icon: const Icon(
+                  //         Icons.chat_outlined,
+                  //         color: Colors.white,
+                  //       ),
+                  //       onPressed: () {
+                  //         context.push(RouteConstants.chatUserListPage);
+                  //       },
+                  //     ),
+                  //   ],
+                  //   flexibleSpace: const FlexibleSpaceBar(
+                  //     collapseMode: CollapseMode.pin,
+                  //     background: HomeSliverHeader(),
+                  //   ),
+                  // ),
                   SliverToBoxAdapter(
                     child:
                         BlocBuilder<
@@ -1164,6 +1193,146 @@ class HomeProfileHeader extends StatelessWidget {
         }
 
         return const SizedBox.shrink();
+      },
+    );
+  }
+}
+
+class HomeSliverHeader extends StatelessWidget {
+  const HomeSliverHeader({super.key});
+
+  static const double _expandedHeight = 200;
+  static const double _collapsedHeight = kToolbarHeight + 20;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final top = constraints.biggest.height;
+        final isCollapsed = top <= _collapsedHeight + 10;
+
+        return BlocBuilder<
+          GetCurrentUserProfileDetailsBloc,
+          GetCurrentUserProfileDetailsState
+        >(
+          builder: (context, state) {
+            if (state is GetCurrentUserProfileDetailsLoading) {
+              return const Center(
+                child: CircularProgressIndicator(strokeWidth: 2),
+              );
+            }
+
+            if (state is GetCurrentUserProfileDetailsError) {
+              return const SizedBox.shrink();
+            }
+
+            if (state is GetCurrentUserProfileDetailsSuccess) {
+              final user = state.user;
+
+              return Stack(
+                fit: StackFit.expand,
+                children: [
+                  /// Background
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primary,
+                      borderRadius: const BorderRadius.vertical(
+                        bottom: Radius.circular(UiConstants.radiusXl),
+                      ),
+                    ),
+                  ),
+
+                  /// App Logo (always top-left)
+                  Positioned(
+                    left: 16,
+                    top: MediaQuery.of(context).padding.top + 8,
+                    child: const CircleAvatar(
+                      radius: 18,
+                      backgroundColor: Colors.white,
+                      child: Icon(Icons.flutter_dash, color: Colors.blue),
+                    ),
+                  ),
+
+                  /// Expanded content
+                  AnimatedOpacity(
+                    opacity: isCollapsed ? 0 : 1,
+                    duration: const Duration(milliseconds: 200),
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 80, 16, 24),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          const Text(
+                            'Welcome',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.white70,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            user.fullName,
+                            style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            user.role.name,
+                            style: const TextStyle(
+                              fontSize: 13,
+                              color: Colors.white70,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  /// Collapsed center content
+                  AnimatedOpacity(
+                    opacity: isCollapsed ? 1 : 0,
+                    duration: const Duration(milliseconds: 200),
+                    child: Center(
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          CircleAvatar(
+                            radius: 14,
+                            backgroundColor: Colors.white,
+                            child: Text(
+                              user.fullName[0].toUpperCase(),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            user.fullName,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            }
+
+            return const SizedBox.shrink();
+          },
+        );
       },
     );
   }
