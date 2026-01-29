@@ -589,6 +589,7 @@
 import 'package:app/app/dependency_injection.dart';
 import 'package:app/app/router/route_constants.dart';
 import 'package:app/core/constants/ui_constants.dart';
+import 'package:app/core/theme/app_colors.dart';
 import 'package:app/core/widgets/common_widgets.dart';
 import 'package:app/features/auth/domain/entities/organization.dart';
 import 'package:app/features/home/domain/usecases/get_all_posts_near_by_user_use_case.dart';
@@ -691,7 +692,9 @@ class HomeView extends StatelessWidget {
                           Icons.chat_outlined,
                           color: Colors.white,
                         ),
-                        onPressed: () {},
+                        onPressed: () {
+                          context.push(RouteConstants.chatUserListPage);
+                        },
                       ),
                     ],
                     flexibleSpace: Stack(
@@ -713,202 +716,6 @@ class HomeView extends StatelessWidget {
                       ],
                     ),
                   ),
-                  // SliverAppBar(
-                  //   pinned: true,
-                  //   backgroundColor: Colors.transparent,
-                  //   elevation: 0,
-                  //   collapsedHeight: kToolbarHeight,
-                  //   expandedHeight: 200,
-                  //   leading: Padding(
-                  //     padding: const EdgeInsets.all(8.0),
-                  //     child: CircleAvatar(),
-                  //   ),
-                  //   actions: [
-                  //     IconButton(
-                  //       icon: const Icon(
-                  //         Icons.notifications_outlined,
-                  //         color: Colors.white,
-                  //       ),
-                  //       onPressed: () {},
-                  //     ),
-                  //     IconButton(
-                  //       icon: const Icon(
-                  //         Icons.chat_outlined,
-                  //         color: Colors.white,
-                  //       ),
-                  //       onPressed: () {},
-                  //     ),
-                  //   ],
-                  //   flexibleSpace: LayoutBuilder(
-                  //     builder: (context, constraints) {
-                  //       final top = constraints.biggest.height;
-                  //       final isCollapsed =
-                  //           top <=
-                  //           kToolbarHeight + MediaQuery.of(context).padding.top;
-
-                  //       return Stack(
-                  //         children: [
-                  //           Positioned.fill(
-                  //             child: Container(
-                  //               decoration: BoxDecoration(
-                  //                 color: Theme.of(context).colorScheme.primary,
-                  //                 borderRadius: const BorderRadius.vertical(
-                  //                   bottom: Radius.circular(
-                  //                     UiConstants.radiusXl,
-                  //                   ),
-                  //                 ),
-                  //               ),
-                  //             ),
-                  //           ),
-                  //           FlexibleSpaceBar(
-                  //             centerTitle: true,
-                  //             titlePadding: const EdgeInsets.symmetric(
-                  //               horizontal: 16,
-                  //               vertical: 8,
-                  //             ),
-                  //             title: AnimatedSwitcher(
-                  //               duration: const Duration(milliseconds: 250),
-                  //               child: isCollapsed
-                  //                   ? Row(
-                  //                       key: const ValueKey('collapsed'),
-                  //                       children: [
-                  //                         // Optionally show small avatar or just name
-                  //                         CircleAvatar(
-                  //                           radius: 14,
-                  //                           backgroundImage: NetworkImage(
-                  //                             'https://via.placeholder.com/150', // replace with user's avatar if available
-                  //                           ),
-                  //                         ),
-                  //                         const SizedBox(width: 8),
-                  //                         Expanded(
-                  //                           child:
-                  //                               BlocBuilder<
-                  //                                 GetCurrentUserProfileDetailsBloc,
-                  //                                 GetCurrentUserProfileDetailsState
-                  //                               >(
-                  //                                 builder: (context, state) {
-                  //                                   if (state
-                  //                                       is GetCurrentUserProfileDetailsSuccess) {
-                  //                                     return Text(
-                  //                                       state.user.fullName,
-                  //                                       maxLines: 1,
-                  //                                       overflow: TextOverflow
-                  //                                           .ellipsis,
-                  //                                       style: const TextStyle(
-                  //                                         fontSize: 18,
-                  //                                         fontWeight:
-                  //                                             FontWeight.bold,
-                  //                                         color: Colors.white,
-                  //                                       ),
-                  //                                     );
-                  //                                   }
-                  //                                   return const Text(
-                  //                                     'Welcome',
-                  //                                     style: TextStyle(
-                  //                                       fontSize: 18,
-                  //                                       fontWeight:
-                  //                                           FontWeight.bold,
-                  //                                       color: Colors.white,
-                  //                                     ),
-                  //                                   );
-                  //                                 },
-                  //                               ),
-                  //                         ),
-                  //                       ],
-                  //                     )
-                  //                   : const HomeProfileHeader(
-                  //                       key: ValueKey('expanded'),
-                  //                     ),
-                  //             ),
-                  //           ),
-                  //         ],
-                  //       );
-                  //     },
-                  //   ),
-                  // ),
-
-                  // SliverAppBar(
-                  //   pinned: true,
-                  //   backgroundColor: Theme.of(context).colorScheme.primary,
-                  //   elevation: 0,
-                  //   expandedHeight: 200,
-                  //   leading: Padding(
-                  //     padding: const EdgeInsets.all(8.0),
-                  //     child: CircleAvatar(radius: 24),
-                  //   ),
-                  //   actions: [
-                  //     IconButton(
-                  //       icon: const Icon(Icons.notifications_outlined),
-                  //       onPressed: () {},
-                  //     ),
-                  //     IconButton(
-                  //       icon: const Icon(Icons.chat_outlined),
-                  //       onPressed: () {},
-                  //     ),
-                  //   ],
-                  //   flexibleSpace: LayoutBuilder(
-                  //     builder: (context, constraints) {
-                  //       // Detect if the appbar is collapsed
-                  //       final isCollapsed =
-                  //           constraints.maxHeight <=
-                  //           kToolbarHeight + MediaQuery.of(context).padding.top;
-
-                  //       return FlexibleSpaceBar(
-                  //         centerTitle: true,
-                  //         titlePadding: const EdgeInsets.symmetric(
-                  //           horizontal: 16,
-                  //           vertical: 8,
-                  //         ),
-                  //         title: AnimatedSwitcher(
-                  //           duration: const Duration(milliseconds: 250),
-                  //           child: isCollapsed
-                  //               ? Text(
-                  //                   "John Doe", // Replace with user's name dynamically
-                  //                   style: const TextStyle(
-                  //                     fontSize: 18,
-                  //                     fontWeight: FontWeight.bold,
-                  //                     color: Colors.white,
-                  //                   ),
-                  //                   key: const ValueKey('collapsed'),
-                  //                 )
-                  //               : Column(
-                  //                   key: const ValueKey('expanded'),
-                  //                   mainAxisAlignment: MainAxisAlignment.end,
-                  //                   crossAxisAlignment:
-                  //                       CrossAxisAlignment.start,
-                  //                   children: [
-                  //                     Text(
-                  //                       "Welcome, John!", // Dynamic greeting
-                  //                       style: const TextStyle(
-                  //                         fontSize: 14,
-                  //                         color: Colors.white70,
-                  //                       ),
-                  //                     ),
-                  //                     Text(
-                  //                       "John Doe", // Dynamic user name
-                  //                       style: const TextStyle(
-                  //                         fontSize: 20,
-                  //                         fontWeight: FontWeight.bold,
-                  //                         color: Colors.white,
-                  //                       ),
-                  //                     ),
-                  //                     const SizedBox(height: 4),
-                  //                     Text(
-                  //                       "john.doe@email.com", // Dynamic email
-                  //                       style: const TextStyle(
-                  //                         fontSize: 12,
-                  //                         color: Colors.white70,
-                  //                       ),
-                  //                     ),
-                  //                   ],
-                  //                 ),
-                  //         ),
-                  //       );
-                  //     },
-                  //   ),
-                  // ),
-
-                  /// CHAT USERS STRIP (MOCK)
                   SliverToBoxAdapter(
                     child: SizedBox(
                       height: 100,
@@ -1009,70 +816,95 @@ class _PostGridCard extends StatelessWidget {
         enumFromString(PostStatus.values, post.status.name) ==
         PostStatus.available;
 
-    return InkWell(
+    return Material(
+      color: Colors.transparent,
       borderRadius: BorderRadius.circular(UiConstants.radiusMd),
-      onTap: () {
-        context.push(
-          RouteConstants.postDetailsPage,
-          extra: {'postId': post.id, 'post': post, 'userId': userId},
-        );
-      },
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          /// IMAGE
-          Expanded(
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(UiConstants.radiusMd),
-              child: CachedNetworkImage(
-                imageUrl: post.primaryImageUrl,
-                width: double.infinity,
-                fit: BoxFit.cover,
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(UiConstants.radiusMd),
+          color: Theme.of(context).cardColor,
+          boxShadow: const [
+            BoxShadow(
+              color: Colors.black12, // soft shadow
+              blurRadius: 10,
+              spreadRadius: 1,
+              offset: Offset(0, 4), // downward shadow
+            ),
+          ],
+        ),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(UiConstants.radiusMd),
+          onTap: () {
+            context.push(
+              RouteConstants.postDetailsPage,
+              extra: {'postId': post.id, 'post': post, 'userId': userId},
+            );
+          },
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: ClipRRect(
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(UiConstants.radiusMd),
+                    topRight: Radius.circular(UiConstants.radiusMd),
+                  ),
+                  child: CachedNetworkImage(
+                    imageUrl: post.primaryImageUrl,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                  ),
+                ),
               ),
-            ),
+              Container(
+                decoration: const BoxDecoration(
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(UiConstants.radiusMd),
+                    bottomRight: Radius.circular(UiConstants.radiusMd),
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      post.title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      'Rs. ${post.price}',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.primary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    SizedBox(
+                      width: double.infinity,
+                      height: UiConstants.buttonHeightSm,
+                      child: CustomButton(
+                        text: isAvailable ? 'Book Now' : 'Booked',
+                        textColor: isAvailable ? Colors.white : Colors.black,
+                        onPressed: isAvailable
+                            ? () {
+                                context.push(
+                                  RouteConstants.bookingFormPage,
+                                  extra: {
+                                    'userId': userId,
+                                    'postId': post.id,
+                                    'post': post,
+                                  },
+                                );
+                              }
+                            : null,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-
-          const SizedBox(height: 6),
-
-          /// TITLE
-          Text(
-            post.title,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
-
-          /// PRICE
-          Text(
-            'Rs. ${post.price}',
-            style: TextStyle(
-              color: Theme.of(context).colorScheme.primary,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-
-          const SizedBox(height: 4),
-
-          /// ACTION
-          SizedBox(
-            width: double.infinity,
-            child: CustomButton(
-              text: isAvailable ? 'Book Now' : 'Unavailable',
-              onPressed: isAvailable
-                  ? () {
-                      context.push(
-                        RouteConstants.bookingFormPage,
-                        extra: {
-                          'userId': userId,
-                          'postId': post.id,
-                          'post': post,
-                        },
-                      );
-                    }
-                  : null,
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }

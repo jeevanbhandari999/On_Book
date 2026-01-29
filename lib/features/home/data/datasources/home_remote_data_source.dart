@@ -25,6 +25,10 @@ abstract class HomeRemoteDataSource {
   // Get the organization detail by post id
   Future<Either<Failure, OrganizationModel>>
   getOrganizationDetailByPostOrganizationId(String organizationId);
+
+  // Get the most rated organizations according to the user ratings and the others
+  Future<Either<Failure, List<OrganizationModel>>>
+  getOrganizationsBasedOnUserAndOthersPreferences(String userId);
 }
 
 class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
@@ -244,5 +248,11 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
     } catch (e) {
       return Left(ServerFailure(e.toString()));
     }
+  }
+  
+  @override
+  Future<Either<Failure, List<OrganizationModel>>> getOrganizationsBasedOnUserAndOthersPreferences(String userId) {
+    // TODO: implement getOrganizationsBasedOnUserAndOthersPreferences
+    throw UnimplementedError();
   }
 }
