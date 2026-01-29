@@ -28,7 +28,7 @@ abstract class HomeRemoteDataSource {
 
   // Get the most rated organizations according to the user ratings and the others
   Future<Either<Failure, List<OrganizationModel>>>
-  getOrganizationsBasedOnUserAndOthersPreferences(String userId);
+  getOrganizationsBasedOnUserAndOthersPreferences({String? userId});
 }
 
 class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
@@ -249,10 +249,40 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
       return Left(ServerFailure(e.toString()));
     }
   }
-  
+
   @override
-  Future<Either<Failure, List<OrganizationModel>>> getOrganizationsBasedOnUserAndOthersPreferences(String userId) {
-    // TODO: implement getOrganizationsBasedOnUserAndOthersPreferences
-    throw UnimplementedError();
+  Future<Either<Failure, List<OrganizationModel>>>
+  getOrganizationsBasedOnUserAndOthersPreferences({String? userId}) async {
+    try {
+      // Fetch from Supabase
+      final response = await supabaseClient
+          .from('organizations')
+          .select(
+            'id, name, logo_url, address, phone, longitude, latitude, created_by, created_at, updated_at, org_global_scores(total_score)',
+          )
+          .limit(10);
+
+      if ((response.isEmpty)) {
+        return const Right([]);
+      }
+
+      final List data = response as List;
+
+      // Sort by total_score from org_global_scores if exists
+      data.sort((a, b) {
+        final scoreA = a['org_global_scores']?['total_score'] ?? 0;
+        final scoreB = b['org_global_scores']?['total_score'] ?? 0;
+        return scoreB.compareTo(scoreA);
+      });
+
+      // Convert to OrganizationModel
+      final organizations = data
+          .map<OrganizationModel>((json) => OrganizationModel.fromJson(json))
+          .toList();
+
+      return Right(organizations);
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
   }
 }
