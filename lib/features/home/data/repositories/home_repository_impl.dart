@@ -19,11 +19,11 @@ class HomeRepositoryImpl implements HomeRepository {
     required this.remoteDataSource,
   });
 
-  @override
-  Future<Either<Failure, void>> bookmarkPost(String postId) {
-    // TODO: implement bookmarkPost
-    throw UnimplementedError();
-  }
+  // @override
+  // Future<Either<Failure, void>> bookmarkPost(String postId) {
+  //   // TODO: implement bookmarkPost
+  //   throw UnimplementedError();
+  // }
 
   @override
   Future<Either<Failure, void>> cachePosts(
@@ -216,6 +216,36 @@ class HomeRepositoryImpl implements HomeRepository {
         (orgDetails) =>
             Right(orgDetails.map((orgDetail) => orgDetail.toEntity()).toList()),
       );
+    } on ValidationException catch (e) {
+      return Left(ValidationFailure(e.message));
+    } on AuthException catch (e) {
+      return Left(AuthFailure(e.message));
+    } on PermissionException catch (e) {
+      return Left(PermissionFailure(e.message));
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
+    } on CacheException catch (e) {
+      return Left(CacheFailure(e.message));
+    } catch (e) {
+      return Left(UnknownFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> togglePostSaveOrUnsave(
+    String userId,
+    String postId,
+    String organizationId,
+  ) async {
+    try {
+      await remoteDataSource.togglePostSaveOrUnsave(
+        userId,
+        postId,
+        organizationId,
+      );
+      return const Right(null);
     } on ValidationException catch (e) {
       return Left(ValidationFailure(e.message));
     } on AuthException catch (e) {

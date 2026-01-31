@@ -43,8 +43,8 @@ abstract class HomeRepository {
   // Unlike posts
   Future<Either<Failure, void>> unlikePost(String postId);
 
-  // Save the post for add to the library
-  Future<Either<Failure, void>> bookmarkPost(String postId);
+  // // Save the post for add to the library
+  // Future<Either<Failure, void>> bookmarkPost(String postId);
 
   // Unsave posts from the library
   Future<Either<Failure, void>> removeBookmark(String postId);
@@ -56,4 +56,11 @@ abstract class HomeRepository {
   // Get the most rated organizations according to the user ratings and the others
   Future<Either<Failure, List<Organization>>>
   getOrganizationsBasedOnUserAndOthersPreferences({String? userId});
+
+  // Save the post by users
+  Future<Either<Failure, void>> togglePostSaveOrUnsave(
+    String userId,
+    String postId,
+    String organizationId,
+  );
 }

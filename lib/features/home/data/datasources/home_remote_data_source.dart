@@ -1,3 +1,4 @@
+import 'package:app/core/errors/exceptions.dart' as core_exceptions;
 import 'package:app/core/errors/failures.dart';
 import 'package:app/features/auth/data/models/orgnization_model.dart';
 import 'package:app/features/post/data/models/post_model.dart';
@@ -29,6 +30,13 @@ abstract class HomeRemoteDataSource {
   // Get the most rated organizations according to the user ratings and the others
   Future<Either<Failure, List<OrganizationModel>>>
   getOrganizationsBasedOnUserAndOthersPreferences({String? userId});
+
+  // Save the post by users
+  Future<void> togglePostSaveOrUnsave(
+    String userId,
+    String postId,
+    String organizationId,
+  );
 }
 
 class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
@@ -282,6 +290,47 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
       return Right(organizations);
     } catch (e) {
       return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<void> togglePostSaveOrUnsave(
+    String userId,
+    String postId,
+    String organizationId,
+  ) async {
+    try {
+      // First check if it existing or not
+      final existing = await supabaseClient
+          .from('user_saved_posts')
+          .select()
+          .eq('user_id', userId)
+          .eq('post_id', postId)
+          .eq('organization_id', organizationId)
+          .maybeSingle();
+      if (existing == null) {
+        final now = DateTime.now();
+        // Insert in the table
+        await supabaseClient.from('user_saved_posts').insert({
+          'user_id': userId,
+          'post_id': postId,
+          'organization_id': organizationId,
+          'saved_at': now,
+        });
+
+        // TODO, for algorithm
+      } else {
+        // Delete the data from the table
+        // TODO, for algorithm
+        await supabaseClient
+            .from('user_saved_posts')
+            .delete()
+            .eq('id', existing['id']);
+      }
+    } catch (e) {
+      throw core_exceptions.ServerException(
+        'Failed to toggle post save or unsave: $e',
+      );
     }
   }
 }
