@@ -1,6 +1,7 @@
 import 'package:app/core/errors/exceptions.dart' as core_exceptions;
 import 'package:app/core/errors/failures.dart';
 import 'package:app/features/auth/data/models/orgnization_model.dart';
+import 'package:app/features/home/data/models/saved_post_model.dart';
 import 'package:app/features/post/data/models/post_model.dart';
 import 'package:dartz/dartz.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -37,6 +38,9 @@ abstract class HomeRemoteDataSource {
     String postId,
     String organizationId,
   );
+
+  // For real time updates
+  Stream<List<SavedPostModel>> streamReactions(String userId);
 }
 
 class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
@@ -330,6 +334,21 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
     } catch (e) {
       throw core_exceptions.ServerException(
         'Failed to toggle post save or unsave: $e',
+      );
+    }
+  }
+
+  @override
+  Stream<List<SavedPostModel>> streamReactions(String userId) {
+    try {
+      return supabaseClient
+          .from('user_saved_posts')
+          .stream(primaryKey: ['id'])
+          .eq('user_id', userId)
+          .map((rows) => rows.map(SavedPostModel.fromJson).toList());
+    } catch (e) {
+      throw core_exceptions.ServerException(
+        'Failed to stream post save or unsave: $e',
       );
     }
   }

@@ -4,6 +4,7 @@ import 'package:app/core/errors/failures.dart';
 import 'package:app/features/auth/domain/entities/organization.dart';
 import 'package:app/features/home/data/datasources/home_local_data_source.dart';
 import 'package:app/features/home/data/datasources/home_remote_data_source.dart';
+import 'package:app/features/home/domain/entities/saved_post.dart';
 import 'package:app/features/home/domain/repositories/home_repository.dart';
 import 'package:app/features/post/data/models/post_model.dart';
 import 'package:app/features/post/domain/entities/post.dart';
@@ -260,6 +261,30 @@ class HomeRepositoryImpl implements HomeRepository {
       return Left(CacheFailure(e.message));
     } catch (e) {
       return Left(UnknownFailure(e.toString()));
+    }
+  }
+
+  @override
+  Stream<Either<Failure, List<SavedPost>>> streamReactions(String userId) {
+    try {
+      return remoteDataSource
+          .streamReactions(userId)
+          .map<Either<Failure, List<SavedPost>>>(
+            (models) => Right(models.map((m) => m.toEntity()).toList()),
+          )
+          .handleError((error) {
+            if (error is ServerException) {
+              return Left(ServerFailure(error.message));
+            } else if (error is NetworkException) {
+              return Left(NetworkFailure(error.message));
+            } else if (error is AuthException) {
+              return Left(AuthFailure(error.message));
+            } else {
+              return Left(UnknownFailure(error.toString()));
+            }
+          });
+    } catch (e) {
+      return Stream.value(Left(UnknownFailure(e.toString())));
     }
   }
 }

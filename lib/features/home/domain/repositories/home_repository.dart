@@ -1,5 +1,6 @@
 import 'package:app/core/errors/failures.dart';
 import 'package:app/features/auth/domain/entities/organization.dart';
+import 'package:app/features/home/domain/entities/saved_post.dart';
 import 'package:app/features/post/domain/entities/post.dart';
 import 'package:dartz/dartz.dart';
 
@@ -63,4 +64,8 @@ abstract class HomeRepository {
     String postId,
     String organizationId,
   );
+
+
+  Stream<Either<Failure, List<SavedPost>>> streamReactions(String userId);
+
 }
