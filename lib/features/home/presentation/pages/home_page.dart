@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:app/app/dependency_injection.dart';
 import 'package:app/app/router/route_constants.dart';
 import 'package:app/core/constants/ui_constants.dart';
@@ -559,11 +561,14 @@ class PostCard extends StatelessWidget {
     final double baseHeight = 200;
     final double heightVariation = (post.title.length % 5) * 40.0;
     final double cardHeight = baseHeight + heightVariation;
+    final double maxHeight = MediaQuery.of(context).size.height * 0.55;
+
     final theme = Theme.of(context);
     final isAvailable = post.status == PostStatus.available;
 
     const double rating = 4.8;
     const int reviewCount = 12;
+    // print(cardHeight);
     return Container(
       decoration: BoxDecoration(
         color: theme.cardColor,
@@ -585,167 +590,218 @@ class PostCard extends StatelessWidget {
           );
         },
         borderRadius: BorderRadius.circular(4),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(4),
-          child: SizedBox(
-            height: cardHeight,
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                Positioned.fill(
-                  child: CachedNetworkImage(
-                    imageUrl: post.primaryImageUrl,
-                    fit: BoxFit.cover,
-                    placeholder: (context, url) => Container(
-                      color: Colors.grey[300],
-                      child: const Center(child: CircularProgressIndicator()),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(4),
+              child: SizedBox(
+                height: cardHeight < maxHeight ? cardHeight : maxHeight,
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    Positioned.fill(
+                      child: CachedNetworkImage(
+                        imageUrl: post.primaryImageUrl,
+                        fit: BoxFit.cover,
+                        placeholder: (context, url) => Container(
+                          color: Colors.grey[300],
+                          child: const Center(
+                            child: CircularProgressIndicator(),
+                          ),
+                        ),
+                        errorWidget: (context, url, error) => Container(
+                          color: Colors.grey[300],
+                          child: const Icon(Icons.error),
+                        ),
+                      ),
                     ),
-                    errorWidget: (context, url, error) => Container(
-                      color: Colors.grey[300],
-                      child: const Icon(Icons.error),
-                    ),
-                  ),
-                ),
 
-                Positioned(
-                  top: 8,
-                  left: 8,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: isAvailable
-                          ? Colors.green.withOpacity(0.9)
-                          : Colors.black54,
-                      borderRadius: BorderRadius.circular(
-                        UiConstants.radiusRound,
-                      ),
-                    ),
-                    child: Text(
-                      isAvailable ? 'Available' : 'Booked',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 10,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                ),
-
-                Positioned(
-                  top: 8,
-                  right: 8,
-                  child: Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: BoxDecoration(
-                      color: Colors.black54,
-                      borderRadius: BorderRadius.circular(
-                        UiConstants.radiusRound,
-                      ),
-                    ),
-                    child: const Icon(
-                      Icons.bookmark_outline,
-                      size: UiConstants.iconSm,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-
-                Positioned(
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [Colors.white, Colors.white.withAlpha(180)],
-                        begin: Alignment.bottomCenter,
-                        end: Alignment.topCenter,
-                      ),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          post.title,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                    Positioned(
+                      top: 8,
+                      left: 8,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: isAvailable
+                              ? Colors.green.withOpacity(0.9)
+                              : Colors.black54,
+                          borderRadius: BorderRadius.circular(
+                            UiConstants.radiusRound,
+                          ),
+                        ),
+                        child: Text(
+                          isAvailable ? 'Available' : 'Booked',
                           style: const TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
-                        const SizedBox(height: 2),
-                        Text(
-                          organization.name,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(fontSize: 11),
-                        ),
-                        const Row(
-                          children: [
-                            Icon(
-                              Icons.star_rounded,
-                              size: 14,
-                              color: Colors.amber,
-                            ),
-                            SizedBox(width: 4),
-                            Text(
-                              '$rating',
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            SizedBox(width: 2),
-                            Text(
-                              '($reviewCount)',
-                              style: TextStyle(fontSize: 10),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          'Rs. ${post.price!.toStringAsFixed(2)}',
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
-                          ),
-                        ),
-                        SizedBox(
-                          width: double.infinity,
-                          height: UiConstants.buttonHeightSm,
-                          child: CustomButton(
-                            text: isAvailable ? 'Book' : 'Booked',
-                            onPressed: isAvailable
-                                ? () {
-                                    context.push(
-                                      RouteConstants.bookingFormPage,
-                                      extra: {
-                                        'userId': userId,
-                                        'postId': post.id,
-                                        'post': post,
-                                      },
-                                    );
-                                  }
-                                : null,
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
-                  ),
+                    Positioned(
+                      top: 8,
+                      right: 8,
+                      child: InkWell(
+                        onTap: () {
+                          // Handle favorite / saved
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: Colors.black54,
+                            borderRadius: BorderRadius.circular(
+                              UiConstants.radiusRound,
+                            ),
+                          ),
+                          child: const Icon(
+                            Icons.favorite_border_outlined,
+                            size: UiConstants.iconSm,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    Positioned(
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      child: ClipRect(
+                        child: BackdropFilter(
+                          filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 4,
+                            ),
+                            color: Colors.white.withAlpha(100), // tint
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            post.title,
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: const TextStyle(
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                          const Row(
+                                            children: [
+                                              Icon(
+                                                Icons.star_rounded,
+                                                size: 14,
+                                                color: Colors.amber,
+                                              ),
+                                              SizedBox(width: 4),
+                                              Text(
+                                                '$rating',
+                                                style: TextStyle(
+                                                  fontSize: 11,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                              SizedBox(width: 2),
+                                              Text(
+                                                '($reviewCount)',
+                                                style: TextStyle(fontSize: 10),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    CircleAvatar(
+                                      radius: 18,
+                                      child:
+                                          (organization.logoUrl != null &&
+                                              organization.logoUrl!.isNotEmpty)
+                                          ? Image.network(
+                                              organization.logoUrl!,
+                                              fit: BoxFit.cover,
+                                            )
+                                          : Center(
+                                              child: Text(
+                                                _getInitialCharactrOfOrganization(
+                                                  organization.name,
+                                                ),
+                                                style: const TextStyle(
+                                                  // fontSize: 22,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ),
+                                    ),
+                                  ],
+                                ),
+
+                                const SizedBox(height: 4),
+                                Text(
+                                  'Rs. ${post.price!.toStringAsFixed(2)}',
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
-          ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: SizedBox(
+                width: double.infinity,
+                height: UiConstants.buttonHeightSm,
+                child: CustomButton(
+                  text: isAvailable ? 'Book Now' : 'Booked',
+                  onPressed: isAvailable
+                      ? () {
+                          context.push(
+                            RouteConstants.bookingFormPage,
+                            extra: {
+                              'userId': userId,
+                              'postId': post.id,
+                              'post': post,
+                            },
+                          );
+                        }
+                      : null,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
+}
+
+String _getInitialCharactrOfOrganization(String name) {
+  return name
+      .trim()
+      .split(' ')
+      .where((word) => word.isNotEmpty)
+      .map((word) => word[0].toUpperCase())
+      .join();
 }
