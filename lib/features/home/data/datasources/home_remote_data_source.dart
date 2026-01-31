@@ -40,7 +40,7 @@ abstract class HomeRemoteDataSource {
   );
 
   // For real time updates
-  Stream<List<SavedPostModel>> streamReactions(String userId);
+  Stream<List<SavedPostModel>> streamSavedPosts(String userId);
 }
 
 class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
@@ -339,7 +339,7 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
   }
 
   @override
-  Stream<List<SavedPostModel>> streamReactions(String userId) {
+  Stream<List<SavedPostModel>> streamSavedPosts(String userId) {
     try {
       return supabaseClient
           .from('user_saved_posts')

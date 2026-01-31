@@ -265,10 +265,10 @@ class HomeRepositoryImpl implements HomeRepository {
   }
 
   @override
-  Stream<Either<Failure, List<SavedPost>>> streamReactions(String userId) {
+  Stream<Either<Failure, List<SavedPost>>> streamSavedPosts(String userId) {
     try {
       return remoteDataSource
-          .streamReactions(userId)
+          .streamSavedPosts(userId)
           .map<Either<Failure, List<SavedPost>>>(
             (models) => Right(models.map((m) => m.toEntity()).toList()),
           )

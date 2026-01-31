@@ -66,6 +66,6 @@ abstract class HomeRepository {
   );
 
 
-  Stream<Either<Failure, List<SavedPost>>> streamReactions(String userId);
+  Stream<Either<Failure, List<SavedPost>>> streamSavedPosts(String userId);
 
 }
