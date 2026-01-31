@@ -83,7 +83,6 @@ class _PostFormState extends State<PostForm> {
         }
 
         final form = state;
-        final bloc = context.read<PostFormBloc>();
 
         // Sync controllers with BLoC state
         _titleController.text = form.title;
