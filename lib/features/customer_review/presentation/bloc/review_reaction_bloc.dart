@@ -224,8 +224,9 @@ class ReviewReactionBloc
         // SCENARIO C: Switching (e.g., Like -> Dislike) -> UPDATE REACTION
         // Remove old count
         if (existingReaction.reaction == ReviewReactionType.like) newLikes--;
-        if (existingReaction.reaction == ReviewReactionType.dislike)
+        if (existingReaction.reaction == ReviewReactionType.dislike) {
           newDislikes--;
+        }
 
         // Add new count
         if (event.reaction == ReviewReactionType.like) newLikes++;
