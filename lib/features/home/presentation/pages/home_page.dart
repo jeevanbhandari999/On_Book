@@ -322,7 +322,6 @@ class HomeView extends StatelessWidget {
                                 ),
                               );
                             }
-
                             return const SizedBox.shrink();
                           },
                         ),
@@ -423,7 +422,6 @@ class HomeView extends StatelessWidget {
   }
 }
 
-
 String _getInitialCharactrOfOrganization(String name) {
   return name
       .trim()
@@ -432,4 +430,3 @@ String _getInitialCharactrOfOrganization(String name) {
       .map((word) => word[0].toUpperCase())
       .join();
 }
-

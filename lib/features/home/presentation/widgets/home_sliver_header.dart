@@ -90,48 +90,75 @@ class HomeSliverHeader extends StatelessWidget {
                       opacity: isCollapsed ? 0 : 1,
                       duration: const Duration(milliseconds: 200),
                       child: Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 80, 16, 24),
+                        padding: const EdgeInsets.fromLTRB(16, 85, 16, 24),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(
-                                  greetingData.headline,
-                                  style: const TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                AnimatedSwitcher(
-                                  duration: const Duration(milliseconds: 300),
-                                  child: Text(
-                                    greetingData.nameLine,
-                                    key: ValueKey(greetingData.nameLine),
-                                    style: const TextStyle(
-                                      fontSize: 22,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      greetingData.headline,
+                                      style: const TextStyle(
+                                        fontSize: 22,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
                                     ),
-                                  ),
+                                    const SizedBox(
+                                      height: UiConstants.spacingSm,
+                                    ),
+                                    AnimatedSwitcher(
+                                      duration: const Duration(
+                                        milliseconds: 300,
+                                      ),
+                                      child: Text(
+                                        greetingData.nameLine,
+                                        key: ValueKey(greetingData.nameLine),
+                                        style: const TextStyle(
+                                          fontSize: 23,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(
+                                      height: UiConstants.spacingSm,
+                                    ),
+                                    Text(
+                                      greetingData.subtitle,
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                const SizedBox(height: UiConstants.spacingXs),
-                                Text(
-                                  greetingData.subtitle,
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    color: Colors.white,
+                                const SizedBox(width: UiConstants.spacingSm),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: UiConstants.spacingMd,
+                                    vertical: UiConstants.spacingSm,
                                   ),
-                                ),
-                                const SizedBox(height: UiConstants.spacingSm),
-                                Text(
-                                  user.role.name.toUpperCase(),
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    letterSpacing: 1.1,
-                                    color: Colors.white,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(
+                                      UiConstants.radiusMd,
+                                    ),
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.primaryContainer,
+                                  ),
+
+                                  child: Text(
+                                    user.role.name.toUpperCase(),
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      letterSpacing: 1.1,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                                 ),
                               ],

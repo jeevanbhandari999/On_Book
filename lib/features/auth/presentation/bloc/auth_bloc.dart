@@ -229,11 +229,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
       if (user != null) {
         // Check if user needs to complete profile
-        final needsCompletion = await _authService.needsProfileCompletion();
-        if (needsCompletion) {
-          emit(AuthNeedsProfileCompletion(user: user));
-          return;
-        }
+        // final needsCompletion = await _authService.needsProfileCompletion();
+        // if (needsCompletion) {
+        //   emit(AuthNeedsProfileCompletion(user: user));
+        //   return;
+        // }
 
         // Check if manager needs to create organization
         if (user.role == UserRole.owner && user.organizationId == null) {
@@ -292,38 +292,19 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         if (user.role == UserRole.owner && user.organizationId == null) {
           emit(AuthNeedsOrganizationCreation(user: user));
           emit(
-            const AuthRegistrationSuccess(
-              message:
-                  'Registration successful! Please check your email to confirm your account.',
-            ),
+            const AuthRegistrationSuccess(message: 'Registration successful!'),
           );
         }
         if (user.role == UserRole.manager ||
             user.role == UserRole.worker && user.organizationId == null) {
           emit(AuthNeedsOrganizationSelection(user: user));
           emit(
-            const AuthRegistrationSuccess(
-              message:
-                  'Registration successful! Please check your email to confirm your account.',
-            ),
+            const AuthRegistrationSuccess(message: 'Registration successful!'),
           );
         }
-        // if (user.role == UserRole.owner ||
-        //     user.role == UserRole.manager ||
-        //     user.role == UserRole.worker) {
-        //   emit(AuthNeedsOrganizationCreation(user: user));
-        //   emit(
-        //     const AuthRegistrationSuccess(
-        //       message:
-        //           'Registration successful! Please check your email to confirm your account.',
-        //     ),
-        //   );
-        // }
+
         emit(
-          const AuthRegistrationSuccess(
-            message:
-                'Registration successful! Please check your email to confirm your account.',
-          ),
+          const AuthRegistrationSuccess(message: 'Registration successful!'),
         );
       } else {
         emit(const AuthError(message: 'Registration failed'));
@@ -409,7 +390,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           final sessionManager = DependencyInjection.get<SessionManager>();
           if (sessionManager.isLoggedIn == true &&
               sessionManager.user != null) {
-
             final cachedUser = sessionManager.user!;
             final organization = await _authService.getUserOrganization();
 
