@@ -313,13 +313,11 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
           .eq('organization_id', organizationId)
           .maybeSingle();
       if (existing == null) {
-        final now = DateTime.now();
         // Insert in the table
         await supabaseClient.from('user_saved_posts').insert({
           'user_id': userId,
           'post_id': postId,
           'organization_id': organizationId,
-          'saved_at': now,
         });
 
         // TODO, for algorithm
@@ -332,6 +330,7 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
             .eq('id', existing['id']);
       }
     } catch (e) {
+      print(e);
       throw core_exceptions.ServerException(
         'Failed to toggle post save or unsave: $e',
       );
@@ -347,6 +346,7 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
           .eq('user_id', userId)
           .map((rows) => rows.map(SavedPostModel.fromJson).toList());
     } catch (e) {
+      print(e);
       throw core_exceptions.ServerException(
         'Failed to stream post save or unsave: $e',
       );
