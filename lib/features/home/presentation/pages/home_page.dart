@@ -5,11 +5,13 @@ import 'package:app/app/router/route_constants.dart';
 import 'package:app/core/constants/ui_constants.dart';
 import 'package:app/core/widgets/common_widgets.dart';
 import 'package:app/features/auth/domain/entities/organization.dart';
+import 'package:app/features/auth/services/auth_service.dart';
 import 'package:app/features/home/domain/usecases/get_all_posts_near_by_user_use_case.dart';
 import 'package:app/features/home/domain/usecases/get_organization_detail_by_post_organization_id.dart';
 import 'package:app/features/home/domain/usecases/get_organization_list_based_on_global_score_use_case.dart';
 import 'package:app/features/home/presentation/bloc/get_organization_list_based_on_global_score_bloc.dart';
 import 'package:app/features/home/presentation/bloc/home_bloc.dart';
+import 'package:app/features/home/presentation/widgets/show_on_collapsed_sliver_app_bar.dart';
 import 'package:app/features/post/domain/entities/post.dart';
 import 'package:app/features/post/domain/entities/post_enums.dart';
 import 'package:app/features/profile/domain/usecases/get_current_user_profile_use_case.dart';
@@ -104,6 +106,12 @@ class HomeView extends StatelessWidget {
                     backgroundColor: Colors.transparent,
                     elevation: 0,
                     expandedHeight: 200,
+                    centerTitle: true,
+                    collapsedHeight: kToolbarHeight + UiConstants.spacingSm,
+                    leading: const Padding(
+                      padding: EdgeInsets.all(UiConstants.spacingSm),
+                      child: CircleAvatar(child: Text('OB')),
+                    ),
                     actions: [
                       IconButton(
                         icon: const Icon(
@@ -122,6 +130,120 @@ class HomeView extends StatelessWidget {
                         },
                       ),
                     ],
+                    title:
+                        BlocBuilder<
+                          GetCurrentUserProfileDetailsBloc,
+                          GetCurrentUserProfileDetailsState
+                        >(
+                          builder: (context, state) {
+                            if (state is GetCurrentUserProfileDetailsLoading) {
+                              return const Center(
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              );
+                            }
+
+                            if (state is GetCurrentUserProfileDetailsError) {
+                              return const SizedBox.shrink();
+                            }
+
+                            if (state is GetCurrentUserProfileDetailsSuccess) {
+                              final user = state.user;
+                              final authService =
+                                  DependencyInjection.get<AuthService>();
+
+                              final userEmail = authService
+                                  .getCurrentUserEmail();
+
+                              return ShowOnCollapsedSliverAppBar(
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    CircleAvatar(
+                                      radius: 16,
+                                      child: ClipOval(
+                                        child:
+                                            user.imageUrl != null &&
+                                                user.imageUrl!.isNotEmpty
+                                            ? CachedNetworkImage(
+                                                imageUrl: user.imageUrl!,
+                                                fit: BoxFit.cover,
+                                                width: 48,
+                                                height: 48,
+                                                placeholder: (context, url) =>
+                                                    Shimmer.fromColors(
+                                                      baseColor:
+                                                          Colors.grey.shade300,
+                                                      highlightColor:
+                                                          Colors.grey.shade100,
+                                                      child: Container(
+                                                        color: Colors.white,
+                                                      ),
+                                                    ),
+                                                errorWidget:
+                                                    (
+                                                      context,
+                                                      error,
+                                                      stackTrace,
+                                                    ) => CachedNetworkImage(
+                                                      imageUrl:
+                                                          'https://upload.wikimedia.org/wikipedia/commons/9/9e/Placeholder_Person.jpg',
+                                                    ),
+                                              )
+                                            : CachedNetworkImage(
+                                                imageUrl:
+                                                    'https://upload.wikimedia.org/wikipedia/commons/9/9e/Placeholder_Person.jpg',
+                                                placeholder: (context, url) =>
+                                                    Shimmer.fromColors(
+                                                      baseColor:
+                                                          Colors.grey.shade300,
+                                                      highlightColor:
+                                                          Colors.grey.shade100,
+                                                      child: Container(
+                                                        color: Colors.white,
+                                                      ),
+                                                    ),
+                                              ),
+                                      ),
+                                    ),
+                                    const SizedBox(
+                                      width: UiConstants.spacingSm,
+                                    ),
+                                    Expanded(
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            user.fullName,
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                          if (userEmail != null &&
+                                              userEmail.isNotEmpty)
+                                            Text(
+                                              userEmail,
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }
+                            return const SizedBox.shrink();
+                          },
+                        ),
                     flexibleSpace: Stack(
                       children: [
                         Positioned.fill(
@@ -136,7 +258,7 @@ class HomeView extends StatelessWidget {
                         ),
                         const FlexibleSpaceBar(
                           titlePadding: EdgeInsets.only(left: 16, bottom: 12),
-                          title: HomeProfileHeader(),
+                          background: HomeProfileHeader(),
                         ),
                       ],
                     ),
@@ -376,25 +498,33 @@ class HomeProfileHeader extends StatelessWidget {
         if (state is GetCurrentUserProfileDetailsSuccess) {
           final user = state.user;
 
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text(
-                'Welcome',
-                style: TextStyle(fontSize: 12, color: Colors.white70),
-              ),
-              Text(
-                user.fullName,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
+          return Padding(
+            padding: const EdgeInsets.only(
+              top: kToolbarHeight + kToolbarHeight,
+              left: UiConstants.spacingLg,
+              right: UiConstants.spacingLg,
+              bottom: UiConstants.spacingLg,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'Welcome',
+                  style: TextStyle(fontSize: 12, color: Colors.white70),
                 ),
-              ),
-            ],
+                Text(
+                  user.fullName,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
+            ),
           );
         }
 
@@ -406,8 +536,6 @@ class HomeProfileHeader extends StatelessWidget {
 
 class HomeSliverHeader extends StatelessWidget {
   const HomeSliverHeader({super.key});
-
-  static const double _expandedHeight = 200;
   static const double _collapsedHeight = kToolbarHeight + 20;
 
   @override
@@ -726,26 +854,36 @@ class PostCard extends StatelessWidget {
                                         ],
                                       ),
                                     ),
-                                    CircleAvatar(
-                                      radius: 18,
-                                      child:
-                                          (organization.logoUrl != null &&
-                                              organization.logoUrl!.isNotEmpty)
-                                          ? Image.network(
-                                              organization.logoUrl!,
-                                              fit: BoxFit.cover,
-                                            )
-                                          : Center(
-                                              child: Text(
-                                                _getInitialCharactrOfOrganization(
-                                                  organization.name,
-                                                ),
-                                                style: const TextStyle(
-                                                  // fontSize: 22,
-                                                  fontWeight: FontWeight.bold,
+                                    InkWell(
+                                      onTap: () {
+                                        // TODO
+                                        // Navigate to the organization details page
+                                      },
+                                      child: CircleAvatar(
+                                        radius: 18,
+                                        backgroundColor:
+                                            theme.colorScheme.primary,
+                                        child:
+                                            (organization.logoUrl != null &&
+                                                organization
+                                                    .logoUrl!
+                                                    .isNotEmpty)
+                                            ? Image.network(
+                                                organization.logoUrl!,
+                                                fit: BoxFit.cover,
+                                              )
+                                            : Center(
+                                                child: Text(
+                                                  _getInitialCharactrOfOrganization(
+                                                    organization.name,
+                                                  ),
+                                                  style: const TextStyle(
+                                                    color: Colors.white,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
                                                 ),
                                               ),
-                                            ),
+                                      ),
                                     ),
                                   ],
                                 ),
