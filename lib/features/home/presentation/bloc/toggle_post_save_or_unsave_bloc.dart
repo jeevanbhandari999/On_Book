@@ -26,6 +26,10 @@ class PostSaveStarted extends TogglePostSaveOrUnsaveEvent {
   List<Object> get props => [userId];
 }
 
+class PostSaveMessageConsumed extends TogglePostSaveOrUnsaveEvent {
+  const PostSaveMessageConsumed();
+}
+
 /// Toggle save / unsave
 class PostSaveToggleRequested extends TogglePostSaveOrUnsaveEvent {
   final String postId;
@@ -47,25 +51,39 @@ class TogglePostSaveOrUnsaveState extends Equatable {
   final bool loading;
   final List<SavedPost> savedPosts;
   final String? error;
+  final String? message;
+  final bool actionSuccess;
 
   const TogglePostSaveOrUnsaveState({
     required this.loading,
     required this.savedPosts,
     this.error,
+    this.message,
+    required this.actionSuccess,
   });
 
   factory TogglePostSaveOrUnsaveState.initial() =>
-      const TogglePostSaveOrUnsaveState(loading: false, savedPosts: [], error: null);
+      const TogglePostSaveOrUnsaveState(
+        loading: false,
+        savedPosts: [],
+        error: null,
+        message: null,
+        actionSuccess: false,
+      );
 
   TogglePostSaveOrUnsaveState copyWith({
     bool? loading,
     List<SavedPost>? savedPosts,
     String? error,
+    String? message,
+    bool? actionSuccess,
   }) {
     return TogglePostSaveOrUnsaveState(
       loading: loading ?? this.loading,
       savedPosts: savedPosts ?? this.savedPosts,
       error: error,
+      message: message ?? this.message,
+      actionSuccess: actionSuccess ?? this.actionSuccess,
     );
   }
 
@@ -74,11 +92,18 @@ class TogglePostSaveOrUnsaveState extends Equatable {
   }
 
   @override
-  List<Object?> get props => [loading, savedPosts, error];
+  List<Object?> get props => [
+    loading,
+    savedPosts,
+    error,
+    message,
+    actionSuccess,
+  ];
 }
 
 /// BLoC
-class TogglePostSaveOrUnsaveBloc extends Bloc<TogglePostSaveOrUnsaveEvent, TogglePostSaveOrUnsaveState> {
+class TogglePostSaveOrUnsaveBloc
+    extends Bloc<TogglePostSaveOrUnsaveEvent, TogglePostSaveOrUnsaveState> {
   final TogglePostSaveOrUnsaveUseCase _toggleUseCase;
   final StreamSavedPostsUseCase _streamUseCase;
 
@@ -92,6 +117,7 @@ class TogglePostSaveOrUnsaveBloc extends Bloc<TogglePostSaveOrUnsaveEvent, Toggl
        super(TogglePostSaveOrUnsaveState.initial()) {
     on<PostSaveStarted>(_onStarted);
     on<PostSaveToggleRequested>(_onToggle);
+    on<PostSaveMessageConsumed>(_onSavedMessageConsumed);
   }
 
   /// REALTIME STREAM
@@ -156,11 +182,24 @@ class TogglePostSaveOrUnsaveBloc extends Bloc<TogglePostSaveOrUnsaveEvent, Toggl
 
     result.fold(
       (failure) {
-        // rollback
-        emit(previousState.copyWith(error: _mapFailure(failure)));
+        emit(
+          previousState.copyWith(
+            error: _mapFailure(failure),
+            message: null,
+            actionSuccess: false,
+          ),
+        );
       },
       (_) {
-        // success → realtime stream will sync
+        emit(
+          state.copyWith(
+            message: isAlreadySaved
+                ? 'Removed from saved'
+                : 'Saved successfully',
+            actionSuccess: true,
+            error: null,
+          ),
+        );
       },
     );
   }
@@ -177,5 +216,12 @@ class TogglePostSaveOrUnsaveBloc extends Bloc<TogglePostSaveOrUnsaveEvent, Toggl
   Future<void> close() async {
     await _subscription?.cancel();
     return super.close();
+  }
+
+  void _onSavedMessageConsumed(
+    PostSaveMessageConsumed event,
+    Emitter<TogglePostSaveOrUnsaveState> emit,
+  ) {
+    emit(state.copyWith(message: null, actionSuccess: false));
   }
 }

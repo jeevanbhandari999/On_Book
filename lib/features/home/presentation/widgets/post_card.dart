@@ -64,284 +64,312 @@ class PostView extends StatelessWidget {
     const double rating = 4.8;
     const int reviewCount = 12;
 
-    return Container(
-      decoration: BoxDecoration(
-        color: theme.cardColor,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withAlpha(18),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: () {
-          context.push(
-            RouteConstants.postDetailsPage,
-            extra: {'postId': post.id, 'post': post, 'userId': userId},
+    return BlocListener<
+      TogglePostSaveOrUnsaveBloc,
+      TogglePostSaveOrUnsaveState
+    >(
+      listenWhen: (prev, curr) =>
+          prev.message != curr.message && curr.message != null,
+      listener: (context, state) {
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(
+            SnackBar(
+              content: Text(state.message!),
+              behavior: SnackBarBehavior.floating,
+              backgroundColor: theme.colorScheme.primary,
+            ),
           );
-        },
-        borderRadius: BorderRadius.circular(4),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(4),
-              child: SizedBox(
-                height: cardHeight < maxHeight ? cardHeight : maxHeight,
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    Positioned.fill(
-                      child: CachedNetworkImage(
-                        imageUrl: post.primaryImageUrl,
-                        fit: BoxFit.cover,
-                        placeholder: (context, url) => Container(
-                          color: Colors.grey[300],
-                          child: const Center(
-                            child: CircularProgressIndicator(),
-                          ),
-                        ),
-                        errorWidget: (context, url, error) => Container(
-                          color: Colors.grey[300],
-                          child: const Icon(Icons.error),
-                        ),
-                      ),
-                    ),
 
-                    Positioned(
-                      top: 8,
-                      left: 8,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: isAvailable
-                              ? Colors.green.withAlpha(225)
-                              : Colors.black54,
-                          borderRadius: BorderRadius.circular(
-                            UiConstants.radiusRound,
-                          ),
-                        ),
-                        child: Text(
-                          isAvailable ? 'Available' : 'Booked',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 10,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    // Positioned(
-                    //   top: 8,
-                    //   right: 8,
-                    //   child: InkWell(
-                    //     onTap: () {
-                    //       // Handle favorite / saved
-                    //     },
-                    //     child: Container(
-                    //       padding: const EdgeInsets.all(4),
-                    //       decoration: BoxDecoration(
-                    //         color: Colors.black54,
-                    //         borderRadius: BorderRadius.circular(
-                    //           UiConstants.radiusRound,
-                    //         ),
-                    //       ),
-                    //       child: const Icon(
-                    //         Icons.favorite_border_outlined,
-                    //         size: UiConstants.iconSm,
-                    //         color: Colors.white,
-                    //       ),
-                    //     ),
-                    //   ),
-                    // ),
-                    Positioned(
-                      top: 8,
-                      right: 8,
-                      child:
-                          BlocBuilder<
-                            TogglePostSaveOrUnsaveBloc,
-                            TogglePostSaveOrUnsaveState
-                          >(
-                            buildWhen: (prev, curr) =>
-                                prev.isSaved(post.id) != curr.isSaved(post.id),
-                            builder: (context, state) {
-                              final isSaved = state.isSaved(post.id);
-
-                              return InkWell(
-                                onTap: () {
-                                  context
-                                      .read<TogglePostSaveOrUnsaveBloc>()
-                                      .add(
-                                        PostSaveToggleRequested(
-                                          postId: post.id,
-                                          userId: userId,
-                                          organizationId: organization.id,
-                                        ),
-                                      );
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.all(4),
-                                  decoration: BoxDecoration(
-                                    color: Colors.black54,
-                                    borderRadius: BorderRadius.circular(
-                                      UiConstants.radiusRound,
-                                    ),
-                                  ),
-                                  child: Icon(
-                                    isSaved
-                                        ? Icons.favorite_rounded
-                                        : Icons.favorite_border_outlined,
-                                    size: UiConstants.iconSm,
-                                    color: isSaved ? Colors.red : Colors.white,
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                    ),
-
-                    Positioned(
-                      bottom: 0,
-                      left: 0,
-                      right: 0,
-                      child: ClipRect(
-                        child: BackdropFilter(
-                          filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 4,
+        context.read<TogglePostSaveOrUnsaveBloc>().add(
+          const PostSaveMessageConsumed(),
+        );
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: theme.cardColor,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withAlpha(18),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: () {
+            context.push(
+              RouteConstants.postDetailsPage,
+              extra: {'postId': post.id, 'post': post, 'userId': userId},
+            );
+          },
+          borderRadius: BorderRadius.circular(4),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(4),
+                child: SizedBox(
+                  height: cardHeight < maxHeight ? cardHeight : maxHeight,
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      Positioned.fill(
+                        child: CachedNetworkImage(
+                          imageUrl: post.primaryImageUrl,
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) => Container(
+                            color: Colors.grey[300],
+                            child: const Center(
+                              child: CircularProgressIndicator(),
                             ),
-                            color: Colors.white.withAlpha(100), // tint
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            post.title,
-                                            maxLines: 2,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: const TextStyle(
-                                              fontSize: 13,
-                                              fontWeight: FontWeight.w600,
-                                            ),
+                          ),
+                          errorWidget: (context, url, error) => Container(
+                            color: Colors.grey[300],
+                            child: const Icon(Icons.error),
+                          ),
+                        ),
+                      ),
+
+                      Positioned(
+                        top: 8,
+                        left: 8,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: isAvailable
+                                ? Colors.green.withAlpha(225)
+                                : Colors.black54,
+                            borderRadius: BorderRadius.circular(
+                              UiConstants.radiusRound,
+                            ),
+                          ),
+                          child: Text(
+                            isAvailable ? 'Available' : 'Booked',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      // Positioned(
+                      //   top: 8,
+                      //   right: 8,
+                      //   child: InkWell(
+                      //     onTap: () {
+                      //       // Handle favorite / saved
+                      //     },
+                      //     child: Container(
+                      //       padding: const EdgeInsets.all(4),
+                      //       decoration: BoxDecoration(
+                      //         color: Colors.black54,
+                      //         borderRadius: BorderRadius.circular(
+                      //           UiConstants.radiusRound,
+                      //         ),
+                      //       ),
+                      //       child: const Icon(
+                      //         Icons.favorite_border_outlined,
+                      //         size: UiConstants.iconSm,
+                      //         color: Colors.white,
+                      //       ),
+                      //     ),
+                      //   ),
+                      // ),
+                      Positioned(
+                        top: 8,
+                        right: 8,
+                        child:
+                            BlocBuilder<
+                              TogglePostSaveOrUnsaveBloc,
+                              TogglePostSaveOrUnsaveState
+                            >(
+                              buildWhen: (prev, curr) =>
+                                  prev.isSaved(post.id) !=
+                                  curr.isSaved(post.id),
+                              builder: (context, state) {
+                                final isSaved = state.isSaved(post.id);
+
+                                return InkWell(
+                                  onTap: () {
+                                    context
+                                        .read<TogglePostSaveOrUnsaveBloc>()
+                                        .add(
+                                          PostSaveToggleRequested(
+                                            postId: post.id,
+                                            userId: userId,
+                                            organizationId: organization.id,
                                           ),
-                                          const Row(
-                                            children: [
-                                              Icon(
-                                                Icons.star_rounded,
-                                                size: 14,
-                                                color: Colors.amber,
-                                              ),
-                                              SizedBox(width: 4),
-                                              Text(
-                                                '$rating',
-                                                style: TextStyle(
-                                                  fontSize: 11,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
-                                              SizedBox(width: 2),
-                                              Text(
-                                                '($reviewCount)',
-                                                style: TextStyle(fontSize: 10),
-                                              ),
-                                            ],
-                                          ),
-                                        ],
+                                        );
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.all(4),
+                                    decoration: BoxDecoration(
+                                      color: Colors.black54,
+                                      borderRadius: BorderRadius.circular(
+                                        UiConstants.radiusRound,
                                       ),
                                     ),
-                                    InkWell(
-                                      onTap: () {
-                                        // TODO
-                                        // Navigate to the organization details page
-                                      },
-                                      child: CircleAvatar(
-                                        radius: 18,
-                                        backgroundColor:
-                                            theme.colorScheme.primary,
-                                        child:
-                                            (organization.logoUrl != null &&
-                                                organization
-                                                    .logoUrl!
-                                                    .isNotEmpty)
-                                            ? Image.network(
-                                                organization.logoUrl!,
-                                                fit: BoxFit.cover,
-                                              )
-                                            : Center(
-                                                child: Text(
-                                                  _getInitialCharactrOfOrganization(
-                                                    organization.name,
-                                                  ),
-                                                  style: const TextStyle(
-                                                    color: Colors.white,
+                                    child: Icon(
+                                      isSaved
+                                          ? Icons.favorite_rounded
+                                          : Icons.favorite_border_outlined,
+                                      size: UiConstants.iconSm,
+                                      color: isSaved
+                                          ? Colors.red
+                                          : Colors.white,
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                      ),
+
+                      Positioned(
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        child: ClipRect(
+                          child: BackdropFilter(
+                            filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 4,
+                              ),
+                              color: Colors.white.withAlpha(100), // tint
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              post.title,
+                                              maxLines: 2,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: const TextStyle(
+                                                fontSize: 13,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                            const Row(
+                                              children: [
+                                                Icon(
+                                                  Icons.star_rounded,
+                                                  size: 14,
+                                                  color: Colors.amber,
+                                                ),
+                                                SizedBox(width: 4),
+                                                Text(
+                                                  '$rating',
+                                                  style: TextStyle(
+                                                    fontSize: 11,
                                                     fontWeight: FontWeight.bold,
                                                   ),
                                                 ),
-                                              ),
+                                                SizedBox(width: 2),
+                                                Text(
+                                                  '($reviewCount)',
+                                                  style: TextStyle(
+                                                    fontSize: 10,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-
-                                const SizedBox(height: 4),
-                                Text(
-                                  'Rs. ${post.price!.toStringAsFixed(2)}',
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 14,
+                                      InkWell(
+                                        onTap: () {
+                                          // TODO
+                                          // Navigate to the organization details page
+                                        },
+                                        child: CircleAvatar(
+                                          radius: 18,
+                                          backgroundColor:
+                                              theme.colorScheme.primary,
+                                          child:
+                                              (organization.logoUrl != null &&
+                                                  organization
+                                                      .logoUrl!
+                                                      .isNotEmpty)
+                                              ? Image.network(
+                                                  organization.logoUrl!,
+                                                  fit: BoxFit.cover,
+                                                )
+                                              : Center(
+                                                  child: Text(
+                                                    _getInitialCharactrOfOrganization(
+                                                      organization.name,
+                                                    ),
+                                                    style: const TextStyle(
+                                                      color: Colors.white,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                ),
-                              ],
+
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    'Rs. ${post.price!.toStringAsFixed(2)}',
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: SizedBox(
-                width: double.infinity,
-                height: UiConstants.buttonHeightSm,
-                child: CustomButton(
-                  text: isAvailable ? 'Book Now' : 'Booked',
-                  onPressed: isAvailable
-                      ? () {
-                          context.push(
-                            RouteConstants.bookingFormPage,
-                            extra: {
-                              'userId': userId,
-                              'postId': post.id,
-                              'post': post,
-                            },
-                          );
-                        }
-                      : null,
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: UiConstants.buttonHeightSm,
+                  child: CustomButton(
+                    text: isAvailable ? 'Book Now' : 'Booked',
+                    onPressed: isAvailable
+                        ? () {
+                            context.push(
+                              RouteConstants.bookingFormPage,
+                              extra: {
+                                'userId': userId,
+                                'postId': post.id,
+                                'post': post,
+                              },
+                            );
+                          }
+                        : null,
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
