@@ -1,14 +1,18 @@
-
 import 'dart:ui';
 
+import 'package:app/app/dependency_injection.dart';
 import 'package:app/app/router/route_constants.dart';
 import 'package:app/core/constants/ui_constants.dart';
 import 'package:app/core/widgets/common_widgets.dart';
 import 'package:app/features/auth/domain/entities/organization.dart';
+import 'package:app/features/home/domain/usecases/stream_saved_post_use_case.dart';
+import 'package:app/features/home/domain/usecases/toggle_post_save_or_unsave_use_case.dart';
+import 'package:app/features/home/presentation/bloc/toggle_post_save_or_unsave_bloc.dart';
 import 'package:app/features/post/domain/entities/post.dart';
 import 'package:app/features/post/domain/entities/post_enums.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 class PostCard extends StatelessWidget {
@@ -17,6 +21,30 @@ class PostCard extends StatelessWidget {
   final String userId;
 
   const PostCard({
+    super.key,
+    required this.post,
+    required this.organization,
+    required this.userId,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => TogglePostSaveOrUnsaveBloc(
+        toggleUseCase: DependencyInjection.get<TogglePostSaveOrUnsaveUseCase>(),
+        streamUseCase: DependencyInjection.get<StreamSavedPostsUseCase>(),
+      )..add(PostSaveStarted(userId)),
+      child: PostView(post: post, organization: organization, userId: userId),
+    );
+  }
+}
+
+class PostView extends StatelessWidget {
+  final Post post;
+  final Organization organization;
+  final String userId;
+
+  const PostView({
     super.key,
     required this.post,
     required this.organization,
@@ -110,28 +138,74 @@ class PostCard extends StatelessWidget {
                         ),
                       ),
                     ),
+
+                    // Positioned(
+                    //   top: 8,
+                    //   right: 8,
+                    //   child: InkWell(
+                    //     onTap: () {
+                    //       // Handle favorite / saved
+                    //     },
+                    //     child: Container(
+                    //       padding: const EdgeInsets.all(4),
+                    //       decoration: BoxDecoration(
+                    //         color: Colors.black54,
+                    //         borderRadius: BorderRadius.circular(
+                    //           UiConstants.radiusRound,
+                    //         ),
+                    //       ),
+                    //       child: const Icon(
+                    //         Icons.favorite_border_outlined,
+                    //         size: UiConstants.iconSm,
+                    //         color: Colors.white,
+                    //       ),
+                    //     ),
+                    //   ),
+                    // ),
                     Positioned(
                       top: 8,
                       right: 8,
-                      child: InkWell(
-                        onTap: () {
-                          // Handle favorite / saved
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: BoxDecoration(
-                            color: Colors.black54,
-                            borderRadius: BorderRadius.circular(
-                              UiConstants.radiusRound,
-                            ),
+                      child:
+                          BlocBuilder<
+                            TogglePostSaveOrUnsaveBloc,
+                            TogglePostSaveOrUnsaveState
+                          >(
+                            buildWhen: (prev, curr) =>
+                                prev.isSaved(post.id) != curr.isSaved(post.id),
+                            builder: (context, state) {
+                              final isSaved = state.isSaved(post.id);
+
+                              return InkWell(
+                                onTap: () {
+                                  context
+                                      .read<TogglePostSaveOrUnsaveBloc>()
+                                      .add(
+                                        PostSaveToggleRequested(
+                                          postId: post.id,
+                                          userId: userId,
+                                          organizationId: organization.id,
+                                        ),
+                                      );
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.all(4),
+                                  decoration: BoxDecoration(
+                                    color: Colors.black54,
+                                    borderRadius: BorderRadius.circular(
+                                      UiConstants.radiusRound,
+                                    ),
+                                  ),
+                                  child: Icon(
+                                    isSaved
+                                        ? Icons.favorite_rounded
+                                        : Icons.favorite_border_outlined,
+                                    size: UiConstants.iconSm,
+                                    color: isSaved ? Colors.red : Colors.white,
+                                  ),
+                                ),
+                              );
+                            },
                           ),
-                          child: const Icon(
-                            Icons.favorite_border_outlined,
-                            size: UiConstants.iconSm,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
                     ),
 
                     Positioned(
