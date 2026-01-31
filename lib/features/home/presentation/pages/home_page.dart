@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:app/app/dependency_injection.dart';
 import 'package:app/app/router/route_constants.dart';
 import 'package:app/core/constants/ui_constants.dart';
+import 'package:app/core/widgets/auto_marquee_text.dart';
 import 'package:app/core/widgets/common_widgets.dart';
 import 'package:app/features/auth/domain/entities/organization.dart';
 import 'package:app/features/auth/services/auth_service.dart';
@@ -21,6 +22,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:go_router/go_router.dart';
+import 'package:marquee/marquee.dart';
 import 'package:shimmer/shimmer.dart';
 
 class HomePage extends StatelessWidget {
@@ -433,32 +435,30 @@ class HomeView extends StatelessWidget {
   }
 
   Widget _orgItem(BuildContext context, Organization org) {
-    return Column(
-      children: [
-        CircleAvatar(
-          radius: 28,
-          backgroundColor: Theme.of(context).colorScheme.primary,
-          backgroundImage: org.logoUrl != null && org.logoUrl!.isNotEmpty
-              ? NetworkImage(org.logoUrl!)
-              : null,
-          child: (org.logoUrl == null || org.logoUrl!.isEmpty)
-              ? Text(
-                  org.name[0].toUpperCase(),
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
-                  ),
-                )
-              : null,
-        ),
-        const SizedBox(height: 6),
-        Text(
-          org.name,
-          style: const TextStyle(fontSize: 12),
-          overflow: TextOverflow.ellipsis,
-        ),
-      ],
+    return SizedBox(
+      width: 60,
+      child: Column(
+        children: [
+          CircleAvatar(
+            radius: 28,
+            backgroundColor: Theme.of(context).colorScheme.primary,
+            backgroundImage: org.logoUrl != null && org.logoUrl!.isNotEmpty
+                ? NetworkImage(org.logoUrl!)
+                : null,
+            child: (org.logoUrl == null || org.logoUrl!.isEmpty)
+                ? Text(
+                    org.name[0].toUpperCase(),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+                  )
+                : null,
+          ),
+          AutoMarqueeText(text: org.name, style: const TextStyle(fontSize: 12)),
+        ],
+      ),
     );
   }
 }
@@ -696,14 +696,14 @@ class PostCard extends StatelessWidget {
 
     const double rating = 4.8;
     const int reviewCount = 12;
-    // print(cardHeight);
+
     return Container(
       decoration: BoxDecoration(
         color: theme.cardColor,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.06),
+            color: Colors.black.withAlpha(18),
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
@@ -755,7 +755,7 @@ class PostCard extends StatelessWidget {
                         ),
                         decoration: BoxDecoration(
                           color: isAvailable
-                              ? Colors.green.withOpacity(0.9)
+                              ? Colors.green.withAlpha(225)
                               : Colors.black54,
                           borderRadius: BorderRadius.circular(
                             UiConstants.radiusRound,
