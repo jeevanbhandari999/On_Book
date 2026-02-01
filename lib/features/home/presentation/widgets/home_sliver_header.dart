@@ -103,6 +103,9 @@ class HomeSliverHeader extends StatelessWidget {
                                     Text(
                                       greetingData.headline,
                                       style: const TextStyle(
+                                        // fontSize:
+                                        //     MediaQuery.of(context).size.width *
+                                        //     0.06,
                                         fontSize: 22,
                                         fontWeight: FontWeight.bold,
                                         color: Colors.white,
@@ -119,6 +122,11 @@ class HomeSliverHeader extends StatelessWidget {
                                         greetingData.nameLine,
                                         key: ValueKey(greetingData.nameLine),
                                         style: const TextStyle(
+                                          // fontSize:
+                                          //     MediaQuery.of(
+                                          //       context,
+                                          //     ).size.width *
+                                          //     0.065,
                                           fontSize: 23,
                                           fontWeight: FontWeight.bold,
                                           color: Colors.white,
@@ -131,6 +139,9 @@ class HomeSliverHeader extends StatelessWidget {
                                     Text(
                                       greetingData.subtitle,
                                       style: const TextStyle(
+                                        // fontSize:
+                                        //     MediaQuery.of(context).size.width *
+                                        //     0.05,
                                         fontSize: 16,
                                         color: Colors.white,
                                       ),

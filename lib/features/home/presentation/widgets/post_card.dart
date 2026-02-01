@@ -295,8 +295,10 @@ class PostView extends StatelessWidget {
                                       ),
                                       InkWell(
                                         onTap: () {
-                                          // TODO
-                                          // Navigate to the organization details page
+                                          context.push(
+                                            RouteConstants
+                                                .organizationDetailsPageUserSide,
+                                          );
                                         },
                                         child: CircleAvatar(
                                           radius: 18,

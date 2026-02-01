@@ -104,6 +104,7 @@ class HomeView extends StatelessWidget {
                     backgroundColor: Colors.transparent,
                     elevation: 0,
                     expandedHeight: 200,
+                    // expandedHeight: MediaQuery.of(context).size.height * 0.25,
                     centerTitle: true,
                     collapsedHeight: kToolbarHeight + UiConstants.spacingSm,
                     leading: const Padding(
@@ -264,7 +265,6 @@ class HomeView extends StatelessWidget {
                           GetOrganizationListBasedOnGlobalScoreState
                         >(
                           builder: (context, state) {
-                            // 🔄 LOADING
                             if (state
                                 is GetOrganizationListBasedOnGlobalScoreLoading) {
                               return SizedBox(
@@ -394,29 +394,37 @@ class HomeView extends StatelessWidget {
   }
 
   Widget _orgItem(BuildContext context, Organization org) {
-    return SizedBox(
-      width: 60,
-      child: Column(
-        children: [
-          CircleAvatar(
-            radius: 28,
-            backgroundColor: Theme.of(context).colorScheme.primary,
-            backgroundImage: org.logoUrl != null && org.logoUrl!.isNotEmpty
-                ? NetworkImage(org.logoUrl!)
-                : null,
-            child: (org.logoUrl == null || org.logoUrl!.isEmpty)
-                ? Text(
-                    _getInitialCharactrOfOrganization(org.name),
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                    ),
-                  )
-                : null,
-          ),
-          AutoMarqueeText(text: org.name, style: const TextStyle(fontSize: 12)),
-        ],
+    return InkWell(
+      onTap: () {
+        context.push(RouteConstants.chatPage);
+      },
+      child: SizedBox(
+        width: 60,
+        child: Column(
+          children: [
+            CircleAvatar(
+              radius: 28,
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              backgroundImage: org.logoUrl != null && org.logoUrl!.isNotEmpty
+                  ? NetworkImage(org.logoUrl!)
+                  : null,
+              child: (org.logoUrl == null || org.logoUrl!.isEmpty)
+                  ? Text(
+                      _getInitialCharactrOfOrganization(org.name),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                    )
+                  : null,
+            ),
+            AutoMarqueeText(
+              text: org.name,
+              style: const TextStyle(fontSize: 12),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -9,12 +9,14 @@ import 'package:app/features/auth/presentation/pages/select_hotel_organization_p
 import 'package:app/features/booking/domain/entities/booking.dart';
 import 'package:app/features/booking/presentation/pages/booking_deails_page.dart';
 import 'package:app/features/booking/presentation/pages/booking_page.dart';
+import 'package:app/features/chat/presentation/pages/chat_page.dart';
 import 'package:app/features/chat/presentation/pages/chat_user_list_page.dart';
 import 'package:app/features/customer_review/presentation/pages/customer_review_page.dart';
 import 'package:app/features/customer_review/presentation/pages/write_a_review_page.dart';
 import 'package:app/features/home/presentation/pages/another.dart';
 import 'package:app/features/home/presentation/pages/home_page.dart';
 import 'package:app/features/library/presentation/pages/library_page.dart';
+import 'package:app/features/organizations/presentation/pages/organization_details_page_user_side.dart';
 import 'package:app/features/post/domain/entities/post.dart';
 import 'package:app/features/post/presentation/pages/create_post_page.dart';
 import 'package:app/features/post/presentation/pages/edit_post_page.dart';
@@ -147,6 +149,11 @@ class AppRouter {
         builder: (context, state) => const ChatUserListPage(),
       ),
 
+      GoRoute(
+        path: RouteConstants.chatPage,
+        builder: (context, state) => const ChatPage(),
+      ),
+
       // Check
       GoRoute(
         path: RouteConstants.anotherPage,
@@ -256,6 +263,12 @@ class AppRouter {
           final userId = extraData['userId'] as String;
           return WriteAReviewPage(post: post, userId: userId);
         },
+      ),
+
+      // Organization related routes
+      GoRoute(
+        path: RouteConstants.organizationDetailsPageUserSide,
+        builder: (context, state) => const OrganizationDetailsPageUserSide(),
       ),
     ],
   );

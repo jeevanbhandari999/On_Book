@@ -31,6 +31,7 @@ class RouteConstants {
 
   // Chat routes
   static const String chatUserListPage = '/chatUserListPage';
+  static const String chatPage = '/chatPage';
 
   // Booking routes
   static const String bookingFormPage = '/bookingFormPage';
@@ -39,4 +40,8 @@ class RouteConstants {
   // Customer reviews routes
   static const String customerReviewPage = '/customerReviewPage';
   static const String writeAReviewPage = '/writeAReviewPage';
+
+  // Organization related routes
+  static const String organizationDetailsPageUserSide =
+      '/organizationDetailsPageUserSide';
 }
