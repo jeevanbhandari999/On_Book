@@ -86,13 +86,84 @@ class ProfileView extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const SizedBox(height: 16),
+                              const SizedBox(height: UiConstants.spacingMd),
+                              const Text(
+                                'Personal Information',
+                                style: TextStyle(fontSize: 18),
+                              ),
+                              const SizedBox(height: UiConstants.spacingSm),
+                              SizedBox(
+                                width: double.infinity,
+                                child: Container(
+                                  padding: const EdgeInsets.all(
+                                    UiConstants.spacingMd,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(
+                                      UiConstants.radiusXl,
+                                    ),
+                                    gradient: LinearGradient(
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                      colors: [
+                                        Colors.white.withAlpha(90),
+                                        Colors.white.withAlpha(40),
+                                      ],
+                                    ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withAlpha(22),
+                                        blurRadius: 20,
+                                        spreadRadius: 2,
+                                        offset: const Offset(0, 8),
+                                      ),
+                                    ],
+                                    border: Border.all(
+                                      color: Colors.black.withAlpha(80),
+                                      width: 1.2,
+                                    ),
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        user.fullName.trim(),
+                                        style: const TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      Text(
+                                        _getRoleDisplayName(user.role),
+                                        style: TextStyle(fontSize: 17),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: UiConstants.spacingMd),
+                              const Text(
+                                'Contact Information',
+                                style: TextStyle(fontSize: 18),
+                              ),
+                              const SizedBox(height: UiConstants.spacingSm),
                               _buildProfileInfoCard(user),
-                              const SizedBox(height: 24),
+                              const SizedBox(height: UiConstants.spacingMd),
+                              const Text(
+                                'Additional Information',
+                                style: TextStyle(fontSize: 18),
+                              ),
+                              const SizedBox(height: UiConstants.spacingSm),
                               _buildInfoSection(context, user),
-                              const SizedBox(height: 32),
-                              _buildActionButtons(context),
-                              const SizedBox(height: 40),
+                              const SizedBox(height: UiConstants.spacingMd),
+                              const Text(
+                                'Settings',
+                                style: TextStyle(fontSize: 18),
+                              ),
+                              const SizedBox(height: UiConstants.spacingSm),
+                              _buildSettingsList(context),
+                              const SizedBox(height: UiConstants.spacingXl),
                             ],
                           ),
                         ),
@@ -107,84 +178,67 @@ class ProfileView extends StatelessWidget {
     );
   }
 
+  Container _buildSettingItem(
+    BuildContext context, {
+    IconData? icon,
+    required String title,
+    VoidCallback? onTap,
+    Color? textColor,
+    Color? iconColor,
+    Color? borderColor,
+    Color? trailingColor,
+    bool showBorder = true,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(UiConstants.radiusXl),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Colors.white.withAlpha(30),
+            Colors.white.withAlpha(100),
+            Colors.white.withAlpha(200),
+          ],
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withAlpha(22),
+            blurRadius: 20,
+            spreadRadius: 2,
+            offset: const Offset(0, 8),
+          ),
+        ],
+        border: showBorder
+            ? Border.all(
+                color: borderColor ?? Colors.white.withAlpha(80),
+                width: 1,
+              )
+            : null,
+      ),
+      child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(
+          vertical: 0,
+          horizontal: UiConstants.spacingLg,
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(UiConstants.radiusMd),
+        ),
+        leading: icon != null ? Icon(icon, color: iconColor) : null,
+        title: Text(
+          title,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(color: textColor),
+        ),
+        trailing: Icon(Icons.chevron_right, color: trailingColor),
+        onTap: onTap,
+      ),
+    );
+  }
+
   Widget _buildSliverAppBar(BuildContext context, User user) {
-    return
-    // SliverAppBar(
-    //   expandedHeight: 220.0,
-    //   floating: false,
-    //   pinned: true,
-    //   shape: const RoundedRectangleBorder(
-    //     borderRadius: BorderRadius.vertical(bottom: Radius.circular(28)),
-    //   ),
-    //   flexibleSpace: FlexibleSpaceBar(
-    //     background: Stack(
-    //       fit: StackFit.expand,
-    //       children: [
-    //         // Background gradient or image (you can replace with user cover if available)
-    //         Container(
-    //           decoration: BoxDecoration(
-    //             gradient: LinearGradient(
-    //               begin: Alignment.topCenter,
-    //               end: Alignment.bottomCenter,
-    //               colors: [
-    //                 Theme.of(context).colorScheme.primary,
-    //                 Theme.of(context).colorScheme.primary.withAlpha(180),
-    //               ],
-    //             ),
-    //           ),
-    //         ),
-    //         // Avatar centered at bottom
-    //         Positioned(
-    //           bottom: 0,
-    //           left: 0,
-    //           right: 0,
-    //           child: Column(
-    //             children: [
-    //               CircleAvatar(
-    //                 radius: 60,
-    //                 backgroundColor: Colors.white,
-    //                 child: CircleAvatar(
-    //                   radius: 56,
-    //                   backgroundImage: user.imageUrl != null
-    //                       ? NetworkImage(user.imageUrl!)
-    //                       : null,
-    //                   backgroundColor: Theme.of(context).colorScheme.surface,
-    //                   child: user.imageUrl == null
-    //                       ? Icon(
-    //                           Icons.person,
-    //                           size: 60,
-    //                           color: Theme.of(context).colorScheme.primary,
-    //                         )
-    //                       : null,
-    //                 ),
-    //               ),
-    //               const SizedBox(height: 12),
-    //               Text(
-    //                 user.fullName,
-    //                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-    //                   color: Colors.white,
-    //                   fontWeight: FontWeight.bold,
-    //                 ),
-    //               ),
-    //               const SizedBox(height: 4),
-    //               _buildRoleChip(user.role),
-    //             ],
-    //           ),
-    //         ),
-    //       ],
-    //     ),
-    //   ),
-    //   actions: [
-    //     IconButton(
-    //       icon: const Icon(Icons.edit),
-    //       onPressed: () {
-    //         // TODO: Navigate to edit profile page
-    //         // context.push(RouteConstants.editProfile, extra: user);
-    //       },
-    //     ),
-    //   ],
-    // );
-    SliverAppBar(
+    return SliverAppBar(
       pinned: true,
       stretch: true,
       expandedHeight: MediaQuery.sizeOf(context).height * 0.25,
@@ -311,59 +365,48 @@ class ProfileView extends StatelessWidget {
     );
   }
 
-  Widget _buildRoleChip(UserRole role) {
-    final color = switch (role) {
-      UserRole.owner => Colors.amber,
-      UserRole.admin => Colors.redAccent,
-      UserRole.manager => Colors.blueAccent,
-      UserRole.worker => Colors.teal,
-      _ => Colors.grey,
-    };
-
-    return Chip(
-      label: Text(
-        role.value.toUpperCase(),
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 12,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-      backgroundColor: color,
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      visualDensity: VisualDensity.compact,
-    );
-  }
-
   Widget _buildProfileInfoCard(User user) {
     final authService = DependencyInjection.get<AuthService>();
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(UiConstants.spacingMd),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildInfoRow(
-              icon: Icons.email_outlined,
-              label: 'Email',
-              value: authService.getCurrentUserEmail() ?? 'Not available',
-            ),
-            const Divider(height: 32),
-            _buildInfoRow(
-              icon: Icons.phone_outlined,
-              label: 'Phone',
-              value: user.phone ?? 'Not set',
-            ),
-            const Divider(height: 32),
-            _buildInfoRow(
-              icon: Icons.location_on_outlined,
-              label: 'Address',
-              value: user.address ?? 'Not set',
-            ),
-          ],
+    return Container(
+      padding: const EdgeInsets.all(UiConstants.spacingMd),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(UiConstants.radiusXl),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Colors.white.withAlpha(90), Colors.white.withAlpha(40)],
         ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withAlpha(22),
+            blurRadius: 20,
+            spreadRadius: 2,
+            offset: const Offset(0, 8),
+          ),
+        ],
+        border: Border.all(color: Colors.black.withAlpha(80), width: 1.2),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildInfoRow(
+            icon: Icons.email_outlined,
+            label: 'Email',
+            value: authService.getCurrentUserEmail() ?? 'Not available',
+          ),
+          const SizedBox(height: UiConstants.spacingMd),
+          _buildInfoRow(
+            icon: Icons.phone_outlined,
+            label: 'Phone',
+            value: user.phone ?? 'Not set',
+          ),
+          const SizedBox(height: UiConstants.spacingMd),
+          _buildInfoRow(
+            icon: Icons.location_on_outlined,
+            label: 'Address',
+            value: user.address ?? 'Not set',
+          ),
+        ],
       ),
     );
   }
@@ -401,32 +444,44 @@ class ProfileView extends StatelessWidget {
   }
 
   Widget _buildInfoSection(BuildContext context, User user) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Additional Info',
-          style: Theme.of(
+    return Container(
+      padding: const EdgeInsets.all(UiConstants.spacingMd),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(UiConstants.radiusXl),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Colors.white.withAlpha(90), Colors.white.withAlpha(40)],
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withAlpha(22),
+            blurRadius: 20,
+            spreadRadius: 2,
+            offset: const Offset(0, 8),
+          ),
+        ],
+        border: Border.all(color: Colors.black.withAlpha(80), width: 1.2),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildInfoTile(
             context,
-          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 12),
-        _buildInfoTile(
-          context,
-          icon: Icons.business,
-          title: 'Organization',
-          subtitle: user.organizationId != null
-              ? 'Member of organization'
-              : 'No organization yet',
-        ),
-        const SizedBox(height: 8),
-        _buildInfoTile(
-          context,
-          icon: Icons.calendar_today_outlined,
-          title: 'Joined',
-          subtitle: user.createdAt.toString().split(' ')[0],
-        ),
-      ],
+            icon: Icons.business,
+            title: 'Organization',
+            subtitle: user.organizationId != null
+                ? 'Member of organization'
+                : 'No organization yet',
+          ),
+          _buildInfoTile(
+            context,
+            icon: Icons.calendar_today_outlined,
+            title: 'Joined',
+            subtitle: user.createdAt.toString().split(' ')[0],
+          ),
+        ],
+      ),
     );
   }
 
@@ -437,33 +492,11 @@ class ProfileView extends StatelessWidget {
     required String subtitle,
   }) {
     return ListTile(
-      leading: Icon(icon, color: Theme.of(context).colorScheme.primary),
+      leading: Icon(icon),
       title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
       subtitle: Text(subtitle),
       contentPadding: EdgeInsets.zero,
       dense: true,
-    );
-  }
-
-  Widget _buildActionButtons(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        CustomButton(
-          text: 'Edit Profile',
-          icon: const Icon(Icons.edit),
-          onPressed: () {
-            // TODO: Navigate to edit profile
-          },
-        ),
-        const SizedBox(height: 12),
-        CustomButton(
-          text: 'Logout',
-          isOutlined: true,
-          textColor: Theme.of(context).colorScheme.error,
-          onPressed: () => _showLogoutDialog(context),
-        ),
-      ],
     );
   }
 
@@ -494,5 +527,56 @@ class ProfileView extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Widget _buildSettingsList(BuildContext context) {
+    return Column(
+      children: [
+        _buildSettingItem(
+          context,
+          icon: Icons.security_sharp,
+          title: 'Security And Privacy',
+          borderColor: AppColors.black,
+          onTap: () {},
+        ),
+        const SizedBox(height: UiConstants.spacingSm),
+        
+        _buildSettingItem(
+          context,
+          icon: Icons.notifications_active_rounded,
+          title: 'Notofications',
+          borderColor: AppColors.black,
+          onTap: () {},
+        ),
+        const SizedBox(height: UiConstants.spacingSm),
+        _buildSettingItem(
+          context,
+          icon: Icons.logout,
+          iconColor: AppColors.error,
+          textColor: AppColors.error,
+          borderColor: AppColors.error,
+          trailingColor: AppColors.error,
+          title: 'Logout',
+          onTap: () {
+            _showLogoutDialog(context);
+          },
+        ),
+      ],
+    );
+  }
+}
+
+String _getRoleDisplayName(UserRole role) {
+  switch (role) {
+    case UserRole.owner:
+      return 'Owner';
+    case UserRole.admin:
+      return 'Admin';
+    case UserRole.manager:
+      return 'Manager';
+    case UserRole.worker:
+      return 'Staff';
+    default:
+      return 'Guest';
   }
 }
