@@ -1,15 +1,19 @@
 import 'package:app/app/dependency_injection.dart';
 import 'package:app/app/router/route_constants.dart';
 import 'package:app/core/constants/ui_constants.dart';
+import 'package:app/core/theme/app_colors.dart';
 import 'package:app/core/widgets/common_widgets.dart';
 import 'package:app/features/auth/data/models/user_model.dart';
 import 'package:app/features/auth/domain/entities/user.dart';
 import 'package:app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:app/features/auth/services/auth_service.dart';
 import 'package:app/features/profile/presentation/bloc/get_current_user_profile_details_bloc.dart';
+import 'package:app/features/profile/presentation/widgets/show_on_collapsed_sliver_app_bar.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shimmer/shimmer.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -104,80 +108,206 @@ class ProfileView extends StatelessWidget {
   }
 
   Widget _buildSliverAppBar(BuildContext context, User user) {
-    return SliverAppBar(
-      expandedHeight: 220.0,
-      floating: false,
+    return
+    // SliverAppBar(
+    //   expandedHeight: 220.0,
+    //   floating: false,
+    //   pinned: true,
+    //   shape: const RoundedRectangleBorder(
+    //     borderRadius: BorderRadius.vertical(bottom: Radius.circular(28)),
+    //   ),
+    //   flexibleSpace: FlexibleSpaceBar(
+    //     background: Stack(
+    //       fit: StackFit.expand,
+    //       children: [
+    //         // Background gradient or image (you can replace with user cover if available)
+    //         Container(
+    //           decoration: BoxDecoration(
+    //             gradient: LinearGradient(
+    //               begin: Alignment.topCenter,
+    //               end: Alignment.bottomCenter,
+    //               colors: [
+    //                 Theme.of(context).colorScheme.primary,
+    //                 Theme.of(context).colorScheme.primary.withAlpha(180),
+    //               ],
+    //             ),
+    //           ),
+    //         ),
+    //         // Avatar centered at bottom
+    //         Positioned(
+    //           bottom: 0,
+    //           left: 0,
+    //           right: 0,
+    //           child: Column(
+    //             children: [
+    //               CircleAvatar(
+    //                 radius: 60,
+    //                 backgroundColor: Colors.white,
+    //                 child: CircleAvatar(
+    //                   radius: 56,
+    //                   backgroundImage: user.imageUrl != null
+    //                       ? NetworkImage(user.imageUrl!)
+    //                       : null,
+    //                   backgroundColor: Theme.of(context).colorScheme.surface,
+    //                   child: user.imageUrl == null
+    //                       ? Icon(
+    //                           Icons.person,
+    //                           size: 60,
+    //                           color: Theme.of(context).colorScheme.primary,
+    //                         )
+    //                       : null,
+    //                 ),
+    //               ),
+    //               const SizedBox(height: 12),
+    //               Text(
+    //                 user.fullName,
+    //                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+    //                   color: Colors.white,
+    //                   fontWeight: FontWeight.bold,
+    //                 ),
+    //               ),
+    //               const SizedBox(height: 4),
+    //               _buildRoleChip(user.role),
+    //             ],
+    //           ),
+    //         ),
+    //       ],
+    //     ),
+    //   ),
+    //   actions: [
+    //     IconButton(
+    //       icon: const Icon(Icons.edit),
+    //       onPressed: () {
+    //         // TODO: Navigate to edit profile page
+    //         // context.push(RouteConstants.editProfile, extra: user);
+    //       },
+    //     ),
+    //   ],
+    // );
+    SliverAppBar(
       pinned: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(bottom: Radius.circular(28)),
-      ),
-      flexibleSpace: FlexibleSpaceBar(
-        background: Stack(
-          fit: StackFit.expand,
-          children: [
-            // Background gradient or image (you can replace with user cover if available)
-            Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Theme.of(context).colorScheme.primary,
-                    Theme.of(context).colorScheme.primary.withAlpha(180),
-                  ],
-                ),
-              ),
-            ),
-            // Avatar centered at bottom
-            Positioned(
-              bottom: 0,
-              left: 0,
-              right: 0,
-              child: Column(
-                children: [
-                  CircleAvatar(
-                    radius: 60,
-                    backgroundColor: Colors.white,
-                    child: CircleAvatar(
-                      radius: 56,
-                      backgroundImage: user.imageUrl != null
-                          ? NetworkImage(user.imageUrl!)
-                          : null,
-                      backgroundColor: Theme.of(context).colorScheme.surface,
-                      child: user.imageUrl == null
-                          ? Icon(
-                              Icons.person,
-                              size: 60,
-                              color: Theme.of(context).colorScheme.primary,
-                            )
-                          : null,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    user.fullName,
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  _buildRoleChip(user.role),
-                ],
-              ),
-            ),
-          ],
-        ),
+      stretch: true,
+      expandedHeight: MediaQuery.sizeOf(context).height * 0.25,
+      backgroundColor: AppColors.primaryLight,
+      collapsedHeight: kToolbarHeight + UiConstants.spacingSm,
+      elevation: 0,
+      actionsPadding: const EdgeInsets.symmetric(
+        horizontal: UiConstants.spacingMd,
       ),
       actions: [
         IconButton(
-          icon: const Icon(Icons.edit),
-          onPressed: () {
-            // TODO: Navigate to edit profile page
-            // context.push(RouteConstants.editProfile, extra: user);
-          },
+          icon: const Icon(Icons.edit_sharp, color: Colors.black),
+          onPressed: () {},
         ),
       ],
+      title: ShowOnCollapsedSliverAppBar(
+        child: Row(
+          children: [
+            CircleAvatar(
+              radius: 24,
+              child: ClipOval(
+                child: user.imageUrl != null && user.imageUrl!.isNotEmpty
+                    ? CachedNetworkImage(
+                        imageUrl: user.imageUrl!,
+                        fit: BoxFit.cover,
+                        width: 48,
+                        height: 48,
+                        placeholder: (context, url) => Shimmer.fromColors(
+                          baseColor: Colors.grey.shade300,
+                          highlightColor: Colors.grey.shade100,
+                          child: Container(color: Colors.white),
+                        ),
+                        errorWidget: (context, error, stackTrace) =>
+                            CachedNetworkImage(
+                              imageUrl:
+                                  'https://upload.wikimedia.org/wikipedia/commons/9/9e/Placeholder_Person.jpg',
+                            ),
+                      )
+                    : CachedNetworkImage(
+                        imageUrl:
+                            'https://upload.wikimedia.org/wikipedia/commons/9/9e/Placeholder_Person.jpg',
+                        placeholder: (context, url) => Shimmer.fromColors(
+                          baseColor: Colors.grey.shade300,
+                          highlightColor: Colors.grey.shade100,
+                          child: Container(color: Colors.white),
+                        ),
+                      ),
+              ),
+            ),
+            const SizedBox(width: UiConstants.spacingSm),
+            Text(user.fullName, style: const TextStyle(color: Colors.white)),
+          ],
+        ),
+      ),
+
+      flexibleSpace: LayoutBuilder(
+        builder: (context, constraints) {
+          final settings = context
+              .dependOnInheritedWidgetOfExactType<FlexibleSpaceBarSettings>()!;
+          final t =
+              (1.0 -
+                      (settings.currentExtent - settings.minExtent) /
+                          (settings.maxExtent - settings.minExtent))
+                  .clamp(0.0, 1.0);
+
+          final bgColor = Color.lerp(
+            AppColors.primaryLight,
+            Theme.of(context).colorScheme.primary,
+            t,
+          );
+
+          return Container(
+            decoration: BoxDecoration(
+              color: bgColor,
+              borderRadius: const BorderRadius.vertical(
+                bottom: Radius.circular(UiConstants.radiusXl),
+              ),
+            ),
+            child: FlexibleSpaceBar(
+              background: Center(
+                child: Container(
+                  margin: const EdgeInsets.only(
+                    top: UiConstants.spacingXxl + UiConstants.spacingLg,
+                  ),
+                  width: 250,
+                  height: 250,
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.grey,
+                  ),
+                  clipBehavior: Clip.hardEdge,
+                  child: user.imageUrl != null && user.imageUrl!.isNotEmpty
+                      ? CachedNetworkImage(
+                          imageUrl: user.imageUrl!,
+                          fit: BoxFit.cover,
+                          width: 48,
+                          height: 48,
+                          placeholder: (context, url) => Shimmer.fromColors(
+                            baseColor: Colors.grey.shade300,
+                            highlightColor: Colors.grey.shade100,
+                            child: Container(color: Colors.white),
+                          ),
+                          errorWidget: (context, error, stackTrace) =>
+                              CachedNetworkImage(
+                                imageUrl:
+                                    'https://upload.wikimedia.org/wikipedia/commons/9/9e/Placeholder_Person.jpg',
+                              ),
+                        )
+                      : CachedNetworkImage(
+                          imageUrl:
+                              'https://upload.wikimedia.org/wikipedia/commons/9/9e/Placeholder_Person.jpg',
+                          placeholder: (context, url) => Shimmer.fromColors(
+                            baseColor: Colors.grey.shade300,
+                            highlightColor: Colors.grey.shade100,
+                            child: Container(color: Colors.white),
+                          ),
+                        ),
+                ),
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 
