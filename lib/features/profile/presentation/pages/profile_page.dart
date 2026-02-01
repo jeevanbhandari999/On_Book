@@ -2,7 +2,6 @@ import 'package:app/app/dependency_injection.dart';
 import 'package:app/app/router/route_constants.dart';
 import 'package:app/core/constants/ui_constants.dart';
 import 'package:app/core/theme/app_colors.dart';
-import 'package:app/core/widgets/common_widgets.dart';
 import 'package:app/features/auth/data/models/user_model.dart';
 import 'package:app/features/auth/domain/entities/user.dart';
 import 'package:app/features/auth/presentation/bloc/auth_bloc.dart';
@@ -136,7 +135,7 @@ class ProfileView extends StatelessWidget {
                                       ),
                                       Text(
                                         _getRoleDisplayName(user.role),
-                                        style: TextStyle(fontSize: 17),
+                                        style: const TextStyle(fontSize: 17),
                                       ),
                                     ],
                                   ),
@@ -162,7 +161,7 @@ class ProfileView extends StatelessWidget {
                                 style: TextStyle(fontSize: 18),
                               ),
                               const SizedBox(height: UiConstants.spacingSm),
-                              _buildSettingsList(context),
+                              _buildSettingsList(context, user),
                               const SizedBox(height: UiConstants.spacingXl),
                             ],
                           ),
@@ -474,6 +473,7 @@ class ProfileView extends StatelessWidget {
                 ? 'Member of organization'
                 : 'No organization yet',
           ),
+
           _buildInfoTile(
             context,
             icon: Icons.calendar_today_outlined,
@@ -529,9 +529,21 @@ class ProfileView extends StatelessWidget {
     );
   }
 
-  Widget _buildSettingsList(BuildContext context) {
+  Widget _buildSettingsList(BuildContext context, User user) {
     return Column(
       children: [
+        _buildSettingItem(
+          context,
+          icon: Icons.business,
+          title: user.organizationId != null
+              ? 'Member of organization'
+              : 'No organization yet',
+          borderColor: AppColors.black,
+          onTap: () {
+            context.push(RouteConstants.organizationDetailsPageOwnerSide);
+          },
+        ),
+        const SizedBox(height: UiConstants.spacingSm),
         _buildSettingItem(
           context,
           icon: Icons.security_sharp,
@@ -540,7 +552,7 @@ class ProfileView extends StatelessWidget {
           onTap: () {},
         ),
         const SizedBox(height: UiConstants.spacingSm),
-        
+
         _buildSettingItem(
           context,
           icon: Icons.notifications_active_rounded,

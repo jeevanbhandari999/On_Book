@@ -16,6 +16,7 @@ import 'package:app/features/customer_review/presentation/pages/write_a_review_p
 import 'package:app/features/home/presentation/pages/another.dart';
 import 'package:app/features/home/presentation/pages/home_page.dart';
 import 'package:app/features/library/presentation/pages/library_page.dart';
+import 'package:app/features/organizations/presentation/pages/organization_details_page_owner_side.dart';
 import 'package:app/features/organizations/presentation/pages/organization_details_page_user_side.dart';
 import 'package:app/features/post/domain/entities/post.dart';
 import 'package:app/features/post/presentation/pages/create_post_page.dart';
@@ -269,6 +270,10 @@ class AppRouter {
       GoRoute(
         path: RouteConstants.organizationDetailsPageUserSide,
         builder: (context, state) => const OrganizationDetailsPageUserSide(),
+      ),
+      GoRoute(
+        path: RouteConstants.organizationDetailsPageOwnerSide,
+        builder: (context, state) => const OrganizationDetailsPageOwnerSide(),
       ),
     ],
   );

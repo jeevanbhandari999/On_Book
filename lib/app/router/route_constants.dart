@@ -44,4 +44,6 @@ class RouteConstants {
   // Organization related routes
   static const String organizationDetailsPageUserSide =
       '/organizationDetailsPageUserSide';
+  static const String organizationDetailsPageOwnerSide =
+      '/organizationDetailsPageOwnerSide';
 }
