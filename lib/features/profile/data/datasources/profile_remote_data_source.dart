@@ -152,6 +152,7 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
 
       return UserModel.fromJson(response);
     } catch (e) {
+      print(e);
       throw core_exception.ServerException('Failed to update the profile : $e');
     }
   }

@@ -149,11 +149,11 @@ class UpdateProfilePictureBloc
       result.fold(
         (failure) => emit(UpdateProfilePictureError(message: failure.message)),
         (profile) {
-          emit(UpdateProfilePictureSuccess(profile.imageUrl!));
+          emit(const UpdateProfilePictureSuccess(''));
         },
       );
     } catch (e) {
-      // print('$e from bloc');
+      print('$e from bloc');
       emit(
         UpdateProfilePictureError(
           message: 'Failed to delete the profile image: ${e.toString()}',

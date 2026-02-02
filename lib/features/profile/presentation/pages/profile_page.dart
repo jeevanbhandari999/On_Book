@@ -10,6 +10,7 @@ import 'package:app/features/auth/domain/entities/user.dart';
 import 'package:app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:app/features/auth/services/auth_service.dart';
 import 'package:app/features/profile/domain/repositories/profile_repository.dart';
+import 'package:app/features/profile/domain/usecases/delete_profile_picture_use_case.dart';
 import 'package:app/features/profile/domain/usecases/update_profile_picture_use_case.dart';
 import 'package:app/features/profile/presentation/bloc/get_current_user_profile_details_bloc.dart';
 import 'package:app/features/profile/presentation/bloc/update_profile_picture_bloc.dart';
@@ -45,6 +46,8 @@ class ProfilePage extends StatelessWidget {
           create: (context) => UpdateProfilePictureBloc(
             updateProfilePictureUseCase:
                 DependencyInjection.get<UpdateProfilePictureUseCase>(),
+            deleteProfilePictureUseCase:
+                DependencyInjection.get<DeleteProfilePictureUseCase>(),
             repository: DependencyInjection.get<ProfileRepository>(),
           ),
         ),

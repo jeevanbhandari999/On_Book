@@ -6,6 +6,7 @@ import 'package:app/core/widgets/app_bar_popup_menu.dart';
 import 'package:app/core/widgets/common_widgets.dart';
 import 'package:app/features/auth/domain/entities/user.dart';
 import 'package:app/features/profile/domain/repositories/profile_repository.dart';
+import 'package:app/features/profile/domain/usecases/delete_profile_picture_use_case.dart';
 import 'package:app/features/profile/domain/usecases/update_profile_picture_use_case.dart';
 import 'package:app/features/profile/presentation/bloc/get_current_user_profile_details_bloc.dart';
 import 'package:app/features/profile/presentation/bloc/update_profile_picture_bloc.dart';
@@ -26,6 +27,8 @@ class ProfileImagePage extends StatelessWidget {
           create: (context) => UpdateProfilePictureBloc(
             updateProfilePictureUseCase:
                 DependencyInjection.get<UpdateProfilePictureUseCase>(),
+            deleteProfilePictureUseCase:
+                DependencyInjection.get<DeleteProfilePictureUseCase>(),
             repository: DependencyInjection.get<ProfileRepository>(),
           ),
         ),
@@ -169,8 +172,6 @@ class ProfileImageView extends StatelessWidget {
   }
 
   Future<void> _onDeleteAvatarImage(BuildContext context) async {
-    print('object');
-    print(user.imageUrl);
     context.read<UpdateProfilePictureBloc>().add(
       DeleteProfilePictureRequested(
         userId: user.userId,

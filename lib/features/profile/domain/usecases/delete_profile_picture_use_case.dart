@@ -19,7 +19,7 @@ class DeleteProfilePictureUseCase {
       return const Left(ValidationFailure('Image url is required to delete'));
     }
 
-    return await repository.updateProfilePictureUrl(
+    return await repository.deleteProfilePictureUrl(
       params.userId,
       params.imageUrlToDelete,
     );
