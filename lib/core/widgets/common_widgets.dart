@@ -364,77 +364,77 @@ class SectionContainer extends StatelessWidget {
   }
 }
 
-class CustomDropdown<T> extends StatelessWidget {
-  final String label;
-  final String? hint;
-  final T? value;
-  final List<DropdownMenuItem<T>> items;
-  final ValueChanged<T?>? onChanged;
-  final String? errorText;
-  final Widget? prefixIcon;
+// class CustomDropdown<T> extends StatelessWidget {
+//   final String label;
+//   final String? hint;
+//   final T? value;
+//   final List<DropdownMenuItem<T>> items;
+//   final ValueChanged<T?>? onChanged;
+//   final String? errorText;
+//   final Widget? prefixIcon;
 
-  const CustomDropdown({
-    super.key,
-    required this.label,
-    this.hint,
-    this.value,
-    required this.items,
-    this.onChanged,
-    this.errorText,
-    this.prefixIcon,
-  });
+//   const CustomDropdown({
+//     super.key,
+//     required this.label,
+//     this.hint,
+//     this.value,
+//     required this.items,
+//     this.onChanged,
+//     this.errorText,
+//     this.prefixIcon,
+//   });
 
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: Theme.of(
-            context,
-          ).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w500),
-        ),
-        const SizedBox(height: 6),
-        DropdownButtonFormField<T>(
-          initialValue: value,
-          hint: hint != null
-              ? Text(hint!, style: const TextStyle(color: Colors.grey))
-              : null,
-          items: items,
-          onChanged: onChanged,
-          decoration: InputDecoration(
-            errorText: errorText,
-            prefixIcon: prefixIcon,
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 12,
-              vertical: 4,
-            ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Colors.grey.shade400),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Colors.grey.shade400),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(
-                color: Theme.of(context).primaryColor,
-                width: 2,
-              ),
-            ),
-            filled: true,
-            fillColor: Colors.grey.shade50,
-          ),
-          dropdownColor: Colors.white,
-          icon: const Icon(Icons.keyboard_arrow_down_rounded),
-        ),
-      ],
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return Column(
+//       crossAxisAlignment: CrossAxisAlignment.start,
+//       children: [
+//         Text(
+//           label,
+//           style: Theme.of(
+//             context,
+//           ).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w500),
+//         ),
+//         const SizedBox(height: 6),
+//         DropdownButtonFormField<T>(
+//           initialValue: value,
+//           hint: hint != null
+//               ? Text(hint!, style: const TextStyle(color: Colors.grey))
+//               : null,
+//           items: items,
+//           onChanged: onChanged,
+//           decoration: InputDecoration(
+//             errorText: errorText,
+//             prefixIcon: prefixIcon,
+//             contentPadding: const EdgeInsets.symmetric(
+//               horizontal: 12,
+//               vertical: 4,
+//             ),
+//             border: OutlineInputBorder(
+//               borderRadius: BorderRadius.circular(12),
+//               borderSide: BorderSide(color: Colors.grey.shade400),
+//             ),
+//             enabledBorder: OutlineInputBorder(
+//               borderRadius: BorderRadius.circular(12),
+//               borderSide: BorderSide(color: Colors.grey.shade400),
+//             ),
+//             focusedBorder: OutlineInputBorder(
+//               borderRadius: BorderRadius.circular(12),
+//               borderSide: BorderSide(
+//                 color: Theme.of(context).primaryColor,
+//                 width: 2,
+//               ),
+//             ),
+//             filled: true,
+//             fillColor: Colors.grey.shade50,
+//           ),
+//           dropdownColor: Colors.white,
+//           icon: const Icon(Icons.keyboard_arrow_down_rounded),
+//         ),
+//       ],
+//     );
+//   }
+// }
 
 class CustomMultiSelect<T> extends StatelessWidget {
   final String label;

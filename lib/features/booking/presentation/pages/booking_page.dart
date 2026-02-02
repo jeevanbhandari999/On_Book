@@ -2,6 +2,7 @@ import 'package:app/app/dependency_injection.dart';
 import 'package:app/core/constants/ui_constants.dart';
 import 'package:app/core/utils/date_formatter.dart';
 import 'package:app/core/widgets/common_widgets.dart';
+import 'package:app/core/widgets/custom_drop_down.dart';
 import 'package:app/core/widgets/loading_widget.dart';
 import 'package:app/features/booking/domain/entities/booking.dart';
 import 'package:app/features/booking/domain/entities/payment_enums.dart';
@@ -282,13 +283,35 @@ class BookingFormView extends StatelessWidget {
                     ),
                     const SizedBox(height: UiConstants.spacingMd),
                     // Payment details
+                    // CustomDropdown<PaymentMethod>(
+                    //   label: 'Payment Method',
+                    //   hint: 'Select payment method',
+                    //   value: state.paymentMethod,
+                    //   items: PaymentMethod.values
+                    //       .map(
+                    //         (m) => DropdownMenuItem(
+                    //           value: m,
+                    //           child: Text(m.displayName),
+                    //         ),
+                    //       )
+                    //       .toList(),
+                    //   onChanged: (val) {
+                    //     if (val != null) {
+                    //       context.read<BookingFormBloc>().add(
+                    //         BookingFormPaymentMethodChanged(val),
+                    //       );
+                    //     }
+                    //   },
+                    // ),
                     CustomDropdown<PaymentMethod>(
-                      label: 'Payment Method',
+                      title: 'Payment Method',
                       hint: 'Select payment method',
-                      value: state.paymentMethod,
+                      dropdownHeaderName: 'List of Payment Methods',
+                      initialValue: state.paymentMethod,
+                      shouldDivideItems: true,
                       items: PaymentMethod.values
                           .map(
-                            (m) => DropdownMenuItem(
+                            (m) => DropdownItem<PaymentMethod>(
                               value: m,
                               child: Text(m.displayName),
                             ),

@@ -1,6 +1,7 @@
 import 'package:app/app/router/route_constants.dart';
 import 'package:app/core/constants/ui_constants.dart';
 import 'package:app/core/widgets/common_widgets.dart';
+import 'package:app/core/widgets/custom_drop_down.dart';
 import 'package:app/features/post/domain/entities/post.dart';
 import 'package:app/features/post/domain/entities/post_enums.dart';
 import 'package:app/features/post/presentation/bloc/post_form_bloc.dart';
@@ -178,21 +179,41 @@ class _PostFormState extends State<PostForm> {
               const SizedBox(height: UiConstants.spacingMd),
 
               // Room Type
+              // CustomDropdown<RoomType>(
+              //   label: 'Room Type',
+              //   hint: 'Select room type',
+              //   value: form.roomType,
+              //   items: RoomType.values
+              //       .map(
+              //         (t) => DropdownMenuItem(
+              //           value: t,
+              //           child: Text(t.displayName),
+              //         ),
+              //       )
+              //       .toList(),
+              //   onChanged: (val) => context.read<PostFormBloc>().add(
+              //     PostFormRoomTypeChanged(val),
+              //   ),
+              // ),
               CustomDropdown<RoomType>(
-                label: 'Room Type',
+                title: 'Room Type',
                 hint: 'Select room type',
-                value: form.roomType,
+                dropdownHeaderName: 'List of room type',
+                initialValue: form.roomType,
+                shouldDivideItems: true,
                 items: RoomType.values
                     .map(
-                      (t) => DropdownMenuItem(
+                      (t) => DropdownItem<RoomType>(
                         value: t,
                         child: Text(t.displayName),
                       ),
                     )
                     .toList(),
-                onChanged: (val) => context.read<PostFormBloc>().add(
-                  PostFormRoomTypeChanged(val),
-                ),
+                onChanged: (val) {
+                  context.read<PostFormBloc>().add(
+                    PostFormRoomTypeChanged(val),
+                  );
+                },
               ),
               const SizedBox(height: UiConstants.spacingMd),
 
