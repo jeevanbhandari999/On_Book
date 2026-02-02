@@ -224,8 +224,7 @@ class _AppImagePickerState extends State<AppImagePicker> {
                         ),
                         clipBehavior: Clip.hardEdge,
                         child: CachedNetworkImage(
-                          imageUrl:
-                              'https://upload.wikimedia.org/wikipedia/commons/9/9e/Placeholder_Person.jpg',
+                          imageUrl: widget.existingImageUrl!,
                           fit: BoxFit.cover,
                           placeholder: (context, url) => Shimmer.fromColors(
                             baseColor: Colors.grey.shade300,

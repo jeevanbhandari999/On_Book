@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:app/app/dependency_injection.dart';
 import 'package:app/app/router/route_constants.dart';
 import 'package:app/core/constants/ui_constants.dart';
@@ -7,7 +9,10 @@ import 'package:app/features/auth/data/models/user_model.dart';
 import 'package:app/features/auth/domain/entities/user.dart';
 import 'package:app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:app/features/auth/services/auth_service.dart';
+import 'package:app/features/profile/domain/repositories/profile_repository.dart';
+import 'package:app/features/profile/domain/usecases/update_profile_picture_use_case.dart';
 import 'package:app/features/profile/presentation/bloc/get_current_user_profile_details_bloc.dart';
+import 'package:app/features/profile/presentation/bloc/update_profile_picture_bloc.dart';
 import 'package:app/features/profile/presentation/widgets/show_on_collapsed_sliver_app_bar.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -35,7 +40,13 @@ class ProfilePage extends StatelessWidget {
             getCurrentUserProfileUseCase: DependencyInjection.get(),
           )..add(GetCurrentUserProfileDetailsRequested(userId: userId)),
         ),
-        // BlocProvider(create: (context) => UpdateProfilePicture)
+        BlocProvider(
+          create: (context) => UpdateProfilePictureBloc(
+            updateProfilePictureUseCase:
+                DependencyInjection.get<UpdateProfilePictureUseCase>(),
+            repository: DependencyInjection.get<ProfileRepository>(),
+          ),
+        ),
       ],
       child: const ProfileView(),
     );
@@ -338,11 +349,19 @@ class ProfileView extends StatelessWidget {
                       width: 200,
                       height: 200,
                       child: AppImagePicker(
+                        existingImageUrl: user.imageUrl,
                         label: user.fullName[0].toUpperCase(),
                         showFileName: false,
                         borderRadius: UiConstants.radiusRound,
                         height: 200,
-                        onImagePicked: (file) {},
+                        onImagePicked: (file) {
+                          context.read<UpdateProfilePictureBloc>().add(
+                            UpdateProfilePictureRequested(
+                              userId: user.userId,
+                              newPictureFile: File(file.path),
+                            ),
+                          );
+                        },
                         showDottedBorder: false,
                       ),
                     ),
@@ -361,21 +380,6 @@ class ProfileView extends StatelessWidget {
       baseColor: Colors.grey.shade300,
       highlightColor: Colors.grey.shade100,
       child: Container(color: Colors.white),
-    );
-  }
-
-  Widget _textAvatar(String name) {
-    return Container(
-      color: Colors.grey,
-      alignment: Alignment.center,
-      child: Text(
-        name.isNotEmpty ? name[0].toUpperCase() : '?',
-        style: const TextStyle(
-          fontSize: 96,
-          fontWeight: FontWeight.bold,
-          color: Colors.white,
-        ),
-      ),
     );
   }
 

@@ -67,7 +67,7 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
     try {
       final fileExt = profilePictureFile.path.split('.').last;
       final fileName =
-          '${userId}_${DateTime.now().millisecondsSinceEpoch}.$fileExt';
+          '$userId/${userId}_${DateTime.now().millisecondsSinceEpoch}.$fileExt';
 
       // upload the profile in the supabase storage, in bucket (profiles) so to say
       await supabaseClient.storage
@@ -82,6 +82,8 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
       // Return the url
       return url;
     } catch (e) {
+      print('$e while uploading');
+
       throw core_exception.ServerException(
         'Failed to upload the profile picture : $e',
       );
@@ -122,6 +124,8 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
 
       return UserModel.fromJson(response);
     } catch (e) {
+      print('$e while updating');
+
       throw core_exception.ServerException('Failed to update the profile : $e');
     }
   }
