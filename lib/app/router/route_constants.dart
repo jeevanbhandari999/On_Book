@@ -28,6 +28,7 @@ class RouteConstants {
 
   // Profile routes
   static const String profilePage = '/profilePage';
+  static const String editProfilePage = '/editProfilePage';
 
   // Chat routes
   static const String chatUserListPage = '/chatUserListPage';

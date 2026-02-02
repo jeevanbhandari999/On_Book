@@ -23,6 +23,7 @@ import 'package:app/features/post/presentation/pages/create_post_page.dart';
 import 'package:app/features/post/presentation/pages/edit_post_page.dart';
 import 'package:app/features/post/presentation/pages/post_details_page.dart';
 import 'package:app/features/post/presentation/pages/post_page.dart';
+import 'package:app/features/profile/presentation/pages/edit_profile_page.dart';
 import 'package:app/features/profile/presentation/pages/profile_page.dart';
 import 'package:app/features/search/presentation/pages/search_page.dart';
 import 'package:app/features/splash/presentation/pages/splash_page.dart';
@@ -274,6 +275,12 @@ class AppRouter {
       GoRoute(
         path: RouteConstants.organizationDetailsPageOwnerSide,
         builder: (context, state) => const OrganizationDetailsPageOwnerSide(),
+      ),
+
+      // Profile related page
+      GoRoute(
+        path: RouteConstants.editProfilePage,
+        builder: (context, state) => const EditProfilePage(),
       ),
     ],
   );

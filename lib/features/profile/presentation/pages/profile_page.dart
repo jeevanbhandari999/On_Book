@@ -249,8 +249,17 @@ class ProfileView extends StatelessWidget {
       ),
       actions: [
         IconButton(
-          icon: const Icon(Icons.edit_sharp, color: Colors.black),
-          onPressed: () {},
+          icon: Container(
+            padding: const EdgeInsets.all(UiConstants.spacingSm),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(UiConstants.radiusRound),
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            child: const Icon(Icons.edit_sharp, color: Colors.white),
+          ),
+          onPressed: () {
+            context.push(RouteConstants.editProfilePage);
+          },
         ),
       ],
       title: ShowOnCollapsedSliverAppBar(

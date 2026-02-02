@@ -1,5 +1,4 @@
 import 'dart:math';
-
 import 'package:app/core/constants/ui_constants.dart';
 import 'package:app/features/profile/presentation/bloc/get_current_user_profile_details_bloc.dart';
 import 'package:flutter/material.dart';
