@@ -138,14 +138,22 @@ class UpdateProfilePictureBloc
       await _repository.deleteProfilePicture(event.pictureUrlToDelete);
 
       final result = await _updateProfilePictureUseCase(
-        UpdateProfilePictureParams(userId: event.userId, imageUrl: deletedUrl),
+        UpdateProfilePictureParams(
+          userId: event.userId,
+          imageUrl: deletedUrl,
+        ),
       );
 
       result.fold(
         (failure) => emit(UpdateProfilePictureError(message: failure.message)),
-        (profile) => emit(UpdateProfilePictureSuccess(profile.imageUrl!)),
+        (profile) {
+          // print('soemtning');
+          // print(profile);
+          emit(UpdateProfilePictureSuccess(profile.imageUrl!));
+        },
       );
     } catch (e) {
+      // print('$e from bloc');
       emit(
         UpdateProfilePictureError(
           message: 'Failed to delete the profile image: ${e.toString()}',

@@ -38,4 +38,11 @@ abstract class ProfileRepository {
     String userId,
     String profilePictureUrl,
   );
+
+
+   // Delete the profile picture of the user
+  Future<Either<Failure, User>> deleteProfilePictureUrl(
+    String userId,
+    String profilePictureUrlToDelete,
+  );
 }

@@ -199,4 +199,26 @@ class ProfileRepositoryImpl implements ProfileRepository {
       return Left(UnknownFailure(e.toString()));
     }
   }
+
+  @override
+  Future<Either<Failure, User>> deleteProfilePictureUrl(
+    String userId,
+    String profilePictureUrlToDelete,
+  ) async {
+    try {
+      final profileModel = await remoteDataSource.deleteProfilePictureUrl(
+        userId,
+        profilePictureUrlToDelete,
+      );
+      // Then cache the profile detail for next time
+      await localDataSource.cacheProfileDetail(userId, profileModel);
+      return Right(profileModel.toEntity());
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
+    } catch (e) {
+      return Left(UnknownFailure(e.toString()));
+    }
+  }
 }

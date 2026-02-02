@@ -22,6 +22,11 @@ abstract class ProfileRemoteDataSource {
     String userId,
     String profilePictureUrl,
   );
+  // Update the profile image of the user
+  Future<UserModel> deleteProfilePictureUrl(
+    String userId,
+    String profilePictureUrlToDelete,
+  );
 }
 
 class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
@@ -103,6 +108,7 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
         await supabaseClient.storage.from('profiles').remove([filePath]);
       }
     } catch (e) {
+      print('$e from deleting');
       throw core_exception.ServerException(
         'Failed to delete an profile image : $e',
       );
@@ -125,7 +131,27 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
       return UserModel.fromJson(response);
     } catch (e) {
       print('$e while updating');
+      throw core_exception.ServerException('Failed to update the profile : $e');
+    }
+  }
 
+  @override
+  Future<UserModel> deleteProfilePictureUrl(
+    String userId,
+    String profilePictureUrlToDelete,
+  ) async {
+    try {
+      // First delete from the bucket
+      await deleteProfilePicture(profilePictureUrlToDelete);
+      final response = await supabaseClient
+          .from('users')
+          .update({'image_url': null})
+          .eq('user_id', userId)
+          .select()
+          .single();
+
+      return UserModel.fromJson(response);
+    } catch (e) {
       throw core_exception.ServerException('Failed to update the profile : $e');
     }
   }

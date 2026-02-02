@@ -5,12 +5,14 @@ class AppPopupMenuItem {
   final String label;
   final IconData icon;
   final VoidCallback onTap;
+  final bool isDistructive;
 
   const AppPopupMenuItem({
     required this.value,
     required this.label,
     required this.icon,
     required this.onTap,
+    this.isDistructive = false,
   });
 }
 
@@ -73,9 +75,18 @@ class _AppPopupMenuState extends State<AppPopupMenu> {
       onTap: item.onTap,
       child: Row(
         children: [
-          Icon(item.icon, size: 20, color: Colors.black),
+          Icon(
+            item.icon,
+            size: 20,
+            color: item.isDistructive ? Colors.red : Colors.black,
+          ),
           const SizedBox(width: 12),
-          Text(item.label),
+          Text(
+            item.label,
+            style: TextStyle(
+              color: item.isDistructive ? Colors.red : Colors.black,
+            ),
+          ),
         ],
       ),
     );
