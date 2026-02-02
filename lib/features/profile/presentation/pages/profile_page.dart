@@ -13,6 +13,7 @@ import 'package:app/features/profile/domain/repositories/profile_repository.dart
 import 'package:app/features/profile/domain/usecases/update_profile_picture_use_case.dart';
 import 'package:app/features/profile/presentation/bloc/get_current_user_profile_details_bloc.dart';
 import 'package:app/features/profile/presentation/bloc/update_profile_picture_bloc.dart';
+import 'package:app/features/profile/presentation/pages/profile_image_page.dart';
 import 'package:app/features/profile/presentation/widgets/show_on_collapsed_sliver_app_bar.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -344,26 +345,48 @@ class ProfileView extends StatelessWidget {
                 children: [
                   const SizedBox(height: kToolbarHeight),
                   GestureDetector(
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => ProfileImagePage(user: user),
+                        ),
+                      );
+                    },
                     child: SizedBox(
                       width: 200,
                       height: 200,
-                      child: AppImagePicker(
-                        existingImageUrl: user.imageUrl,
-                        label: user.fullName[0].toUpperCase(),
-                        showFileName: false,
-                        borderRadius: UiConstants.radiusRound,
-                        height: 200,
-                        onImagePicked: (file) {
-                          context.read<UpdateProfilePictureBloc>().add(
-                            UpdateProfilePictureRequested(
-                              userId: user.userId,
-                              newPictureFile: File(file.path),
+                      child:
+                          BlocListener<
+                            UpdateProfilePictureBloc,
+                            UpdateProfilePictureState
+                          >(
+                            listener: (context, state) {
+                              if (state is UpdateProfilePictureSuccess) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Profile picture updated'),
+                                    backgroundColor: AppColors.success,
+                                  ),
+                                );
+                              }
+                            },
+                            child: AppImagePicker(
+                              existingImageUrl: user.imageUrl,
+                              label: user.fullName[0].toUpperCase(),
+                              showFileName: false,
+                              borderRadius: UiConstants.radiusRound,
+                              height: 200,
+                              onImagePicked: (file) {
+                                context.read<UpdateProfilePictureBloc>().add(
+                                  UpdateProfilePictureRequested(
+                                    userId: user.userId,
+                                    newPictureFile: File(file.path),
+                                  ),
+                                );
+                              },
+                              showDottedBorder: false,
                             ),
-                          );
-                        },
-                        showDottedBorder: false,
-                      ),
+                          ),
                     ),
                   ),
                 ],

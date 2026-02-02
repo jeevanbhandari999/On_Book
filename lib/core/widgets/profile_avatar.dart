@@ -162,135 +162,132 @@ class _AppImagePickerState extends State<AppImagePicker> {
         ],
         Stack(
           children: [
-            GestureDetector(
-              onTap: _showPickerOptions,
-              child: SizedBox(
-                width: double.infinity,
-                height: widget.height,
-                child: _image != null
-                    ? Stack(
-                        children: [
-                          Positioned.fill(
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(
-                                widget.borderRadius,
-                              ),
-                              child: Image.file(
-                                File(_image!.path),
-                                fit: BoxFit.cover,
-                                width: double.infinity,
-                              ),
-                            ),
-                          ),
-                          Positioned(
-                            top: 0,
-                            right: 0,
-                            child: Container(
-                              padding: const EdgeInsets.all(
-                                UiConstants.spacingXs,
-                              ),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(
-                                  UiConstants.radiusRound,
-                                ),
-                                color: AppColors.error,
-                              ),
-                              child: GestureDetector(
-                                onTap: () {
-                                  setState(() {
-                                    _image = null;
-                                  });
-                                },
-                                child: const Icon(
-                                  Icons.close,
-                                  size: UiConstants.iconSm,
-                                  color: AppColors.white,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      )
-                    : widget.existingImageUrl != null &&
-                          widget.existingImageUrl!.isNotEmpty
-                    ? Container(
-                        width: double.infinity,
-                        height: widget.height,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(
-                            widget.borderRadius,
-                          ),
-                          color: Colors.grey,
-                        ),
-                        clipBehavior: Clip.hardEdge,
-                        child: CachedNetworkImage(
-                          imageUrl: widget.existingImageUrl!,
-                          fit: BoxFit.cover,
-                          placeholder: (context, url) => Shimmer.fromColors(
-                            baseColor: Colors.grey.shade300,
-                            highlightColor: Colors.grey.shade100,
-                            child: Container(
-                              width: double.infinity,
-                              height: double.infinity,
-                              color: Colors.white,
-                            ),
-                          ),
-                          errorWidget: (context, url, error) => Image.asset(
-                            'AppImages.placeholder',
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      )
-                    : DottedBorder(
-                        options: RoundedRectDottedBorderOptions(
-                          dashPattern: widget.showDottedBorder
-                              ? widget.dottedPatterns
-                              : const [1, 0],
-                          color: AppColors.black,
-                          radius: Radius.circular(widget.borderRadius),
-                        ),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Colors.grey,
+            SizedBox(
+              width: double.infinity,
+              height: widget.height,
+              child: _image != null
+                  ? Stack(
+                      children: [
+                        Positioned.fill(
+                          child: ClipRRect(
                             borderRadius: BorderRadius.circular(
                               widget.borderRadius,
                             ),
+                            child: Image.file(
+                              File(_image!.path),
+                              fit: BoxFit.cover,
+                              width: double.infinity,
+                            ),
                           ),
-                          child: Center(
-                            child: Padding(
-                              padding: const EdgeInsets.all(
-                                UiConstants.spacingMd,
+                        ),
+                        Positioned(
+                          top: 0,
+                          right: 0,
+                          child: Container(
+                            padding: const EdgeInsets.all(
+                              UiConstants.spacingXs,
+                            ),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(
+                                UiConstants.radiusRound,
                               ),
-                              child: SingleChildScrollView(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    if (widget.showUploadIcon)
-                                      const Icon(
-                                        Icons.cloud_upload_outlined,
-                                        size: 40,
-                                        color: Colors.grey,
-                                      ),
-                                    Text(
-                                      textAlign: TextAlign.center,
-                                      maxLines: 3,
-                                      widget.label,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: const TextStyle(
-                                        fontSize: 96,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white,
-                                      ),
+                              color: AppColors.error,
+                            ),
+                            child: GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  _image = null;
+                                });
+                              },
+                              child: const Icon(
+                                Icons.close,
+                                size: UiConstants.iconSm,
+                                color: AppColors.white,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    )
+                  : widget.existingImageUrl != null &&
+                        widget.existingImageUrl!.isNotEmpty
+                  ? Container(
+                      width: double.infinity,
+                      height: widget.height,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(
+                          widget.borderRadius,
+                        ),
+                        color: Colors.grey,
+                      ),
+                      clipBehavior: Clip.hardEdge,
+                      child: CachedNetworkImage(
+                        imageUrl: widget.existingImageUrl!,
+                        fit: BoxFit.cover,
+                        placeholder: (context, url) => Shimmer.fromColors(
+                          baseColor: Colors.grey.shade300,
+                          highlightColor: Colors.grey.shade100,
+                          child: Container(
+                            width: double.infinity,
+                            height: double.infinity,
+                            color: Colors.white,
+                          ),
+                        ),
+                        errorWidget: (context, url, error) => Image.asset(
+                          'AppImages.placeholder',
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    )
+                  : DottedBorder(
+                      options: RoundedRectDottedBorderOptions(
+                        dashPattern: widget.showDottedBorder
+                            ? widget.dottedPatterns
+                            : const [1, 0],
+                        color: AppColors.black,
+                        radius: Radius.circular(widget.borderRadius),
+                      ),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.grey,
+                          borderRadius: BorderRadius.circular(
+                            widget.borderRadius,
+                          ),
+                        ),
+                        child: Center(
+                          child: Padding(
+                            padding: const EdgeInsets.all(
+                              UiConstants.spacingMd,
+                            ),
+                            child: SingleChildScrollView(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  if (widget.showUploadIcon)
+                                    const Icon(
+                                      Icons.cloud_upload_outlined,
+                                      size: 40,
+                                      color: Colors.grey,
                                     ),
-                                  ],
-                                ),
+                                  Text(
+                                    textAlign: TextAlign.center,
+                                    maxLines: 3,
+                                    widget.label,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      fontSize: 96,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ),
                         ),
                       ),
-              ),
+                    ),
             ),
             Positioned(
               right: 30,
