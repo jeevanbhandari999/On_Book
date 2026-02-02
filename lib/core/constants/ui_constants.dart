@@ -13,7 +13,7 @@ class UiConstants {
   static const double radiusMd = 12.0;
   static const double radiusLg = 16.0;
   static const double radiusXl = 24.0;
-  static const double radiusRound = 50.0;
+  static const double radiusRound = 999.0;
 
   // Icon Sizes
   static const double iconXs = 16.0;

@@ -2,6 +2,7 @@ import 'package:app/app/dependency_injection.dart';
 import 'package:app/app/router/route_constants.dart';
 import 'package:app/core/constants/ui_constants.dart';
 import 'package:app/core/theme/app_colors.dart';
+import 'package:app/core/widgets/profile_avatar.dart';
 import 'package:app/features/auth/data/models/user_model.dart';
 import 'package:app/features/auth/domain/entities/user.dart';
 import 'package:app/features/auth/presentation/bloc/auth_bloc.dart';
@@ -326,49 +327,53 @@ class ProfileView extends StatelessWidget {
               ),
             ),
             child: FlexibleSpaceBar(
-              background: Center(
-                child: Container(
-                  margin: const EdgeInsets.only(
-                    top: UiConstants.spacingXxl + UiConstants.spacingLg,
+              background: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const SizedBox(height: kToolbarHeight),
+                  GestureDetector(
+                    onTap: () {},
+                    child: SizedBox(
+                      width: 200,
+                      height: 200,
+                      child: AppImagePicker(
+                        label: user.fullName[0].toUpperCase(),
+                        showFileName: false,
+                        borderRadius: UiConstants.radiusRound,
+                        height: 200,
+                        onImagePicked: (file) {},
+                        showDottedBorder: false,
+                      ),
+                    ),
                   ),
-                  width: 250,
-                  height: 250,
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.grey,
-                  ),
-                  clipBehavior: Clip.hardEdge,
-                  child: user.imageUrl != null && user.imageUrl!.isNotEmpty
-                      ? CachedNetworkImage(
-                          imageUrl: user.imageUrl!,
-                          fit: BoxFit.cover,
-                          width: 48,
-                          height: 48,
-                          placeholder: (context, url) => Shimmer.fromColors(
-                            baseColor: Colors.grey.shade300,
-                            highlightColor: Colors.grey.shade100,
-                            child: Container(color: Colors.white),
-                          ),
-                          errorWidget: (context, error, stackTrace) =>
-                              CachedNetworkImage(
-                                imageUrl:
-                                    'https://upload.wikimedia.org/wikipedia/commons/9/9e/Placeholder_Person.jpg',
-                              ),
-                        )
-                      : CachedNetworkImage(
-                          imageUrl:
-                              'https://upload.wikimedia.org/wikipedia/commons/9/9e/Placeholder_Person.jpg',
-                          placeholder: (context, url) => Shimmer.fromColors(
-                            baseColor: Colors.grey.shade300,
-                            highlightColor: Colors.grey.shade100,
-                            child: Container(color: Colors.white),
-                          ),
-                        ),
-                ),
+                ],
               ),
             ),
           );
         },
+      ),
+    );
+  }
+
+  Widget _shimmerAvatar() {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey.shade300,
+      highlightColor: Colors.grey.shade100,
+      child: Container(color: Colors.white),
+    );
+  }
+
+  Widget _textAvatar(String name) {
+    return Container(
+      color: Colors.grey,
+      alignment: Alignment.center,
+      child: Text(
+        name.isNotEmpty ? name[0].toUpperCase() : '?',
+        style: const TextStyle(
+          fontSize: 96,
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+        ),
       ),
     );
   }
