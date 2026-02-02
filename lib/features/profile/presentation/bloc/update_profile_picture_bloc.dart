@@ -4,6 +4,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:app/features/profile/domain/repositories/profile_repository.dart';
+import 'package:app/features/profile/domain/usecases/delete_profile_picture_use_case.dart';
 import 'package:app/features/profile/domain/usecases/update_profile_picture_use_case.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -87,11 +88,14 @@ class UpdateProfilePictureError extends UpdateProfilePictureState {
 class UpdateProfilePictureBloc
     extends Bloc<UpdateProfilePictureEvent, UpdateProfilePictureState> {
   final UpdateProfilePictureUseCase _updateProfilePictureUseCase;
+  final DeleteProfilePictureUseCase _deleteProfilePictureUseCase;
   final ProfileRepository _repository;
   UpdateProfilePictureBloc({
     required UpdateProfilePictureUseCase updateProfilePictureUseCase,
+    required DeleteProfilePictureUseCase deleteProfilePictureUseCase,
     required ProfileRepository repository,
   }) : _updateProfilePictureUseCase = updateProfilePictureUseCase,
+       _deleteProfilePictureUseCase = deleteProfilePictureUseCase,
        _repository = repository,
        super(const UpdateProfilePictureInitial()) {
     on<UpdateProfilePictureRequested>(_onUpdateRequested);
@@ -134,21 +138,17 @@ class UpdateProfilePictureBloc
   ) async {
     emit(const ProfilePictureDeleting());
     try {
-      String deletedUrl = '';
       await _repository.deleteProfilePicture(event.pictureUrlToDelete);
-
-      final result = await _updateProfilePictureUseCase(
-        UpdateProfilePictureParams(
+      final result = await _deleteProfilePictureUseCase(
+        DeleteProfilePictureParams(
           userId: event.userId,
-          imageUrl: deletedUrl,
+          imageUrlToDelete: event.pictureUrlToDelete,
         ),
       );
 
       result.fold(
         (failure) => emit(UpdateProfilePictureError(message: failure.message)),
         (profile) {
-          // print('soemtning');
-          // print(profile);
           emit(UpdateProfilePictureSuccess(profile.imageUrl!));
         },
       );
