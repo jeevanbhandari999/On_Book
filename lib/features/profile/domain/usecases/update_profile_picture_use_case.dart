@@ -19,9 +19,15 @@ class UpdateProfilePictureUseCase {
       return const Left(ValidationFailure('Image url is required to update'));
     }
 
+    // if (params.existingPictureToDelte != null &&
+    //     params.existingPictureToDelte!.trim().isNotEmpty) {
+    //   await repository.deleteProfilePicture(params.existingPictureToDelte!);
+    // }
+
     return await repository.updateProfilePictureUrl(
       params.userId,
       params.imageUrl,
+      params.existingPictureToDelte,
     );
   }
 }
@@ -29,12 +35,14 @@ class UpdateProfilePictureUseCase {
 class UpdateProfilePictureParams extends Equatable {
   final String userId;
   final String imageUrl;
+  final String? existingPictureToDelte;
 
   const UpdateProfilePictureParams({
     required this.userId,
     required this.imageUrl,
+    this.existingPictureToDelte,
   });
 
   @override
-  List<Object> get props => [userId, imageUrl];
+  List<Object?> get props => [userId, imageUrl, existingPictureToDelte];
 }

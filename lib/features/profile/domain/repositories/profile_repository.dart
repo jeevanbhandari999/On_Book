@@ -37,6 +37,7 @@ abstract class ProfileRepository {
   Future<Either<Failure, User>> updateProfilePictureUrl(
     String userId,
     String profilePictureUrl,
+    String? existingImageUrlToDelete,
   );
 
 

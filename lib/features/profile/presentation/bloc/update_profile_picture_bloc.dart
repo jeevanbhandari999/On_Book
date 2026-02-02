@@ -18,10 +18,12 @@ abstract class UpdateProfilePictureEvent extends Equatable {
 class UpdateProfilePictureRequested extends UpdateProfilePictureEvent {
   final String userId;
   final File newPictureFile;
+  final String? existingImageUrlToDelete;
 
   const UpdateProfilePictureRequested({
     required this.userId,
     required this.newPictureFile,
+    this.existingImageUrlToDelete,
   });
 
   @override
@@ -116,7 +118,11 @@ class UpdateProfilePictureBloc
       imageUrl = uploadResult.fold((failure) => throw failure, (url) => url);
 
       final result = await _updateProfilePictureUseCase(
-        UpdateProfilePictureParams(userId: event.userId, imageUrl: imageUrl!),
+        UpdateProfilePictureParams(
+          userId: event.userId,
+          imageUrl: imageUrl!,
+          existingPictureToDelte: event.existingImageUrlToDelete,
+        ),
       );
 
       result.fold(

@@ -384,6 +384,7 @@ class ProfileView extends StatelessWidget {
                                   UpdateProfilePictureRequested(
                                     userId: user.userId,
                                     newPictureFile: File(file.path),
+                                    existingImageUrlToDelete: user.imageUrl,
                                   ),
                                 );
                               },

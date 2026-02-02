@@ -111,11 +111,13 @@ class ProfileRepositoryImpl implements ProfileRepository {
   Future<Either<Failure, User>> updateProfilePictureUrl(
     String userId,
     String profilePictureUrl,
+    String? existingImageUrlToDelete,
   ) async {
     try {
       final profileModel = await remoteDataSource.updateProfilePictureUrl(
         userId,
         profilePictureUrl,
+        existingImageUrlToDelete,
       );
       // Then cache the profile detail for next time
       await localDataSource.cacheProfileDetail(userId, profileModel);

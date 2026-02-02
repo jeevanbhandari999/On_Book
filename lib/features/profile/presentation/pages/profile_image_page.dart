@@ -161,7 +161,11 @@ class ProfileImageView extends StatelessWidget {
 
   void _onSaveAvatar(BuildContext context, File file) {
     context.read<UpdateProfilePictureBloc>().add(
-      UpdateProfilePictureRequested(userId: user.userId, newPictureFile: file),
+      UpdateProfilePictureRequested(
+        userId: user.userId,
+        newPictureFile: file,
+        existingImageUrlToDelete: user.imageUrl,
+      ),
     );
     // for real time view //
     _selectedImage.value = file;
