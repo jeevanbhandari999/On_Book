@@ -35,6 +35,7 @@ class ProfilePage extends StatelessWidget {
             getCurrentUserProfileUseCase: DependencyInjection.get(),
           )..add(GetCurrentUserProfileDetailsRequested(userId: userId)),
         ),
+        // BlocProvider(create: (context) => UpdateProfilePicture)
       ],
       child: const ProfileView(),
     );
