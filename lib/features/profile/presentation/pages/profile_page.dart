@@ -297,18 +297,13 @@ class ProfileView extends StatelessWidget {
                           child: Container(color: Colors.white),
                         ),
                         errorWidget: (context, error, stackTrace) =>
-                            CachedNetworkImage(
-                              imageUrl:
-                                  'https://upload.wikimedia.org/wikipedia/commons/9/9e/Placeholder_Person.jpg',
-                            ),
+                            const Icon(Icons.image_not_supported_sharp),
                       )
-                    : CachedNetworkImage(
-                        imageUrl:
-                            'https://upload.wikimedia.org/wikipedia/commons/9/9e/Placeholder_Person.jpg',
-                        placeholder: (context, url) => Shimmer.fromColors(
-                          baseColor: Colors.grey.shade300,
-                          highlightColor: Colors.grey.shade100,
-                          child: Container(color: Colors.white),
+                    : Text(
+                        user.fullName[0],
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
               ),
@@ -349,11 +344,13 @@ class ProfileView extends StatelessWidget {
                   const SizedBox(height: kToolbarHeight),
                   GestureDetector(
                     onTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => ProfileImagePage(user: user),
-                        ),
-                      );
+                      if (user.imageUrl != null && user.imageUrl!.isNotEmpty) {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => ProfileImagePage(user: user),
+                          ),
+                        );
+                      }
                     },
                     child: SizedBox(
                       width: 200,
@@ -561,8 +558,8 @@ class ProfileView extends StatelessWidget {
           ),
           FilledButton.tonal(
             style: FilledButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.errorContainer,
-              foregroundColor: Theme.of(context).colorScheme.onErrorContainer,
+              backgroundColor: Theme.of(context).colorScheme.error,
+              foregroundColor: Theme.of(context).colorScheme.onError,
             ),
             onPressed: () {
               dialogContext.pop();

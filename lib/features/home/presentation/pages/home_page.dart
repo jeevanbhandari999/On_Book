@@ -190,19 +190,12 @@ class HomeView extends StatelessWidget {
                                                           'https://upload.wikimedia.org/wikipedia/commons/9/9e/Placeholder_Person.jpg',
                                                     ),
                                               )
-                                            : CachedNetworkImage(
-                                                imageUrl:
-                                                    'https://upload.wikimedia.org/wikipedia/commons/9/9e/Placeholder_Person.jpg',
-                                                placeholder: (context, url) =>
-                                                    Shimmer.fromColors(
-                                                      baseColor:
-                                                          Colors.grey.shade300,
-                                                      highlightColor:
-                                                          Colors.grey.shade100,
-                                                      child: Container(
-                                                        color: Colors.white,
-                                                      ),
-                                                    ),
+                                            : Text(
+                                                user.fullName[0],
+                                                style: const TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
                                               ),
                                       ),
                                     ),
