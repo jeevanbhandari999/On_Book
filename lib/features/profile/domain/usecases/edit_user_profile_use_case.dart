@@ -38,7 +38,8 @@ class EditUserProfileUseCase {
     final now = DateTime.now();
     final updated = existing.copyWith(
       fullName: params.fullName.trim(),
-      address: params.address.trim(),
+      address: params.address?.trim(),
+      phone: params.phone?.trim(),
       updatedAt: now,
     );
 
@@ -49,15 +50,15 @@ class EditUserProfileUseCase {
 class EditUserProfileParams extends Equatable {
   final String userId;
   final String fullName;
-  final String phone;
-  final String address;
+  final String? phone;
+  final String? address;
   final DateTime updatedAt;
 
   const EditUserProfileParams({
     required this.userId,
     required this.fullName,
-    required this.phone,
-    required this.address,
+    this.phone,
+    this.address,
     required this.updatedAt,
   });
 
