@@ -274,7 +274,7 @@ class ProfileView extends StatelessWidget {
             child: const Icon(Icons.edit_sharp, color: Colors.white),
           ),
           onPressed: () {
-            context.push(RouteConstants.editProfilePage);
+            context.push(RouteConstants.editProfilePage, extra: {'user': user});
           },
         ),
       ],

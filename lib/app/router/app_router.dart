@@ -1,6 +1,7 @@
 import 'package:app/app/router/route_constants.dart';
 import 'package:app/core/navigations/main_tab_navigation_page.dart';
 import 'package:app/features/auth/data/models/user_model.dart';
+import 'package:app/features/auth/domain/entities/user.dart';
 import 'package:app/features/auth/presentation/pages/create_hotel_organization_page.dart';
 import 'package:app/features/auth/presentation/pages/forgot_password_page.dart';
 import 'package:app/features/auth/presentation/pages/login_page.dart';
@@ -280,7 +281,11 @@ class AppRouter {
       // Profile related page
       GoRoute(
         path: RouteConstants.editProfilePage,
-        builder: (context, state) => const EditProfilePage(),
+        builder: (context, state) {
+          final extraData = state.extra as Map<String, dynamic>;
+          final user = extraData['user'] as User;
+          return EditProfilePage(profile: user);
+        },
       ),
     ],
   );
