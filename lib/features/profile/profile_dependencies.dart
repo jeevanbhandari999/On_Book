@@ -70,6 +70,7 @@ class ProfileDependencies {
     getIt.registerFactory<EditUserProfileBloc>(
       () => EditUserProfileBloc(
         editUserProfileUseCase: getIt<EditUserProfileUseCase>(),
+        getCurrentUserProfileUseCase: getIt<GetCurrentUserProfileUseCase>(),
       ),
     );
   }

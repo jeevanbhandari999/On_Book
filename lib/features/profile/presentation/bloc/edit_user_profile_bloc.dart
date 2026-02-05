@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:app/features/auth/domain/entities/user.dart';
 import 'package:app/features/profile/domain/usecases/edit_user_profile_use_case.dart';
+import 'package:app/features/profile/domain/usecases/get_current_user_profile_use_case.dart';
+import 'package:app/features/profile/presentation/bloc/get_current_user_profile_details_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -159,14 +161,19 @@ class ProfileDetailReady extends EditUserProfileState {
 class EditUserProfileBloc
     extends Bloc<EditUserProfileEvent, EditUserProfileState> {
   final EditUserProfileUseCase _editUserProfileUseCase;
-  EditUserProfileBloc({required EditUserProfileUseCase editUserProfileUseCase})
-    : _editUserProfileUseCase = editUserProfileUseCase,
-      super(const UpdateProfileDetailInitial()) {
+  final GetCurrentUserProfileUseCase _getCurrentUserProfileUseCase;
+  EditUserProfileBloc({
+    required EditUserProfileUseCase editUserProfileUseCase,
+    required GetCurrentUserProfileUseCase getCurrentUserProfileUseCase,
+  }) : _editUserProfileUseCase = editUserProfileUseCase,
+       _getCurrentUserProfileUseCase = getCurrentUserProfileUseCase,
+       super(const UpdateProfileDetailInitial()) {
     on<ProfileDetailInitialized>(_onInitialized);
     on<ProfileFullNameChanged>(_onFullNameChanged);
     on<ProfilePhoneChanged>(_onPhoneChanged);
     on<ProfileAddressChanged>(_onAddressChanged);
     on<ProfileDetailUpdateRequested>(_onUpdateRequested);
+    on<ProfileDetailRefreshRequested>(_onRefresh);
   }
 
   Future<void> _onInitialized(
@@ -214,7 +221,7 @@ class EditUserProfileBloc
     final currentState = state;
     if (currentState is ProfileDetailReady) {
       emit(
-        currentState.copyWith(address: event.phone, updatedAt: DateTime.now()),
+        currentState.copyWith(phone: event.phone, updatedAt: DateTime.now()),
       );
     }
   }
@@ -264,12 +271,42 @@ class EditUserProfileBloc
         },
         (profile) {
           emit(
-            ProfileDetailUpdateSuccess(
-              updatedProfile: profile,
-              message: 'Profile Updated Successfully',
+            ProfileDetailReady(
+              userId: profile.userId,
+              fullName: profile.fullName,
+              phone: profile.phone,
+              address: profile.address,
+              updatedAt: profile.updatedAt,
             ),
           );
         },
+      );
+    } catch (e) {
+      emit(
+        UpdateProfileDetailError(message: 'Failed to update the profil: $e'),
+      );
+    }
+  }
+
+  Future<void> _onRefresh(
+    ProfileDetailRefreshRequested event,
+    Emitter<EditUserProfileState> emit,
+  ) async {
+    emit(const ProfileDetailRefreshing());
+    try {
+      final params = GetCurrentUserProfileParams(userId: event.userId);
+      final response = await _getCurrentUserProfileUseCase(params);
+      response.fold(
+        (failure) => emit(UpdateProfileDetailError(message: failure.message)),
+        (profileDetails) => emit(
+          ProfileDetailReady(
+            userId: profileDetails.userId,
+            fullName: profileDetails.fullName,
+            phone: profileDetails.phone,
+            address: profileDetails.address,
+            updatedAt: profileDetails.updatedAt,
+          ),
+        ),
       );
     } catch (e) {
       emit(

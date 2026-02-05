@@ -351,7 +351,7 @@ class SectionContainer extends StatelessWidget {
       padding: padding ?? const EdgeInsets.all(UiConstants.spacingMd),
       decoration: BoxDecoration(
         borderRadius:
-            borderRadius ?? BorderRadius.circular(UiConstants.radiusMd),
+            borderRadius ?? BorderRadius.circular(UiConstants.radiusXl),
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
