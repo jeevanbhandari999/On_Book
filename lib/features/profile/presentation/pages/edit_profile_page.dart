@@ -11,3 +11,12 @@ class EditProfilePage extends StatelessWidget {
     );
   }
 }
+
+class EditProfileView extends StatelessWidget {
+  const EditProfileView({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Placeholder();
+  }
+}

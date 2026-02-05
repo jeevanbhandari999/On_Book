@@ -3,8 +3,10 @@ import 'package:app/features/profile/data/datasources/profile_remote_data_source
 import 'package:app/features/profile/data/repositories/profile_repository_impl.dart';
 import 'package:app/features/profile/domain/repositories/profile_repository.dart';
 import 'package:app/features/profile/domain/usecases/delete_profile_picture_use_case.dart';
+import 'package:app/features/profile/domain/usecases/edit_user_profile_use_case.dart';
 import 'package:app/features/profile/domain/usecases/get_current_user_profile_use_case.dart';
 import 'package:app/features/profile/domain/usecases/update_profile_picture_use_case.dart';
+import 'package:app/features/profile/presentation/bloc/edit_user_profile_bloc.dart';
 import 'package:app/features/profile/presentation/bloc/get_current_user_profile_details_bloc.dart';
 import 'package:app/features/profile/presentation/bloc/update_profile_picture_bloc.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -46,6 +48,10 @@ class ProfileDependencies {
       () => DeleteProfilePictureUseCase(getIt<ProfileRepository>()),
     );
 
+    getIt.registerLazySingleton<EditUserProfileUseCase>(
+      () => EditUserProfileUseCase(getIt<ProfileRepository>()),
+    );
+
     // BLoCs
     getIt.registerFactory<GetCurrentUserProfileDetailsBloc>(
       () => GetCurrentUserProfileDetailsBloc(
@@ -58,6 +64,12 @@ class ProfileDependencies {
         updateProfilePictureUseCase: getIt<UpdateProfilePictureUseCase>(),
         deleteProfilePictureUseCase: getIt<DeleteProfilePictureUseCase>(),
         repository: getIt<ProfileRepository>(),
+      ),
+    );
+
+    getIt.registerFactory<EditUserProfileBloc>(
+      () => EditUserProfileBloc(
+        editUserProfileUseCase: getIt<EditUserProfileUseCase>(),
       ),
     );
   }
