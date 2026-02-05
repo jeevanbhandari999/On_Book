@@ -332,21 +332,43 @@ class SectionContainer extends StatelessWidget {
       //   horizontal: UiConstants.spacingMd,
       //   vertical: UiConstants.spacingSm,
       // ),
+      // padding: padding ?? const EdgeInsets.all(UiConstants.spacingMd),
+      // decoration: BoxDecoration(
+      //   color: backgroundColor ?? colorScheme.surface,
+      //   borderRadius:
+      //       borderRadius ?? BorderRadius.circular(UiConstants.radiusLg),
+      //   boxShadow:
+      //       shadows ??
+      //       [
+      //         BoxShadow(
+      //           color: const Color(0xFF363535).withAlpha(40),
+      //           spreadRadius: 0,
+      //           blurRadius: 16,
+      //           offset: const Offset(0, 0),
+      //         ),
+      //       ],
+      // ),
       padding: padding ?? const EdgeInsets.all(UiConstants.spacingMd),
       decoration: BoxDecoration(
-        color: backgroundColor ?? colorScheme.surface,
         borderRadius:
-            borderRadius ?? BorderRadius.circular(UiConstants.radiusLg),
+            borderRadius ?? BorderRadius.circular(UiConstants.radiusMd),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Colors.white.withAlpha(90), Colors.white.withAlpha(40)],
+        ),
+        color: backgroundColor,
         boxShadow:
             shadows ??
             [
               BoxShadow(
-                color: const Color(0xFF363535).withAlpha(40),
-                spreadRadius: 0,
-                blurRadius: 16,
-                offset: const Offset(0, 0),
+                color: Colors.black.withAlpha(22),
+                blurRadius: 20,
+                spreadRadius: 2,
+                offset: const Offset(0, 8),
               ),
             ],
+        border: Border.all(color: Colors.black.withAlpha(80), width: 1.2),
       ),
       child: child,
     );

@@ -80,53 +80,53 @@ class EditProfileView extends StatelessWidget {
               key: formKey,
               child: Column(
                 children: [
-                  // Avatar with edit
-                  Stack(
-                    alignment: Alignment.bottomRight,
-                    children: [
-                      CircleAvatar(
-                        radius: 55,
-                        backgroundImage:
-                            (profile.imageUrl != null &&
-                                profile.imageUrl!.isNotEmpty)
-                            ? NetworkImage(profile.imageUrl!)
-                            : null,
-                        child:
-                            profile.imageUrl != null &&
-                                profile.imageUrl!.isNotEmpty
-                            ? Icon(
-                                Icons.person,
-                                size: 55,
-                                color: Theme.of(context).primaryColor,
-                              )
-                            : null,
-                      ),
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (_) => ProfileImagePage(user: profile),
-                            ),
-                          );
-                        },
-                        child: Container(
-                          margin: const EdgeInsets.only(bottom: 4, right: 4),
-                          padding: const EdgeInsets.all(6),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).primaryColor,
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white, width: 2),
-                          ),
-                          child: const Icon(
-                            Icons.edit,
-                            size: 16,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
+                  // // Avatar with edit
+                  // Stack(
+                  //   alignment: Alignment.bottomRight,
+                  //   children: [
+                  //     CircleAvatar(
+                  //       radius: 55,
+                  //       backgroundImage:
+                  //           (profile.imageUrl != null &&
+                  //               profile.imageUrl!.isNotEmpty)
+                  //           ? NetworkImage(profile.imageUrl!)
+                  //           : null,
+                  //       child:
+                  //           profile.imageUrl != null &&
+                  //               profile.imageUrl!.isNotEmpty
+                  //           ? Icon(
+                  //               Icons.person,
+                  //               size: 55,
+                  //               color: Theme.of(context).primaryColor,
+                  //             )
+                  //           : null,
+                  //     ),
+                  //     GestureDetector(
+                  //       onTap: () {
+                  //         Navigator.of(context).push(
+                  //           MaterialPageRoute(
+                  //             builder: (_) => ProfileImagePage(user: profile),
+                  //           ),
+                  //         );
+                  //       },
+                  //       child: Container(
+                  //         margin: const EdgeInsets.only(bottom: 4, right: 4),
+                  //         padding: const EdgeInsets.all(6),
+                  //         decoration: BoxDecoration(
+                  //           color: Theme.of(context).primaryColor,
+                  //           shape: BoxShape.circle,
+                  //           border: Border.all(color: Colors.white, width: 2),
+                  //         ),
+                  //         child: const Icon(
+                  //           Icons.edit,
+                  //           size: 16,
+                  //           color: Colors.white,
+                  //         ),
+                  //       ),
+                  //     ),
+                  //   ],
+                  // ),
+                  // const SizedBox(height: 24),
 
                   // Full Name
                   _buildInputCard(
