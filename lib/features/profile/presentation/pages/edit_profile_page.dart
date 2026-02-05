@@ -512,32 +512,32 @@ class _EditProfileViewState extends State<EditProfileView> {
                             hintText: 'Enter your Phone',
                           ),
                           const SizedBox(height: UiConstants.spacingMd),
-                          _buildTapableCard(
-                            context,
-                            icon: Icons.business,
-                            title: 'Organization',
-                            subtitle: widget.organization?.name ?? 'Name',
-                            onTap: () {},
-                          ),
-                          const SizedBox(height: UiConstants.spacingSm),
-                          _buildTapableCard(
-                            context,
-                            icon: Icons.badge_outlined,
-                            title: widget.profile.role.name.toUpperCase(),
-                            subtitle: 'You can manage this organization.',
-                            onTap: () {},
-                          ),
-                          const SizedBox(height: UiConstants.spacingSm),
-                          _buildTapableCard(
-                            context,
-                            icon: Icons.email,
-                            title: widget.email ?? 'Not added',
-                            subtitle:
-                                'Adding email will help you to restore your profile in future',
-                            onTap: () {},
-                          ),
-                          const SizedBox(height: 32),
 
+                          // _buildTapableCard(
+                          //   context,
+                          //   icon: Icons.business,
+                          //   title: 'Organization',
+                          //   subtitle: widget.organization?.name ?? 'Name',
+                          //   onTap: () {},
+                          // ),
+                          // const SizedBox(height: UiConstants.spacingSm),
+                          // _buildTapableCard(
+                          //   context,
+                          //   icon: Icons.badge_outlined,
+                          //   title: widget.profile.role.name.toUpperCase(),
+                          //   subtitle: 'You can manage this organization.',
+                          //   onTap: () {},
+                          // ),
+                          // const SizedBox(height: UiConstants.spacingSm),
+                          // _buildTapableCard(
+                          //   context,
+                          //   icon: Icons.email,
+                          //   title: widget.email ?? 'Not added',
+                          //   subtitle:
+                          //       'Adding email will help you to restore your profile in future',
+                          //   onTap: () {},
+                          // ),
+                          // const SizedBox(height: 32),
                           BlocBuilder<
                             EditUserProfileBloc,
                             EditUserProfileState
@@ -582,20 +582,25 @@ class _EditProfileViewState extends State<EditProfileView> {
     TextInputType keyboardType = TextInputType.text,
   }) {
     return SectionContainer(
-      borderRadius: BorderRadius.circular(UiConstants.radiusMd),
-      padding: const EdgeInsets.all(8),
+      // borderRadius: BorderRadius.circular(UiConstants.radiusMd),
+      padding: const EdgeInsets.only(
+        right: UiConstants.spacingMd,
+        left: UiConstants.spacingMd,
+        bottom: UiConstants.spacingMd,
+        top: UiConstants.spacingSm,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            style: Theme.of(context).textTheme.labelMedium?.copyWith(
-              fontWeight: FontWeight.w600,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
-          ),
-          const SizedBox(height: 8),
-          TextFormField(
+          // Text(
+          //   title,
+          //   style: Theme.of(context).textTheme.labelMedium?.copyWith(
+          //     fontWeight: FontWeight.w600,
+          //     color: Theme.of(context).colorScheme.onSurfaceVariant,
+          //   ),
+          // ),
+          CustomTextField(
+            label: title,
             controller: controller,
             validator: validator,
             keyboardType: keyboardType,
@@ -616,61 +621,51 @@ class _EditProfileViewState extends State<EditProfileView> {
                 );
               }
             },
-            decoration: InputDecoration(
-              hintText: hintText ?? 'Enter $title',
-              prefixIcon: Icon(
-                icon,
-                color: Theme.of(context).colorScheme.primary,
-              ),
-              filled: true,
-              fillColor: Theme.of(
-                context,
-              ).colorScheme.onSurfaceVariant.withAlpha(25),
-            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildTapableCard(
-    BuildContext context, {
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required VoidCallback onTap,
-  }) {
-    return SectionContainer(
-      borderRadius: BorderRadius.circular(UiConstants.radiusMd),
-      onTap: onTap,
-      padding: const EdgeInsets.all(8),
-      child: ListTile(
-        contentPadding: EdgeInsets.zero,
-        leading: Container(
-          padding: const EdgeInsets.all(8),
-          child: Icon(
-            icon,
-            color: Theme.of(context).colorScheme.primary,
-            size: 20,
-          ),
-        ),
-        title: Text(
-          title,
-          style: Theme.of(
-            context,
-          ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
-        ),
-        subtitle: Text(
-          subtitle,
-          style: Theme.of(context).textTheme.labelMedium?.copyWith(),
-        ),
-        trailing: Icon(
-          Icons.chevron_right,
-          color: Theme.of(context).colorScheme.onSurfaceVariant,
-          size: 20,
-        ),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ),
-    );
-  }
+  // Widget _buildTapableCard(
+  //   BuildContext context, {
+  //   required IconData icon,
+  //   required String title,
+  //   required String subtitle,
+  //   required VoidCallback onTap,
+  // }) {
+  //   return SectionContainer(
+  //     borderRadius: BorderRadius.circular(UiConstants.radiusMd),
+  //     onTap: onTap,
+  //     padding: const EdgeInsets.all(8),
+  //     child: ListTile(
+  //       contentPadding: EdgeInsets.zero,
+  //       leading: Container(
+  //         padding: const EdgeInsets.all(8),
+  //         color: Theme.of(context).colorScheme.primary.withAlpha(100),
+  //         child: Icon(
+  //           icon,
+  //           color: Theme.of(context).colorScheme.primary,
+  //           size: 20,
+  //         ),
+  //       ),
+  //       title: Text(
+  //         title,
+  //         style: Theme.of(
+  //           context,
+  //         ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
+  //       ),
+  //       subtitle: Text(
+  //         subtitle,
+  //         style: Theme.of(context).textTheme.labelMedium?.copyWith(),
+  //       ),
+  //       trailing: Icon(
+  //         Icons.chevron_right,
+  //         color: Theme.of(context).colorScheme.onSurfaceVariant,
+  //         size: 20,
+  //       ),
+  //       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+  //     ),
+  //   );
+  // }
 }
