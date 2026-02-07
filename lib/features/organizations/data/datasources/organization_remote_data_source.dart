@@ -6,7 +6,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 abstract class OrganizationRemoteDataSource {
   /// Get organizations created by a user
-  Future<List<OrganizationModel>> getOrganizations(String userId);
+  // Future<List<OrganizationModel>> getOrganizations(String userId);
 
   /// Get single organization by id
   Future<OrganizationModel> getOrganizationById(String organizationId);
@@ -48,22 +48,22 @@ class OrganizationRemoteDataSourceImpl implements OrganizationRemoteDataSource {
 
   const OrganizationRemoteDataSourceImpl({required this.supabaseClient});
 
-  @override
-  Future<List<OrganizationModel>> getOrganizations(String userId) async {
-    try {
-      final response = await supabaseClient
-          .from('organizations')
-          .select()
-          .eq('created_by', userId)
-          .order('created_at', ascending: false);
+  // @override
+  // Future<List<OrganizationModel>> getOrganizations(String userId) async {
+  //   try {
+  //     final response = await supabaseClient
+  //         .from('organizations')
+  //         .select()
+  //         .eq('created_by', userId)
+  //         .order('created_at', ascending: false);
 
-      return (response as List)
-          .map((e) => OrganizationModel.fromJson(e))
-          .toList();
-    } catch (e) {
-      throw core_exception.ServerException('Failed to get organizations: $e');
-    }
-  }
+  //     return (response as List)
+  //         .map((e) => OrganizationModel.fromJson(e))
+  //         .toList();
+  //   } catch (e) {
+  //     throw core_exception.ServerException('Failed to get organizations: $e');
+  //   }
+  // }
 
   @override
   Future<OrganizationModel> getOrganizationById(String organizationId) async {

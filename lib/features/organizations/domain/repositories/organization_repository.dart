@@ -6,7 +6,7 @@ import 'package:dartz/dartz.dart';
 
 abstract class OrganizationRepository {
   /// Get all organizations created by user
-  Future<Either<Failure, List<Organization>>> getOrganizations(String userId);
+  // Future<Either<Failure, List<Organization>>> getOrganizations(String userId);
 
   /// Get single organization detail
   Future<Either<Failure, Organization>> getOrganizationById(
@@ -51,9 +51,9 @@ abstract class OrganizationRepository {
   );
 
   /// Get cached organizations
-  Future<Either<Failure, List<Organization>?>> getCachedOrganizations(
-    String userId,
-  );
+  // Future<Either<Failure, List<Organization>?>> getCachedOrganizations(
+  //   String userId,
+  // );
 
   /// Cache organizations locally
   Future<Either<Failure, void>> cacheOrganizations(
