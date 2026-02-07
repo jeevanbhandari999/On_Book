@@ -1,13 +1,22 @@
 import 'package:app/core/errors/failures.dart';
 import 'package:app/features/booking/domain/entities/booking.dart';
+import 'package:app/features/post/domain/entities/post.dart';
 import 'package:dartz/dartz.dart';
 
 abstract class LibraryRepository {
   // Get user bookings lists
   Future<Either<Failure, List<Booking>>> getUserBookings(String userId);
   // Get organization requests bookings lists
-  Future<Either<Failure, List<Booking>>> getAllBookingsRelatedToOrganization(String organizationId);
+  Future<Either<Failure, List<Booking>>> getAllBookingsRelatedToOrganization(
+    String organizationId,
+  );
 
   // Update the booking status
-  Future<Either<Failure, Booking>> updateBookingStatus(String bookingId, String status);
+  Future<Either<Failure, Booking>> updateBookingStatus(
+    String bookingId,
+    String status,
+  );
+
+  // GEt all saved posts
+  Future<Either<Failure, List<Post>>> getAllSavedPosts(String userId);
 }

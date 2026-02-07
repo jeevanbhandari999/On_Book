@@ -21,7 +21,6 @@ abstract class LibraryRemoteDataSource {
   Future<BookingModel> updateBookingStatus(String bookingId, String status);
 
   // GEt all saved posts
-
   Future<List<PostModel>> getAllSavedPosts(String userId);
 }
 
