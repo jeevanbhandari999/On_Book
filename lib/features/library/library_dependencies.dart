@@ -58,6 +58,7 @@ class LibraryDependencies {
         getAllBookingRelatedToOrganizationUseCase:
             getIt<GetAllBookingRelatedToOrganizationUseCase>(),
         updateBookingStatusByIdUseCase: getIt<UpdateBookingStatusByIdUseCase>(),
+        getAllSavedPostsUseCase: getIt<GetAllSavedPostsUseCase>(),
       ),
     );
 

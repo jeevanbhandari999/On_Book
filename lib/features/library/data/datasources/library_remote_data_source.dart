@@ -116,7 +116,7 @@ class LibraryRemoteDataSourceImpl implements LibraryRemoteDataSource {
     try {
       //get saved post records
       final savedResponse = await supabaseClient
-          .from('saved_posts')
+          .from('user_saved_posts')
           .select()
           .eq('user_id', userId);
 

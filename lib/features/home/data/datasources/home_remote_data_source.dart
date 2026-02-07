@@ -312,6 +312,8 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
           .eq('post_id', postId)
           .eq('organization_id', organizationId)
           .maybeSingle();
+      // print(existing);
+
       if (existing == null) {
         // Insert in the table
         await supabaseClient.from('user_saved_posts').insert({
@@ -322,12 +324,16 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
 
         // TODO, for algorithm
       } else {
+        // print('deleting');
+        // print(existing['id']);
         // Delete the data from the table
         // TODO, for algorithm
         await supabaseClient
             .from('user_saved_posts')
             .delete()
             .eq('id', existing['id']);
+        // .select();
+        // print(response);
       }
     } catch (e) {
       print(e);
