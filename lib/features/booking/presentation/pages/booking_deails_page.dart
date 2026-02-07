@@ -957,8 +957,6 @@
 //   }
 // }
 
-
-
 import 'package:app/app/dependency_injection.dart';
 import 'package:app/app/router/route_constants.dart';
 import 'package:app/core/constants/ui_constants.dart';
@@ -1129,8 +1127,8 @@ Widget _buildBookingContent(BuildContext context, BookingDetailsLoaded state) {
   return RefreshIndicator(
     onRefresh: () async {
       context.read<BookingDetailsBloc>().add(
-            LoadBookingDetails(bookingId: booking.id, userId: booking.userId),
-          );
+        LoadBookingDetails(bookingId: booking.id, userId: booking.userId),
+      );
     },
     child: SingleChildScrollView(
       child: Column(
@@ -1215,10 +1213,7 @@ Widget _buildUserInfoSection(BuildContext context, Booking booking) {
             const SizedBox(width: 8),
             const Text(
               'Booking Information',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
           ],
         ),
@@ -1279,10 +1274,7 @@ Widget _buildBookingDetailsSection(BuildContext context, Booking booking) {
             const SizedBox(width: 8),
             const Text(
               'Booking Details',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
           ],
         ),
@@ -1343,10 +1335,7 @@ Widget _buildTimestampsSection(BuildContext context, Booking booking) {
             const SizedBox(width: 8),
             const Text(
               'Timeline',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
           ],
         ),
@@ -1456,10 +1445,7 @@ Widget _buildOthersDetails(
               const SizedBox(width: 8),
               const Text(
                 'Room Details',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               ),
             ],
           ),
@@ -1527,10 +1513,7 @@ Widget _buildNotesSection(BuildContext context, String notes) {
             const SizedBox(width: 8),
             const Text(
               'Notes',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
           ],
         ),
@@ -1559,12 +1542,12 @@ Widget _buildImageCarousel(BuildContext context, BookingDetailsLoaded state) {
         PageView.builder(
           itemCount: images.length,
           onPageChanged: (i) => context.read<BookingDetailsBloc>().add(
-                BookingImageViewRequested(i),
-              ),
+            BookingImageViewRequested(i),
+          ),
           itemBuilder: (_, i) => GestureDetector(
             onTap: () => context.read<BookingDetailsBloc>().add(
-                  BookingFullImageViewRequested(i),
-                ),
+              BookingFullImageViewRequested(i),
+            ),
             child: Image.network(
               images[i],
               fit: BoxFit.cover,
@@ -1874,20 +1857,17 @@ Widget _buildDateSection(Booking booking) {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
+        const Row(
           children: [
             Icon(
               Icons.calendar_today,
               size: 20,
               // color: Theme.of(context).colorScheme.primary,
             ),
-            const SizedBox(width: 8),
-            const Text(
+            SizedBox(width: 8),
+            Text(
               'Stay Duration',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
           ],
         ),
@@ -1914,20 +1894,13 @@ Widget _buildPriceSection(Booking booking) {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
+        const Row(
           children: [
-            Icon(
-              Icons.payments_outlined,
-              size: 20,
-
-            ),
-            const SizedBox(width: 8),
-            const Text(
+            Icon(Icons.payments_outlined, size: 20),
+            SizedBox(width: 8),
+            Text(
               'Payment Details',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
           ],
         ),
@@ -1939,25 +1912,7 @@ Widget _buildPriceSection(Booking booking) {
           label: 'Subtotal (${booking.nights} nights)',
           value: 'Rs. ${booking.price * booking.nights}',
         ),
-        // if (booking.discount != null && booking.discount! > 0) ...[
-        //   _InfoRow(
-        //     label: 'Discount',
-        //     value: '- Rs. ${booking.discount}',
-        //     valueColor: Colors.green,
-        //   ),
-        // ],
-        // if (booking.serviceFee != null && booking.serviceFee! > 0) ...[
-        //   _InfoRow(
-        //     label: 'Service Fee',
-        //     value: 'Rs. ${booking.serviceFee}',
-        //   ),
-        // ],
-        // if (booking.taxes != null && booking.taxes! > 0) ...[
-        //   _InfoRow(
-        //     label: 'Taxes & Fees',
-        //     value: 'Rs. ${booking.taxes}',
-        //   ),
-        // ],
+
         const Divider(height: 20),
         _InfoRow(
           label: 'Total Amount',
@@ -1978,8 +1933,8 @@ Widget _buildImageViewer(BuildContext context, BookingDetailsLoaded state) {
       leading: IconButton(
         icon: const Icon(Icons.close),
         onPressed: () => context.read<BookingDetailsBloc>().add(
-              const BookingImageViewClosed(),
-            ),
+          const BookingImageViewClosed(),
+        ),
       ),
       title: Text('${index + 1} / ${images.length}'),
     ),

@@ -95,6 +95,7 @@ class LibraryRemoteDataSourceImpl implements LibraryRemoteDataSource {
               BookingStatus.cancelled) ||
           (enumFromString(BookingStatus.values, status) ==
               BookingStatus.rejected)) {
+        print('Cancling');
         // Update the post status , back to the available
         final postDependency = DependencyInjection.get<PostRepository>();
         await postDependency.updatePostStatus(
