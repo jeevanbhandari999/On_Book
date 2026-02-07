@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:app/features/library/domain/usecases/get_all_saved_posts_use_case.dart';
 import 'package:app/features/post/domain/entities/post.dart';
 import 'package:equatable/equatable.dart';
