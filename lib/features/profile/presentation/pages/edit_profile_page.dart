@@ -627,7 +627,7 @@ class _EditProfileViewState extends State<EditProfileView> {
     );
   }
 
-  // Widget _buildTapableCard(
+  // Widget _buildTapableCard(x
   //   BuildContext context, {
   //   required IconData icon,
   //   required String title,

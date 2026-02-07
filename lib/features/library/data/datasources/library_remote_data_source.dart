@@ -2,6 +2,8 @@ import 'package:app/app/dependency_injection.dart';
 import 'package:app/core/errors/exceptions.dart';
 import 'package:app/features/booking/data/models/booking_model.dart'; // reuse if exists
 import 'package:app/features/booking/domain/entities/booking.dart';
+import 'package:app/features/home/data/models/saved_post_model.dart';
+import 'package:app/features/post/data/models/post_model.dart';
 import 'package:app/features/post/domain/entities/post_enums.dart';
 import 'package:app/features/post/domain/repositories/post_repository.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -17,6 +19,10 @@ abstract class LibraryRemoteDataSource {
 
   // Update the booking status
   Future<BookingModel> updateBookingStatus(String bookingId, String status);
+
+  // GEt all saved posts
+
+  Future<List<PostModel>> getAllSavedPosts(String userId);
 }
 
 class LibraryRemoteDataSourceImpl implements LibraryRemoteDataSource {
@@ -103,6 +109,42 @@ class LibraryRemoteDataSourceImpl implements LibraryRemoteDataSource {
       throw ServerException(e.message);
     } catch (e) {
       throw ServerException('Failed to update user bookings: $e');
+    }
+  }
+
+  @override
+  Future<List<PostModel>> getAllSavedPosts(String userId) async {
+    try {
+      //get saved post records
+      final savedResponse = await supabaseClient
+          .from('saved_posts')
+          .select()
+          .eq('user_id', userId);
+
+      final savedList = (savedResponse as List)
+          .map((e) => SavedPostModel.fromJson(e))
+          .toList();
+
+      if (savedList.isEmpty) return [];
+
+      // extract post ids
+      final postIds = savedList.map((e) => e.postId).toList();
+
+      // fetch posts using IN query
+      final postResponse = await supabaseClient
+          .from('posts')
+          .select()
+          .inFilter('id', postIds); // supabase in query
+
+      final posts = (postResponse as List)
+          .map((e) => PostModel.fromJson(e))
+          .toList();
+
+      return posts;
+    } on PostgrestException catch (e) {
+      throw ServerException(e.message);
+    } catch (e) {
+      throw ServerException('Failed to fetch saved posts: $e');
     }
   }
 }
