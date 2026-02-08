@@ -4,6 +4,7 @@ import 'package:app/features/booking/booking_dependencies.dart';
 import 'package:app/features/customer_review/customer_review_dependencies.dart';
 import 'package:app/features/home/home_dependencies.dart';
 import 'package:app/features/library/library_dependencies.dart';
+import 'package:app/features/organizations/organization_dependencies.dart';
 import 'package:app/features/post/post_dependencies.dart';
 import 'package:app/features/profile/profile_dependencies.dart';
 import 'package:get_it/get_it.dart';
@@ -71,6 +72,9 @@ abstract class DependencyInjection {
 
     // Profile feature dependencies
     await _registerProfileDependencies();
+
+    // Organization feature dependencies
+    await _registerOrganizationDependencies();
   }
 
   // Register auth dependencies
@@ -106,6 +110,11 @@ abstract class DependencyInjection {
   // Regisetr Profile dependencies
   static Future<void> _registerProfileDependencies() async {
     await ProfileDependencies.register(instance);
+  }
+
+  // Register Organization dependencies
+  static Future<void> _registerOrganizationDependencies() async {
+    await OrganizationDependencies.register(instance);
   }
 
   static void reset() {
