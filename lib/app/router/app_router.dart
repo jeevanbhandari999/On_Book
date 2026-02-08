@@ -271,7 +271,12 @@ class AppRouter {
       // Organization related routes
       GoRoute(
         path: RouteConstants.organizationDetailsPageUserSide,
-        builder: (context, state) => const OrganizationDetailsPageUserSide(),
+        builder: (context, state) {
+          final organizationId = state.extra as String;
+          return OrganizationDetailsPageUserSide(
+            organizationId: organizationId,
+          );
+        },
       ),
       GoRoute(
         path: RouteConstants.organizationDetailsPageOwnerSide,

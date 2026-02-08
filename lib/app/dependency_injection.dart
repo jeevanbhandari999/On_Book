@@ -38,14 +38,14 @@ abstract class DependencyInjection {
       sessionManager
           .getUserPreference()
           .then((_) {
-            print('✅ Session data initialized successfully');
+            print('Session data initialized successfully');
           })
           .catchError((e) {
-            print('⚠️ Failed to initialize session data: $e');
+            print('Failed to initialize session data: $e');
           });
     } catch (e) {
       // Log error but don't crash app initialization
-      print('⚠️ Failed to initialize session data: $e');
+      print('Failed to initialize session data: $e');
     }
 
     // add others core services here as needed

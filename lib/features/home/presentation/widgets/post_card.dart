@@ -298,6 +298,7 @@ class PostView extends StatelessWidget {
                                           context.push(
                                             RouteConstants
                                                 .organizationDetailsPageUserSide,
+                                            extra: post.organizationId,
                                           );
                                         },
                                         child: CircleAvatar(
