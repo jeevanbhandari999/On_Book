@@ -1,14 +1,19 @@
 import 'package:app/app/dependency_injection.dart';
 import 'package:app/core/constants/ui_constants.dart';
+import 'package:app/core/theme/app_colors.dart';
 import 'package:app/core/utils/date_formatter.dart';
 import 'package:app/features/auth/data/models/user_model.dart';
 import 'package:app/features/auth/domain/entities/organization.dart';
 import 'package:app/features/auth/domain/entities/user.dart';
+import 'package:app/features/home/presentation/widgets/show_on_collapsed_sliver_app_bar.dart';
 import 'package:app/features/organizations/domain/usecases/get_organization_members_use_case.dart';
 import 'package:app/features/organizations/domain/usecases/get_user_organization_detail_use_case.dart';
 import 'package:app/features/organizations/presentation/bloc/get_user_organization_details_bloc.dart';
+import 'package:app/features/organizations/presentation/widgets/organization_detail_shimmer.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shimmer/shimmer.dart';
 
 class OrganizationDetailsPageUserSide extends StatelessWidget {
   final String organizationId;
@@ -54,8 +59,11 @@ class OrganizationDetailsViewUserSide extends StatelessWidget {
               }
             },
             builder: (context, state) {
+              if (state is GetUserOrganizationDetailsLoading) {
+                return const OrganizationDetailsShimmer();
+              }
               if (state is! GetUserOrganizationDetailsSuccess) {
-                return const Center(child: CircularProgressIndicator());
+                return const Center(child: Text('Something wen\'t wrong'));
               }
 
               final org = state.organizationDetails;
@@ -96,15 +104,69 @@ class OrganizationDetailsViewUserSide extends StatelessWidget {
   Widget _buildSliverAppBar(BuildContext context, Organization org) {
     return SliverAppBar(
       expandedHeight: 220.0,
+      centerTitle: false,
       floating: false,
       pinned: true,
-      // backgroundColor: Theme.of(context).primaryColor,
+      collapsedHeight: kToolbarHeight + UiConstants.spacingSm,
       foregroundColor: Colors.white,
-      flexibleSpace: FlexibleSpaceBar(
-        background: Stack(
+      title: ShowOnCollapsedSliverAppBar(
+        child: Row(
           children: [
-            Positioned.fill(
-              child: Container(
+            CircleAvatar(
+              radius: 24,
+              child: ClipOval(
+                child: (org.logoUrl != null && org.logoUrl!.isNotEmpty)
+                    ? CachedNetworkImage(
+                        imageUrl: org.logoUrl!,
+                        fit: BoxFit.cover,
+                        width: 48,
+                        height: 48,
+                        placeholder: (context, url) => Shimmer.fromColors(
+                          baseColor: Colors.grey.shade300,
+                          highlightColor: Colors.grey.shade100,
+                          child: Container(color: Colors.white),
+                        ),
+                        errorWidget: (context, error, stackTrace) =>
+                            const Icon(Icons.image_not_supported_sharp),
+                      )
+                    : Text(
+                        org.name[0],
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+              ),
+            ),
+            const SizedBox(width: UiConstants.spacingSm),
+            Text(org.name, style: const TextStyle(color: Colors.white)),
+          ],
+        ),
+      ),
+      flexibleSpace: LayoutBuilder(
+        builder: (context, constraints) {
+          final settings = context
+              .dependOnInheritedWidgetOfExactType<FlexibleSpaceBarSettings>()!;
+          final t =
+              (1.0 -
+                      (settings.currentExtent - settings.minExtent) /
+                          (settings.maxExtent - settings.minExtent))
+                  .clamp(0.0, 1.0);
+
+          final bgColor = Color.lerp(
+            AppColors.primaryLight,
+            Theme.of(context).colorScheme.primary,
+            t,
+          );
+          return Container(
+            decoration: BoxDecoration(
+              color: bgColor,
+              borderRadius: const BorderRadius.vertical(
+                bottom: Radius.circular(UiConstants.radiusXl),
+              ),
+            ),
+            child: FlexibleSpaceBar(
+              background: Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
@@ -116,43 +178,30 @@ class OrganizationDetailsViewUserSide extends StatelessWidget {
                   ),
                   borderRadius: BorderRadius.circular(UiConstants.radiusLg),
                 ),
-              ),
-            ),
-            Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Theme.of(context).primaryColor.withAlpha(210),
-                    Theme.of(context).primaryColor,
-                  ],
-                ),
-                borderRadius: BorderRadius.circular(UiConstants.radiusLg),
-              ),
-              child: Center(
-                child: CircleAvatar(
-                  radius: 60,
-                  backgroundColor: Colors.white,
-                  backgroundImage:
-                      (org.logoUrl != null && org.logoUrl!.isNotEmpty)
-                      ? NetworkImage(org.logoUrl!)
-                      : null,
-                  child: (org.logoUrl == null || org.logoUrl!.isEmpty)
-                      ? Text(
-                          org.name.substring(0, 1).toUpperCase(),
-                          style: TextStyle(
-                            fontSize: 40,
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context).primaryColor,
-                          ),
-                        )
-                      : null,
+                child: Center(
+                  child: CircleAvatar(
+                    radius: 80,
+                    backgroundColor: Colors.white,
+                    backgroundImage:
+                        (org.logoUrl != null && org.logoUrl!.isNotEmpty)
+                        ? NetworkImage(org.logoUrl!)
+                        : null,
+                    child: (org.logoUrl == null || org.logoUrl!.isEmpty)
+                        ? Text(
+                            org.name.substring(0, 1).toUpperCase(),
+                            style: TextStyle(
+                              fontSize: 40,
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).primaryColor,
+                            ),
+                          )
+                        : null,
+                  ),
                 ),
               ),
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
@@ -385,58 +434,15 @@ class _SectionCard extends StatelessWidget {
   }
 }
 
-// class _ActionButton extends StatelessWidget {
-//   final IconData icon;
-//   final String label;
-//   final Color color;
-//   final VoidCallback onTap;
-
-//   const _ActionButton({
-//     required this.icon,
-//     required this.label,
-//     required this.color,
-//     required this.onTap,
-//   });
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Material(
-//       color: color.withOpacity(0.1),
-//       borderRadius: BorderRadius.circular(12),
-//       child: InkWell(
-//         onTap: onTap,
-//         borderRadius: BorderRadius.circular(12),
-//         child: Container(
-//           padding: const EdgeInsets.symmetric(vertical: 16),
-//           alignment: Alignment.center,
-//           child: Row(
-//             mainAxisAlignment: MainAxisAlignment.center,
-//             children: [
-//               Icon(icon, color: color, size: 20),
-//               const SizedBox(width: 8),
-//               Text(
-//                 label,
-//                 style: TextStyle(color: color, fontWeight: FontWeight.bold),
-//               ),
-//             ],
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }
-
 class _InfoTile extends StatelessWidget {
   final IconData icon;
   final String label;
   final String value;
-  final bool isCopyable;
 
   const _InfoTile({
     required this.icon,
     required this.label,
     required this.value,
-    this.isCopyable = false,
   });
 
   @override
@@ -465,16 +471,6 @@ class _InfoTile extends StatelessWidget {
             ],
           ),
         ),
-        if (isCopyable)
-          IconButton(
-            icon: const Icon(Icons.copy, size: 18, color: Colors.grey),
-            onPressed: () {
-              // Clipboard.setData(ClipboardData(text: value));
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text("Copied to clipboard")),
-              );
-            },
-          ),
       ],
     );
   }
