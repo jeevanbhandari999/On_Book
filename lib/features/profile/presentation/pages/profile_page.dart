@@ -398,14 +398,6 @@ class ProfileView extends StatelessWidget {
     );
   }
 
-  Widget _shimmerAvatar() {
-    return Shimmer.fromColors(
-      baseColor: Colors.grey.shade300,
-      highlightColor: Colors.grey.shade100,
-      child: Container(color: Colors.white),
-    );
-  }
-
   Widget _buildProfileInfoCard(User user) {
     final authService = DependencyInjection.get<AuthService>();
     return Container(

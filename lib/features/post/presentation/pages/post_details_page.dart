@@ -10,6 +10,7 @@ import 'package:app/features/post/domain/usecases/delete_post_use_case.dart';
 import 'package:app/features/post/domain/usecases/get_post_by_id_use_case.dart';
 import 'package:app/features/post/presentation/bloc/post_details_bloc.dart';
 import 'package:app/features/post/presentation/widgets/detail_info_tile.dart';
+import 'package:app/features/post/presentation/widgets/post_detail_shimmer.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -141,7 +142,7 @@ class PostDetailsView extends StatelessWidget {
         },
         builder: (context, state) {
           if (state is PostdetailLoading || state is PostDetailDeleting) {
-            return const Center(child: CircularProgressIndicator());
+            return const PostDetailsShimmer();
           }
           if (state is PostDetailLoaded) {
             if (userId != null) {

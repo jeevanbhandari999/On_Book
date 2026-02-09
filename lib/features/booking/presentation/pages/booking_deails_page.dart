@@ -1963,13 +1963,13 @@ class _InfoRow extends StatelessWidget {
   final String label;
   final String value;
   final bool isBold;
-  final Color? valueColor;
+  // final Color? valueColor;
 
   const _InfoRow({
     required this.label,
     required this.value,
     this.isBold = false,
-    this.valueColor,
+    // this.valueColor,
   });
 
   @override
@@ -1996,7 +1996,7 @@ class _InfoRow extends StatelessWidget {
               value,
               style: theme.textTheme.bodyLarge?.copyWith(
                 fontWeight: isBold ? FontWeight.bold : FontWeight.w600,
-                color: valueColor,
+                // color: valueColor,
               ),
               textAlign: TextAlign.right,
             ),

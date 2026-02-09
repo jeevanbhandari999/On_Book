@@ -91,7 +91,6 @@ class HomeView extends StatelessWidget {
             if (state is HomeLoading) {
               return const HomeShimmer();
             }
-
             if (state is HomeError) {
               return Center(child: Text(state.message));
             }

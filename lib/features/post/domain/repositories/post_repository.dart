@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:app/core/errors/failures.dart';
 import 'package:app/features/post/domain/entities/post.dart';
-import 'package:app/features/post/domain/entities/post_enums.dart';
 import 'package:app/features/post/domain/entities/post_image.dart';
 import 'package:app/features/post/domain/entities/post_video.dart';
 import 'package:dartz/dartz.dart';

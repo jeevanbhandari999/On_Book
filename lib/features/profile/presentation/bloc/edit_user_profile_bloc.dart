@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:app/features/auth/domain/entities/user.dart';
 import 'package:app/features/profile/domain/usecases/edit_user_profile_use_case.dart';
 import 'package:app/features/profile/domain/usecases/get_current_user_profile_use_case.dart';
-import 'package:app/features/profile/presentation/bloc/get_current_user_profile_details_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

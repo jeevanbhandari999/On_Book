@@ -107,7 +107,6 @@ class HomeError extends HomeState {
 }
 
 // BLoC
-
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
   final GetAllPostsNearByUserUseCase getNearbyPostsUseCase;
   final GetOrganizationDetailByPostOrganizationIdUseCase

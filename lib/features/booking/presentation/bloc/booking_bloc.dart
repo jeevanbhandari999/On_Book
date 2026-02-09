@@ -1,5 +1,4 @@
 import 'package:app/app/dependency_injection.dart';
-import 'package:app/core/errors/failures.dart';
 import 'package:app/features/auth/domain/entities/user.dart';
 import 'package:app/features/auth/domain/repositories/auth_repository.dart';
 import 'package:app/features/booking/domain/entities/payment_enums.dart';

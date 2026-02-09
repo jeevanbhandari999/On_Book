@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:app/app/dependency_injection.dart';
 import 'package:app/core/errors/exceptions.dart' as core_exceptions;
 import 'package:app/core/services/cloudinary_service.dart';
-import 'package:app/features/auth/services/auth_service.dart';
 import 'package:app/features/post/data/models/post_image_model.dart';
 import 'package:app/features/post/data/models/post_model.dart';
 import 'package:app/features/post/data/models/post_video_model.dart';
