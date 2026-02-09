@@ -1,7 +1,9 @@
 import 'package:app/app/dependency_injection.dart';
 import 'package:app/core/constants/ui_constants.dart';
 import 'package:app/core/utils/date_formatter.dart';
+import 'package:app/features/auth/data/models/user_model.dart';
 import 'package:app/features/auth/domain/entities/organization.dart';
+import 'package:app/features/auth/domain/entities/user.dart';
 import 'package:app/features/organizations/domain/usecases/get_organization_members_use_case.dart';
 import 'package:app/features/organizations/domain/usecases/get_user_organization_detail_use_case.dart';
 import 'package:app/features/organizations/presentation/bloc/get_user_organization_details_bloc.dart';
@@ -69,10 +71,11 @@ class OrganizationDetailsViewUserSide extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           _buildHeaderSection(context, org),
-                          // const SizedBox(height: 24),
-                          // _buildActionButtons(context, org),
                           const SizedBox(height: 24),
+                          // _buildActionButtons(context, org),
                           _buildContactSection(context, org),
+                          const SizedBox(height: 24),
+                          _buildMembersSection(context, state.members),
                           const SizedBox(height: 16),
                           _buildLocationSection(context, org),
                           const SizedBox(height: 16),
@@ -107,7 +110,7 @@ class OrganizationDetailsViewUserSide extends StatelessWidget {
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                     colors: [
-                      Theme.of(context).primaryColor.withOpacity(0.8),
+                      Theme.of(context).primaryColor.withAlpha(210),
                       Theme.of(context).primaryColor,
                     ],
                   ),
@@ -121,7 +124,7 @@ class OrganizationDetailsViewUserSide extends StatelessWidget {
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    Theme.of(context).primaryColor.withOpacity(0.8),
+                    Theme.of(context).primaryColor.withAlpha(210),
                     Theme.of(context).primaryColor,
                   ],
                 ),
@@ -151,6 +154,52 @@ class OrganizationDetailsViewUserSide extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildMembersSection(BuildContext context, List<User> members) {
+    if (members.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    // Optional: group by role
+    final owners = members.where((u) => u.role == UserRole.owner).toList();
+    final managers = members.where((u) => u.role == UserRole.manager).toList();
+    final staff = members
+        .where((u) => u.role == UserRole.worker || u.role == UserRole.admin)
+        .toList();
+
+    return _SectionCard(
+      title: "Team Members",
+      children: [
+        if (owners.isNotEmpty) ...[
+          _buildRoleGroup("Owner", owners),
+          const SizedBox(height: 16),
+        ],
+        if (managers.isNotEmpty) ...[
+          _buildRoleGroup("Managers", managers),
+          const SizedBox(height: 16),
+        ],
+        if (staff.isNotEmpty) _buildRoleGroup("Staff", staff),
+      ],
+    );
+  }
+
+  Widget _buildRoleGroup(String title, List<User> users) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+            color: Colors.blueGrey[700],
+          ),
+        ),
+        const SizedBox(height: 8),
+        ...users.map((user) => _MemberTile(user: user)),
+      ],
     );
   }
 
@@ -214,7 +263,6 @@ class OrganizationDetailsViewUserSide extends StatelessWidget {
   //             label: "Directions",
   //             color: Colors.blue,
   //             onTap: () {
-  //               // TODO: Implement url_launcher for Maps
   //               // launchUrl(Uri.parse("google.navigation:q=${org.latitude},${org.longitude}"));
   //               debugPrint("Navigating to ${org.latitude}, ${org.longitude}");
   //             },
@@ -328,7 +376,7 @@ class _SectionCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: TextStyle(fontSize: 18)),
+          Text(title, style: const TextStyle(fontSize: 18)),
           const SizedBox(height: 16),
           ...children,
         ],
@@ -337,46 +385,46 @@ class _SectionCard extends StatelessWidget {
   }
 }
 
-class _ActionButton extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final Color color;
-  final VoidCallback onTap;
+// class _ActionButton extends StatelessWidget {
+//   final IconData icon;
+//   final String label;
+//   final Color color;
+//   final VoidCallback onTap;
 
-  const _ActionButton({
-    required this.icon,
-    required this.label,
-    required this.color,
-    required this.onTap,
-  });
+//   const _ActionButton({
+//     required this.icon,
+//     required this.label,
+//     required this.color,
+//     required this.onTap,
+//   });
 
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: color.withOpacity(0.1),
-      borderRadius: BorderRadius.circular(12),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          alignment: Alignment.center,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(icon, color: color, size: 20),
-              const SizedBox(width: 8),
-              Text(
-                label,
-                style: TextStyle(color: color, fontWeight: FontWeight.bold),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return Material(
+//       color: color.withOpacity(0.1),
+//       borderRadius: BorderRadius.circular(12),
+//       child: InkWell(
+//         onTap: onTap,
+//         borderRadius: BorderRadius.circular(12),
+//         child: Container(
+//           padding: const EdgeInsets.symmetric(vertical: 16),
+//           alignment: Alignment.center,
+//           child: Row(
+//             mainAxisAlignment: MainAxisAlignment.center,
+//             children: [
+//               Icon(icon, color: color, size: 20),
+//               const SizedBox(width: 8),
+//               Text(
+//                 label,
+//                 style: TextStyle(color: color, fontWeight: FontWeight.bold),
+//               ),
+//             ],
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+// }
 
 class _InfoTile extends StatelessWidget {
   final IconData icon;
@@ -469,5 +517,90 @@ class _CoordinateBadge extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+class _MemberTile extends StatelessWidget {
+  final User user;
+
+  const _MemberTile({required this.user});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        children: [
+          CircleAvatar(
+            radius: 22,
+            // backgroundColor: Colors.grey[200],
+            backgroundImage: user.imageUrl != null && user.imageUrl!.isNotEmpty
+                ? NetworkImage(user.imageUrl!)
+                : null,
+            child: user.imageUrl == null || user.imageUrl!.isEmpty
+                ? Text(
+                    user.fullName.isNotEmpty
+                        ? user.fullName[0].toUpperCase()
+                        : '?',
+                    style: TextStyle(
+                      color: Theme.of(context).primaryColor,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  )
+                : null,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  user.fullName,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                if (user.phone != null && user.phone!.isNotEmpty)
+                  Text(
+                    user.phone!,
+                    style: TextStyle(fontSize: 13, color: Colors.grey[700]),
+                  ),
+              ],
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            decoration: BoxDecoration(
+              color: _getRoleColor(user.role).withAlpha(38),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Text(
+              user.role.value.toUpperCase(),
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: _getRoleColor(user.role),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Color _getRoleColor(UserRole role) {
+    switch (role) {
+      case UserRole.owner:
+        return Colors.purple;
+      case UserRole.admin:
+        return Colors.red;
+      case UserRole.manager:
+        return Colors.orange;
+      case UserRole.worker:
+        return Colors.blue;
+      default:
+        return Colors.grey;
+    }
   }
 }
