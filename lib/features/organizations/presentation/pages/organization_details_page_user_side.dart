@@ -2,6 +2,7 @@ import 'package:app/app/dependency_injection.dart';
 import 'package:app/core/constants/ui_constants.dart';
 import 'package:app/core/utils/date_formatter.dart';
 import 'package:app/features/auth/domain/entities/organization.dart';
+import 'package:app/features/organizations/domain/usecases/get_organization_members_use_case.dart';
 import 'package:app/features/organizations/domain/usecases/get_user_organization_detail_use_case.dart';
 import 'package:app/features/organizations/presentation/bloc/get_user_organization_details_bloc.dart';
 import 'package:flutter/material.dart';
@@ -21,6 +22,8 @@ class OrganizationDetailsPageUserSide extends StatelessWidget {
           GetUserOrganizationDetailsBloc(
             getUserOrganizationDetailUseCase:
                 DependencyInjection.get<GetUserOrganizationDetailUseCase>(),
+            getOrganizationMembersUseCase:
+                DependencyInjection.get<GetOrganizationMembersUseCase>(),
           )..add(
             GetUserOrganizationDetailsRequested(organizationId: organizationId),
           ),
