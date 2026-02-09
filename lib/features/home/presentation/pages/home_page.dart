@@ -9,6 +9,7 @@ import 'package:app/features/home/domain/usecases/get_organization_detail_by_pos
 import 'package:app/features/home/domain/usecases/get_organization_list_based_on_global_score_use_case.dart';
 import 'package:app/features/home/presentation/bloc/get_organization_list_based_on_global_score_bloc.dart';
 import 'package:app/features/home/presentation/bloc/home_bloc.dart';
+import 'package:app/features/home/presentation/widgets/home_shimmer.dart';
 import 'package:app/features/home/presentation/widgets/home_sliver_header.dart';
 import 'package:app/features/home/presentation/widgets/post_card.dart';
 import 'package:app/features/home/presentation/widgets/show_on_collapsed_sliver_app_bar.dart';
@@ -88,7 +89,7 @@ class HomeView extends StatelessWidget {
         child: BlocBuilder<HomeBloc, HomeState>(
           builder: (context, state) {
             if (state is HomeLoading) {
-              return const Center(child: CircularProgressIndicator());
+              return const HomeShimmer();
             }
 
             if (state is HomeError) {
