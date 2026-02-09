@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:app/core/errors/failures.dart';
 import 'package:app/features/auth/domain/entities/organization.dart';
+import 'package:app/features/auth/domain/entities/user.dart';
 import 'package:dartz/dartz.dart';
 
 abstract class OrganizationRepository {
@@ -66,4 +67,9 @@ abstract class OrganizationRepository {
 
   /// Clear all cached organizations
   Future<Either<Failure, void>> clearAllCachedOrganizations();
+
+  // Get the organization memners
+  Future<Either<Failure, List<User>>> getOrganizationMembers(
+    String organizationId,
+  );
 }

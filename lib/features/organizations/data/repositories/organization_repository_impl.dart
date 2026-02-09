@@ -3,6 +3,7 @@ import 'package:app/core/errors/exceptions.dart';
 import 'package:app/core/errors/failures.dart';
 import 'package:app/features/auth/data/models/orgnization_model.dart';
 import 'package:app/features/auth/domain/entities/organization.dart';
+import 'package:app/features/auth/domain/entities/user.dart';
 import 'package:app/features/organizations/data/datasources/organization_local_data_source.dart';
 import 'package:app/features/organizations/data/datasources/organization_remote_data_source.dart';
 import 'package:app/features/organizations/domain/repositories/organization_repository.dart';
@@ -267,6 +268,29 @@ class OrganizationRepositoryImpl implements OrganizationRepository {
       return const Right(null);
     } on CacheException catch (e) {
       return Left(CacheFailure(e.message));
+    } catch (e) {
+      return Left(UnknownFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<User>>> getOrganizationMembers(
+    String organizationId,
+  ) async {
+    try {
+      final membersModel = await remoteDataSource.getOrganizationMembers(
+        organizationId,
+      );
+      final members = membersModel
+          .map((memberModel) => memberModel.toEntity())
+          .toList();
+      return Right(members);
+    } on SocketException catch (_) {
+      return const Left(NetworkFailure('No internet connection'));
+    } on ValidationException catch (e) {
+      return Left(ValidationFailure(e.message));
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
     } catch (e) {
       return Left(UnknownFailure(e.toString()));
     }
