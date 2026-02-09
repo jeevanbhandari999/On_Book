@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:app/core/errors/exceptions.dart' as core_exception;
 import 'package:app/features/auth/data/models/orgnization_model.dart';
+import 'package:app/features/auth/data/models/user_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 abstract class OrganizationRemoteDataSource {
@@ -41,6 +42,9 @@ abstract class OrganizationRemoteDataSource {
     String organizationId,
     String logoUrlToDelete,
   );
+
+  // Get the organization memners
+  Future<List<UserModel>> getOrganizationMembers(String organizationId);
 }
 
 class OrganizationRemoteDataSourceImpl implements OrganizationRemoteDataSource {
@@ -227,6 +231,35 @@ class OrganizationRemoteDataSourceImpl implements OrganizationRemoteDataSource {
     } catch (e) {
       throw core_exception.ServerException(
         'Failed to remove organization logo: $e',
+      );
+    }
+  }
+
+  @override
+  Future<List<UserModel>> getOrganizationMembers(String organizationId) async {
+    try {
+      final response = await supabaseClient
+          .from('users')
+          .select('''
+          id,
+          user_id,
+          full_name,
+          image_url,
+          role,
+          phone,
+          address,
+          created_at,
+          updated_at
+        ''')
+          .eq('organization_id', organizationId)
+          .order('role', ascending: true)
+          .order('full_name', ascending: true);
+
+      final member = response.map((user) => UserModel.fromJson(user)).toList();
+      return member;
+    } catch (e) {
+      throw core_exception.ServerException(
+        'Failed to get the organization members: $e',
       );
     }
   }

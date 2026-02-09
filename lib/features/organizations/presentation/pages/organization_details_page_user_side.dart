@@ -1,4 +1,5 @@
 import 'package:app/app/dependency_injection.dart';
+import 'package:app/core/constants/ui_constants.dart';
 import 'package:app/core/utils/date_formatter.dart';
 import 'package:app/features/auth/domain/entities/organization.dart';
 import 'package:app/features/organizations/domain/usecases/get_user_organization_detail_use_case.dart';
@@ -30,38 +31,6 @@ class OrganizationDetailsPageUserSide extends StatelessWidget {
 
 class OrganizationDetailsViewUserSide extends StatelessWidget {
   const OrganizationDetailsViewUserSide({super.key});
-
-  // @override
-  // Widget build(BuildContext context) {
-  //   return Scaffold(
-  //     appBar: AppBar(),
-  //     body:
-  //         BlocConsumer<
-  //           GetUserOrganizationDetailsBloc,
-  //           GetUserOrganizationDetailsState
-  //         >(
-  //           listener: (context, state) {
-  //             if (state is GetUserOrganizationDetailsError) {
-  //               print(state.message);
-  //             }
-  //           },
-  //           builder: (context, state) {
-  //             if (state is! GetUserOrganizationDetailsSuccess) {
-  //               return const Center(child: CircularProgressIndicator());
-  //             }
-  //             return Center(
-  //               child: Column(
-  //                 children: [
-  //                   Text(state.organizationDetails.name),
-  //                   Text(state.organizationDetails.name),
-  //                   Text(state.organizationDetails.name),
-  //                 ],
-  //               ),
-  //             );
-  //           },
-  //         ),
-  //   );
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -97,8 +66,8 @@ class OrganizationDetailsViewUserSide extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           _buildHeaderSection(context, org),
-                          const SizedBox(height: 24),
-                          _buildActionButtons(context, org),
+                          // const SizedBox(height: 24),
+                          // _buildActionButtons(context, org),
                           const SizedBox(height: 24),
                           _buildContactSection(context, org),
                           const SizedBox(height: 16),
@@ -123,38 +92,60 @@ class OrganizationDetailsViewUserSide extends StatelessWidget {
       expandedHeight: 220.0,
       floating: false,
       pinned: true,
-      backgroundColor: Theme.of(context).primaryColor,
+      // backgroundColor: Theme.of(context).primaryColor,
+      foregroundColor: Colors.white,
       flexibleSpace: FlexibleSpaceBar(
-        background: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                Theme.of(context).primaryColor.withOpacity(0.8),
-                Theme.of(context).primaryColor,
-              ],
+        background: Stack(
+          children: [
+            Positioned.fill(
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Theme.of(context).primaryColor.withOpacity(0.8),
+                      Theme.of(context).primaryColor,
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(UiConstants.radiusLg),
+                ),
+              ),
             ),
-          ),
-          child: Center(
-            child: CircleAvatar(
-              radius: 60,
-              backgroundColor: Colors.white,
-              backgroundImage: (org.logoUrl != null && org.logoUrl!.isNotEmpty)
-                  ? NetworkImage(org.logoUrl!)
-                  : null,
-              child: (org.logoUrl == null || org.logoUrl!.isEmpty)
-                  ? Text(
-                      org.name.substring(0, 1).toUpperCase(),
-                      style: TextStyle(
-                        fontSize: 40,
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).primaryColor,
-                      ),
-                    )
-                  : null,
+            Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Theme.of(context).primaryColor.withOpacity(0.8),
+                    Theme.of(context).primaryColor,
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(UiConstants.radiusLg),
+              ),
+              child: Center(
+                child: CircleAvatar(
+                  radius: 60,
+                  backgroundColor: Colors.white,
+                  backgroundImage:
+                      (org.logoUrl != null && org.logoUrl!.isNotEmpty)
+                      ? NetworkImage(org.logoUrl!)
+                      : null,
+                  child: (org.logoUrl == null || org.logoUrl!.isEmpty)
+                      ? Text(
+                          org.name.substring(0, 1).toUpperCase(),
+                          style: TextStyle(
+                            fontSize: 40,
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).primaryColor,
+                          ),
+                        )
+                      : null,
+                ),
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );
@@ -167,10 +158,7 @@ class OrganizationDetailsViewUserSide extends StatelessWidget {
       children: [
         Text(
           org.name,
-          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-            fontWeight: FontWeight.bold,
-            color: Colors.black87,
-          ),
+          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
         ),
         if (org.address != null) ...[
           const SizedBox(height: 8),
@@ -196,45 +184,42 @@ class OrganizationDetailsViewUserSide extends StatelessWidget {
     );
   }
 
-  // 3. Quick Action Buttons (Call, Directions)
-  Widget _buildActionButtons(BuildContext context, Organization org) {
-    final hasPhone = org.phone != null && org.phone!.isNotEmpty;
-    final hasLocation = org.latitude != null && org.longitude != null;
+  // Widget _buildActionButtons(BuildContext context, Organization org) {
+  //   final hasPhone = org.phone != null && org.phone!.isNotEmpty;
+  //   final hasLocation = org.latitude != null && org.longitude != null;
 
-    if (!hasPhone && !hasLocation) return const SizedBox.shrink();
+  //   if (!hasPhone && !hasLocation) return const SizedBox.shrink();
 
-    return Row(
-      children: [
-        if (hasPhone)
-          Expanded(
-            child: _ActionButton(
-              icon: Icons.phone,
-              label: "Call",
-              color: Colors.green,
-              onTap: () {
-                // TODO: Implement url_launcher
-                // launchUrl(Uri.parse("tel:${org.phone}"));
-                debugPrint("Calling ${org.phone}");
-              },
-            ),
-          ),
-        if (hasPhone && hasLocation) const SizedBox(width: 12),
-        if (hasLocation)
-          Expanded(
-            child: _ActionButton(
-              icon: Icons.map,
-              label: "Directions",
-              color: Colors.blue,
-              onTap: () {
-                // TODO: Implement url_launcher for Maps
-                // launchUrl(Uri.parse("google.navigation:q=${org.latitude},${org.longitude}"));
-                debugPrint("Navigating to ${org.latitude}, ${org.longitude}");
-              },
-            ),
-          ),
-      ],
-    );
-  }
+  //   return Row(
+  //     children: [
+  //       if (hasPhone)
+  //         Expanded(
+  //           child: _ActionButton(
+  //             icon: Icons.phone,
+  //             label: "Call",
+  //             color: Colors.green,
+  //             onTap: () {
+  //               debugPrint("Calling ${org.phone}");
+  //             },
+  //           ),
+  //         ),
+  //       if (hasPhone && hasLocation) const SizedBox(width: 12),
+  //       if (hasLocation)
+  //         Expanded(
+  //           child: _ActionButton(
+  //             icon: Icons.map,
+  //             label: "Directions",
+  //             color: Colors.blue,
+  //             onTap: () {
+  //               // TODO: Implement url_launcher for Maps
+  //               // launchUrl(Uri.parse("google.navigation:q=${org.latitude},${org.longitude}"));
+  //               debugPrint("Navigating to ${org.latitude}, ${org.longitude}");
+  //             },
+  //           ),
+  //         ),
+  //     ],
+  //   );
+  // }
 
   // 4. Contact Information Card
   Widget _buildContactSection(BuildContext context, Organization org) {
@@ -248,7 +233,7 @@ class OrganizationDetailsViewUserSide extends StatelessWidget {
             value: org.phone!,
           ),
         if (org.address != null) ...[
-          if (org.phone != null) const Divider(height: 20),
+          const SizedBox(height: UiConstants.spacingMd),
           _InfoTile(
             icon: Icons.location_city_outlined,
             label: "Address",
@@ -268,10 +253,10 @@ class OrganizationDetailsViewUserSide extends StatelessWidget {
     );
   }
 
-  // 5. Technical Location Details
   Widget _buildLocationSection(BuildContext context, Organization org) {
-    if (org.latitude == null || org.longitude == null)
+    if (org.latitude == null || org.longitude == null) {
       return const SizedBox.shrink();
+    }
 
     return _SectionCard(
       title: "Coordinates",
@@ -293,9 +278,7 @@ class OrganizationDetailsViewUserSide extends StatelessWidget {
     );
   }
 
-  // 6. Metadata (Created At, ID)
   Widget _buildMetadataSection(BuildContext context, Organization org) {
-    // Requires intl package, or just use .toString().split(' ')[0]
     final dateStr = DateFormatter.format(org.createdAt);
 
     return _SectionCard(
@@ -306,19 +289,10 @@ class OrganizationDetailsViewUserSide extends StatelessWidget {
           label: "Member Since",
           value: dateStr,
         ),
-        const Divider(height: 20),
-        _InfoTile(
-          icon: Icons.fingerprint,
-          label: "Organization ID",
-          value: org.id,
-          isCopyable: true,
-        ),
       ],
     );
   }
 }
-
-// --- HELPER WIDGETS ---
 
 class _SectionCard extends StatelessWidget {
   final String title;
@@ -329,30 +303,29 @@ class _SectionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      padding: const EdgeInsets.all(UiConstants.spacingMd),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(UiConstants.radiusXl),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Colors.white.withAlpha(90), Colors.white.withAlpha(40)],
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: Colors.black.withAlpha(22),
+            blurRadius: 20,
+            spreadRadius: 2,
+            offset: const Offset(0, 8),
           ),
         ],
+        border: Border.all(color: Colors.black.withAlpha(80), width: 1.2),
       ),
-      padding: const EdgeInsets.all(20),
+
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title.toUpperCase(),
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
-              color: Colors.grey,
-              letterSpacing: 1.1,
-            ),
-          ),
+          Text(title, style: TextStyle(fontSize: 18)),
           const SizedBox(height: 16),
           ...children,
         ],
@@ -418,16 +391,9 @@ class _InfoTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: Colors.grey[100],
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Icon(icon, size: 20, color: Colors.grey[700]),
-        ),
+        Icon(icon, color: Colors.grey[700], size: 22),
         const SizedBox(width: 16),
         Expanded(
           child: Column(
@@ -435,15 +401,14 @@ class _InfoTile extends StatelessWidget {
             children: [
               Text(
                 label,
-                style: const TextStyle(fontSize: 12, color: Colors.grey),
+                style: TextStyle(fontSize: 14, color: Colors.grey[600]),
               ),
               const SizedBox(height: 4),
               Text(
                 value,
                 style: const TextStyle(
-                  fontSize: 15,
+                  fontSize: 16,
                   fontWeight: FontWeight.w500,
-                  color: Colors.black87,
                 ),
               ),
             ],
