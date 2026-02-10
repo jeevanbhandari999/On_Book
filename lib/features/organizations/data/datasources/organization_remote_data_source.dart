@@ -45,6 +45,9 @@ abstract class OrganizationRemoteDataSource {
 
   // Get the organization memners
   Future<List<UserModel>> getOrganizationMembers(String organizationId);
+
+  // Check the role of the user if he/she can manage the organization or not
+  Future<bool> canManageOrganization(String userId, String organizationId);
 }
 
 class OrganizationRemoteDataSourceImpl implements OrganizationRemoteDataSource {
@@ -263,6 +266,41 @@ class OrganizationRemoteDataSourceImpl implements OrganizationRemoteDataSource {
     } catch (e) {
       throw core_exception.ServerException(
         'Failed to get the organization members: $e',
+      );
+    }
+  }
+
+  @override
+  Future<bool> canManageOrganization(
+    String userId,
+    String organizationId,
+  ) async {
+    try {
+      final responseForAdmin = await supabaseClient
+          .from('users')
+          .select()
+          .eq('user_id', userId)
+          .single();
+      // Admin can access the all features
+
+      if (responseForAdmin['role'] == 'admin') return true;
+
+      final response = await supabaseClient
+          .from('users')
+          .select()
+          .eq('user_id', userId)
+          .eq('organization_id', organizationId)
+          .single();
+
+      // Only allow the organization owner to update the organization details
+      // later we can add the manager to access this if necessary
+      if (response['role'] == 'owner') return true;
+
+      // Rest of the others are not allow to edit , they can only view
+      return false;
+    } catch (e) {
+      throw core_exception.ServerException(
+        'Failed to check the organization action authority: $e',
       );
     }
   }

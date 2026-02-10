@@ -4,20 +4,16 @@ import 'package:shimmer/shimmer.dart';
 
 class PostDetailsShimmer extends StatelessWidget {
   const PostDetailsShimmer({super.key});
-
   @override
   Widget build(BuildContext context) {
-    // Standard shimmer colors
     final baseColor = Colors.grey[300]!;
     final highlightColor = Colors.grey[100]!;
-
     return Scaffold(
       body: Shimmer.fromColors(
         baseColor: baseColor,
         highlightColor: highlightColor,
         child: SingleChildScrollView(
-          physics:
-              const NeverScrollableScrollPhysics(), // Disable scrolling while loading
+          physics: const NeverScrollableScrollPhysics(),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
