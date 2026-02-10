@@ -295,4 +295,26 @@ class OrganizationRepositoryImpl implements OrganizationRepository {
       return Left(UnknownFailure(e.toString()));
     }
   }
+
+  @override
+  Future<Either<Failure, bool>> canManageOrganization(
+    String userId,
+    String organizationId,
+  ) async {
+    try {
+      final canManage = await remoteDataSource.canManageOrganization(
+        userId,
+        organizationId,
+      );
+      return Right(canManage);
+    } on SocketException catch (_) {
+      return const Left(NetworkFailure('No internet connection'));
+    } on ValidationException catch (e) {
+      return Left(ValidationFailure(e.message));
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } catch (e) {
+      return Left(UnknownFailure(e.toString()));
+    }
+  }
 }

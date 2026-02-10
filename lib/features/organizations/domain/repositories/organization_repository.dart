@@ -72,4 +72,10 @@ abstract class OrganizationRepository {
   Future<Either<Failure, List<User>>> getOrganizationMembers(
     String organizationId,
   );
+
+  // Check the role of the user if he/she can manage the organization or not
+  Future<Either<Failure, bool>> canManageOrganization(
+    String userId,
+    String organizationId,
+  );
 }
