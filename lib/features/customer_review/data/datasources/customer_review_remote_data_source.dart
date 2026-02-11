@@ -220,7 +220,7 @@ class CustomerReviewRemoteDataSourceImpl
           .eq('rating_id', ratingId)
           .eq('user_id', userId)
           .maybeSingle();
-
+      String? action;
       if (existing == null) {
         // Insert in the table
         await supabaseClient.from('review_reactions').insert({
@@ -228,6 +228,8 @@ class CustomerReviewRemoteDataSourceImpl
           'user_id': userId,
           'reaction': reaction.name,
         });
+
+        action = 'insert';
       } else {
         final existingReaction = existing['reaction'];
         if (existingReaction == reaction.name) {
@@ -236,6 +238,8 @@ class CustomerReviewRemoteDataSourceImpl
               .from('review_reactions')
               .delete()
               .eq('id', existing['id']);
+
+          action = 'delete';
         } else {
           // Update the reaction
           await supabaseClient
@@ -245,11 +249,45 @@ class CustomerReviewRemoteDataSourceImpl
                 'updated_at': DateTime.now().toIso8601String(),
               })
               .eq('id', existing['id']);
+
+          action = 'update';
         }
       }
+      // Call the helper method to trigger the supabse to update the score
+      await _updateReactionScore(
+        ratingId,
+        reaction,
+        existing?['reaction'],
+        action,
+      );
     } catch (e) {
       throw core_exceptions.ServerException(
         'Failed to toggle review reaction: $e',
+      );
+    }
+  }
+
+  Future<void> _updateReactionScore(
+    String ratingId,
+    ReviewReactionType newReaction,
+    String? oldReaction, // may be null
+    String? action, // insert, update, delete
+  ) async {
+    try {
+      await supabaseClient.rpc(
+        'rpc_update_review_reaction_score',
+        params: {
+          'p_rating_id': ratingId,
+          'p_new_reaction': newReaction.name,
+          'p_old_reaction': oldReaction, // null if insert
+          'p_action': action,
+        },
+      );
+      print('Review reaction score updated for rating $ratingId');
+    } catch (e) {
+      print('Failed to update review reaction score: $e');
+      throw core_exceptions.ServerException(
+        'Could not update review reaction score: $e',
       );
     }
   }
