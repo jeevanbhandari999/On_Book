@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:app/features/auth/domain/entities/organization.dart';
 import 'package:app/features/auth/domain/entities/user.dart';
+import 'package:app/features/organizations/domain/usecases/can_manage_orgnization_use_case.dart';
 import 'package:app/features/organizations/domain/usecases/get_organization_members_use_case.dart';
 import 'package:app/features/organizations/domain/usecases/get_user_organization_detail_use_case.dart';
 import 'package:equatable/equatable.dart';
@@ -50,14 +51,16 @@ class GetUserOrganizationDetailsSuccess
     extends GetUserOrganizationDetailsState {
   final Organization organizationDetails;
   final List<User> members;
+  final bool canManage;
 
   const GetUserOrganizationDetailsSuccess({
     required this.organizationDetails,
     this.members = const [],
+    this.canManage = false,
   });
 
   @override
-  List<Object> get props => [organizationDetails, members];
+  List<Object> get props => [organizationDetails, members, canManage];
 }
 
 class GetUserOrganizationDetailsError extends GetUserOrganizationDetailsState {
@@ -74,11 +77,14 @@ class GetUserOrganizationDetailsBloc
         Bloc<GetUserOrganizationDetailsEvent, GetUserOrganizationDetailsState> {
   final GetUserOrganizationDetailUseCase _getUserOrganizationDetailUseCase;
   final GetOrganizationMembersUseCase _getOrganizationMembersUseCase;
+  final CanManageOrganizationUseCase _canManageOrganizationUseCase;
   GetUserOrganizationDetailsBloc({
     required GetUserOrganizationDetailUseCase getUserOrganizationDetailUseCase,
     required GetOrganizationMembersUseCase getOrganizationMembersUseCase,
+    required CanManageOrganizationUseCase canManageOrganizationUseCase,
   }) : _getUserOrganizationDetailUseCase = getUserOrganizationDetailUseCase,
        _getOrganizationMembersUseCase = getOrganizationMembersUseCase,
+       _canManageOrganizationUseCase = canManageOrganizationUseCase,
        super(const GetUserOrganizationDetailsInitial()) {
     on<GetUserOrganizationDetailsRequested>(
       _onGetUserOrganizationDetailsRequested,
@@ -108,7 +114,7 @@ class GetUserOrganizationDetailsBloc
       //   ),
       // );
 
-      // 1. Get organization
+      // First Get organization
       final orgParams = GetUserOrganizationDetailParams(
         organizationId: event.organizationId,
         userId: event.userId,
@@ -124,7 +130,7 @@ class GetUserOrganizationDetailsBloc
 
       final organization = orgEither.getOrElse(() => throw Exception());
 
-      // 2. Get members
+      // Second Get members
       final membersEither = await _getOrganizationMembersUseCase(
         GetOrganizationMembersParams(organizationId: event.organizationId),
       );
@@ -134,10 +140,32 @@ class GetUserOrganizationDetailsBloc
         (list) => list,
       );
 
+      // ANd finally check whethere the user can manage the organzation or not
+      if (event.userId == null) {
+        emit(
+          GetUserOrganizationDetailsSuccess(
+            organizationDetails: organization,
+            members: members,
+          ),
+        );
+        return;
+      }
+      final canManageOrganizationParams = CanManageOrganizationParams(
+        userId: event.userId!,
+        organizationId: event.organizationId,
+      );
+      final canManageEither = await _canManageOrganizationUseCase(
+        canManageOrganizationParams,
+      );
+      final canManage = canManageEither.fold(
+        (failure) => false, // Ignore the failure just return the false
+        (canManage) => canManage,
+      );
       emit(
         GetUserOrganizationDetailsSuccess(
           organizationDetails: organization,
           members: members,
+          canManage: canManage,
         ),
       );
     } catch (e) {

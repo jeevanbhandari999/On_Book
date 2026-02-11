@@ -272,9 +272,12 @@ class AppRouter {
       GoRoute(
         path: RouteConstants.organizationDetailsPageUserSide,
         builder: (context, state) {
-          final organizationId = state.extra as String;
+          final extraData = state.extra as Map<String, String>;
+          final userId = extraData['userId'] as String;
+          final organizationId = extraData['organizationId'] as String;
           return OrganizationDetailsPageUserSide(
             organizationId: organizationId,
+            userId: userId,
           );
         },
       ),

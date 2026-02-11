@@ -6,6 +6,7 @@ import 'package:app/features/auth/data/models/user_model.dart';
 import 'package:app/features/auth/domain/entities/organization.dart';
 import 'package:app/features/auth/domain/entities/user.dart';
 import 'package:app/features/home/presentation/widgets/show_on_collapsed_sliver_app_bar.dart';
+import 'package:app/features/organizations/domain/usecases/can_manage_orgnization_use_case.dart';
 import 'package:app/features/organizations/domain/usecases/get_organization_members_use_case.dart';
 import 'package:app/features/organizations/domain/usecases/get_user_organization_detail_use_case.dart';
 import 'package:app/features/organizations/presentation/bloc/get_user_organization_details_bloc.dart';
@@ -17,9 +18,11 @@ import 'package:shimmer/shimmer.dart';
 
 class OrganizationDetailsPageUserSide extends StatelessWidget {
   final String organizationId;
+  final String userId;
   const OrganizationDetailsPageUserSide({
     super.key,
     required this.organizationId,
+    required this.userId,
   });
 
   @override
@@ -31,8 +34,10 @@ class OrganizationDetailsPageUserSide extends StatelessWidget {
                 DependencyInjection.get<GetUserOrganizationDetailUseCase>(),
             getOrganizationMembersUseCase:
                 DependencyInjection.get<GetOrganizationMembersUseCase>(),
+            canManageOrganizationUseCase:
+                DependencyInjection.get<CanManageOrganizationUseCase>(),
           )..add(
-            GetUserOrganizationDetailsRequested(organizationId: organizationId),
+            GetUserOrganizationDetailsRequested(organizationId: organizationId, userId: userId),
           ),
       child: const OrganizationDetailsViewUserSide(),
     );
@@ -68,10 +73,12 @@ class OrganizationDetailsViewUserSide extends StatelessWidget {
 
               final org = state.organizationDetails;
 
+              final canManage = state.canManage;
+
               return CustomScrollView(
                 physics: const BouncingScrollPhysics(),
                 slivers: [
-                  _buildSliverAppBar(context, org),
+                  _buildSliverAppBar(context, org, canManage),
                   SliverToBoxAdapter(
                     child: Padding(
                       padding: const EdgeInsets.all(16.0),
@@ -101,7 +108,11 @@ class OrganizationDetailsViewUserSide extends StatelessWidget {
   }
 
   // 1. The Collapsing Header with Logo
-  Widget _buildSliverAppBar(BuildContext context, Organization org) {
+  Widget _buildSliverAppBar(
+    BuildContext context,
+    Organization org,
+    bool canManage,
+  ) {
     return SliverAppBar(
       expandedHeight: 220.0,
       centerTitle: false,
@@ -143,6 +154,9 @@ class OrganizationDetailsViewUserSide extends StatelessWidget {
           ],
         ),
       ),
+      actions: canManage
+          ? [IconButton(onPressed: () {}, icon: Icon(Icons.edit))]
+          : null,
       flexibleSpace: LayoutBuilder(
         builder: (context, constraints) {
           final settings = context
