@@ -55,11 +55,33 @@ class CustomerReviewRemoteDataSourceImpl
     RatingModel rating,
   ) async {
     try {
+      // First fetch the post, to get the organization id
+      final post = await supabaseClient
+          .from('posts')
+          .select()
+          .eq('id', postId)
+          .single();
+
       final response = await supabaseClient
           .from('ratings')
           .insert(rating.toCreateJson())
           .select()
           .single();
+
+      print(
+        'calling througn the $userId, ${post['organization_id']}, and the rating value ${rating.ratingValue}',
+      );
+
+      final trigger = await supabaseClient.rpc(
+        'rpc_update_rating_score',
+        params: {
+          'p_user_id': userId,
+          'p_org_id': post['organization_id'],
+          'p_rating': rating.ratingValue,
+        },
+      );
+
+      print(trigger);
 
       return RatingModel.fromJson(response);
     } on PostgrestException catch (e) {
@@ -78,8 +100,9 @@ class CustomerReviewRemoteDataSourceImpl
           );
         }
       } else if (e.code == '23503') {
-        throw const core_exceptions.ServerException(
-          'Invalid reference (user or post not found).',
+        print('Invalid reference (user or post not found). $e');
+        throw core_exceptions.ServerException(
+          'Invalid reference (user or post not found). $e',
         );
       }
       // print('the error i am encountering is ::: $e');
