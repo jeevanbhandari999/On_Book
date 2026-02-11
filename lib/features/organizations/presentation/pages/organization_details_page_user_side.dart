@@ -37,7 +37,10 @@ class OrganizationDetailsPageUserSide extends StatelessWidget {
             canManageOrganizationUseCase:
                 DependencyInjection.get<CanManageOrganizationUseCase>(),
           )..add(
-            GetUserOrganizationDetailsRequested(organizationId: organizationId, userId: userId),
+            GetUserOrganizationDetailsRequested(
+              organizationId: organizationId,
+              userId: userId,
+            ),
           ),
       child: const OrganizationDetailsViewUserSide(),
     );
@@ -155,7 +158,15 @@ class OrganizationDetailsViewUserSide extends StatelessWidget {
         ),
       ),
       actions: canManage
-          ? [IconButton(onPressed: () {}, icon: Icon(Icons.edit))]
+          ? [
+              IconButton(
+                onPressed: () {},
+                icon: const Padding(
+                  padding: EdgeInsets.all(UiConstants.spacingSm),
+                  child: Icon(Icons.edit),
+                ),
+              ),
+            ]
           : null,
       flexibleSpace: LayoutBuilder(
         builder: (context, constraints) {
@@ -271,30 +282,60 @@ class OrganizationDetailsViewUserSide extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          org.name,
-          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-        ),
-        if (org.address != null) ...[
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              Icon(
-                Icons.location_on_outlined,
-                size: 16,
-                color: Colors.grey[600],
-              ),
-              const SizedBox(width: 4),
-              Expanded(
-                child: Text(
-                  org.address!,
-                  style: TextStyle(color: Colors.grey[700], fontSize: 14),
-                  overflow: TextOverflow.ellipsis,
-                ),
+        const Text('Basic Info', style: TextStyle(fontSize: 18)),
+        const SizedBox(height: UiConstants.spacingSm),
+        Container(
+          padding: const EdgeInsets.all(UiConstants.spacingMd),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(UiConstants.radiusXl),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Colors.white.withAlpha(90), Colors.white.withAlpha(40)],
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withAlpha(22),
+                blurRadius: 20,
+                spreadRadius: 2,
+                offset: const Offset(0, 8),
               ),
             ],
+            border: Border.all(color: Colors.black.withAlpha(80), width: 1.2),
           ),
-        ],
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                org.name,
+                style: const TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              if (org.address != null) ...[
+                const SizedBox(height: UiConstants.spacingXs),
+                Row(
+                  children: [
+                    Icon(
+                      Icons.location_on_outlined,
+                      size: 16,
+                      color: Colors.grey[600],
+                    ),
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: Text(
+                        org.address!,
+                        style: TextStyle(color: Colors.grey[700], fontSize: 14),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ],
+          ),
+        ),
       ],
     );
   }
@@ -416,34 +457,33 @@ class _SectionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(UiConstants.spacingMd),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(UiConstants.radiusXl),
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Colors.white.withAlpha(90), Colors.white.withAlpha(40)],
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withAlpha(22),
-            blurRadius: 20,
-            spreadRadius: 2,
-            offset: const Offset(0, 8),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title, style: const TextStyle(fontSize: 18)),
+        const SizedBox(height: UiConstants.spacingSm),
+        Container(
+          padding: const EdgeInsets.all(UiConstants.spacingMd),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(UiConstants.radiusXl),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Colors.white.withAlpha(90), Colors.white.withAlpha(40)],
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withAlpha(22),
+                blurRadius: 20,
+                spreadRadius: 2,
+                offset: const Offset(0, 8),
+              ),
+            ],
+            border: Border.all(color: Colors.black.withAlpha(80), width: 1.2),
           ),
-        ],
-        border: Border.all(color: Colors.black.withAlpha(80), width: 1.2),
-      ),
-
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(title, style: const TextStyle(fontSize: 18)),
-          const SizedBox(height: 16),
-          ...children,
-        ],
-      ),
+          child: Column(children: [...children]),
+        ),
+      ],
     );
   }
 }
