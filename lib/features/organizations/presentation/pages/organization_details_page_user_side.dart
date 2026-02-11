@@ -73,9 +73,7 @@ class OrganizationDetailsViewUserSide extends StatelessWidget {
               if (state is! GetUserOrganizationDetailsSuccess) {
                 return const Center(child: Text('Something wen\'t wrong'));
               }
-
               final org = state.organizationDetails;
-
               final canManage = state.canManage;
 
               return CustomScrollView(
@@ -381,14 +379,16 @@ class OrganizationDetailsViewUserSide extends StatelessWidget {
     return _SectionCard(
       title: "Contact Information",
       children: [
-        if (org.phone != null)
+        if (org.phone != null) ...[
           _InfoTile(
             icon: Icons.phone_outlined,
             label: "Phone",
             value: org.phone!,
           ),
-        if (org.address != null) ...[
           const SizedBox(height: UiConstants.spacingMd),
+        ],
+
+        if (org.address != null) ...[
           _InfoTile(
             icon: Icons.location_city_outlined,
             label: "Address",

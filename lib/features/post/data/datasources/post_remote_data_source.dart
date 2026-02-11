@@ -359,13 +359,32 @@ class PostRemoteDataSourceImpl implements PostRemoteDataSource {
       final post = PostModel.fromJson(response);
       final currentUserId = postService.getCurrentUserId();
       if (currentUserId != null) {
-        print('Trigger calling');
-        unawaited(
-          supabaseClient.rpc(
-            'add_post_view',
-            params: {'p_post_id': postId, 'p_user_id': currentUserId},
-          ),
+        // print(
+        //   'Trigger calling with userId: $currentUserId and post id: ${post.id}',
+        // );
+
+        // unawaited(
+        //   supabaseClient.rpc(
+        //     'add_post_view',
+        //     params: {'p_post_id': postId, 'p_user_id': currentUserId},
+        //   ),
+        // );
+
+        await supabaseClient.rpc(
+          'add_post_view',
+          params: {'p_post_id': postId, 'p_user_id': currentUserId},
         );
+
+        // try {
+        //   final res = await supabaseClient.rpc(
+        //     'add_post_view',
+        //     params: {'p_post_id': postId, 'p_user_id': currentUserId},
+        //   );
+
+        //   print('RPC success: $res');
+        // } catch (e) {
+        //   print('RPC failed: $e');
+        // }
       }
 
       return post;
