@@ -125,7 +125,10 @@ class HomeView extends StatelessWidget {
                           color: Colors.white,
                         ),
                         onPressed: () {
-                          context.push(RouteConstants.chatUserListPage);
+                          context.push(
+                            RouteConstants.chatUserListPage,
+                            extra: userId,
+                          );
                         },
                       ),
                     ],
@@ -389,7 +392,12 @@ class HomeView extends StatelessWidget {
   Widget _orgItem(BuildContext context, Organization org) {
     return InkWell(
       onTap: () {
-        context.push(RouteConstants.chatPage);
+        // context.push(RouteConstants.chatPage);
+        // Logic to create a new chat room
+        context.push(
+          RouteConstants.contacts,
+          extra: {'orgId': org.id, 'userId': userId},
+        );
       },
       child: SizedBox(
         width: 60,

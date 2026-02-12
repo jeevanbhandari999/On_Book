@@ -1,111 +1,146 @@
-import 'package:app/core/errors/exceptions.dart';
-import 'package:app/core/errors/failures.dart';
-import 'package:app/features/chat/data/datasources/chat_remote_data_source.dart';
-import 'package:app/features/chat/data/models/message_model.dart';
-import 'package:app/features/chat/data/models/room_member_model.dart';
-import 'package:app/features/chat/data/models/room_model.dart';
-import 'package:app/features/chat/domain/entities/message.dart';
-import 'package:app/features/chat/domain/entities/room.dart';
-import 'package:app/features/chat/domain/entities/room_member.dart';
-import 'package:app/features/chat/domain/repositories/chat_repository.dart';
+import 'dart:async';
 import 'package:dartz/dartz.dart';
+
+import '../../../../core/errors/exceptions.dart';
+import '../../../../core/errors/failures.dart';
+import '../../domain/entities/message.dart';
+import '../../domain/entities/room.dart';
+import '../../domain/entities/room_member.dart';
+import '../../domain/repositories/chat_repository.dart';
+import '../datasources/chat_remote_data_source.dart';
+import '../models/message_model.dart';
+import '../models/room_model.dart';
 
 class ChatRepositoryImpl implements ChatRepository {
   final ChatRemoteDataSource remoteDataSource;
 
-  const ChatRepositoryImpl({required this.remoteDataSource});
+  ChatRepositoryImpl({required this.remoteDataSource});
 
-  // ROOM
+  // ===========================================================================
+  // ROOMS
+  // ===========================================================================
 
   @override
   Future<Either<Failure, Room>> createRoom(Room room) async {
     try {
-      final model = RoomModel.fromEntity(room);
+      // 1. Convert Domain Entity -> Model
+      final roomModel = RoomModel.fromEntity(room);
 
-      final created = await remoteDataSource.createRoom(model);
+      // 2. Call Remote Data Source
+      final result = await remoteDataSource.createRoom(roomModel);
 
-      return Right(created.toEntity());
+      // 3. Convert Model -> Domain Entity
+      return Right(result.toEntity());
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     } catch (e) {
-      return Left(UnknownFailure(e.toString()));
+      return Left(ServerFailure(e.toString()));
     }
   }
 
   @override
   Future<Either<Failure, List<Room>>> getUserRooms() async {
     try {
-      final models = await remoteDataSource.getMyRooms();
+      final roomModels = await remoteDataSource.getMyRooms();
 
-      return Right(models.map((m) => m.toEntity()).toList());
+      final rooms = roomModels.map((model) => model.toEntity()).toList();
+      return Right(rooms);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     } catch (e) {
-      return Left(UnknownFailure(e.toString()));
+      return Left(ServerFailure(e.toString()));
     }
   }
-  
-  // MEMBERS
+
   @override
   Future<Either<Failure, void>> addMembers({
     required String roomId,
     required List<RoomMember> members,
   }) async {
     try {
-      final models = members.map((e) => RoomMemberModel.fromEntity(e)).toList();
+      // Extract User IDs from the entities to pass to the lightweight RDS method
+      final List<String> userIds = members.map((m) => m.userId).toList();
 
-      await remoteDataSource.addMembers(roomId: roomId, members: models);
+      await remoteDataSource.addMembers(roomId: roomId, userIds: userIds);
 
       return const Right(null);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     } catch (e) {
-      return Left(UnknownFailure(e.toString()));
+      return Left(ServerFailure(e.toString()));
     }
   }
 
-  // MESSAGE
+  @override
+  Future<Either<Failure, List<RoomMember>>> getRoomMembers(
+    String roomId,
+  ) async {
+    try {
+      final memberModels = await remoteDataSource.getRoomMembers(roomId);
+
+      final members = memberModels.map((m) => m.toEntity()).toList();
+      return Right(members);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  // ===========================================================================
+  // MESSAGES
+  // ===========================================================================
 
   @override
   Future<Either<Failure, Message>> sendMessage(Message message) async {
     try {
-      final model = MessageModel.fromEntity(message);
+      final messageModel = MessageModel.fromEntity(message);
 
-      final result = await remoteDataSource.sendMessage(model);
+      final result = await remoteDataSource.sendMessage(messageModel);
 
       return Right(result.toEntity());
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     } catch (e) {
-      return Left(UnknownFailure(e.toString()));
+      return Left(ServerFailure(e.toString()));
     }
   }
 
   @override
   Future<Either<Failure, List<Message>>> getMessages(String roomId) async {
     try {
-      final models = await remoteDataSource.getMessages(roomId: roomId);
+      final messageModels = await remoteDataSource.getMessages(roomId: roomId);
 
-      return Right(models.map((m) => m.toEntity()).toList());
+      final messages = messageModels.map((m) => m.toEntity()).toList();
+      return Right(messages);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     } catch (e) {
-      return Left(UnknownFailure(e.toString()));
+      return Left(ServerFailure(e.toString()));
     }
   }
 
   @override
   Stream<Either<Failure, List<Message>>> streamMessages(String roomId) {
-    try {
-      return remoteDataSource
-          .streamMessages(roomId)
-          .map((models) => Right(models.map((m) => m.toEntity()).toList()));
-    } catch (e) {
-      return Stream.value(Left(UnknownFailure(e.toString())));
-    }
+    return remoteDataSource
+        .streamMessages(roomId)
+        .map((models) {
+          // Success case: Map List<Model> -> List<Entity>
+          final entities = models.map((m) => m.toEntity()).toList();
+          return Right<Failure, List<Message>>(entities);
+        })
+        .handleError((error) {
+          // Error case: Wrap in Failure
+          if (error is ServerException) {
+            return Left<Failure, List<Message>>(ServerFailure(error.message));
+          }
+          return Left<Failure, List<Message>>(ServerFailure(error.toString()));
+        });
   }
 
-  // READ / SEEN
+  // ===========================================================================
+  // READ STATUS
+  // ===========================================================================
 
   @override
   Future<Either<Failure, void>> updateLastRead({
@@ -117,28 +152,11 @@ class ChatRepositoryImpl implements ChatRepository {
         roomId: roomId,
         lastReadAt: lastReadAt,
       );
-
       return const Right(null);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     } catch (e) {
-      return Left(UnknownFailure(e.toString()));
-    }
-  }
-
-  @override
-  Future<Either<Failure, List<RoomMember>>> getRoomMembers(
-    String roomId,
-  ) async {
-    try {
-      final membersModel = await remoteDataSource.getRoomMembers(roomId);
-      final members = membersModel.map((e) => e.toEntity()).toList();
-
-      return Right(members);
-    } on ServerException catch (e) {
-      return Left(ServerFailure(e.message));
-    } catch (e) {
-      return Left(UnknownFailure(e.toString()));
+      return Left(ServerFailure(e.toString()));
     }
   }
 }

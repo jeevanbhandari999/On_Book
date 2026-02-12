@@ -10,8 +10,11 @@ import 'package:app/features/auth/presentation/pages/select_hotel_organization_p
 import 'package:app/features/booking/domain/entities/booking.dart';
 import 'package:app/features/booking/presentation/pages/booking_deails_page.dart';
 import 'package:app/features/booking/presentation/pages/booking_page.dart';
+import 'package:app/features/chat/domain/entities/room.dart';
+import 'package:app/features/chat/presentation/pages/chat_list_page.dart';
 import 'package:app/features/chat/presentation/pages/chat_page.dart';
 import 'package:app/features/chat/presentation/pages/chat_user_list_page.dart';
+import 'package:app/features/chat/presentation/pages/contacts_page.dart';
 import 'package:app/features/customer_review/presentation/pages/customer_review_page.dart';
 import 'package:app/features/customer_review/presentation/pages/write_a_review_page.dart';
 import 'package:app/features/home/presentation/pages/another.dart';
@@ -149,12 +152,39 @@ class AppRouter {
       // Chat related pages
       GoRoute(
         path: RouteConstants.chatUserListPage,
-        builder: (context, state) => const ChatUserListPage(),
+        builder: (context, state) {
+          final userId = state.extra as String;
+          return RoomPage(currentUserId: userId);
+        },
+      ),
+
+      GoRoute(
+        path: RouteConstants.contacts,
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>;
+          final organizationId = extra['orgId'] as String;
+          final userId = extra['userId'] as String;
+
+          return ContactsPage(
+            organizationId: organizationId,
+            currentUserId: userId,
+          );
+        },
       ),
 
       GoRoute(
         path: RouteConstants.chatPage,
-        builder: (context, state) => const ChatPage(),
+        builder: (context, state) {
+          // We expect the 'extra' object to be a Map containing the room and userId
+          // OR simply the Room object if you get userId from a global AuthProvider.
+
+          // Approach A: Passing a Map via context.push(..., extra: {'room': room, 'uid': userId})
+          final args = state.extra as Map<String, dynamic>;
+          final room = args['room'] as Room;
+          final userId = args['userId'] as String;
+
+          return ChatPage(room: room, currentUserId: userId);
+        },
       ),
 
       // Check
