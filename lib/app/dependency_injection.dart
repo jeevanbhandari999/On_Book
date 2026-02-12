@@ -1,6 +1,7 @@
 import 'package:app/core/services/session_manager.dart';
 import 'package:app/features/auth/auth_dependencies.dart';
 import 'package:app/features/booking/booking_dependencies.dart';
+import 'package:app/features/chat/chat_dependencies.dart';
 import 'package:app/features/customer_review/customer_review_dependencies.dart';
 import 'package:app/features/home/home_dependencies.dart';
 import 'package:app/features/library/library_dependencies.dart';
@@ -75,6 +76,9 @@ abstract class DependencyInjection {
 
     // Organization feature dependencies
     await _registerOrganizationDependencies();
+
+    // Chat feature dependencies
+    await _regisyterChatDependencies();
   }
 
   // Register auth dependencies
@@ -115,6 +119,11 @@ abstract class DependencyInjection {
   // Register Organization dependencies
   static Future<void> _registerOrganizationDependencies() async {
     await OrganizationDependencies.register(instance);
+  }
+
+  // Register chat dependencies
+  static Future<void> _regisyterChatDependencies() async {
+    await ChatDependencies.register(instance);
   }
 
   static void reset() {
