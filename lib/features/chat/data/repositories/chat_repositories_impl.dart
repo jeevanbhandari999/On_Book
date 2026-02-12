@@ -44,9 +44,8 @@ class ChatRepositoryImpl implements ChatRepository {
       return Left(UnknownFailure(e.toString()));
     }
   }
-
+  
   // MEMBERS
-
   @override
   Future<Either<Failure, void>> addMembers({
     required String roomId,
