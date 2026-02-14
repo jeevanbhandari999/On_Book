@@ -4,10 +4,12 @@ class ChatUserModel {
   final String id;
   final String userId;
   final String fullName;
+  final String role;
   final String? imageUrl;
 
   ChatUserModel({
     required this.id,
+    required this.role,
     required this.userId,
     required this.fullName,
     this.imageUrl,
@@ -18,6 +20,7 @@ class ChatUserModel {
       id: json['id'],
       userId: json['user_id'],
       fullName: json['full_name'],
+      role: json['role'],
       imageUrl: json['image_url'],
     );
   }
@@ -25,6 +28,7 @@ class ChatUserModel {
   ChatUser toEntity() {
     return ChatUser(
       id: id,
+      role: role,
       userId: userId,
       fullName: fullName,
       imageUrl: imageUrl,

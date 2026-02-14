@@ -11,7 +11,7 @@ class ChatOrganizationModel {
     return ChatOrganizationModel(
       id: json['id'],
       name: json['name'],
-      logoUrl: json['logo_url'],
+      logoUrl: json['logo_url'] as String?,
     );
   }
 

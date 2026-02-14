@@ -1,8 +1,6 @@
 import 'package:app/app/dependency_injection.dart';
 import 'package:app/app/router/route_constants.dart';
-import 'package:app/core/constants/ui_constants.dart';
 import 'package:app/features/auth/domain/entities/user.dart';
-import 'package:app/features/chat/domain/entities/message.dart';
 import 'package:app/features/chat/domain/entities/room.dart';
 import 'package:app/features/chat/domain/usecases/create_room_use_case.dart';
 import 'package:app/features/chat/presentation/bloc/chat_bloc.dart';
@@ -11,9 +9,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-// -----------------------------------------------------------------------------
-// 1. Simple Cubit to fetch members (Internal to this page for simplicity)
-// -----------------------------------------------------------------------------
 class OrganizationMembersCubit extends Cubit<List<User>?> {
   final GetOrganizationMembersUseCase getOrganizationMembersUseCase;
 
@@ -94,7 +89,6 @@ class _ContactsView extends StatelessWidget {
           );
         }
         if (state is ChatError) {
-          print(state.message);
           ScaffoldMessenger.of(
             context,
           ).showSnackBar(SnackBar(content: Text(state.message)));

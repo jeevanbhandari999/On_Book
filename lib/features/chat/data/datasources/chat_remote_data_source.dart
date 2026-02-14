@@ -194,7 +194,11 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
           rooms (
             *,
             room_members (
+              id,
+              room_id,
               user_id,
+              joined_at,
+              last_read_at,
               users (
                 id,
                 user_id,
@@ -214,6 +218,8 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
         ''')
           .eq('user_id', userId)
           .order('joined_at', ascending: false);
+
+      print(res);
 
       final List<dynamic> data = res as List<dynamic>;
 

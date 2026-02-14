@@ -12,9 +12,11 @@ import 'package:app/features/chat/domain/usecases/send_message_use_case.dart';
 import 'package:app/features/chat/domain/usecases/stream_messages_use_case.dart';
 import 'package:app/features/chat/presentation/bloc/chat_bloc.dart';
 import 'package:app/features/chat/presentation/widgets/chat_list_shimmer.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shimmer/shimmer.dart';
 
 class RoomPage extends StatelessWidget {
   final String currentUserId;
@@ -64,8 +66,12 @@ class _RoomPageViewState extends State<RoomPageView> {
           }
 
           if (state is UserRoomsLoaded) {
-            final filteredRooms = _getFilteredRooms(state.rooms);
-            final unreadCount = 0; // TODO: Calculate actual unread count
+            final filteredRooms = _getFilteredRooms(
+              state.rooms,
+              widget.currentUserId,
+            );
+            // TODO: Calculate actual unread count
+            final unreadCount = 0;
 
             return CustomScrollView(
               slivers: [
@@ -158,12 +164,14 @@ class _RoomPageViewState extends State<RoomPageView> {
     );
   }
 
-  List<Room> _getFilteredRooms(List<Room> rooms) {
+  List<Room> _getFilteredRooms(List<Room> rooms, String currentUserId) {
     if (searchQuery.isEmpty) return rooms;
 
     return rooms.where((room) {
-      return room.id.toLowerCase().contains(searchQuery.toLowerCase());
-      // TODO: Add room name filtering when available
+      return room
+          .getDisplayName(currentUserId)
+          .toLowerCase()
+          .contains(searchQuery.toLowerCase());
     }).toList();
   }
 }
@@ -197,20 +205,36 @@ class _RoomTile extends StatelessWidget {
                   children: [
                     CircleAvatar(
                       radius: 28,
-                      backgroundColor: Colors.grey[300],
-                      child: Text(
-                        room.id.isNotEmpty ? room.id[0].toUpperCase() : '?',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
-                          color: Theme.of(context).primaryColor,
-                        ),
+                      child: ClipOval(
+                        child:
+                            room.getDisplayImage(currentUserId) != null &&
+                                room.getDisplayImage(currentUserId)!.isNotEmpty
+                            ? CachedNetworkImage(
+                                imageUrl: room.getDisplayImage(currentUserId)!,
+                                fit: BoxFit.cover,
+                                width: 48,
+                                height: 48,
+                                placeholder: (context, url) =>
+                                    Shimmer.fromColors(
+                                      baseColor: Colors.grey.shade300,
+                                      highlightColor: Colors.grey.shade100,
+                                      child: Container(color: Colors.white),
+                                    ),
+                                errorWidget: (context, error, stackTrace) =>
+                                    const Icon(Icons.person),
+                              )
+                            : Text(
+                                room.getDisplayName(currentUserId)[0],
+                                style: const TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(width: 12),
-
+                const SizedBox(width: UiConstants.spacingSm),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -219,7 +243,7 @@ class _RoomTile extends StatelessWidget {
                         children: [
                           Expanded(
                             child: Text(
-                              room.type.name,
+                              room.getDisplayName(currentUserId),
                               maxLines: 1,
                               style: TextStyle(
                                 fontSize: 16,
