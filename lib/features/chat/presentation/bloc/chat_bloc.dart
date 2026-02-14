@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:app/core/errors/failures.dart';
 import 'package:app/features/chat/domain/entities/message.dart';
 import 'package:app/features/chat/domain/entities/room.dart';
@@ -13,7 +12,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:dartz/dartz.dart';
 
 /// Events
-
 abstract class ChatEvent extends Equatable {
   const ChatEvent();
 
@@ -204,19 +202,6 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       emit(ChatError(message: e.toString()));
     }
   }
-
-  // Future<void> _onStreamMessagesRequested(
-  //   StreamMessagesRequested event,
-  //   Emitter<ChatState> emit,
-  // ) async {
-  //   _messageStreamSub?.cancel();
-  //   _messageStreamSub = streamMessagesUseCase(event.roomId).listen((either) {
-  //     either.fold(
-  //       (failure) => addError(failure.message),
-  //       (messages) => emit(MessagesStreamUpdated(messages: messages)),
-  //     );
-  //   });
-  // }
 
   Future<void> _onStreamMessagesRequested(
     StreamMessagesRequested event,

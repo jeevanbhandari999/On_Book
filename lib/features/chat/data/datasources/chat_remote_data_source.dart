@@ -26,6 +26,13 @@ abstract class ChatRemoteDataSource {
   /// Get rooms the current user belongs to
   Future<List<RoomModel>> getMyRooms();
 
+  // Get the specific room related to the user, organization
+  Future<RoomModel?> getSpecificRoom(
+    String userId,
+    String? targetUserId,
+    String? organizationId,
+  );
+
   /// Get members of a specific room (to show avatars, names, etc.)
   Future<List<RoomMemberModel>> getRoomMembers(String roomId);
 
@@ -291,7 +298,6 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     String? organizationId,
   ) async {
     try {
-      // ✅ Organization check (your logic is correct)
       if (type == RoomType.organization && organizationId != null) {
         final response = await client
             .from('rooms')
@@ -341,6 +347,57 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     } catch (e) {
       throw ServerException(
         'Failed to check the room is available or not: ${e.toString()}',
+      );
+    }
+  }
+
+  @override
+  Future<RoomModel?> getSpecificRoom(
+    String userId,
+    String? targetUserId,
+    String? organizationId,
+  ) async {
+    try {
+      if (organizationId != null) {
+        final response = await client
+            .from('rooms')
+            .select()
+            .eq('organization_id', organizationId)
+            .eq('type', 'organization')
+            .maybeSingle();
+        if (response != null) {
+          return RoomModel.fromJson(response);
+        }
+        return null;
+      }
+      if (targetUserId != null) {
+        final memberRooms = await client
+            .from('room_members')
+            .select('room_id')
+            .eq('user_id', userId);
+
+        if (memberRooms.isEmpty) return null;
+
+        final roomIds = memberRooms.map((e) => e['room_id']).toList();
+
+        final room = await client
+            .from('rooms')
+            .select()
+            .inFilter('id', roomIds)
+            .eq('type', 'dm')
+            .maybeSingle();
+
+        if (room != null) {
+          return RoomModel.fromJson(room);
+        }
+
+        return null;
+      } else {
+        return null;
+      }
+    } catch (e) {
+      throw ServerException(
+        'Failed to get the specific room related to the user or organizations: ${e.toString()}',
       );
     }
   }

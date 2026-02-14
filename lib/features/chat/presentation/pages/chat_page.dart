@@ -95,7 +95,6 @@ class _ChatViewState extends State<ChatView> {
     return Scaffold(
       body: BlocConsumer<ChatBloc, ChatState>(
         listener: (context, state) {
-          print('From listener: $state');
           if (state is ChatError) {
             ScaffoldMessenger.of(
               context,
@@ -113,8 +112,6 @@ class _ChatViewState extends State<ChatView> {
             current is MessagesStreamUpdated ||
             (current is ChatLoading && !_hasLoadedOnce),
         builder: (context, state) {
-          print('From builder: $state');
-
           // Show shimmer only on initial load
           if (state is ChatLoading && !_hasLoadedOnce) {
             return const ChatDetailShimmerPage();

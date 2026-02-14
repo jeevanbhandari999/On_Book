@@ -5,13 +5,14 @@ import 'package:app/features/chat/domain/entities/room_member.dart';
 import 'package:dartz/dartz.dart';
 
 abstract class ChatRepository {
-
   // ROOM
 
-
   /// Create a new room (dm or organization)
-  Future<Either<Failure, Room>> createRoom(Room room,  String userId,
-    String? otherUserId,);
+  Future<Either<Failure, Room>> createRoom(
+    Room room,
+    String userId,
+    String? otherUserId,
+  );
 
   /// Get all rooms of current user
   Future<Either<Failure, List<Room>>> getUserRooms();
@@ -22,9 +23,14 @@ abstract class ChatRepository {
     required List<RoomMember> members,
   });
 
+  // Get the specific room related to the user, organization
+  Future<Either<Failure, Room?>> getSpecificRoom(
+    String userId,
+    String? targetUserId,
+    String? organizationId,
+  );
 
   // MESSAGE
-
 
   /// Send a message
   Future<Either<Failure, Message>> sendMessage(Message message);
@@ -35,9 +41,7 @@ abstract class ChatRepository {
   /// Realtime messages stream of a room
   Stream<Either<Failure, List<Message>>> streamMessages(String roomId);
 
-
   // SEEN / READ
-
 
   /// Update last_read_at for the current user
   Future<Either<Failure, void>> updateLastRead({
