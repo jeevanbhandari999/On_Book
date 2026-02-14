@@ -1,7 +1,5 @@
 import 'package:app/app/dependency_injection.dart';
-import 'package:app/core/constants/ui_constants.dart';
-import 'package:app/core/theme/app_colors.dart'; // Assumed based on context
-import 'package:app/core/utils/date_formatter.dart'; // Assumed based on context
+import 'package:app/core/utils/date_formatter.dart';
 import 'package:app/features/chat/domain/entities/message.dart';
 import 'package:app/features/chat/domain/entities/room.dart';
 import 'package:app/features/chat/domain/usecases/create_room_use_case.dart';
@@ -10,10 +8,9 @@ import 'package:app/features/chat/domain/usecases/mark_room_as_read_use_case.dar
 import 'package:app/features/chat/domain/usecases/send_message_use_case.dart';
 import 'package:app/features/chat/domain/usecases/stream_messages_use_case.dart';
 import 'package:app/features/chat/presentation/bloc/chat_bloc.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:app/features/chat/presentation/widgets/chat_detail_shimmer_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shimmer/shimmer.dart';
 
 class ChatPage extends StatelessWidget {
   final Room room;
@@ -61,10 +58,8 @@ class _ChatViewState extends State<ChatView> {
     final text = _textController.text.trim();
     if (text.isEmpty) return;
 
-    // Create message entity
-    // Note: Adjust the fields below to match your Message entity constructor
     final message = Message(
-      id: DateTime.now().millisecondsSinceEpoch.toString(), // Temp ID
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
       roomId: widget.room.id,
       senderId: widget.currentUserId,
       type: MessageType.text,
@@ -104,7 +99,7 @@ class _ChatViewState extends State<ChatView> {
                   current is ChatError,
               builder: (context, state) {
                 if (state is ChatLoading && state is! MessagesStreamUpdated) {
-                  return const Center(child: CircularProgressIndicator());
+                  return const ChatDetailShimmerPage();
                 }
 
                 List<Message> messages = [];
