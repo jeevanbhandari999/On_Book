@@ -164,6 +164,25 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     }
   }
 
+  // @override
+  // Future<List<RoomModel>> getMyRooms() async {
+  //   try {
+  //     final userId = client.auth.currentUser!.id;
+
+  //     final res = await client
+  //         .from('room_members')
+  //         .select('rooms(*)')
+  //         .eq('user_id', userId)
+  //         .order('joined_at', ascending: false);
+
+  //     final List<dynamic> data = res as List<dynamic>;
+
+  //     return data.map((e) => RoomModel.fromJson(e['rooms'])).toList();
+  //   } catch (e) {
+  //     throw ServerException('Failed to fetch rooms: ${e.toString()}');
+  //   }
+  // }
+
   @override
   Future<List<RoomModel>> getMyRooms() async {
     try {
@@ -171,7 +190,28 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
 
       final res = await client
           .from('room_members')
-          .select('rooms(*)')
+          .select('''
+          rooms (
+            *,
+            room_members (
+              user_id,
+              users (
+                id,
+                user_id,
+                full_name,
+                image_url,
+                role
+              )
+            ),
+            organizations (
+              id,
+              name,
+              logo_url,
+              address,
+              phone
+            )
+          )
+        ''')
           .eq('user_id', userId)
           .order('joined_at', ascending: false);
 
@@ -236,7 +276,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
           .eq('user_id', userId);
     } catch (e) {
       // Fail silently or log error, usually not critical to block UI
-      print('Failed to update last read: $e');
+      throw ServerException('Failed to update last read: ${e.toString()}');
     }
   }
 
@@ -358,9 +398,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     String? organizationId,
   ) async {
     try {
-      print('entered');
       if (organizationId != null) {
-        print('entered 1');
         final response = await client
             .from('rooms')
             .select()
@@ -368,14 +406,11 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
             .eq('type', 'organization')
             .maybeSingle();
         if (response != null) {
-          print('entered 3');
-          print(response);
           return RoomModel.fromJson(response);
         }
         return null;
       }
       if (targetUserId != null) {
-        print('entered 2');
         final memberRooms = await client
             .from('room_members')
             .select('room_id')
