@@ -16,7 +16,6 @@ class GetSpecificRoomRelatedToTheUserOrOrganizationUseCase {
     if (params.userId.trim().isEmpty) {
       return const Left(ValidationFailure('User id is required'));
     }
-
     return await repository.getSpecificRoom(
       params.userId,
       params.targetUserId,

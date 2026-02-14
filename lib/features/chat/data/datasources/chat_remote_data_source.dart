@@ -358,7 +358,9 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     String? organizationId,
   ) async {
     try {
+      print('entered');
       if (organizationId != null) {
+        print('entered 1');
         final response = await client
             .from('rooms')
             .select()
@@ -366,11 +368,14 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
             .eq('type', 'organization')
             .maybeSingle();
         if (response != null) {
+          print('entered 3');
+          print(response);
           return RoomModel.fromJson(response);
         }
         return null;
       }
       if (targetUserId != null) {
+        print('entered 2');
         final memberRooms = await client
             .from('room_members')
             .select('room_id')

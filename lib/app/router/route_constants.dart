@@ -34,6 +34,8 @@ class RouteConstants {
   static const String chatUserListPage = '/chatUserListPage';
   static const String chatPage = '/chatPage';
   static const String contacts = '/contacts';
+  static const String initialChatPlaceholderPage =
+      '/initialChatPlaceholderPage';
 
   // Booking routes
   static const String bookingFormPage = '/bookingFormPage';

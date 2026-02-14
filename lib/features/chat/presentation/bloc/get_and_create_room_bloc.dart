@@ -100,13 +100,14 @@ class GetAndCreateRoomBloc
           await _getSpecificRoomRelatedToTheUserOrOrganizationUseCase(
             getRoomParams,
           );
+      print(response);
       response.fold(
         (failure) => emit(GetAndCreateRoomError(message: failure.message)),
         (room) async {
           if (room != null) {
-            GetAndCreateRoomSuccess(successResponse: room);
+            emit(GetAndCreateRoomSuccess(successResponse: room));
           } else {
-            if (room != null) {
+            if (event.room != null) {
               final createdResponse = await _createRoomUseCase(
                 event.room!,
                 event.userId,

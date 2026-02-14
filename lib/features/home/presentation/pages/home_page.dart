@@ -393,9 +393,18 @@ class HomeView extends StatelessWidget {
     return InkWell(
       onTap: () {
         context.push(
-          RouteConstants.contacts,
-          extra: {'orgId': org.id, 'userId': userId},
+          RouteConstants.initialChatPlaceholderPage,
+          extra: {
+            'organizationId': org.id,
+            'userId': userId,
+            'targetUserId':
+                null, // no need to provide because this is related to the organization related chat
+          },
         );
+        // context.push(
+        //   RouteConstants.contacts,
+        //   extra: {'orgId': org.id, 'userId': userId},
+        // );
       },
       child: SizedBox(
         width: 60,

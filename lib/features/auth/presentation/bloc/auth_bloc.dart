@@ -333,7 +333,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     Emitter<AuthState> emit,
   ) async {
     emit(const AuthLoading());
-
     try {
       if (_authService.isLoggedIn) {
         // Check if user needs to complete profile first
@@ -355,6 +354,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
               createdAt: DateTime.now(),
               updatedAt: DateTime.now(),
             );
+            print('object');
 
             emit(AuthNeedsProfileCompletion(user: user));
             return;
@@ -377,7 +377,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             emit(AuthNeedsOrganizationSelection(user: user));
             return;
           }
-
           // Get organization if user has one
           final organization = await _authService.getUserOrganization();
           emit(AuthAuthenticated(user: user, organization: organization));

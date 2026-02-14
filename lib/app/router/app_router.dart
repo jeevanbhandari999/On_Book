@@ -15,6 +15,7 @@ import 'package:app/features/chat/presentation/pages/chat_list_page.dart';
 import 'package:app/features/chat/presentation/pages/chat_page.dart';
 import 'package:app/features/chat/presentation/pages/chat_user_list_page.dart';
 import 'package:app/features/chat/presentation/pages/contacts_page.dart';
+import 'package:app/features/chat/presentation/pages/initial_chat_placeholder_page.dart';
 import 'package:app/features/customer_review/presentation/pages/customer_review_page.dart';
 import 'package:app/features/customer_review/presentation/pages/write_a_review_page.dart';
 import 'package:app/features/home/presentation/pages/another.dart';
@@ -159,6 +160,21 @@ class AppRouter {
       ),
 
       GoRoute(
+        path: RouteConstants.initialChatPlaceholderPage,
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>;
+          final organizationId = extra['organizationId'] as String?;
+          final userId = extra['userId'] as String;
+          final targetUserId = extra['targetUserId'] as String?;
+
+          return InitialChatPlaceholderPage(
+            organizationId: organizationId,
+            userId: userId,
+            targetUserId: targetUserId,
+          );
+        },
+      ),
+      GoRoute(
         path: RouteConstants.contacts,
         builder: (context, state) {
           final extra = state.extra as Map<String, dynamic>;
@@ -174,16 +190,14 @@ class AppRouter {
 
       GoRoute(
         path: RouteConstants.chatPage,
-        builder: (context, state) {
-          // We expect the 'extra' object to be a Map containing the room and userId
-          // OR simply the Room object if you get userId from a global AuthProvider.
-
-          // Approach A: Passing a Map via context.push(..., extra: {'room': room, 'uid': userId})
+        pageBuilder: (context, state) {
           final args = state.extra as Map<String, dynamic>;
           final room = args['room'] as Room;
           final userId = args['userId'] as String;
 
-          return ChatPage(room: room, currentUserId: userId);
+          return NoTransitionPage(
+            child: ChatPage(room: room, currentUserId: userId),
+          );
         },
       ),
 
