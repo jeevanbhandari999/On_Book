@@ -23,10 +23,16 @@ abstract class ChatEvent extends Equatable {
 
 class CreateRoomRequested extends ChatEvent {
   final Room room;
-  const CreateRoomRequested({required this.room});
+  final String userId;
+  final String? otherUserId;
+  const CreateRoomRequested({
+    required this.room,
+    required this.userId,
+    this.otherUserId,
+  });
 
   @override
-  List<Object?> get props => [room];
+  List<Object?> get props => [room, userId, otherUserId];
 }
 
 class GetUserRoomsRequested extends ChatEvent {
@@ -153,7 +159,11 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   ) async {
     emit(const ChatLoading());
     try {
-      final result = await createRoomUseCase(event.room);
+      final result = await createRoomUseCase(
+        event.room,
+        event.userId,
+        event.otherUserId,
+      );
       result.fold(
         (failure) => emit(ChatError(message: failure.message)),
         (room) => emit(RoomCreated(room: room)),

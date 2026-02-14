@@ -10,7 +10,8 @@ abstract class ChatRepository {
 
 
   /// Create a new room (dm or organization)
-  Future<Either<Failure, Room>> createRoom(Room room);
+  Future<Either<Failure, Room>> createRoom(Room room,  String userId,
+    String? otherUserId,);
 
   /// Get all rooms of current user
   Future<Either<Failure, List<Room>>> getUserRooms();

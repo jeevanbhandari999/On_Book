@@ -162,6 +162,12 @@ class _ContactsView extends StatelessWidget {
       createdAt: DateTime.now(),
     );
 
-    context.read<ChatBloc>().add(CreateRoomRequested(room: roomRequest));
+    context.read<ChatBloc>().add(
+      CreateRoomRequested(
+        room: roomRequest,
+        otherUserId: targetUser.userId,
+        userId: currentUserId,
+      ),
+    );
   }
 }

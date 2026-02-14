@@ -8,7 +8,11 @@ class CreateRoomUseCase {
 
   CreateRoomUseCase(this.repository);
 
-  Future<Either<Failure, Room>> call(Room room) async {
-    return repository.createRoom(room);
+  Future<Either<Failure, Room>> call(
+    Room room,
+    String userId,
+    String? otherUserId,
+  ) async {
+    return repository.createRoom(room, userId, otherUserId);
   }
 }

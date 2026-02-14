@@ -21,13 +21,21 @@ class ChatRepositoryImpl implements ChatRepository {
   // ===========================================================================
 
   @override
-  Future<Either<Failure, Room>> createRoom(Room room) async {
+  Future<Either<Failure, Room>> createRoom(
+    Room room,
+    String userId,
+    String? otherUserId,
+  ) async {
     try {
       // 1. Convert Domain Entity -> Model
       final roomModel = RoomModel.fromEntity(room);
 
       // 2. Call Remote Data Source
-      final result = await remoteDataSource.createRoom(roomModel);
+      final result = await remoteDataSource.createRoom(
+        roomModel,
+        userId,
+        otherUserId,
+      );
 
       // 3. Convert Model -> Domain Entity
       return Right(result.toEntity());
