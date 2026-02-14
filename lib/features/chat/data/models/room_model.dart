@@ -1,3 +1,7 @@
+import 'package:app/features/auth/domain/entities/organization.dart';
+import 'package:app/features/auth/domain/entities/user.dart';
+import 'package:app/features/chat/domain/entities/room_member.dart';
+
 import '../../domain/entities/room.dart';
 import 'package:equatable/equatable.dart';
 
@@ -54,6 +58,42 @@ class RoomModel extends Equatable {
     createdAt: createdAt,
   );
 
+  // Room toEntity() {
+  //   final membersJson = json['room_members'] as List?;
+  //   final orgJson = json['organizations'];
+
+  //   return Room(
+  //     id: id,
+  //     type: type,
+  //     organizationId: organizationId,
+  //     createdAt: createdAt,
+  //     members: membersJson?.map((m) {
+  //       final userJson = m['users'];
+  //       return RoomMember(
+  //         id: m['id'] ?? '',
+  //         roomId: id,
+  //         userId: m['user_id'],
+  //         joinedAt: DateTime.now(), // adjust if available
+  //         user: userJson != null
+  //             ? ChatUser(
+  //                 id: userJson['id'],
+  //                 userId: userJson['user_id'],
+  //                 fullName: userJson['full_name'],
+  //                 imageUrl: userJson['image_url'],
+  //               )
+  //             : null,
+  //       );
+  //     }).toList(),
+  //     organization: orgJson != null
+  //         ? ChatOrganization(
+  //             id: orgJson['id'],
+  //             name: orgJson['name'],
+  //             logoUrl: orgJson['logo_url'],
+  //           )
+  //         : null,
+  //   );
+  // }
+
   RoomModel copyWith({
     String? id,
     RoomType? type,
@@ -70,4 +110,32 @@ class RoomModel extends Equatable {
 
   @override
   List<Object?> get props => [id, type, organizationId, createdAt];
+}
+
+class ChatUser extends Equatable {
+  final String id;
+  final String userId;
+  final String fullName;
+  final String? imageUrl;
+
+  const ChatUser({
+    required this.id,
+    required this.userId,
+    required this.fullName,
+    this.imageUrl,
+  });
+
+  @override
+  List<Object?> get props => [id, fullName, userId, imageUrl];
+}
+
+class ChatOrganization extends Equatable {
+  final String id;
+  final String name;
+  final String? logoUrl;
+
+  const ChatOrganization({required this.id, required this.name, this.logoUrl});
+
+  @override
+  List<Object?> get props => [id, name, logoUrl];
 }

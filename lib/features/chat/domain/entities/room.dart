@@ -1,4 +1,5 @@
 import 'package:app/features/auth/domain/entities/organization.dart';
+import 'package:app/features/chat/data/models/room_model.dart';
 import 'package:app/features/chat/domain/entities/room_member.dart';
 import 'package:equatable/equatable.dart';
 
@@ -11,7 +12,7 @@ class Room extends Equatable {
   final DateTime createdAt;
 
   final List<RoomMember>? members;
-  final Organization? organization;
+  final ChatOrganization? organization;
 
   const Room({
     required this.id,
@@ -29,7 +30,7 @@ class Room extends Equatable {
     String? organizationId,
     DateTime? createdAt,
     List<RoomMember>? members,
-    Organization? organization,
+    ChatOrganization? organization,
   }) {
     return Room(
       id: id ?? this.id,
@@ -50,4 +51,34 @@ class Room extends Equatable {
     members,
     organization,
   ];
+
+  String getDisplayName(String currentUserId) {
+    if (type == RoomType.organization) {
+      return organization?.name ?? 'Organization';
+    }
+
+    if (members == null) return 'Unknown';
+
+    final otherUser = members!.firstWhere(
+      (m) => m.userId != currentUserId,
+      orElse: () => members!.first,
+    );
+
+    return otherUser.user?.fullName ?? 'Unknown';
+  }
+
+  String? getDisplayImage(String currentUserId) {
+    if (type == RoomType.organization) {
+      return organization?.logoUrl;
+    }
+
+    if (members == null) return null;
+
+    final otherUser = members!.firstWhere(
+      (m) => m.userId != currentUserId,
+      orElse: () => members!.first,
+    );
+
+    return otherUser.user?.imageUrl;
+  }
 }

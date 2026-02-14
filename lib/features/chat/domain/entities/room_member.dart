@@ -1,3 +1,5 @@
+import 'package:app/features/auth/domain/entities/user.dart';
+import 'package:app/features/chat/data/models/room_model.dart';
 import 'package:equatable/equatable.dart';
 
 class RoomMember extends Equatable {
@@ -7,12 +9,17 @@ class RoomMember extends Equatable {
   final DateTime joinedAt;
   final DateTime? lastReadAt;
 
+  final ChatUser? user;
+
+
   const RoomMember({
     required this.id,
     required this.roomId,
     required this.userId,
     required this.joinedAt,
     this.lastReadAt,
+
+    this.user,
   });
 
   RoomMember copyWith({
@@ -21,6 +28,7 @@ class RoomMember extends Equatable {
     String? userId,
     DateTime? joinedAt,
     DateTime? lastReadAt,
+    ChatUser? user,
   }) {
     return RoomMember(
       id: id ?? this.id,
@@ -28,9 +36,10 @@ class RoomMember extends Equatable {
       userId: userId ?? this.userId,
       joinedAt: joinedAt ?? this.joinedAt,
       lastReadAt: lastReadAt ?? this.lastReadAt,
+      user: user ?? this.user,
     );
   }
 
   @override
-  List<Object?> get props => [id, roomId, userId, joinedAt, lastReadAt];
+  List<Object?> get props => [id, roomId, userId, joinedAt, lastReadAt, user];
 }
