@@ -1,4 +1,4 @@
-import 'package:app/features/auth/domain/entities/user.dart';
+
 import 'package:app/features/chat/data/models/room_model.dart';
 import 'package:equatable/equatable.dart';
 
