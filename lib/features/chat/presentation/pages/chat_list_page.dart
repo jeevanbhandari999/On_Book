@@ -55,7 +55,6 @@ class _RoomPageViewState extends State<RoomPageView> {
       body: BlocConsumer<ChatBloc, ChatState>(
         listener: (context, state) {
           if (state is ChatError) {
-            print(state.message);
             ScaffoldMessenger.of(
               context,
             ).showSnackBar(SnackBar(content: Text(state.message)));
@@ -74,88 +73,93 @@ class _RoomPageViewState extends State<RoomPageView> {
             // TODO: Calculate actual unread count
             final unreadCount = 0;
 
-            return CustomScrollView(
-              slivers: [
-                SliverAppBar(
-                  expandedHeight: 120 + UiConstants.spacingMd,
-                  collapsedHeight: 120 + UiConstants.spacingMd,
-                  foregroundColor: Colors.white,
-                  floating: false,
-                  pinned: true,
-                  title: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        'Messages',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      if (unreadCount > 0)
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 6,
+            return RefreshIndicator(
+              onRefresh: () async {
+                context.read<ChatBloc>().add(const GetUserRoomsRequested());
+              },
+              child: CustomScrollView(
+                slivers: [
+                  SliverAppBar(
+                    expandedHeight: 120 + UiConstants.spacingMd,
+                    collapsedHeight: 120 + UiConstants.spacingMd,
+                    foregroundColor: Colors.white,
+                    floating: false,
+                    pinned: true,
+                    title: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'Messages',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
                           ),
-                          decoration: BoxDecoration(
-                            color: AppColors.white,
-                            borderRadius: BorderRadius.circular(
-                              UiConstants.radiusRound,
+                        ),
+                        if (unreadCount > 0)
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 6,
                             ),
+                            decoration: BoxDecoration(
+                              color: AppColors.white,
+                              borderRadius: BorderRadius.circular(
+                                UiConstants.radiusRound,
+                              ),
+                            ),
+                            child: Text('$unreadCount'),
                           ),
-                          child: Text('$unreadCount'),
+                      ],
+                    ),
+                    flexibleSpace: FlexibleSpaceBar(
+                      background: Container(
+                        padding: const EdgeInsets.only(
+                          right: UiConstants.spacingMd,
+                          left: UiConstants.spacingMd,
+                          bottom: UiConstants.spacingMd,
                         ),
-                    ],
-                  ),
-                  flexibleSpace: FlexibleSpaceBar(
-                    background: Container(
-                      padding: const EdgeInsets.only(
-                        right: UiConstants.spacingMd,
-                        left: UiConstants.spacingMd,
-                        bottom: UiConstants.spacingMd,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.primary,
-                        borderRadius: const BorderRadius.only(
-                          bottomLeft: Radius.circular(UiConstants.radiusXl),
-                          bottomRight: Radius.circular(UiConstants.radiusXl),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.primary,
+                          borderRadius: const BorderRadius.only(
+                            bottomLeft: Radius.circular(UiConstants.radiusXl),
+                            bottomRight: Radius.circular(UiConstants.radiusXl),
+                          ),
                         ),
-                      ),
-                      child: SafeArea(
-                        child: Column(
-                          children: [
-                            const SizedBox(height: kToolbarHeight),
-                            CustomTextField(
-                              onChanged: (value) {
-                                setState(() {
-                                  searchQuery = value;
-                                });
-                              },
-                              hint: 'Search What You Want...',
-                              prefixIcon: const Icon(Icons.search),
-                            ),
-                          ],
+                        child: SafeArea(
+                          child: Column(
+                            children: [
+                              const SizedBox(height: kToolbarHeight),
+                              CustomTextField(
+                                onChanged: (value) {
+                                  setState(() {
+                                    searchQuery = value;
+                                  });
+                                },
+                                hint: 'Search What You Want...',
+                                prefixIcon: const Icon(Icons.search),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
 
-                if (filteredRooms.isEmpty)
-                  const SliverFillRemaining(child: _EmptyRoomsView())
-                else
-                  SliverList(
-                    delegate: SliverChildBuilderDelegate((context, index) {
-                      final room = filteredRooms[index];
-                      return _RoomTile(
-                        room: room,
-                        currentUserId: widget.currentUserId,
-                      );
-                    }, childCount: filteredRooms.length),
-                  ),
-              ],
+                  if (filteredRooms.isEmpty)
+                    const SliverFillRemaining(child: _EmptyRoomsView())
+                  else
+                    SliverList(
+                      delegate: SliverChildBuilderDelegate((context, index) {
+                        final room = filteredRooms[index];
+                        return _RoomTile(
+                          room: room,
+                          currentUserId: widget.currentUserId,
+                        );
+                      }, childCount: filteredRooms.length),
+                    ),
+                ],
+              ),
             );
           }
 
