@@ -19,14 +19,18 @@ class GetAndCreateRoomRequested extends GetAndCreateRoomEvent {
   final String? targetUserId;
   final String? organizationId;
 
+  // For creating room
+  final Room? room;
+
   const GetAndCreateRoomRequested({
     required this.userId,
     this.targetUserId,
     this.organizationId,
+    this.room,
   });
 
   @override
-  List<Object?> get props => [userId, targetUserId, organizationId];
+  List<Object?> get props => [userId, targetUserId, organizationId, room];
 }
 
 // States
@@ -84,5 +88,43 @@ class GetAndCreateRoomBloc
   FutureOr<void> _onGetAndCreateRoomRequested(
     GetAndCreateRoomRequested event,
     Emitter<GetAndCreateRoomState> emit,
-  ) {}
+  ) async {
+    emit(const GetAndCreateRoomLoading());
+    try {
+      final getRoomParams = GetSpecificRoomRelatedToTheUserOrOrganizationParams(
+        userId: event.userId,
+        targetUserId: event.targetUserId,
+        organizationId: event.organizationId,
+      );
+      final response =
+          await _getSpecificRoomRelatedToTheUserOrOrganizationUseCase(
+            getRoomParams,
+          );
+      response.fold(
+        (failure) => emit(GetAndCreateRoomError(message: failure.message)),
+        (room) async {
+          if (room != null) {
+            GetAndCreateRoomSuccess(successResponse: room);
+          } else {
+            if (room != null) {
+              final createdResponse = await _createRoomUseCase(
+                event.room!,
+                event.userId,
+                event.targetUserId,
+              );
+              createdResponse.fold(
+                (failure) =>
+                    emit(GetAndCreateRoomError(message: failure.message)),
+                (successReponse) => emit(
+                  GetAndCreateRoomSuccess(successResponse: successReponse),
+                ),
+              );
+            }
+          }
+        },
+      );
+    } catch (e) {
+      emit(GetAndCreateRoomError(message: e.toString()));
+    }
+  }
 }
