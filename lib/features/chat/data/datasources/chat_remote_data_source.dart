@@ -152,6 +152,10 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
         final userIds = (response as List)
             .map((user) => user['user_id'] as String)
             .toList();
+        if (!userIds.contains(userId)) {
+          // add the current user also
+          userIds.add(userId);
+        }
 
         await addMembers(roomId: roomId, userIds: userIds);
       } else if (room.type == RoomType.dm && otherUserId != null) {
