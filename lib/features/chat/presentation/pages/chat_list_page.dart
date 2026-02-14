@@ -1,6 +1,9 @@
 import 'package:app/app/dependency_injection.dart';
 import 'package:app/app/router/route_constants.dart';
+import 'package:app/core/constants/ui_constants.dart';
+import 'package:app/core/theme/app_colors.dart';
 import 'package:app/core/utils/date_formatter.dart';
+import 'package:app/core/widgets/common_widgets.dart';
 import 'package:app/features/chat/domain/entities/room.dart';
 import 'package:app/features/chat/domain/usecases/create_room_use_case.dart';
 import 'package:app/features/chat/domain/usecases/get_user_rooms_use_case.dart';
@@ -33,28 +36,20 @@ class RoomPage extends StatelessWidget {
   }
 }
 
-class RoomPageView extends StatelessWidget {
+class RoomPageView extends StatefulWidget {
   final String currentUserId;
   const RoomPageView({super.key, required this.currentUserId});
 
   @override
+  State<RoomPageView> createState() => _RoomPageViewState();
+}
+
+class _RoomPageViewState extends State<RoomPageView> {
+  String searchQuery = '';
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Messages',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        elevation: 0,
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
-        actions: [
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.add_comment_outlined),
-          ),
-        ],
-      ),
       body: BlocConsumer<ChatBloc, ChatState>(
         listener: (context, state) {
           if (state is ChatError) {
@@ -69,23 +64,91 @@ class RoomPageView extends StatelessWidget {
           }
 
           if (state is UserRoomsLoaded) {
-            if (state.rooms.isEmpty) {
-              return const _EmptyRoomsView();
-            }
-            return RefreshIndicator(
-              onRefresh: () async {
-                context.read<ChatBloc>().add(const GetUserRoomsRequested());
-              },
-              child: ListView.separated(
-                physics: const AlwaysScrollableScrollPhysics(),
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                itemCount: state.rooms.length,
-                separatorBuilder: (context, index) => const Divider(height: 1),
-                itemBuilder: (context, index) {
-                  final room = state.rooms[index];
-                  return _RoomTile(room: room, currentUserId: currentUserId);
-                },
-              ),
+            final filteredRooms = _getFilteredRooms(state.rooms);
+            final unreadCount = 0; // TODO: Calculate actual unread count
+
+            return CustomScrollView(
+              slivers: [
+                SliverAppBar(
+                  expandedHeight: 120 + UiConstants.spacingMd,
+                  collapsedHeight: 120 + UiConstants.spacingMd,
+                  foregroundColor: Colors.white,
+                  floating: false,
+                  pinned: true,
+                  title: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Messages',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      if (unreadCount > 0)
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.white,
+                            borderRadius: BorderRadius.circular(
+                              UiConstants.radiusRound,
+                            ),
+                          ),
+                          child: Text('$unreadCount'),
+                        ),
+                    ],
+                  ),
+                  flexibleSpace: FlexibleSpaceBar(
+                    background: Container(
+                      padding: const EdgeInsets.only(
+                        right: UiConstants.spacingMd,
+                        left: UiConstants.spacingMd,
+                        bottom: UiConstants.spacingMd,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.primary,
+                        borderRadius: const BorderRadius.only(
+                          bottomLeft: Radius.circular(UiConstants.radiusXl),
+                          bottomRight: Radius.circular(UiConstants.radiusXl),
+                        ),
+                      ),
+                      child: SafeArea(
+                        child: Column(
+                          children: [
+                            const SizedBox(height: kToolbarHeight),
+                            CustomTextField(
+                              onChanged: (value) {
+                                setState(() {
+                                  searchQuery = value;
+                                });
+                              },
+                              hint: 'Search What You Want...',
+                              prefixIcon: const Icon(Icons.search),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+
+                if (filteredRooms.isEmpty)
+                  const SliverFillRemaining(child: _EmptyRoomsView())
+                else
+                  SliverList(
+                    delegate: SliverChildBuilderDelegate((context, index) {
+                      final room = filteredRooms[index];
+                      return _RoomTile(
+                        room: room,
+                        currentUserId: widget.currentUserId,
+                      );
+                    }, childCount: filteredRooms.length),
+                  ),
+              ],
             );
           }
 
@@ -93,6 +156,15 @@ class RoomPageView extends StatelessWidget {
         },
       ),
     );
+  }
+
+  List<Room> _getFilteredRooms(List<Room> rooms) {
+    if (searchQuery.isEmpty) return rooms;
+
+    return rooms.where((room) {
+      return room.id.toLowerCase().contains(searchQuery.toLowerCase());
+      // TODO: Add room name filtering when available
+    }).toList();
   }
 }
 
@@ -104,99 +176,117 @@ class _RoomTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hasImage = false;
+    final unreadCount = 0;
+    final hasUnread = unreadCount > 0;
 
-    return InkWell(
-      onTap: () {
-        context.push(
-          RouteConstants.chatPage,
-          extra: {'room': room, 'userId': currentUserId},
-        );
-      },
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        child: Row(
-          children: [
-            Container(
-              width: 56,
-              height: 56,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.grey[200],
-                image: null,
-              ),
-              child: !hasImage
-                  ? Center(
+    return Column(
+      children: [
+        InkWell(
+          onTap: () {
+            context.push(
+              RouteConstants.chatPage,
+              extra: {'room': room, 'userId': currentUserId},
+            );
+          },
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Stack(
+                  children: [
+                    CircleAvatar(
+                      radius: 28,
+                      backgroundColor: Colors.grey[300],
                       child: Text(
                         room.id.isNotEmpty ? room.id[0].toUpperCase() : '?',
                         style: TextStyle(
-                          fontSize: 22,
+                          fontSize: 20,
                           fontWeight: FontWeight.w600,
                           color: Theme.of(context).primaryColor,
                         ),
                       ),
-                    )
-                  : null,
-            ),
-            const SizedBox(width: 16),
+                    ),
+                  ],
+                ),
+                const SizedBox(width: 12),
 
-            // Content
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        child: Text(
-                          room.id,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black87,
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              room.type.name,
+                              maxLines: 1,
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: hasUnread
+                                    ? FontWeight.bold
+                                    : FontWeight.w500,
+                                color: Colors.black87,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
+                          Text(
+                            DateFormatter.format(room.createdAt),
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ],
                       ),
-                      // If you have a timestamp for the last activity
-                      Text(
-                        DateFormatter.format(
-                          room.createdAt,
-                        ), // Or lastMessageAt
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey[500],
-                        ),
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              "Tap to view conversation", // TODO: Show last message
+                              maxLines: 1,
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: hasUnread
+                                    ? FontWeight.w600
+                                    : FontWeight.normal,
+                                color: Colors.grey[600],
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          if (hasUnread)
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).primaryColor,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Text(
+                                unreadCount > 99 ? '99+' : '$unreadCount',
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
                     ],
                   ),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          // Placeholder for last message if your entity doesn't have it yet
-                          "Tap to view conversation",
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey[600],
-                            fontWeight: FontWeight.normal,
-                            // You can add logic here: FontWeight.bold if unread
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
-      ),
+        const Divider(),
+      ],
     );
   }
 }
@@ -210,20 +300,33 @@ class _EmptyRoomsView extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.forum_outlined, size: 80, color: Colors.grey[300]),
+          Container(
+            width: 80,
+            height: 80,
+            decoration: BoxDecoration(
+              color: Theme.of(context).primaryColor.withOpacity(0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.chat_bubble_outline,
+              size: 40,
+              color: Theme.of(context).primaryColor.withOpacity(0.5),
+            ),
+          ),
           const SizedBox(height: 16),
-          Text(
+          const Text(
             'No conversations yet',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
-              color: Colors.grey[700],
+              color: Colors.black87,
             ),
           ),
           const SizedBox(height: 8),
           Text(
-            'Start chatting with your organization members.',
-            style: TextStyle(color: Colors.grey[500]),
+            'Start chatting with your organization members',
+            style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+            textAlign: TextAlign.center,
           ),
         ],
       ),

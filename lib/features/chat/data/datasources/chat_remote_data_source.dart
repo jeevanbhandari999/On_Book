@@ -118,7 +118,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
         'organization_id': room.organizationId,
       };
 
-      // ✅ Handle DM room
+      // Handle DM room
       if (room.type == RoomType.dm && otherUserId != null) {
         final sortedIds = [userId, otherUserId]..sort();
         final dmKey = '${sortedIds[0]}_${sortedIds[1]}';
@@ -126,7 +126,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
         roomData['dm_key'] = dmKey;
       }
 
-      // 🔥 Upsert instead of insert
+      // Upsert instead of insert
       final res = await client
           .from('rooms')
           .upsert(roomData, onConflict: 'dm_key')
@@ -135,7 +135,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
 
       final roomId = res['id'];
 
-      // ✅ Add members only if not already added
+      // Add members only if not already added
       if (room.type == RoomType.organization && room.organizationId != null) {
         final response = await client
             .from('users')
@@ -234,12 +234,9 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
   }
 
   // MESSAGES
-
   @override
   Future<MessageModel> sendMessage(MessageModel message) async {
     try {
-      // Ensure sender_id is set to current user for security consistency
-      // though the DB defaults it, it's good for the model to match.
       final msgData = message.toCreateJson();
       msgData['sender_id'] = client.auth.currentUser!.id;
 

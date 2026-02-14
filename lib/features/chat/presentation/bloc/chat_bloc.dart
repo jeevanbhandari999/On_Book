@@ -205,17 +205,33 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     }
   }
 
+  // Future<void> _onStreamMessagesRequested(
+  //   StreamMessagesRequested event,
+  //   Emitter<ChatState> emit,
+  // ) async {
+  //   _messageStreamSub?.cancel();
+  //   _messageStreamSub = streamMessagesUseCase(event.roomId).listen((either) {
+  //     either.fold(
+  //       (failure) => addError(failure.message),
+  //       (messages) => emit(MessagesStreamUpdated(messages: messages)),
+  //     );
+  //   });
+  // }
+
   Future<void> _onStreamMessagesRequested(
     StreamMessagesRequested event,
     Emitter<ChatState> emit,
   ) async {
-    _messageStreamSub?.cancel();
-    _messageStreamSub = streamMessagesUseCase(event.roomId).listen((either) {
-      either.fold(
-        (failure) => addError(failure.message),
-        (messages) => emit(MessagesStreamUpdated(messages: messages)),
-      );
-    });
+    await emit.forEach(
+      streamMessagesUseCase(event.roomId),
+      onData: (either) {
+        return either.fold(
+          (failure) => ChatError(message: failure.message),
+          (messages) => MessagesStreamUpdated(messages: messages),
+        );
+      },
+      onError: (error, stackTrace) => ChatError(message: error.toString()),
+    );
   }
 
   Future<void> _onMarkRoomAsReadRequested(
