@@ -1,5 +1,5 @@
 
-import 'package:app/features/chat/data/models/room_model.dart';
+import 'package:app/features/chat/domain/entities/chat_user.dart';
 import 'package:equatable/equatable.dart';
 
 class RoomMember extends Equatable {
@@ -8,7 +8,6 @@ class RoomMember extends Equatable {
   final String userId;
   final DateTime joinedAt;
   final DateTime? lastReadAt;
-
   final ChatUser? user;
 
 

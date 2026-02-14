@@ -1,3 +1,5 @@
+import 'package:app/features/chat/data/models/chat_user_model.dart';
+import 'package:app/features/chat/data/models/room_model.dart';
 import 'package:app/features/chat/domain/entities/room_member.dart';
 import 'package:equatable/equatable.dart';
 
@@ -7,6 +9,7 @@ class RoomMemberModel extends Equatable {
   final String userId;
   final DateTime joinedAt;
   final DateTime? lastReadAt;
+  final ChatUserModel? user;
 
   const RoomMemberModel({
     required this.id,
@@ -14,6 +17,7 @@ class RoomMemberModel extends Equatable {
     required this.userId,
     required this.joinedAt,
     this.lastReadAt,
+    this.user,
   });
 
   factory RoomMemberModel.fromJson(Map<String, dynamic> json) {
@@ -24,6 +28,9 @@ class RoomMemberModel extends Equatable {
       joinedAt: DateTime.parse(json['joined_at']),
       lastReadAt: json['last_read_at'] != null
           ? DateTime.parse(json['last_read_at'])
+          : null,
+      user: json['users'] != null
+          ? ChatUserModel.fromJson(json['users'])
           : null,
     );
   }
@@ -62,6 +69,7 @@ class RoomMemberModel extends Equatable {
     userId: userId,
     joinedAt: joinedAt,
     lastReadAt: lastReadAt,
+    user: user?.toEntity(),
   );
 
   RoomMemberModel copyWith({
@@ -70,6 +78,7 @@ class RoomMemberModel extends Equatable {
     String? userId,
     DateTime? joinedAt,
     DateTime? lastReadAt,
+    ChatUserModel? user,
   }) {
     return RoomMemberModel(
       id: id ?? this.id,
@@ -77,9 +86,10 @@ class RoomMemberModel extends Equatable {
       userId: userId ?? this.userId,
       joinedAt: joinedAt ?? this.joinedAt,
       lastReadAt: lastReadAt ?? this.lastReadAt,
+      user: user ?? this.user,
     );
   }
 
   @override
-  List<Object?> get props => [id, roomId, userId, joinedAt, lastReadAt];
+  List<Object?> get props => [id, roomId, userId, joinedAt, lastReadAt, user];
 }
