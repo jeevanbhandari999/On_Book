@@ -183,11 +183,67 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
   //   }
   // }
 
+  // @override
+  // Future<List<RoomModel>> getMyRooms() async {
+  //   try {
+  //     final userId = client.auth.currentUser!.id;
+
+  //     final res = await client
+  //         .from('room_members')
+  //         .select('''
+  //         rooms (
+  //           *,
+  //           room_members (
+  //             id,
+  //             room_id,
+  //             user_id,
+  //             joined_at,
+  //             last_read_at,
+  //             users (
+  //               id,
+  //               user_id,
+  //               full_name,
+  //               image_url,
+  //               role
+  //             )
+  //           ),
+  //           organizations (
+  //             id,
+  //             name,
+  //             logo_url,
+  //             address,
+  //             phone
+  //           ),
+  //           messages (
+  //             id,
+  //             room_id,
+  //             sender_id,
+  //             type,
+  //             text,
+  //             media_url,
+  //             created_at
+  //           )
+  //         )
+  //       ''')
+  //         .eq('user_id', userId)
+  //         .order('joined_at', ascending: false);
+
+  //     print(res.last);
+
+  //     final List<dynamic> data = res as List<dynamic>;
+
+  //     return data.map((e) => RoomModel.fromJson(e['rooms'])).toList();
+  //   } catch (e) {
+  //     throw ServerException('Failed to fetch rooms: ${e.toString()}');
+  //   }
+  // }
+
   @override
   Future<List<RoomModel>> getMyRooms() async {
     try {
       final userId = client.auth.currentUser!.id;
 
+      // Step 1: Get rooms with members and organizations
       final res = await client
           .from('room_members')
           .select('''
@@ -219,12 +275,44 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
           .eq('user_id', userId)
           .order('joined_at', ascending: false);
 
-      print(res);
-
       final List<dynamic> data = res as List<dynamic>;
 
-      return data.map((e) => RoomModel.fromJson(e['rooms'])).toList();
+      // Step 2: Get last message for each room
+      final roomIds = data.map((e) => e['rooms']['id'] as String).toList();
+
+      final messagesRes = await client
+          .from('messages')
+          .select('id, room_id, sender_id, type, text, media_url, created_at')
+          .inFilter('room_id', roomIds)
+          .order('created_at', ascending: false);
+
+      // Create a map of room_id -> last message
+      final Map<String, Map<String, dynamic>> lastMessages = {};
+      for (final msg in messagesRes as List) {
+        final roomId = msg['room_id'] as String;
+        if (!lastMessages.containsKey(roomId)) {
+          lastMessages[roomId] = msg as Map<String, dynamic>;
+        }
+      }
+
+      // Step 3: Combine data
+      return data.map((item) {
+        final roomData = Map<String, dynamic>.from(
+          item['rooms'] as Map<String, dynamic>,
+        );
+        final roomId = roomData['id'] as String;
+
+        // Add last message if exists
+        if (lastMessages.containsKey(roomId)) {
+          roomData['messages'] = lastMessages[roomId];
+        } else {
+          roomData['messages'] = null;
+        }
+
+        return RoomModel.fromJson(roomData);
+      }).toList();
     } catch (e) {
+      print('Error details: $e');
       throw ServerException('Failed to fetch rooms: ${e.toString()}');
     }
   }

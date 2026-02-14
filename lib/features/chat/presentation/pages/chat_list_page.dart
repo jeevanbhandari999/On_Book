@@ -55,6 +55,7 @@ class _RoomPageViewState extends State<RoomPageView> {
       body: BlocConsumer<ChatBloc, ChatState>(
         listener: (context, state) {
           if (state is ChatError) {
+            print(state.message);
             ScaffoldMessenger.of(
               context,
             ).showSnackBar(SnackBar(content: Text(state.message)));
@@ -269,7 +270,7 @@ class _RoomTile extends StatelessWidget {
                         children: [
                           Expanded(
                             child: Text(
-                              "Tap to view conversation", // TODO: Show last message
+                              room.getLastMessagePreview(currentUserId),
                               maxLines: 1,
                               style: TextStyle(
                                 fontSize: 14,

@@ -1,5 +1,5 @@
-
 import 'package:app/features/chat/domain/entities/chat_organization.dart';
+import 'package:app/features/chat/domain/entities/message.dart';
 import 'package:app/features/chat/domain/entities/room_member.dart';
 import 'package:equatable/equatable.dart';
 
@@ -14,6 +14,8 @@ class Room extends Equatable {
   final List<RoomMember>? members;
   final ChatOrganization? organization;
 
+  final Message? lastMessage;
+
   const Room({
     required this.id,
     required this.type,
@@ -22,6 +24,8 @@ class Room extends Equatable {
 
     this.members,
     this.organization,
+
+    this.lastMessage,
   });
 
   Room copyWith({
@@ -31,6 +35,7 @@ class Room extends Equatable {
     DateTime? createdAt,
     List<RoomMember>? members,
     ChatOrganization? organization,
+    Message? lastMessage,
   }) {
     return Room(
       id: id ?? this.id,
@@ -39,6 +44,7 @@ class Room extends Equatable {
       createdAt: createdAt ?? this.createdAt,
       members: members ?? this.members,
       organization: organization ?? this.organization,
+      lastMessage: lastMessage ?? this.lastMessage,
     );
   }
 
@@ -50,7 +56,15 @@ class Room extends Equatable {
     createdAt,
     members,
     organization,
+    lastMessage,
   ];
+
+  String getLastMessagePreview(String currentUserId) {
+    if (lastMessage == null) return 'No messages yet';
+
+    final prefix = lastMessage!.senderId == currentUserId ? 'You: ' : '';
+    return '$prefix${lastMessage!.text ?? (lastMessage!.mediaUrl != null ? '📷 Media' : '')}';
+  }
 
   String getDisplayName(String currentUserId) {
     if (type == RoomType.organization) {

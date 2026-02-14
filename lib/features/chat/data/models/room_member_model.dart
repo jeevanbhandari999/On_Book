@@ -1,4 +1,5 @@
 import 'package:app/features/chat/data/models/chat_user_model.dart';
+import 'package:app/features/chat/data/models/message_model.dart';
 import 'package:app/features/chat/data/models/room_model.dart';
 import 'package:app/features/chat/domain/entities/room_member.dart';
 import 'package:equatable/equatable.dart';
@@ -11,6 +12,8 @@ class RoomMemberModel extends Equatable {
   final DateTime? lastReadAt;
   final ChatUserModel? user;
 
+  final MessageModel? lastMessage;
+
   const RoomMemberModel({
     required this.id,
     required this.roomId,
@@ -18,6 +21,7 @@ class RoomMemberModel extends Equatable {
     required this.joinedAt,
     this.lastReadAt,
     this.user,
+    this.lastMessage,
   });
 
   factory RoomMemberModel.fromJson(Map<String, dynamic> json) {

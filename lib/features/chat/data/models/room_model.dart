@@ -1,6 +1,7 @@
 import 'package:app/features/auth/domain/entities/organization.dart';
 import 'package:app/features/auth/domain/entities/user.dart';
 import 'package:app/features/chat/data/models/chat_organization_model.dart';
+import 'package:app/features/chat/data/models/message_model.dart';
 import 'package:app/features/chat/data/models/room_member_model.dart';
 import 'package:app/features/chat/domain/entities/room_member.dart';
 
@@ -16,6 +17,8 @@ class RoomModel extends Equatable {
   final List<RoomMemberModel>? members;
   final ChatOrganizationModel? organization;
 
+  final MessageModel? lastMessage;
+
   const RoomModel({
     required this.id,
     required this.type,
@@ -23,6 +26,7 @@ class RoomModel extends Equatable {
     required this.createdAt,
     this.members,
     this.organization,
+    this.lastMessage,
   });
 
   factory RoomModel.fromJson(Map<String, dynamic> json) {
@@ -36,6 +40,9 @@ class RoomModel extends Equatable {
           .toList(),
       organization: json['organizations'] != null
           ? ChatOrganizationModel.fromJson(json['organizations'])
+          : null,
+      lastMessage: json['messages'] != null
+          ? MessageModel.fromJson(json['messages'])
           : null,
     );
   }
@@ -71,6 +78,7 @@ class RoomModel extends Equatable {
     createdAt: createdAt,
     members: members?.map((e) => e.toEntity()).toList(),
     organization: organization?.toEntity(),
+    lastMessage: lastMessage?.toEntity(),
   );
 
   RoomModel copyWith({
