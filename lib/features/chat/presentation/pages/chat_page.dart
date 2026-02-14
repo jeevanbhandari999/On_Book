@@ -12,8 +12,10 @@ import 'package:app/features/chat/domain/usecases/send_message_use_case.dart';
 import 'package:app/features/chat/domain/usecases/stream_messages_use_case.dart';
 import 'package:app/features/chat/presentation/bloc/chat_bloc.dart';
 import 'package:app/features/chat/presentation/widgets/chat_detail_shimmer_page.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shimmer/shimmer.dart';
 
 class ChatPage extends StatelessWidget {
   final Room room;
@@ -138,14 +140,16 @@ class _ChatViewState extends State<ChatView> {
                           mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            _buildAppBarAvatar(),
+                            _buildAppBarAvatar(widget.room),
                             const SizedBox(width: UiConstants.spacingSm),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    widget.room.id, // TODO: Use display name
+                                    widget.room.getDisplayName(
+                                      widget.currentUserId,
+                                    ),
                                     style: const TextStyle(
                                       color: Colors.white,
                                       fontSize: 16,
@@ -295,19 +299,35 @@ class _ChatViewState extends State<ChatView> {
     );
   }
 
-  Widget _buildAppBarAvatar() {
+  Widget _buildAppBarAvatar(Room room) {
     return Stack(
       children: [
         CircleAvatar(
-          radius: 20,
-          backgroundColor: Colors.white,
-          child: Text(
-            widget.room.id.isNotEmpty ? widget.room.id[0].toUpperCase() : '?',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-              color: Theme.of(context).primaryColor,
-            ),
+          radius: 24,
+          child: ClipOval(
+            child:
+                room.getDisplayImage(widget.currentUserId) != null &&
+                    room.getDisplayImage(widget.currentUserId)!.isNotEmpty
+                ? CachedNetworkImage(
+                    imageUrl: room.getDisplayImage(widget.currentUserId)!,
+                    fit: BoxFit.cover,
+                    width: double.infinity,
+                    height: double.infinity,
+                    placeholder: (context, url) => Shimmer.fromColors(
+                      baseColor: Colors.grey.shade300,
+                      highlightColor: Colors.grey.shade100,
+                      child: Container(color: Colors.white),
+                    ),
+                    errorWidget: (context, error, stackTrace) =>
+                        const Icon(Icons.person),
+                  )
+                : Text(
+                    room.getDisplayName(widget.currentUserId)[0],
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
           ),
         ),
         // TODO: Add online indicator when available
@@ -340,13 +360,13 @@ class _ChatViewState extends State<ChatView> {
             width: 80,
             height: 80,
             decoration: BoxDecoration(
-              color: Theme.of(context).primaryColor.withOpacity(0.1),
+              color: Theme.of(context).primaryColor.withAlpha(25),
               shape: BoxShape.circle,
             ),
             child: Icon(
               Icons.chat_bubble_outline,
               size: 40,
-              color: Theme.of(context).primaryColor.withOpacity(0.5),
+              color: Theme.of(context).primaryColor.withAlpha(130),
             ),
           ),
           const SizedBox(height: UiConstants.spacingMd),
