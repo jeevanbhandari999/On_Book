@@ -134,6 +134,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   final SendMessageUseCase sendMessageUseCase;
   final StreamMessagesUseCase streamMessagesUseCase;
   final MarkRoomAsReadUseCase markRoomAsReadUseCase;
+  
 
   StreamSubscription<Either<Failure, List<Message>>>? _messageStreamSub;
 
