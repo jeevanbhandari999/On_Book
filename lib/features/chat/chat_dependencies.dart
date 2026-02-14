@@ -4,11 +4,13 @@ import 'package:app/features/chat/domain/repositories/chat_repository.dart';
 import 'package:app/features/chat/domain/usecases/create_room_use_case.dart';
 import 'package:app/features/chat/domain/usecases/get_messages_use_case.dart';
 import 'package:app/features/chat/domain/usecases/get_room_members_use_case.dart';
+import 'package:app/features/chat/domain/usecases/get_specific_room_related_to_the_user_or_organization_use_case.dart';
 import 'package:app/features/chat/domain/usecases/get_user_rooms_use_case.dart';
 import 'package:app/features/chat/domain/usecases/mark_room_as_read_use_case.dart';
 import 'package:app/features/chat/domain/usecases/send_message_use_case.dart';
 import 'package:app/features/chat/domain/usecases/stream_messages_use_case.dart';
 import 'package:app/features/chat/presentation/bloc/chat_bloc.dart';
+import 'package:app/features/chat/presentation/bloc/get_and_create_room_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -52,6 +54,13 @@ class ChatDependencies {
     getIt.registerLazySingleton<StreamMessagesUseCase>(
       () => StreamMessagesUseCase(getIt<ChatRepository>()),
     );
+    getIt.registerLazySingleton<
+      GetSpecificRoomRelatedToTheUserOrOrganizationUseCase
+    >(
+      () => GetSpecificRoomRelatedToTheUserOrOrganizationUseCase(
+        getIt<ChatRepository>(),
+      ),
+    );
 
     // BLoCs
     getIt.registerFactory<ChatBloc>(
@@ -61,6 +70,13 @@ class ChatDependencies {
         sendMessageUseCase: getIt<SendMessageUseCase>(),
         streamMessagesUseCase: getIt<StreamMessagesUseCase>(),
         markRoomAsReadUseCase: getIt<MarkRoomAsReadUseCase>(),
+      ),
+    );
+    getIt.registerFactory<GetAndCreateRoomBloc>(
+      () => GetAndCreateRoomBloc(
+        createRoomUseCase: getIt<CreateRoomUseCase>(),
+        getSpecificRoomRelatedToTheUserOrOrganizationUseCase:
+            getIt<GetSpecificRoomRelatedToTheUserOrOrganizationUseCase>(),
       ),
     );
   }
