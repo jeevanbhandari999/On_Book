@@ -5,6 +5,7 @@ import 'package:app/core/constants/ui_constants.dart';
 import 'package:app/core/widgets/app_bar_popup_menu.dart';
 import 'package:app/core/widgets/common_widgets.dart';
 import 'package:app/features/auth/domain/entities/user.dart';
+import 'package:app/features/auth/services/auth_service.dart';
 import 'package:app/features/profile/domain/repositories/profile_repository.dart';
 import 'package:app/features/profile/domain/usecases/delete_profile_picture_use_case.dart';
 import 'package:app/features/profile/domain/usecases/update_profile_picture_use_case.dart';
@@ -21,6 +22,12 @@ class ProfileImagePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final authService = DependencyInjection.get<AuthService>();
+    final userId = authService.getCurrentUserId();
+
+    if (userId == null) {
+      return const Scaffold(body: Center(child: Text('Please sign in')));
+    }
     return MultiBlocProvider(
       providers: [
         BlocProvider(
@@ -38,14 +45,15 @@ class ProfileImagePage extends StatelessWidget {
           ),
         ),
       ],
-      child: ProfileImageView(user: user),
+      child: ProfileImageView(user: user, userId: userId),
     );
   }
 }
 
 class ProfileImageView extends StatelessWidget {
   final User user;
-  ProfileImageView({super.key, required this.user});
+  final String userId;
+  ProfileImageView({super.key, required this.user, required this.userId});
 
   final ValueNotifier<File?> _selectedImage = ValueNotifier<File?>(null);
 
@@ -54,37 +62,39 @@ class ProfileImageView extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(user.fullName),
-        actions: [
-          AppPopupMenu(
-            items: [
-              AppPopupMenuItem(
-                value: 'edit',
-                label: 'Edit',
-                icon: Icons.edit_sharp,
-                onTap: () {
-                  _showImagePickerOptions(context);
-                },
-              ),
-              AppPopupMenuItem(
-                value: 'refresh',
-                label: 'Refresh',
-                icon: Icons.refresh,
-                onTap: () {
-                  _onRefresh(context);
-                },
-              ),
-              AppPopupMenuItem(
-                value: 'delete',
-                label: 'Delete',
-                icon: Icons.delete,
-                onTap: () {
-                  _onDeleteAvatarImage(context);
-                },
-                isDistructive: true,
-              ),
-            ],
-          ),
-        ],
+        actions: user.userId != userId
+            ? null
+            : [
+                AppPopupMenu(
+                  items: [
+                    AppPopupMenuItem(
+                      value: 'edit',
+                      label: 'Edit',
+                      icon: Icons.edit_sharp,
+                      onTap: () {
+                        _showImagePickerOptions(context);
+                      },
+                    ),
+                    AppPopupMenuItem(
+                      value: 'refresh',
+                      label: 'Refresh',
+                      icon: Icons.refresh,
+                      onTap: () {
+                        _onRefresh(context);
+                      },
+                    ),
+                    AppPopupMenuItem(
+                      value: 'delete',
+                      label: 'Delete',
+                      icon: Icons.delete,
+                      onTap: () {
+                        _onDeleteAvatarImage(context);
+                      },
+                      isDistructive: true,
+                    ),
+                  ],
+                ),
+              ],
       ),
       body: BlocListener<UpdateProfilePictureBloc, UpdateProfilePictureState>(
         listener: (context, state) {

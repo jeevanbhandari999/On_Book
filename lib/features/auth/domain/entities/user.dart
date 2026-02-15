@@ -6,6 +6,7 @@ class User extends Equatable {
   final String userId; // References auth.users.id (UUID)
   final String fullName; // Required in DB
   final String? imageUrl; // Optional
+  final String email; // Optional
   final UserRole role; // Enum: user, owner, admin, manager, worker
   final String? organizationId; // Nullable
   final String? phone; // Optional
@@ -19,6 +20,7 @@ class User extends Equatable {
     required this.userId,
     required this.fullName,
     this.imageUrl,
+    required this.email,
     required this.role,
     this.organizationId,
     this.phone,
@@ -35,6 +37,7 @@ class User extends Equatable {
     fullName,
     imageUrl,
     role,
+    email,
     organizationId,
     phone,
     address,
@@ -49,6 +52,7 @@ class User extends Equatable {
     String? userId,
     String? fullName,
     String? imageUrl,
+    String? email,
     UserRole? role,
     String? organizationId,
     String? phone,
@@ -62,6 +66,7 @@ class User extends Equatable {
       userId: userId ?? this.userId,
       fullName: fullName ?? this.fullName,
       imageUrl: imageUrl ?? this.imageUrl,
+      email: email ?? this.email,
       role: role ?? this.role,
       organizationId: organizationId ?? this.organizationId,
       phone: phone ?? this.phone,

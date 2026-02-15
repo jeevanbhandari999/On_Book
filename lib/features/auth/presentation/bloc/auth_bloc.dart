@@ -348,7 +348,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             final user = UserModel(
               id: currentUser.id,
               userId: currentUser.id,
-              email: currentUser.email,
+              email: currentUser.email!,
               fullName: currentUser.userMetadata?['full_name'] as String,
               role: role,
               createdAt: DateTime.now(),

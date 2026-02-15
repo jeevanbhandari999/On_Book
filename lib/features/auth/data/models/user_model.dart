@@ -43,7 +43,7 @@ class UserModel extends Equatable {
   final String id;
   final String userId; // Supabase auth.users.id
   // this is for getting the email
-  final String? email;
+  final String email;
   final String fullName;
   final String? imageUrl;
   final UserRole role;
@@ -58,7 +58,7 @@ class UserModel extends Equatable {
     required this.id,
     required this.userId,
     required this.fullName,
-    this.email,
+    required this.email,
     this.imageUrl,
     required this.role,
     this.organizationId,
@@ -75,7 +75,7 @@ class UserModel extends Equatable {
       id: json['id'] as String,
       userId: json['user_id'] as String,
       fullName: json['full_name'] as String,
-      email: json['email']?.toString(),
+      email: json['email'].toString(),
       imageUrl: json['image_url'] as String?,
       role: UserRoleExtension.fromString(json['role'] as String? ?? 'user'),
       organizationId: json['organization_id'] as String?,
@@ -95,6 +95,7 @@ class UserModel extends Equatable {
       'full_name': fullName,
       'image_url': imageUrl,
       'role': role.value,
+      'email': email,
       'organization_id': organizationId,
       'phone': phone,
       'address': address,
@@ -111,6 +112,7 @@ class UserModel extends Equatable {
       fullName: entity.fullName,
       imageUrl: entity.imageUrl,
       role: entity.role,
+      email: entity.email,
       organizationId: entity.organizationId,
       phone: entity.phone,
       address: entity.address,
@@ -139,6 +141,7 @@ class UserModel extends Equatable {
     String? userId,
     String? fullName,
     String? imageUrl,
+    String? email,
     UserRole? role,
     String? organizationId,
     String? phone,
@@ -152,6 +155,7 @@ class UserModel extends Equatable {
       userId: userId ?? this.userId,
       fullName: fullName ?? this.fullName,
       imageUrl: imageUrl ?? this.imageUrl,
+      email: email ?? this.email,
       role: role ?? this.role,
       organizationId: organizationId ?? this.organizationId,
       phone: phone ?? this.phone,
@@ -170,6 +174,7 @@ class UserModel extends Equatable {
       fullName: fullName,
       imageUrl: imageUrl,
       role: role,
+      email: email,
       organizationId: organizationId,
       phone: phone,
       address: address,
