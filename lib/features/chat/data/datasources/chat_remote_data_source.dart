@@ -316,7 +316,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
         return RoomModel.fromJson(roomData);
       }).toList();
     } catch (e) {
-      print('Error details: $e');
+      // print('Error details: $e');
       throw ServerException('Failed to fetch rooms: ${e.toString()}');
     }
   }
@@ -497,9 +497,28 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
   ) async {
     try {
       if (organizationId != null) {
+        // final response = await client
+        //     .from('rooms')
+        //     .select('organizations(id, name, logo_url, address, phone)')
+        //     .eq('organization_id', organizationId)
+        //     .eq('type', 'organization')
+        //     .maybeSingle();
+
         final response = await client
             .from('rooms')
-            .select()
+            .select('''
+            id,
+            organization_id,
+            type,
+            created_at, 
+            organizations!organization_id (
+            id,
+            name,
+            logo_url,
+            address,
+            phone
+            )
+            ''')
             .eq('organization_id', organizationId)
             .eq('type', 'organization')
             .maybeSingle();
@@ -520,7 +539,20 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
 
         final room = await client
             .from('rooms')
-            .select()
+            .select('''
+            id,
+            organization_id,
+            type,
+            created_at,
+            dm_key, 
+            users!user_id (
+            id,
+                user_id,
+                full_name,
+                image_url,
+                role
+            )
+            ''')
             .inFilter('id', roomIds)
             .eq('type', 'dm')
             .maybeSingle();

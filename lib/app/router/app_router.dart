@@ -13,7 +13,6 @@ import 'package:app/features/booking/presentation/pages/booking_page.dart';
 import 'package:app/features/chat/domain/entities/room.dart';
 import 'package:app/features/chat/presentation/pages/chat_list_page.dart';
 import 'package:app/features/chat/presentation/pages/chat_page.dart';
-import 'package:app/features/chat/presentation/pages/chat_user_list_page.dart';
 import 'package:app/features/chat/presentation/pages/contacts_page.dart';
 import 'package:app/features/chat/presentation/pages/initial_chat_placeholder_page.dart';
 import 'package:app/features/customer_review/presentation/pages/customer_review_page.dart';

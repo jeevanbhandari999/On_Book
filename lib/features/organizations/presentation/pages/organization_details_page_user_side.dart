@@ -1,4 +1,5 @@
 import 'package:app/app/dependency_injection.dart';
+import 'package:app/app/router/route_constants.dart';
 import 'package:app/core/constants/ui_constants.dart';
 import 'package:app/core/theme/app_colors.dart';
 import 'package:app/core/utils/date_formatter.dart';
@@ -14,6 +15,7 @@ import 'package:app/features/organizations/presentation/widgets/organization_det
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:shimmer/shimmer.dart';
 
 class OrganizationDetailsPageUserSide extends StatelessWidget {
@@ -42,13 +44,14 @@ class OrganizationDetailsPageUserSide extends StatelessWidget {
               userId: userId,
             ),
           ),
-      child: const OrganizationDetailsViewUserSide(),
+      child: OrganizationDetailsViewUserSide(userId: userId),
     );
   }
 }
 
 class OrganizationDetailsViewUserSide extends StatelessWidget {
-  const OrganizationDetailsViewUserSide({super.key});
+  final String userId;
+  const OrganizationDetailsViewUserSide({super.key, required this.userId});
 
   @override
   Widget build(BuildContext context) {
@@ -91,7 +94,7 @@ class OrganizationDetailsViewUserSide extends StatelessWidget {
                           // _buildActionButtons(context, org),
                           _buildContactSection(context, org),
                           const SizedBox(height: 24),
-                          _buildMembersSection(context, state.members),
+                          _buildMembersSection(context, state.members, userId),
                           const SizedBox(height: 16),
                           _buildLocationSection(context, org),
                           const SizedBox(height: 16),
@@ -229,7 +232,11 @@ class OrganizationDetailsViewUserSide extends StatelessWidget {
     );
   }
 
-  Widget _buildMembersSection(BuildContext context, List<User> members) {
+  Widget _buildMembersSection(
+    BuildContext context,
+    List<User> members,
+    String currentUserId,
+  ) {
     if (members.isEmpty) {
       return const SizedBox.shrink();
     }
@@ -245,19 +252,19 @@ class OrganizationDetailsViewUserSide extends StatelessWidget {
       title: "Team Members",
       children: [
         if (owners.isNotEmpty) ...[
-          _buildRoleGroup("Owner", owners),
+          _buildRoleGroup("Owner", owners, currentUserId),
           const SizedBox(height: 16),
         ],
         if (managers.isNotEmpty) ...[
-          _buildRoleGroup("Managers", managers),
+          _buildRoleGroup("Managers", managers, currentUserId),
           const SizedBox(height: 16),
         ],
-        if (staff.isNotEmpty) _buildRoleGroup("Staff", staff),
+        if (staff.isNotEmpty) _buildRoleGroup("Staff", staff, currentUserId),
       ],
     );
   }
 
-  Widget _buildRoleGroup(String title, List<User> users) {
+  Widget _buildRoleGroup(String title, List<User> users, String currentUserId) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -270,7 +277,9 @@ class OrganizationDetailsViewUserSide extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 8),
-        ...users.map((user) => _MemberTile(user: user)),
+        ...users.map(
+          (user) => _MemberTile(user: user, currentUserId: currentUserId),
+        ),
       ],
     );
   }
@@ -572,69 +581,81 @@ class _CoordinateBadge extends StatelessWidget {
 
 class _MemberTile extends StatelessWidget {
   final User user;
+  final String currentUserId;
 
-  const _MemberTile({required this.user});
+  const _MemberTile({required this.user, required this.currentUserId});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Row(
-        children: [
-          CircleAvatar(
-            radius: 22,
-            // backgroundColor: Colors.grey[200],
-            backgroundImage: user.imageUrl != null && user.imageUrl!.isNotEmpty
-                ? NetworkImage(user.imageUrl!)
-                : null,
-            child: user.imageUrl == null || user.imageUrl!.isEmpty
-                ? Text(
-                    user.fullName.isNotEmpty
-                        ? user.fullName[0].toUpperCase()
-                        : '?',
-                    style: TextStyle(
-                      color: Theme.of(context).primaryColor,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  )
-                : null,
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  user.fullName,
-                  style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                if (user.phone != null && user.phone!.isNotEmpty)
+      child: GestureDetector(
+        onTap: () {
+          if (user.userId == currentUserId) {
+            context.go(RouteConstants.profilePage);
+          } else {
+            print('View profile');
+            // context.push(RouteConstants.viewUserProfilePage);
+          }
+        },
+        child: Row(
+          children: [
+            CircleAvatar(
+              radius: 22,
+              // backgroundColor: Colors.grey[200],
+              backgroundImage:
+                  user.imageUrl != null && user.imageUrl!.isNotEmpty
+                  ? NetworkImage(user.imageUrl!)
+                  : null,
+              child: user.imageUrl == null || user.imageUrl!.isEmpty
+                  ? Text(
+                      user.fullName.isNotEmpty
+                          ? user.fullName[0].toUpperCase()
+                          : '?',
+                      style: TextStyle(
+                        color: Theme.of(context).primaryColor,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    )
+                  : null,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                   Text(
-                    user.phone!,
-                    style: TextStyle(fontSize: 13, color: Colors.grey[700]),
+                    user.fullName,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
-              ],
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(
-              color: _getRoleColor(user.role).withAlpha(38),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Text(
-              user.role.value.toUpperCase(),
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                color: _getRoleColor(user.role),
+                  if (user.phone != null && user.phone!.isNotEmpty)
+                    Text(
+                      user.phone!,
+                      style: TextStyle(fontSize: 13, color: Colors.grey[700]),
+                    ),
+                ],
               ),
             ),
-          ),
-        ],
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: _getRoleColor(user.role).withAlpha(38),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                user.role.value.toUpperCase(),
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: _getRoleColor(user.role),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
