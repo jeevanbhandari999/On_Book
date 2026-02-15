@@ -81,12 +81,13 @@ class ProfileRepositoryImpl implements ProfileRepository {
   Future<Either<Failure, User>> getUserProfileDetailById(String userId) async {
     try {
       // try to get the cache profile
-      final cachedProfileDetail = await localDataSource.getCachedProfileDetail(
-        userId,
-      );
-      if (cachedProfileDetail != null) {
-        return Right(cachedProfileDetail.toEntity());
-      }
+      // final cachedProfileDetail = await localDataSource.getCachedProfileDetail(
+      //   userId,
+      // );
+      // if (cachedProfileDetail != null) {
+      //   print(cachedProfileDetail);
+      //   return Right(cachedProfileDetail.toEntity());
+      // }
       // Fetch from the remote if not cached from the local
 
       final profileModel = await remoteDataSource.getProfileDetailById(userId);

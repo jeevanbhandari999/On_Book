@@ -87,7 +87,6 @@ class ProfileView extends StatelessWidget {
                 if (state is GetCurrentUserProfileDetailsLoading) {
                   return const Center(child: CircularProgressIndicator());
                 }
-
                 if (state is GetCurrentUserProfileDetailsSuccess) {
                   final user = state.user;
                   return CustomScrollView(
@@ -399,7 +398,6 @@ class ProfileView extends StatelessWidget {
   }
 
   Widget _buildProfileInfoCard(User user) {
-    final authService = DependencyInjection.get<AuthService>();
     return Container(
       padding: const EdgeInsets.all(UiConstants.spacingMd),
       decoration: BoxDecoration(
@@ -425,7 +423,7 @@ class ProfileView extends StatelessWidget {
           _buildInfoRow(
             icon: Icons.email_outlined,
             label: 'Email',
-            value: authService.getCurrentUserEmail() ?? 'Not available',
+            value: user.email,
           ),
           const SizedBox(height: UiConstants.spacingMd),
           _buildInfoRow(

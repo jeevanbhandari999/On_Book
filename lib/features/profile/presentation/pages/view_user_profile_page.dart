@@ -3,7 +3,6 @@ import 'package:app/core/constants/ui_constants.dart';
 import 'package:app/core/theme/app_colors.dart';
 import 'package:app/features/auth/data/models/user_model.dart';
 import 'package:app/features/auth/domain/entities/user.dart';
-import 'package:app/features/auth/services/auth_service.dart';
 import 'package:app/features/home/presentation/widgets/show_on_collapsed_sliver_app_bar.dart';
 import 'package:app/features/profile/domain/usecases/get_current_user_profile_use_case.dart';
 import 'package:app/features/profile/presentation/bloc/get_current_user_profile_details_bloc.dart';
@@ -44,7 +43,6 @@ class ViewUserProfileView extends StatelessWidget {
               if (state is! GetCurrentUserProfileDetailsSuccess) {
                 return const Center(child: CircularProgressIndicator());
               }
-
               return CustomScrollView(
                 slivers: [
                   _buildSliverAppBar(context, state.user),
@@ -259,7 +257,6 @@ class ViewUserProfileView extends StatelessWidget {
   }
 
   Widget _buildProfileInfoCard(User user) {
-    final authService = DependencyInjection.get<AuthService>();
     return Container(
       padding: const EdgeInsets.all(UiConstants.spacingMd),
       decoration: BoxDecoration(
@@ -285,7 +282,7 @@ class ViewUserProfileView extends StatelessWidget {
           _buildInfoRow(
             icon: Icons.email_outlined,
             label: 'Email',
-            value: authService.getCurrentUserEmail() ?? 'Not available',
+            value: user.email,
           ),
           const SizedBox(height: UiConstants.spacingMd),
           _buildInfoRow(
