@@ -342,8 +342,13 @@ class AppRouter {
       GoRoute(
         path: RouteConstants.viewUserProfilePage,
         builder: (context, state) {
-          final userId = state.extra as String;
-          return ViewUserProfilePage(userId: userId);
+          final extraData = state.extra as Map<String, String>;
+          final userId = extraData['userId'] as String;
+          final currentUserId = extraData['currentUserId'] as String;
+          return ViewUserProfilePage(
+            userId: userId,
+            currentUserId: currentUserId,
+          );
         },
       ),
     ],

@@ -2,6 +2,7 @@ import 'package:app/app/dependency_injection.dart';
 import 'package:app/app/router/route_constants.dart';
 import 'package:app/core/constants/ui_constants.dart';
 import 'package:app/core/theme/app_colors.dart';
+import 'package:app/core/widgets/common_widgets.dart';
 import 'package:app/features/auth/data/models/user_model.dart';
 import 'package:app/features/auth/domain/entities/user.dart';
 import 'package:app/features/home/presentation/widgets/show_on_collapsed_sliver_app_bar.dart';
@@ -21,7 +22,12 @@ import 'package:shimmer/shimmer.dart';
 
 class ViewUserProfilePage extends StatelessWidget {
   final String userId;
-  const ViewUserProfilePage({super.key, required this.userId});
+  final String currentUserId;
+  const ViewUserProfilePage({
+    super.key,
+    required this.userId,
+    required this.currentUserId,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -30,13 +36,14 @@ class ViewUserProfilePage extends StatelessWidget {
         getCurrentUserProfileUseCase:
             DependencyInjection.get<GetCurrentUserProfileUseCase>(),
       )..add(GetCurrentUserProfileDetailsRequested(userId: userId)),
-      child: const ViewUserProfileView(),
+      child: ViewUserProfileView(currentUserId: currentUserId),
     );
   }
 }
 
 class ViewUserProfileView extends StatelessWidget {
-  const ViewUserProfileView({super.key});
+  final String currentUserId;
+  const ViewUserProfileView({super.key, required this.currentUserId});
 
   @override
   Widget build(BuildContext context) {
@@ -115,6 +122,25 @@ class ViewUserProfileView extends StatelessWidget {
                                   // ),
                                 ],
                               ),
+                            ),
+                          ),
+                          const SizedBox(height: UiConstants.spacingMd),
+                          SizedBox(
+                            width: double.infinity,
+                            child: CustomButton(
+                              icon: const Icon(Icons.chat_bubble),
+                              text: 'Say Hi to ${state.user.fullName}',
+                              onPressed: () {
+                                // Since this is the direct message so no need for the organization
+                                context.push(
+                                  RouteConstants.initialChatPlaceholderPage,
+                                  extra: {
+                                    'organizationId': null,
+                                    'userId': currentUserId,
+                                    'targetUserId': state.user.userId,
+                                  },
+                                );
+                              },
                             ),
                           ),
                           const SizedBox(height: UiConstants.spacingMd),
@@ -203,8 +229,6 @@ class ViewUserProfileView extends StatelessWidget {
             t,
           );
 
-          print(user.imageUrl);
-
           return Container(
             decoration: BoxDecoration(
               color: bgColor,
@@ -235,6 +259,8 @@ class ViewUserProfileView extends StatelessWidget {
                           child:
                               user.imageUrl != null && user.imageUrl!.isNotEmpty
                               ? CachedNetworkImage(
+                                  width: double.infinity,
+                                  height: double.infinity,
                                   imageUrl: user.imageUrl!,
                                   fit: BoxFit.cover,
                                   placeholder: (context, url) =>
@@ -249,6 +275,9 @@ class ViewUserProfileView extends StatelessWidget {
                                       ),
                                 )
                               : CachedNetworkImage(
+                                  width: double.infinity,
+                                  height: double.infinity,
+                                  fit: BoxFit.cover,
                                   imageUrl:
                                       'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png',
                                 ),
@@ -511,7 +540,7 @@ class OrganizationTile extends StatelessWidget {
           ),
           title: Text(
             state.organizationDetails.name,
-            style: TextStyle(fontSize: 18),
+            style: const TextStyle(fontSize: 18),
           ),
           subtitle: Text(
             '${_getRoleDisplayName(enumFromString(UserRole.values, role)!)} of the organization',

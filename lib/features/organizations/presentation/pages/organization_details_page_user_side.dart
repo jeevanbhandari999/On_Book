@@ -596,7 +596,7 @@ class _MemberTile extends StatelessWidget {
           } else {
             context.push(
               RouteConstants.viewUserProfilePage,
-              extra: user.userId,
+              extra: {'userId': user.userId, 'currentUserId': currentUserId},
             );
           }
         },
