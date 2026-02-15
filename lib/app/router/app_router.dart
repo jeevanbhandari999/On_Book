@@ -29,6 +29,7 @@ import 'package:app/features/post/presentation/pages/post_details_page.dart';
 import 'package:app/features/post/presentation/pages/post_page.dart';
 import 'package:app/features/profile/presentation/pages/edit_profile_page.dart';
 import 'package:app/features/profile/presentation/pages/profile_page.dart';
+import 'package:app/features/profile/presentation/pages/view_user_profile_page.dart';
 import 'package:app/features/search/presentation/pages/search_page.dart';
 import 'package:app/features/splash/presentation/pages/splash_page.dart';
 import 'package:go_router/go_router.dart';
@@ -336,6 +337,13 @@ class AppRouter {
           final extraData = state.extra as Map<String, dynamic>;
           final user = extraData['user'] as User;
           return EditProfilePage(profile: user);
+        },
+      ),
+      GoRoute(
+        path: RouteConstants.viewUserProfilePage,
+        builder: (context, state) {
+          final userId = state.extra as String;
+          return ViewUserProfilePage(userId: userId);
         },
       ),
     ],

@@ -589,20 +589,21 @@ class _MemberTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
-      child: GestureDetector(
+      child: InkWell(
         onTap: () {
           if (user.userId == currentUserId) {
             context.go(RouteConstants.profilePage);
           } else {
-            print('View profile');
-            // context.push(RouteConstants.viewUserProfilePage);
+            context.push(
+              RouteConstants.viewUserProfilePage,
+              extra: user.userId,
+            );
           }
         },
         child: Row(
           children: [
             CircleAvatar(
               radius: 22,
-              // backgroundColor: Colors.grey[200],
               backgroundImage:
                   user.imageUrl != null && user.imageUrl!.isNotEmpty
                   ? NetworkImage(user.imageUrl!)
