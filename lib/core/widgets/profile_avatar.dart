@@ -254,38 +254,65 @@ class _AppImagePickerState extends State<AppImagePicker> {
                             widget.borderRadius,
                           ),
                         ),
-                        child: Center(
-                          child: Padding(
-                            padding: const EdgeInsets.all(
-                              UiConstants.spacingMd,
-                            ),
-                            child: SingleChildScrollView(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  if (widget.showUploadIcon)
-                                    const Icon(
-                                      Icons.cloud_upload_outlined,
-                                      size: 40,
-                                      color: Colors.grey,
-                                    ),
-                                  Text(
-                                    textAlign: TextAlign.center,
-                                    maxLines: 3,
-                                    widget.label,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(
-                                      fontSize: 96,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
+                        child: widget.showUploadIcon
+                            ? Center(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(
+                                    UiConstants.spacingMd,
+                                  ),
+                                  child: SingleChildScrollView(
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        if (widget.showUploadIcon)
+                                          const Icon(
+                                            Icons.cloud_upload_outlined,
+                                            size: 40,
+                                            color: Colors.grey,
+                                          ),
+                                        // Text(
+                                        //   textAlign: TextAlign.center,
+                                        //   maxLines: 3,
+                                        //   widget.label,
+                                        //   overflow: TextOverflow.ellipsis,
+                                        //   style: const TextStyle(
+                                        //     fontSize: 96,
+                                        //     fontWeight: FontWeight.bold,
+                                        //     color: Colors.white,
+                                        //   ),
+                                        // ),
+                                        // Container(
+                                        //   decoration: BoxDecoration(
+                                        //     borderRadius: BorderRadius.circular(
+                                        //       widget.borderRadius,
+                                        //     ),
+                                        //   ),
+                                        //   child: CachedNetworkImage(
+                                        //     imageUrl:
+                                        //         'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png',
+                                        //   ),
+                                        // ),
+                                      ],
                                     ),
                                   ),
-                                ],
+                                ),
+                              )
+                            : SizedBox(
+                                width: 200,
+                                height: 200,
+                                child: ClipOval(
+                                  child: CachedNetworkImage(
+                                    width: double.infinity,
+                                    height: double.infinity,
+                                    fit: BoxFit.cover,
+                                    imageUrl:
+                                        'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png',
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
-                        ),
                       ),
                     ),
             ),

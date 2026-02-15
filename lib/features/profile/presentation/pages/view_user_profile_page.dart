@@ -1,15 +1,22 @@
 import 'package:app/app/dependency_injection.dart';
+import 'package:app/app/router/route_constants.dart';
 import 'package:app/core/constants/ui_constants.dart';
 import 'package:app/core/theme/app_colors.dart';
 import 'package:app/features/auth/data/models/user_model.dart';
 import 'package:app/features/auth/domain/entities/user.dart';
 import 'package:app/features/home/presentation/widgets/show_on_collapsed_sliver_app_bar.dart';
+import 'package:app/features/organizations/domain/usecases/can_manage_orgnization_use_case.dart';
+import 'package:app/features/organizations/domain/usecases/get_organization_members_use_case.dart';
+import 'package:app/features/organizations/domain/usecases/get_user_organization_detail_use_case.dart';
+import 'package:app/features/organizations/presentation/bloc/get_user_organization_details_bloc.dart';
+import 'package:app/features/post/domain/entities/post_enums.dart';
 import 'package:app/features/profile/domain/usecases/get_current_user_profile_use_case.dart';
 import 'package:app/features/profile/presentation/bloc/get_current_user_profile_details_bloc.dart';
 import 'package:app/features/profile/presentation/pages/profile_image_page.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:shimmer/shimmer.dart';
 
 class ViewUserProfilePage extends StatelessWidget {
@@ -101,10 +108,11 @@ class ViewUserProfileView extends StatelessWidget {
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
-                                  Text(
-                                    _getRoleDisplayName(state.user.role),
-                                    style: const TextStyle(fontSize: 17),
-                                  ),
+                                  // No need to show the role of the user for now
+                                  // Text(
+                                  //   _getRoleDisplayName(state.user.role),
+                                  //   style: const TextStyle(fontSize: 17),
+                                  // ),
                                 ],
                               ),
                             ),
@@ -195,6 +203,8 @@ class ViewUserProfileView extends StatelessWidget {
             t,
           );
 
+          print(user.imageUrl);
+
           return Container(
             decoration: BoxDecoration(
               color: bgColor,
@@ -220,30 +230,29 @@ class ViewUserProfileView extends StatelessWidget {
                     child: SizedBox(
                       width: 200,
                       height: 200,
-                      child: ClipOval(
-                        child:
-                            user.imageUrl != null && user.imageUrl!.isNotEmpty
-                            ? CachedNetworkImage(
-                                imageUrl: user.imageUrl!,
-                                fit: BoxFit.cover,
-                                width: 48,
-                                height: 48,
-                                placeholder: (context, url) =>
-                                    Shimmer.fromColors(
-                                      baseColor: Colors.grey.shade300,
-                                      highlightColor: Colors.grey.shade100,
-                                      child: Container(color: Colors.white),
-                                    ),
-                                errorWidget: (context, error, stackTrace) =>
-                                    const Icon(Icons.image_not_supported_sharp),
-                              )
-                            : Text(
-                                user.fullName[0],
-                                style: const TextStyle(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
+                      child: CircleAvatar(
+                        child: ClipOval(
+                          child:
+                              user.imageUrl != null && user.imageUrl!.isNotEmpty
+                              ? CachedNetworkImage(
+                                  imageUrl: user.imageUrl!,
+                                  fit: BoxFit.cover,
+                                  placeholder: (context, url) =>
+                                      Shimmer.fromColors(
+                                        baseColor: Colors.grey.shade300,
+                                        highlightColor: Colors.grey.shade100,
+                                        child: Container(color: Colors.white),
+                                      ),
+                                  errorWidget: (context, error, stackTrace) =>
+                                      const Icon(
+                                        Icons.image_not_supported_sharp,
+                                      ),
+                                )
+                              : CachedNetworkImage(
+                                  imageUrl:
+                                      'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png',
                                 ),
-                              ),
+                        ),
                       ),
                     ),
                   ),
@@ -356,14 +365,12 @@ class ViewUserProfileView extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildInfoTile(
-            context,
-            icon: Icons.business,
-            title: 'Organization',
-            subtitle: user.organizationId != null
-                ? 'Member of organization'
-                : 'No organization yet',
-          ),
+          if (user.organizationId != null)
+            OrganizationDetailTile(
+              organizationId: user.organizationId!,
+              userId: user.userId,
+              role: user.role.name,
+            ),
 
           _buildInfoTile(
             context,
@@ -404,5 +411,113 @@ String _getRoleDisplayName(UserRole role) {
       return 'Staff';
     default:
       return 'Guest';
+  }
+}
+
+class OrganizationDetailTile extends StatelessWidget {
+  final String organizationId;
+  final String userId;
+  final String role;
+  const OrganizationDetailTile({
+    super.key,
+    required this.organizationId,
+    required this.userId,
+    required this.role,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) =>
+          GetUserOrganizationDetailsBloc(
+            getUserOrganizationDetailUseCase:
+                DependencyInjection.get<GetUserOrganizationDetailUseCase>(),
+            getOrganizationMembersUseCase:
+                DependencyInjection.get<GetOrganizationMembersUseCase>(),
+            canManageOrganizationUseCase:
+                DependencyInjection.get<CanManageOrganizationUseCase>(),
+          )..add(
+            GetUserOrganizationDetailsRequested(
+              organizationId: organizationId,
+              userId: userId,
+            ),
+          ),
+      child: OrganizationTile(
+        organizationId: organizationId,
+        userId: userId,
+        role: role,
+      ),
+    );
+  }
+}
+
+class OrganizationTile extends StatelessWidget {
+  final String organizationId;
+  final String userId;
+  final String role;
+  const OrganizationTile({
+    super.key,
+    required this.organizationId,
+    required this.userId,
+    required this.role,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<
+      GetUserOrganizationDetailsBloc,
+      GetUserOrganizationDetailsState
+    >(
+      builder: (context, state) {
+        if (state is! GetUserOrganizationDetailsSuccess) {
+          return const CircularProgressIndicator();
+        }
+        return ListTile(
+          onTap: () {
+            context.push(
+              RouteConstants.organizationDetailsPageUserSide,
+              extra: {'organizationId': organizationId, 'userId': userId},
+            );
+          },
+          contentPadding: EdgeInsets.zero,
+          dense: true,
+          leading: CircleAvatar(
+            radius: 24,
+            child: ClipOval(
+              child:
+                  state.organizationDetails.logoUrl != null &&
+                      state.organizationDetails.logoUrl!.isNotEmpty
+                  ? CachedNetworkImage(
+                      imageUrl: state.organizationDetails.logoUrl!,
+                      fit: BoxFit.cover,
+                      width: 48,
+                      height: 48,
+                      placeholder: (context, url) => Shimmer.fromColors(
+                        baseColor: Colors.grey.shade300,
+                        highlightColor: Colors.grey.shade100,
+                        child: Container(color: Colors.white),
+                      ),
+                      errorWidget: (context, error, stackTrace) =>
+                          const Icon(Icons.image_not_supported_sharp),
+                    )
+                  : Text(
+                      state.organizationDetails.name[0],
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+            ),
+          ),
+          title: Text(
+            state.organizationDetails.name,
+            style: TextStyle(fontSize: 18),
+          ),
+          subtitle: Text(
+            '${_getRoleDisplayName(enumFromString(UserRole.values, role)!)} of the organization',
+          ),
+        );
+      },
+    );
   }
 }
