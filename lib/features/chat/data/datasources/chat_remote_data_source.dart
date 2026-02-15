@@ -528,6 +528,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
         return null;
       }
       if (targetUserId != null) {
+        print('here coming');
         final memberRooms = await client
             .from('room_members')
             .select('room_id')
@@ -545,18 +546,24 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
             type,
             created_at,
             dm_key, 
-            users!user_id (
-            id,
+            room_members (
+              id,
+              room_id,
+              user_id,
+              joined_at,
+              last_read_at,
+              users (
+                id,
                 user_id,
                 full_name,
                 image_url,
                 role
+              )
             )
             ''')
             .inFilter('id', roomIds)
             .eq('type', 'dm')
             .maybeSingle();
-
         if (room != null) {
           return RoomModel.fromJson(room);
         }

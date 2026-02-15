@@ -33,7 +33,7 @@ class RoomModel extends Equatable {
     return RoomModel(
       id: json['id'],
       type: RoomType.values.firstWhere((e) => e.name == json['type']),
-      organizationId: json['organization_id'],
+      organizationId: json['organization_id'] as String?,
       createdAt: DateTime.parse(json['created_at']),
       members: (json['room_members'] as List?)
           ?.map((e) => RoomMemberModel.fromJson(e))
