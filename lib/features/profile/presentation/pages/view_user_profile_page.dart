@@ -14,6 +14,7 @@ import 'package:app/features/post/domain/entities/post_enums.dart';
 import 'package:app/features/profile/domain/usecases/get_current_user_profile_use_case.dart';
 import 'package:app/features/profile/presentation/bloc/get_current_user_profile_details_bloc.dart';
 import 'package:app/features/profile/presentation/pages/profile_image_page.dart';
+import 'package:app/features/profile/presentation/widgets/view_user_profile_detail_shimmer.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -55,7 +56,7 @@ class ViewUserProfileView extends StatelessWidget {
           >(
             builder: (context, state) {
               if (state is! GetCurrentUserProfileDetailsSuccess) {
-                return const Center(child: CircularProgressIndicator());
+                return const ViewUserProfileShimmer();
               }
               return CustomScrollView(
                 slivers: [
@@ -499,8 +500,50 @@ class OrganizationTile extends StatelessWidget {
     >(
       builder: (context, state) {
         if (state is! GetUserOrganizationDetailsSuccess) {
-          return const CircularProgressIndicator();
+          final baseColor = Colors.grey[300]!;
+          final highlightColor = Colors.grey[100]!;
+          return Shimmer.fromColors(
+            baseColor: baseColor,
+            highlightColor: highlightColor,
+            child: Row(
+              children: [
+                const CircleAvatar(radius: 24),
+                const SizedBox(width: UiConstants.spacingMd),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(
+                            UiConstants.radiusLg,
+                          ),
+                        ),
+                        height: 20,
+                      ),
+                      const SizedBox(height: UiConstants.spacingSm),
+                      Container(
+                        width: 150,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(
+                            UiConstants.radiusLg,
+                          ),
+                        ),
+                        height: 16,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: UiConstants.spacingXl),
+
+                const CircleAvatar(radius: 15),
+              ],
+            ),
+          );
         }
+
         return ListTile(
           onTap: () {
             context.push(
