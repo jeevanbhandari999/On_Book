@@ -3,9 +3,12 @@ import 'package:app/features/organizations/data/datasources/organization_remote_
 import 'package:app/features/organizations/data/repositories/organization_repository_impl.dart';
 import 'package:app/features/organizations/domain/repositories/organization_repository.dart';
 import 'package:app/features/organizations/domain/usecases/can_manage_orgnization_use_case.dart';
+import 'package:app/features/organizations/domain/usecases/delete_organization_logo_use_case.dart';
 import 'package:app/features/organizations/domain/usecases/get_organization_members_use_case.dart';
 import 'package:app/features/organizations/domain/usecases/get_user_organization_detail_use_case.dart';
+import 'package:app/features/organizations/domain/usecases/update_organization_logo_use_case.dart';
 import 'package:app/features/organizations/presentation/bloc/get_user_organization_details_bloc.dart';
+import 'package:app/features/organizations/presentation/bloc/update_organization_logo_bloc.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -37,11 +40,21 @@ class OrganizationDependencies {
     getIt.registerLazySingleton<GetUserOrganizationDetailUseCase>(
       () => GetUserOrganizationDetailUseCase(getIt<OrganizationRepository>()),
     );
+
     getIt.registerLazySingleton<GetOrganizationMembersUseCase>(
       () => GetOrganizationMembersUseCase(getIt<OrganizationRepository>()),
     );
+
     getIt.registerLazySingleton<CanManageOrganizationUseCase>(
       () => CanManageOrganizationUseCase(getIt<OrganizationRepository>()),
+    );
+
+    getIt.registerLazySingleton<UpdateOrganizationLogoUseCase>(
+      () => UpdateOrganizationLogoUseCase(getIt<OrganizationRepository>()),
+    );
+
+    getIt.registerLazySingleton<DeleteOrganizationLogoUseCase>(
+      () => DeleteOrganizationLogoUseCase(getIt<OrganizationRepository>()),
     );
 
     // BLoCs
@@ -51,6 +64,14 @@ class OrganizationDependencies {
             getIt<GetUserOrganizationDetailUseCase>(),
         getOrganizationMembersUseCase: getIt<GetOrganizationMembersUseCase>(),
         canManageOrganizationUseCase: getIt<CanManageOrganizationUseCase>(),
+      ),
+    );
+
+    getIt.registerLazySingleton<UpdateOrganizationLogoBloc>(
+      () => UpdateOrganizationLogoBloc(
+        updateOrganizationLogoUseCase: getIt<UpdateOrganizationLogoUseCase>(),
+        deleteOrganizationLogoUseCase: getIt<DeleteOrganizationLogoUseCase>(),
+        repository: getIt<OrganizationRepository>(),
       ),
     );
   }
