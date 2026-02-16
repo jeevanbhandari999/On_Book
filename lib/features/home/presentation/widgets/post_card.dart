@@ -314,9 +314,14 @@ class PostView extends StatelessWidget {
                                                   organization
                                                       .logoUrl!
                                                       .isNotEmpty)
-                                              ? Image.network(
-                                                  organization.logoUrl!,
-                                                  fit: BoxFit.cover,
+                                              ? ClipOval(
+                                                  child: CachedNetworkImage(
+                                                    imageUrl:
+                                                        organization.logoUrl!,
+                                                    fit: BoxFit.cover,
+                                                    width: double.infinity,
+                                                    height: double.infinity,
+                                                  ),
                                                 )
                                               : Center(
                                                   child: Text(

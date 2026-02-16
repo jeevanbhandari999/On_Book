@@ -872,7 +872,7 @@ class _RoomTile extends StatelessWidget {
             ),
           ),
         ),
-        const Divider(height: 1, indent: 72),
+        const Divider(),
       ],
     );
   }

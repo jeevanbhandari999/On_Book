@@ -1,16 +1,23 @@
+import 'dart:io';
+
 import 'package:app/app/dependency_injection.dart';
 import 'package:app/app/router/route_constants.dart';
 import 'package:app/core/constants/ui_constants.dart';
 import 'package:app/core/theme/app_colors.dart';
 import 'package:app/core/utils/date_formatter.dart';
+import 'package:app/core/widgets/profile_avatar.dart';
 import 'package:app/features/auth/data/models/user_model.dart';
 import 'package:app/features/auth/domain/entities/organization.dart';
 import 'package:app/features/auth/domain/entities/user.dart';
 import 'package:app/features/home/presentation/widgets/show_on_collapsed_sliver_app_bar.dart';
+import 'package:app/features/organizations/domain/repositories/organization_repository.dart';
 import 'package:app/features/organizations/domain/usecases/can_manage_orgnization_use_case.dart';
+import 'package:app/features/organizations/domain/usecases/delete_organization_logo_use_case.dart';
 import 'package:app/features/organizations/domain/usecases/get_organization_members_use_case.dart';
 import 'package:app/features/organizations/domain/usecases/get_user_organization_detail_use_case.dart';
+import 'package:app/features/organizations/domain/usecases/update_organization_logo_use_case.dart';
 import 'package:app/features/organizations/presentation/bloc/get_user_organization_details_bloc.dart';
+import 'package:app/features/organizations/presentation/bloc/update_organization_logo_bloc.dart';
 import 'package:app/features/organizations/presentation/widgets/organization_detail_shimmer.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -29,21 +36,34 @@ class OrganizationDetailsPageUserSide extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) =>
-          GetUserOrganizationDetailsBloc(
-            getUserOrganizationDetailUseCase:
-                DependencyInjection.get<GetUserOrganizationDetailUseCase>(),
-            getOrganizationMembersUseCase:
-                DependencyInjection.get<GetOrganizationMembersUseCase>(),
-            canManageOrganizationUseCase:
-                DependencyInjection.get<CanManageOrganizationUseCase>(),
-          )..add(
-            GetUserOrganizationDetailsRequested(
-              organizationId: organizationId,
-              userId: userId,
-            ),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) =>
+              GetUserOrganizationDetailsBloc(
+                getUserOrganizationDetailUseCase:
+                    DependencyInjection.get<GetUserOrganizationDetailUseCase>(),
+                getOrganizationMembersUseCase:
+                    DependencyInjection.get<GetOrganizationMembersUseCase>(),
+                canManageOrganizationUseCase:
+                    DependencyInjection.get<CanManageOrganizationUseCase>(),
+              )..add(
+                GetUserOrganizationDetailsRequested(
+                  organizationId: organizationId,
+                  userId: userId,
+                ),
+              ),
+        ),
+        BlocProvider(
+          create: (context) => UpdateOrganizationLogoBloc(
+            updateOrganizationLogoUseCase:
+                DependencyInjection.get<UpdateOrganizationLogoUseCase>(),
+            deleteOrganizationLogoUseCase:
+                DependencyInjection.get<DeleteOrganizationLogoUseCase>(),
+            repository: DependencyInjection.get<OrganizationRepository>(),
           ),
+        ),
+      ],
       child: OrganizationDetailsViewUserSide(userId: userId),
     );
   }
@@ -204,26 +224,89 @@ class OrganizationDetailsViewUserSide extends StatelessWidget {
                   ),
                   borderRadius: BorderRadius.circular(UiConstants.radiusLg),
                 ),
-                child: Center(
-                  child: CircleAvatar(
-                    radius: 80,
-                    backgroundColor: Colors.white,
-                    backgroundImage:
-                        (org.logoUrl != null && org.logoUrl!.isNotEmpty)
-                        ? NetworkImage(org.logoUrl!)
-                        : null,
-                    child: (org.logoUrl == null || org.logoUrl!.isEmpty)
-                        ? Text(
-                            org.name.substring(0, 1).toUpperCase(),
-                            style: TextStyle(
-                              fontSize: 40,
-                              fontWeight: FontWeight.bold,
-                              color: Theme.of(context).primaryColor,
-                            ),
-                          )
-                        : null,
-                  ),
-                ),
+                child: canManage
+                    ? Column(
+                        children: [
+                          const SizedBox(height: kToolbarHeight),
+                          SizedBox(
+                            width: 200,
+                            height: 200,
+                            child:
+                                BlocListener<
+                                  UpdateOrganizationLogoBloc,
+                                  UpdateOrganizationLogoState
+                                >(
+                                  listener: (context, state) {
+                                    if (state
+                                        is UpdateOrganizationLogoSuccess) {
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                            'organization logo updated',
+                                          ),
+                                          backgroundColor: AppColors.success,
+                                        ),
+                                      );
+                                    }
+                                    if (state is UpdateOrganizationLogoError) {
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        SnackBar(
+                                          content: Text(state.message),
+                                          backgroundColor: AppColors.error,
+                                        ),
+                                      );
+                                    }
+                                  },
+                                  child: AppImagePicker(
+                                    existingImageUrl: org.logoUrl,
+                                    label: org.name[0].toUpperCase(),
+                                    showFileName: false,
+                                    borderRadius: UiConstants.radiusRound,
+                                    showUploadIcon: true,
+                                    showFirstNameCharacter: true,
+                                    height: 200,
+                                    onImagePicked: (file) {
+                                      print(org.id);
+                                      context
+                                          .read<UpdateOrganizationLogoBloc>()
+                                          .add(
+                                            UpdateOrganizationLogoRequested(
+                                              organizationId: org.id,
+                                              newLogoFile: File(file.path),
+                                              existingLogoToDelete: org.logoUrl,
+                                            ),
+                                          );
+                                    },
+                                    showDottedBorder: false,
+                                  ),
+                                ),
+                          ),
+                        ],
+                      )
+                    : Center(
+                        child: CircleAvatar(
+                          radius: 80,
+                          backgroundColor: Colors.white,
+                          backgroundImage:
+                              (org.logoUrl != null && org.logoUrl!.isNotEmpty)
+                              ? NetworkImage(org.logoUrl!)
+                              : null,
+                          child: (org.logoUrl == null || org.logoUrl!.isEmpty)
+                              ? Text(
+                                  org.name.substring(0, 1).toUpperCase(),
+                                  style: TextStyle(
+                                    fontSize: 40,
+                                    fontWeight: FontWeight.bold,
+                                    color: Theme.of(context).primaryColor,
+                                  ),
+                                )
+                              : null,
+                        ),
+                      ),
               ),
             ),
           );

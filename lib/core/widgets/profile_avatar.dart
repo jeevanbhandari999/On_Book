@@ -45,6 +45,8 @@ class AppImagePicker extends StatefulWidget {
 
   final bool showUploadIcon;
 
+  final bool showFirstNameCharacter;
+
   // for placing the cross icon
 
   const AppImagePicker({
@@ -61,6 +63,7 @@ class AppImagePicker extends StatefulWidget {
     this.showFileName = true,
     this.margin,
     this.showUploadIcon = false,
+    this.showFirstNameCharacter = false,
   });
 
   @override
@@ -267,23 +270,25 @@ class _AppImagePickerState extends State<AppImagePicker> {
                                       crossAxisAlignment:
                                           CrossAxisAlignment.center,
                                       children: [
-                                        if (widget.showUploadIcon)
+                                        if (widget.showUploadIcon &&
+                                            !widget.showFirstNameCharacter)
                                           const Icon(
                                             Icons.cloud_upload_outlined,
                                             size: 40,
                                             color: Colors.grey,
                                           ),
-                                        // Text(
-                                        //   textAlign: TextAlign.center,
-                                        //   maxLines: 3,
-                                        //   widget.label,
-                                        //   overflow: TextOverflow.ellipsis,
-                                        //   style: const TextStyle(
-                                        //     fontSize: 96,
-                                        //     fontWeight: FontWeight.bold,
-                                        //     color: Colors.white,
-                                        //   ),
-                                        // ),
+                                        if (widget.showFirstNameCharacter)
+                                          Text(
+                                            textAlign: TextAlign.center,
+                                            maxLines: 3,
+                                            widget.label,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: const TextStyle(
+                                              fontSize: 64,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.white,
+                                            ),
+                                          ),
                                         // Container(
                                         //   decoration: BoxDecoration(
                                         //     borderRadius: BorderRadius.circular(
