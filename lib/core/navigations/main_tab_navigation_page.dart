@@ -266,6 +266,146 @@ class _MainTabNavigationPageState extends State<MainTabNavigationPage>
   //   );
   // }
 
+  // Widget _buildPortraitBottomNavigationBar(BuildContext context) {
+  //   final theme = Theme.of(context);
+
+  //   return Padding(
+  //     padding: const EdgeInsets.fromLTRB(
+  //       UiConstants.spacingMd,
+  //       0,
+  //       UiConstants.spacingMd,
+  //       UiConstants.spacingMd,
+  //     ),
+  //     child: Container(
+  //       decoration: BoxDecoration(
+  //         color:
+  //             theme.bottomNavigationBarTheme.backgroundColor ??
+  //             theme.colorScheme.surface,
+  //         borderRadius: BorderRadius.circular(UiConstants.radiusRound),
+  //         border: Border.all(color: theme.colorScheme.primary),
+  //         boxShadow: [
+  //           BoxShadow(
+  //             color: theme.colorScheme.primary.withAlpha(100),
+  //             blurRadius: 10,
+  //             offset: const Offset(0, 4),
+  //           ),
+  //         ],
+  //       ),
+  //       child: Row(
+  //         mainAxisAlignment: MainAxisAlignment.spaceAround,
+  //         children: _items.asMap().entries.map((entry) {
+  //           final index = entry.key;
+  //           final item = entry.value;
+  //           final isSelected = _tabController.index == index;
+
+  //           return Expanded(
+  //             child: InkWell(
+  //               borderRadius: BorderRadius.circular(UiConstants.radiusXl),
+  //               onTap: () => _tabController.animateTo(index),
+  //               child: Padding(
+  //                 padding: const EdgeInsets.symmetric(vertical: 10),
+  //                 child: Column(
+  //                   mainAxisSize: MainAxisSize.min,
+  //                   children: [
+  //                     /// ICON CONTAINER
+  //                     AnimatedContainer(
+  //                       duration: const Duration(milliseconds: 200),
+  //                       curve: Curves.easeInOut,
+  //                       padding: const EdgeInsets.symmetric(
+  //                         horizontal: 18,
+  //                         vertical: 8,
+  //                       ),
+  //                       decoration: BoxDecoration(
+  //                         color: isSelected
+  //                             ? theme.colorScheme.primary
+  //                             : Colors.transparent,
+  //                         borderRadius: BorderRadius.circular(
+  //                           UiConstants.radiusRound,
+  //                         ),
+  //                       ),
+  //                       child: Icon(
+  //                         isSelected ? item.selectedIcon : item.icon,
+  //                         color: isSelected
+  //                             ? theme.colorScheme.onPrimary
+  //                             : theme.unselectedWidgetColor,
+  //                         size:
+  //                             ResponsiveNavigationController.getNavigationIconSize(
+  //                               NavigationType.mobileBottomNav,
+  //                             ),
+  //                       ),
+  //                     ),
+  //                     const SizedBox(height: 4),
+  //                     // Label
+  //                     Text(
+  //                       item.label,
+  //                       style: TextStyle(
+  //                         fontSize: 12,
+  //                         fontWeight: isSelected
+  //                             ? FontWeight.w600
+  //                             : FontWeight.w400,
+  //                         color: isSelected
+  //                             ? theme.primaryColor
+  //                             : theme.unselectedWidgetColor,
+  //                       ),
+  //                       maxLines: 1,
+  //                       overflow: TextOverflow.ellipsis,
+  //                     ),
+  //                   ],
+  //                 ),
+  //               ),
+  //             ),
+  //           );
+  //         }).toList(),
+  //       ),
+  //     ),
+  //   );
+  // }
+
+  Widget _buildNavItem(
+    BuildContext context,
+    dynamic item,
+    bool isSelected,
+    VoidCallback onTap,
+  ) {
+    final theme = Theme.of(context);
+
+    return InkWell(
+      borderRadius: BorderRadius.circular(UiConstants.radiusXl),
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              isSelected ? item.selectedIcon : item.icon,
+              color: isSelected
+                  ? theme.colorScheme.primary
+                  : theme.unselectedWidgetColor,
+              size: ResponsiveNavigationController.getNavigationIconSize(
+                NavigationType.mobileBottomNav,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              item.label,
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                color: isSelected
+                    ? theme.colorScheme.primary
+                    : theme.unselectedWidgetColor,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildPortraitBottomNavigationBar(BuildContext context) {
     final theme = Theme.of(context);
 
@@ -277,81 +417,72 @@ class _MainTabNavigationPageState extends State<MainTabNavigationPage>
         UiConstants.spacingMd,
       ),
       child: Container(
+        padding: const EdgeInsets.all(UiConstants.spacingSm),
         decoration: BoxDecoration(
-          color:
-              theme.bottomNavigationBarTheme.backgroundColor ??
-              theme.colorScheme.surface,
-          borderRadius: BorderRadius.circular(UiConstants.radiusXl),
-          border: Border.all(color: theme.colorScheme.primary),
+          color: Colors.black,
+          borderRadius: BorderRadius.circular(UiConstants.radiusRound),
+          border: Border.all(
+            color: theme.colorScheme.primary.withAlpha(80),
+            width: 1,
+          ),
           boxShadow: [
             BoxShadow(
-              color: theme.colorScheme.primary.withAlpha(100),
-              blurRadius: 10,
+              color: theme.colorScheme.primary.withAlpha(40),
+              blurRadius: 12,
               offset: const Offset(0, 4),
             ),
           ],
         ),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: _items.asMap().entries.map((entry) {
             final index = entry.key;
             final item = entry.value;
             final isSelected = _tabController.index == index;
 
-            return Expanded(
-              child: InkWell(
-                borderRadius: BorderRadius.circular(UiConstants.radiusXl),
-                onTap: () => _tabController.animateTo(index),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 10),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      /// ICON CONTAINER
-                      AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
-                        curve: Curves.easeInOut,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 18,
-                          vertical: 8,
-                        ),
-                        decoration: BoxDecoration(
-                          color: isSelected
-                              ? theme.colorScheme.primary
-                              : Colors.transparent,
-                          borderRadius: BorderRadius.circular(
-                            UiConstants.radiusRound,
+            return InkWell(
+              onTap: () => _tabController.animateTo(index),
+              borderRadius: BorderRadius.circular(UiConstants.radiusRound),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeOutQuad,
+                padding: EdgeInsets.symmetric(
+                  horizontal: isSelected ? 20 : 12,
+                  vertical: 12,
+                ),
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? theme.colorScheme.primary
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(UiConstants.radiusRound),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Icon
+                    Icon(
+                      isSelected ? item.selectedIcon : item.icon,
+                      size: 24,
+                      color: isSelected
+                          ? theme.colorScheme.onPrimary
+                          : Colors.white,
+                    ),
+                    if (isSelected) ...[
+                      const SizedBox(width: UiConstants.spacingXs),
+                      Flexible(
+                        child: Text(
+                          item.label,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: theme.colorScheme.onPrimary,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
                           ),
                         ),
-                        child: Icon(
-                          isSelected ? item.selectedIcon : item.icon,
-                          color: isSelected
-                              ? theme.colorScheme.onPrimary
-                              : theme.unselectedWidgetColor,
-                          size:
-                              ResponsiveNavigationController.getNavigationIconSize(
-                                NavigationType.mobileBottomNav,
-                              ),
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      // Label
-                      Text(
-                        item.label,
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: isSelected
-                              ? FontWeight.w600
-                              : FontWeight.w400,
-                          color: isSelected
-                              ? theme.primaryColor
-                              : theme.unselectedWidgetColor,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
                       ),
                     ],
-                  ),
+                  ],
                 ),
               ),
             );
