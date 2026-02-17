@@ -3,6 +3,7 @@ import 'package:app/core/widgets/common_widgets.dart';
 import 'package:app/features/auth/data/models/orgnization_model.dart';
 import 'package:app/features/auth/data/models/user_model.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 class Header extends StatelessWidget {
   final UserModel user;
@@ -34,78 +35,138 @@ class Header extends StatelessWidget {
     return Column(
       children: [
         /// HEADER TOP
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.fromLTRB(
-            UiConstants.spacingLg,
-            UiConstants.spacingXxl + UiConstants.spacingSm,
-            UiConstants.spacingLg,
-            UiConstants.spacingLg,
-          ),
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.primary,
-            borderRadius: const BorderRadius.vertical(
-              bottom: Radius.circular(UiConstants.radiusXl),
-            ),
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              /// LOGO / AVATAR
-              CircleAvatar(
-                radius: 30,
-                backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-                child:
-                    (organization.logoUrl != null &&
-                        organization.logoUrl!.isNotEmpty)
-                    ? Image.network(organization.logoUrl!, fit: BoxFit.cover)
-                    : Center(
-                        child: Text(
-                          _getInitialCharactrOfOrganization(organization.name),
-                          style: const TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
+        Stack(
+          children: [
+            Positioned.fill(
+              child:
+                  Container(
+                        padding: const EdgeInsets.fromLTRB(
+                          UiConstants.spacingLg,
+                          UiConstants.spacingXxl + UiConstants.spacingSm,
+                          UiConstants.spacingLg,
+                          UiConstants.spacingLg,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.primary,
+                          borderRadius: const BorderRadius.vertical(
+                            bottom: Radius.circular(UiConstants.radiusXl),
                           ),
                         ),
-                      ),
+                      )
+                      .animate()
+                      .slideY(
+                        begin: -2,
+                        duration: UiConstants.animationSlow,
+                        curve: Curves.easeOutCubic,
+                      )
+                      .fadeIn(duration: UiConstants.animationSlow),
+            ),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.fromLTRB(
+                UiConstants.spacingLg,
+                UiConstants.spacingXxl + UiConstants.spacingSm,
+                UiConstants.spacingLg,
+                UiConstants.spacingLg,
               ),
 
-              const SizedBox(width: 12),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  /// LOGO / AVATAR
+                  CircleAvatar(
+                        radius: 30,
+                        backgroundColor: Theme.of(
+                          context,
+                        ).colorScheme.primaryContainer,
+                        child:
+                            (organization.logoUrl != null &&
+                                organization.logoUrl!.isNotEmpty)
+                            ? Image.network(
+                                organization.logoUrl!,
+                                fit: BoxFit.cover,
+                              )
+                            : Center(
+                                child: Text(
+                                  _getInitialCharactrOfOrganization(
+                                    organization.name,
+                                  ),
+                                  style: const TextStyle(
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                      )
+                      .animate(delay: UiConstants.animationFast)
+                      .scale(duration: UiConstants.animationNormal),
 
-              /// TEXT CONTENT
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      organization.name,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      user.role.toString().split('.').last.toUpperCase(),
-                      style: const TextStyle(
-                        color: Colors.white,
+                  const SizedBox(width: 12),
 
-                        fontWeight: FontWeight.w600,
-                      ),
+                  /// TEXT CONTENT
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                              organization.name,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            )
+                            .animate()
+                            .slideX(
+                              begin: -1,
+                              duration: UiConstants.animationSlow,
+                              curve: Curves.easeOutCubic,
+                            )
+                            .fadeIn(duration: UiConstants.animationSlow),
+                        const SizedBox(height: 4),
+                        Text(
+                              user.role
+                                  .toString()
+                                  .split('.')
+                                  .last
+                                  .toUpperCase(),
+                              style: const TextStyle(
+                                color: Colors.white,
+
+                                fontWeight: FontWeight.w600,
+                              ),
+                            )
+                            .animate(delay: UiConstants.animationFast)
+                            .slideY(
+                              begin: 0.4,
+                              duration: UiConstants.animationNormal,
+                              curve: Curves.easeOutCubic,
+                            )
+                            .fadeIn(duration: UiConstants.animationNormal),
+                        const SizedBox(height: 6),
+                        Text(
+                              roleMessage,
+                              style: const TextStyle(
+                                fontSize: 13,
+                                color: Colors.white,
+                              ),
+                            )
+                            .animate(delay: UiConstants.animationNormal)
+                            .slideY(
+                              begin: 0.6,
+                              duration: UiConstants.animationNormal,
+                              curve: Curves.easeOutCubic,
+                            )
+                            .fadeIn(duration: UiConstants.animationNormal),
+                      ],
                     ),
-                    const SizedBox(height: 6),
-                    Text(
-                      roleMessage,
-                      style: const TextStyle(fontSize: 13, color: Colors.white),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
 
         /// ACTION BUTTONS
@@ -114,42 +175,67 @@ class Header extends StatelessWidget {
           child: Row(
             children: [
               Expanded(
-                child: CustomButton(
-                  text: manageOrgMessage,
-                  icon: const Icon(Icons.apartment_rounded),
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).clearSnackBars();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Manage posts coming soon')),
-                    );
-                  },
-                ),
-              ),
+                    child: CustomButton(
+                      text: manageOrgMessage,
+                      icon: const Icon(Icons.apartment_rounded),
+                      onPressed: () {
+                        ScaffoldMessenger.of(context).clearSnackBars();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Manage posts coming soon'),
+                          ),
+                        );
+                      },
+                    ),
+                  )
+                  .animate(delay: UiConstants.animationFast)
+                  .fadeIn(duration: UiConstants.animationNormal)
+                  .slideY(
+                    begin: 0.4,
+                    duration: UiConstants.animationNormal,
+                    curve: Curves.easeOutCubic,
+                  ),
               const SizedBox(width: UiConstants.spacingXs),
               Expanded(
-                child: CustomButton(
-                  text: managePostMessage,
-                  icon: const Icon(Icons.dashboard_customize_rounded),
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).clearSnackBars();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Manage posts coming soon')),
-                    );
-                  },
-                ),
-              ),
+                    child: CustomButton(
+                      text: managePostMessage,
+                      icon: const Icon(Icons.dashboard_customize_rounded),
+                      onPressed: () {
+                        ScaffoldMessenger.of(context).clearSnackBars();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Manage posts coming soon'),
+                          ),
+                        );
+                      },
+                    ),
+                  )
+                  .animate(delay: UiConstants.animationSlow)
+                  .fadeIn(duration: UiConstants.animationNormal)
+                  .slideY(
+                    begin: 0.4,
+                    duration: UiConstants.animationNormal,
+                    curve: Curves.easeOutCubic,
+                  ),
             ],
           ),
         ),
 
         /// SEARCH
         const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 12),
-          child: CustomTextField(
-            hint: 'Search posts...',
-            prefixIcon: Icon(Icons.search),
-          ),
-        ),
+              padding: EdgeInsets.symmetric(horizontal: 12),
+              child: CustomTextField(
+                hint: 'Search posts...',
+                prefixIcon: Icon(Icons.search),
+              ),
+            )
+            .animate(delay: UiConstants.animationNormal)
+            .fadeIn(duration: UiConstants.animationNormal)
+            .slideY(
+              begin: 0.3,
+              duration: UiConstants.animationNormal,
+              curve: Curves.easeOutCubic,
+            ),
 
         const SizedBox(height: 12),
 

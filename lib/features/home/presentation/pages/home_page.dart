@@ -17,6 +17,7 @@ import 'package:app/features/profile/domain/usecases/get_current_user_profile_us
 import 'package:app/features/profile/presentation/bloc/get_current_user_profile_details_bloc.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:go_router/go_router.dart';
@@ -202,6 +203,8 @@ class HomeView extends StatelessWidget {
                                                 ),
                                               ),
                                       ),
+                                    ).animate().scale(
+                                      duration: UiConstants.animationNormal,
                                     ),
                                     const SizedBox(
                                       width: UiConstants.spacingSm,
@@ -242,15 +245,24 @@ class HomeView extends StatelessWidget {
                     flexibleSpace: Stack(
                       children: [
                         Positioned.fill(
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.primary,
-                              borderRadius: const BorderRadius.vertical(
-                                bottom: Radius.circular(UiConstants.radiusXl),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context).colorScheme.primary,
+                                  borderRadius: const BorderRadius.vertical(
+                                    bottom: Radius.circular(
+                                      UiConstants.radiusXl,
+                                    ),
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
-                        ),
+                            )
+                            .animate()
+                            .slideY(
+                              begin: -2,
+                              duration: UiConstants.animationSlow,
+                              curve: Curves.easeOutCubic,
+                            )
+                            .fadeIn(duration: UiConstants.animationSlow),
                         const FlexibleSpaceBar(background: HomeSliverHeader()),
                       ],
                     ),

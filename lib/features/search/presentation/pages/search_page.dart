@@ -249,6 +249,7 @@ import 'package:app/features/post/domain/entities/post.dart';
 import 'package:app/features/search/domain/entities/search_result.dart';
 import 'package:app/features/search/presentation/bloc/search_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:shimmer/shimmer.dart';
@@ -332,8 +333,8 @@ class _SearchViewState extends State<_SearchView> {
             slivers: [
               // ── Sticky header ──────────────────────────────────
               SliverAppBar(
-                expandedHeight: 120 + UiConstants.spacingLg,
-                collapsedHeight: 120 + UiConstants.spacingLg,
+                expandedHeight: 100 + UiConstants.spacingLg,
+                collapsedHeight: 100 + UiConstants.spacingLg,
                 foregroundColor: Colors.white,
                 floating: false,
                 pinned: true,
@@ -385,68 +386,86 @@ class _SearchHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.only(
-        right: UiConstants.spacingMd,
-        left: UiConstants.spacingMd,
-        bottom: UiConstants.spacingMd,
-      ),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primary,
-        borderRadius: const BorderRadius.only(
-          bottomLeft: Radius.circular(UiConstants.radiusXl),
-          bottomRight: Radius.circular(UiConstants.radiusXl),
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        Container(
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.primary,
+                borderRadius: const BorderRadius.only(
+                  bottomLeft: Radius.circular(UiConstants.radiusXl),
+                  bottomRight: Radius.circular(UiConstants.radiusXl),
+                ),
+              ),
+            )
+            .animate()
+            .slideY(
+              begin: -2,
+              duration: UiConstants.animationSlow,
+              curve: Curves.easeOutCubic,
+            )
+            .fadeIn(duration: UiConstants.animationSlow),
+        Container(
+          padding: const EdgeInsets.only(
+            right: UiConstants.spacingMd,
+            left: UiConstants.spacingMd,
+            bottom: UiConstants.spacingMd,
+          ),
+
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: kToolbarHeight),
+              CustomTextField(
+                controller: controller,
+                onChanged: (value) {
+                  context.read<SearchBloc>().add(
+                    SearchQueryChanged(
+                      query: value,
+                      currentUserId: currentUserId,
+                    ),
+                  );
+                },
+                hint: 'Search posts, people, hotels...',
+                prefixIcon: const Icon(Icons.search),
+                suffixIcon: controller.text.isNotEmpty
+                    ? IconButton(
+                        icon: const Icon(Icons.close, color: Colors.white70),
+                        onPressed: () {
+                          controller.clear();
+                          context.read<SearchBloc>().add(
+                            SearchCleared(currentUserId: currentUserId),
+                          );
+                        },
+                      )
+                    : null,
+              ),
+              const SizedBox(height: UiConstants.spacingSm),
+              // ── Filter chips ──────────────────────────────────────
+              SizedBox(
+                height: 40,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: SearchFilter.values.length,
+                  separatorBuilder: (_, __) =>
+                      const SizedBox(width: UiConstants.spacingXs),
+                  itemBuilder: (context, index) {
+                    // ✅ BUG FIX: each chip gets its own filter value
+                    final chipFilter = SearchFilter.values[index];
+                    return _FilterChip(
+                      filter: chipFilter,
+                      isActive: activeFilter == chipFilter,
+                      onTap: () => context.read<SearchBloc>().add(
+                        SearchFilterChanged(filter: chipFilter),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
         ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: kToolbarHeight),
-          CustomTextField(
-            controller: controller,
-            onChanged: (value) {
-              context.read<SearchBloc>().add(
-                SearchQueryChanged(query: value, currentUserId: currentUserId),
-              );
-            },
-            hint: 'Search posts, people, hotels...',
-            prefixIcon: const Icon(Icons.search),
-            suffixIcon: controller.text.isNotEmpty
-                ? IconButton(
-                    icon: const Icon(Icons.close, color: Colors.white70),
-                    onPressed: () {
-                      controller.clear();
-                      context.read<SearchBloc>().add(
-                        SearchCleared(currentUserId: currentUserId),
-                      );
-                    },
-                  )
-                : null,
-          ),
-          const SizedBox(height: UiConstants.spacingSm),
-          // ── Filter chips ──────────────────────────────────────
-          SizedBox(
-            height: 40,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              itemCount: SearchFilter.values.length,
-              separatorBuilder: (_, __) =>
-                  const SizedBox(width: UiConstants.spacingXs),
-              itemBuilder: (context, index) {
-                // ✅ BUG FIX: each chip gets its own filter value
-                final chipFilter = SearchFilter.values[index];
-                return _FilterChip(
-                  filter: chipFilter,
-                  isActive: activeFilter == chipFilter,
-                  onTap: () => context.read<SearchBloc>().add(
-                    SearchFilterChanged(filter: chipFilter),
-                  ),
-                );
-              },
-            ),
-          ),
-        ],
-      ),
+      ],
     );
   }
 }
@@ -485,9 +504,9 @@ class _FilterChip extends StatelessWidget {
               ? Theme.of(context).colorScheme.primaryContainer
               : Colors.transparent,
           borderRadius: BorderRadius.circular(UiConstants.radiusMd),
-          border: Border.all(
-            color: isActive ? Colors.transparent : Colors.white30,
-          ),
+          // border: Border.all(
+          //   color: isActive ? Colors.transparent : Colors.white30,
+          // ),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,

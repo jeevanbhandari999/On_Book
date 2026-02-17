@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:app/core/constants/ui_constants.dart';
 import 'package:app/features/profile/presentation/bloc/get_current_user_profile_details_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class HomeSliverHeader extends StatelessWidget {
@@ -100,16 +101,25 @@ class HomeSliverHeader extends StatelessWidget {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      greetingData.headline,
-                                      style: const TextStyle(
-                                        // fontSize:
-                                        //     MediaQuery.of(context).size.width *
-                                        //     0.06,
-                                        fontSize: 22,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white,
-                                      ),
-                                    ),
+                                          greetingData.headline,
+                                          style: const TextStyle(
+                                            // fontSize:
+                                            //     MediaQuery.of(context).size.width *
+                                            //     0.06,
+                                            fontSize: 22,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white,
+                                          ),
+                                        )
+                                        .animate()
+                                        .slideY(
+                                          begin: -1.5,
+                                          duration: UiConstants.animationSlow,
+                                          curve: Curves.easeOutCubic,
+                                        )
+                                        .fadeIn(
+                                          duration: UiConstants.animationSlow,
+                                        ),
                                     const SizedBox(
                                       height: UiConstants.spacingSm,
                                     ),
@@ -117,60 +127,94 @@ class HomeSliverHeader extends StatelessWidget {
                                       duration: const Duration(
                                         milliseconds: 300,
                                       ),
-                                      child: Text(
-                                        greetingData.nameLine,
-                                        key: ValueKey(greetingData.nameLine),
-                                        style: const TextStyle(
-                                          // fontSize:
-                                          //     MediaQuery.of(
-                                          //       context,
-                                          //     ).size.width *
-                                          //     0.065,
-                                          fontSize: 23,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.white,
-                                        ),
-                                      ),
+                                      child:
+                                          Text(
+                                                greetingData.nameLine,
+                                                key: ValueKey(
+                                                  greetingData.nameLine,
+                                                ),
+                                                style: const TextStyle(
+                                                  // fontSize:
+                                                  //     MediaQuery.of(
+                                                  //       context,
+                                                  //     ).size.width *
+                                                  //     0.065,
+                                                  fontSize: 23,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.white,
+                                                ),
+                                              )
+                                              .animate()
+                                              .slideX(
+                                                begin: -1,
+                                                duration:
+                                                    UiConstants.animationNormal,
+                                                curve: Curves.easeOutCubic,
+                                              )
+                                              .fadeIn(
+                                                duration:
+                                                    UiConstants.animationNormal,
+                                              ),
                                     ),
                                     const SizedBox(
                                       height: UiConstants.spacingSm,
                                     ),
                                     Text(
-                                      greetingData.subtitle,
-                                      style: const TextStyle(
-                                        // fontSize:
-                                        //     MediaQuery.of(context).size.width *
-                                        //     0.05,
-                                        fontSize: 16,
-                                        color: Colors.white,
-                                      ),
-                                    ),
+                                          greetingData.subtitle,
+                                          style: const TextStyle(
+                                            // fontSize:
+                                            //     MediaQuery.of(context).size.width *
+                                            //     0.05,
+                                            fontSize: 16,
+                                            color: Colors.white,
+                                          ),
+                                        )
+                                        .animate(
+                                          delay: UiConstants.animationFast,
+                                        )
+                                        .slideY(
+                                          begin: 0.5,
+                                          duration: UiConstants.animationNormal,
+                                          curve: Curves.easeOutCubic,
+                                        )
+                                        .fadeIn(
+                                          duration: UiConstants.animationNormal,
+                                        ),
                                   ],
                                 ),
                                 const SizedBox(width: UiConstants.spacingSm),
                                 Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: UiConstants.spacingMd,
-                                    vertical: UiConstants.spacingSm,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(
-                                      UiConstants.radiusMd,
-                                    ),
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.primaryContainer,
-                                  ),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: UiConstants.spacingMd,
+                                        vertical: UiConstants.spacingSm,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(
+                                          UiConstants.radiusMd,
+                                        ),
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.primaryContainer,
+                                      ),
 
-                                  child: Text(
-                                    user.role.name.toUpperCase(),
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                      letterSpacing: 1.1,
-                                      fontWeight: FontWeight.bold,
+                                      child: Text(
+                                        user.role.name.toUpperCase(),
+                                        style: const TextStyle(
+                                          fontSize: 14,
+                                          letterSpacing: 1.1,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    )
+                                    .animate(delay: UiConstants.animationFast)
+                                    .scale(
+                                      begin: const Offset(0.8, 0.8),
+                                      duration: UiConstants.animationNormal,
+                                      curve: Curves.easeOutBack,
+                                    )
+                                    .fadeIn(
+                                      duration: UiConstants.animationNormal,
                                     ),
-                                  ),
-                                ),
                               ],
                             ),
                           ],
