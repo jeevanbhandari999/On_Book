@@ -206,6 +206,7 @@ class OrganizationDetailsViewUserSide extends StatelessWidget {
             Theme.of(context).colorScheme.primary,
             t,
           );
+          print('The logo ${org.logoUrl}');
           return Container(
             decoration: BoxDecoration(
               color: bgColor,

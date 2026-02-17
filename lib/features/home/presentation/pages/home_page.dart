@@ -209,7 +209,7 @@ class HomeView extends StatelessWidget {
                                     const SizedBox(
                                       width: UiConstants.spacingSm,
                                     ),
-                                    Expanded(
+                                    Flexible(
                                       child: Column(
                                         mainAxisSize: MainAxisSize.min,
                                         crossAxisAlignment:

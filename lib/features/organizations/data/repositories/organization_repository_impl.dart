@@ -23,12 +23,13 @@ class OrganizationRepositoryImpl implements OrganizationRepository {
     String organizationId,
   ) async {
     try {
-      final cachedOrg = await localDataSource.getCachedOrganizationDetail(
-        organizationId,
-      );
-      if (cachedOrg != null) {
-        return Right(cachedOrg.toEntity());
-      }
+      // final cachedOrg = await localDataSource.getCachedOrganizationDetail(
+      //   organizationId,
+      // );
+      // if (cachedOrg != null) {
+      //   print(cachedOrg);
+      //   return Right(cachedOrg.toEntity());
+      // }
 
       final orgModel = await remoteDataSource.getOrganizationById(
         organizationId,

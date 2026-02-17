@@ -74,32 +74,37 @@ class Header extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   /// LOGO / AVATAR
-                  CircleAvatar(
-                        radius: 30,
-                        backgroundColor: Theme.of(
-                          context,
-                        ).colorScheme.primaryContainer,
-                        child:
-                            (organization.logoUrl != null &&
-                                organization.logoUrl!.isNotEmpty)
-                            ? Image.network(
-                                organization.logoUrl!,
-                                fit: BoxFit.cover,
-                              )
-                            : Center(
-                                child: Text(
-                                  _getInitialCharactrOfOrganization(
-                                    organization.name,
-                                  ),
-                                  style: const TextStyle(
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                      )
-                      .animate(delay: UiConstants.animationFast)
-                      .scale(duration: UiConstants.animationNormal),
+                  ClipOval(
+                    child:
+                        CircleAvatar(
+                              radius: 30,
+                              backgroundColor: Theme.of(
+                                context,
+                              ).colorScheme.primaryContainer,
+                              child:
+                                  (organization.logoUrl != null &&
+                                      organization.logoUrl!.isNotEmpty)
+                                  ? Image.network(
+                                      width: double.infinity,
+                                      height: double.infinity,
+                                      organization.logoUrl!,
+                                      fit: BoxFit.cover,
+                                    )
+                                  : Center(
+                                      child: Text(
+                                        _getInitialCharactrOfOrganization(
+                                          organization.name,
+                                        ),
+                                        style: const TextStyle(
+                                          fontSize: 22,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                            )
+                            .animate(delay: UiConstants.animationFast)
+                            .scale(duration: UiConstants.animationNormal),
+                  ),
 
                   const SizedBox(width: 12),
 
