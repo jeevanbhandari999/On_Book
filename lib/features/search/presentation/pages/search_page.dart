@@ -1,5 +1,8 @@
 import 'dart:async';
+import 'package:app/core/constants/ui_constants.dart';
+import 'package:app/core/widgets/common_widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:shimmer/shimmer.dart';
 
 class SearchPage extends StatefulWidget {
@@ -12,12 +15,11 @@ class SearchPage extends StatefulWidget {
 class _SearchPageState extends State<SearchPage> {
   final TextEditingController _controller = TextEditingController();
   bool _isLoading = true;
-  bool _hasSearched = false;
+  SearchFilter _filter = SearchFilter.all;
 
   @override
   void initState() {
     super.initState();
-    // Show shimmer when navigating to page
     _simulateLoading();
   }
 
@@ -30,103 +32,204 @@ class _SearchPageState extends State<SearchPage> {
     });
   }
 
-  void _startSearch() {
-    FocusScope.of(context).unfocus();
-    setState(() {
-      _hasSearched = true;
-    });
-    _simulateLoading();
-  }
-
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-
     return Scaffold(
-      appBar: AppBar(
-        title: TextField(
-          controller: _controller,
-          textInputAction: TextInputAction.search,
-          onSubmitted: (_) => _startSearch(),
-          decoration: InputDecoration(
-            hintText: 'Search videos...',
-            hintStyle: TextStyle(color: theme.hintColor),
-            prefixIcon: const Icon(Icons.search),
-            filled: true,
-            fillColor: theme.colorScheme.surface.withAlpha(80),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(24),
-              borderSide: BorderSide.none,
-            ),
-            contentPadding: const EdgeInsets.symmetric(vertical: 0),
-          ),
-        ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: _isLoading
-            ? _buildShimmerGrid(isDark)
-            : _buildNoVideosFound(theme),
-      ),
-    );
-  }
-
-  // --- Shimmer Grid (Loading State)
-  Widget _buildShimmerGrid(bool isDark) {
-    return GridView.builder(
-      itemCount: 6,
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        crossAxisSpacing: 12,
-        mainAxisSpacing: 12,
-        childAspectRatio: 0.75,
-      ),
-      itemBuilder: (_, __) {
-        return Shimmer.fromColors(
-          baseColor: isDark ? Colors.grey[800]! : Colors.grey[300]!,
-          highlightColor: isDark ? Colors.grey[700]! : Colors.grey[100]!,
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              color: Colors.white,
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  // --- "No Videos Found" State
-  Widget _buildNoVideosFound(ThemeData theme) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.ondemand_video_rounded,
-            size: 80,
-            color: theme.colorScheme.primary.withAlpha(210),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            _hasSearched ? 'No videos found' : 'Nothing searched yet',
-            style: theme.textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w600,
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            expandedHeight: 100 + UiConstants.spacingLg,
+            collapsedHeight: 100 + UiConstants.spacingLg,
+            foregroundColor: Colors.white,
+            floating: false,
+            pinned: true,
+            flexibleSpace: FlexibleSpaceBar(
+              background: Container(
+                padding: const EdgeInsets.only(
+                  right: UiConstants.spacingMd,
+                  left: UiConstants.spacingMd,
+                  bottom: UiConstants.spacingMd,
+                ),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.primary,
+                  borderRadius: const BorderRadius.only(
+                    bottomLeft: Radius.circular(UiConstants.radiusXl),
+                    bottomRight: Radius.circular(UiConstants.radiusXl),
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    const SizedBox(height: kToolbarHeight),
+                    CustomTextField(
+                      controller: _controller,
+                      onChanged: (value) {
+                        setState(() {
+                          // searchQuery = value;
+                        });
+                      },
+                      hint: 'What do you want...',
+                      prefixIcon: const Icon(Icons.search),
+                    ),
+                    const SizedBox(height: UiConstants.spacingSm),
+                    SizedBox(
+                      height: 40,
+                      child: ListView.separated(
+                        scrollDirection: Axis.horizontal,
+                        itemBuilder: (context, index) {
+                          return _FilterChip(
+                            filter: _filter,
+                            isActive: _filter == SearchFilter.values[index],
+                            onTap: () {
+                              setState(() {
+                                _filter = SearchFilter.values[index];
+                              });
+                            },
+                          );
+                        },
+                        separatorBuilder: (context, index) =>
+                            const SizedBox(width: UiConstants.spacingXs),
+                        itemCount: SearchFilter.values.length,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
-          const SizedBox(height: 8),
-          Text(
-            _hasSearched
-                ? 'Try searching for something else.'
-                : 'Start by typing something to search videos.',
-            textAlign: TextAlign.center,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.textTheme.bodySmall?.color?.withAlpha(180),
+          SliverPadding(
+            padding: const EdgeInsets.all(UiConstants.spacingMd),
+            sliver: SliverMasonryGrid.count(
+              crossAxisCount: 2,
+              mainAxisSpacing: UiConstants.spacingSm,
+              crossAxisSpacing: UiConstants.spacingSm,
+              childCount: 10,
+              itemBuilder: (context, index) {
+                final height = index.isEven ? 200.0 : 260.0;
+                return _buildPostCardShimmer(height);
+              },
             ),
           ),
         ],
       ),
     );
   }
+
+  Widget _buildPostCardShimmer(double height) {
+    final baseColor = Colors.grey[300]!;
+    final highlightColor = Colors.grey[100]!;
+    return Shimmer.fromColors(
+      baseColor: baseColor,
+      highlightColor: highlightColor,
+      child: Container(
+        height: height,
+        decoration: BoxDecoration(
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(UiConstants.radiusMd),
+          border: Border.all(color: Colors.grey[200]!),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Container(
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.vertical(
+                    top: Radius.circular(UiConstants.radiusMd),
+                  ),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const CircleAvatar(
+                        radius: 10,
+                        backgroundColor: Colors.white,
+                      ),
+                      const SizedBox(width: 8),
+                      Container(
+                        width: 80,
+                        height: 10,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(
+                            UiConstants.spacingSm,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Container(
+                    width: double.infinity,
+                    height: 10,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(
+                        UiConstants.spacingSm,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
+
+class _FilterChip extends StatelessWidget {
+  final SearchFilter filter;
+  final bool isActive;
+  final VoidCallback onTap;
+
+  const _FilterChip({
+    required this.filter,
+    required this.isActive,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(UiConstants.radiusMd),
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: UiConstants.spacingMd),
+        decoration: BoxDecoration(
+          color: isActive
+              ? Theme.of(context).colorScheme.primaryContainer
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(UiConstants.radiusMd),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (isActive) ...[
+              const Icon(Icons.check, size: 16, color: Colors.black),
+              const SizedBox(width: 6),
+            ],
+            Text(
+              filter.name,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
+                color: isActive ? Colors.black87 : Colors.white,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+enum SearchFilter { all, people, hotels, posts }

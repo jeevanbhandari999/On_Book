@@ -26,21 +26,21 @@ class HomeShimmer extends StatelessWidget {
               pinned: true,
               expandedHeight: 200,
               backgroundColor: Colors.transparent,
-              leading: Padding(
-                padding: const EdgeInsets.all(UiConstants.spacingSm),
-                child: const CircleAvatar(backgroundColor: Colors.white),
+              leading: const Padding(
+                padding: EdgeInsets.all(UiConstants.spacingSm),
+                child: CircleAvatar(backgroundColor: Colors.white),
               ),
-              actions: [
+              actions: const [
                 Padding(
-                  padding: const EdgeInsets.only(right: 8.0),
-                  child: const CircleAvatar(
+                  padding: EdgeInsets.only(right: 8.0),
+                  child: CircleAvatar(
                     radius: 18,
                     backgroundColor: Colors.white,
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(right: 8.0),
-                  child: const CircleAvatar(
+                  padding: EdgeInsets.only(right: 8.0),
+                  child: CircleAvatar(
                     radius: 18,
                     backgroundColor: Colors.white,
                   ),
