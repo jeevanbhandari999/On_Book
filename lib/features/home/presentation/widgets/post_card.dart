@@ -244,7 +244,7 @@ class PostView extends StatelessWidget {
                                 horizontal: 12,
                                 vertical: 4,
                               ),
-                              color: Colors.white.withAlpha(100), // tint
+                              color: Colors.white.withAlpha(100),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [

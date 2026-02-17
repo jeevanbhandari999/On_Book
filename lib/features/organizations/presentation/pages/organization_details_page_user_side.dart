@@ -270,7 +270,6 @@ class OrganizationDetailsViewUserSide extends StatelessWidget {
                                     showFirstNameCharacter: true,
                                     height: 200,
                                     onImagePicked: (file) {
-                                      print(org.id);
                                       context
                                           .read<UpdateOrganizationLogoBloc>()
                                           .add(

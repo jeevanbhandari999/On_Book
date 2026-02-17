@@ -1,24 +1,26 @@
 import 'dart:io';
-
 import 'package:app/app/dependency_injection.dart';
 import 'package:app/core/constants/ui_constants.dart';
 import 'package:app/core/widgets/app_bar_popup_menu.dart';
 import 'package:app/core/widgets/common_widgets.dart';
-import 'package:app/features/auth/domain/entities/user.dart';
+import 'package:app/features/auth/domain/entities/organization.dart';
 import 'package:app/features/auth/services/auth_service.dart';
-import 'package:app/features/profile/domain/repositories/profile_repository.dart';
-import 'package:app/features/profile/domain/usecases/delete_profile_picture_use_case.dart';
-import 'package:app/features/profile/domain/usecases/update_profile_picture_use_case.dart';
-import 'package:app/features/profile/presentation/bloc/get_current_user_profile_details_bloc.dart';
-import 'package:app/features/profile/presentation/bloc/update_profile_picture_bloc.dart';
+import 'package:app/features/organizations/domain/repositories/organization_repository.dart';
+import 'package:app/features/organizations/domain/usecases/can_manage_orgnization_use_case.dart';
+import 'package:app/features/organizations/domain/usecases/delete_organization_logo_use_case.dart';
+import 'package:app/features/organizations/domain/usecases/get_organization_members_use_case.dart';
+import 'package:app/features/organizations/domain/usecases/get_user_organization_detail_use_case.dart';
+import 'package:app/features/organizations/domain/usecases/update_organization_logo_use_case.dart';
+import 'package:app/features/organizations/presentation/bloc/get_user_organization_details_bloc.dart';
+import 'package:app/features/organizations/presentation/bloc/update_organization_logo_bloc.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 
-class ProfileImagePage extends StatelessWidget {
-  final User user;
-  const ProfileImagePage({super.key, required this.user});
+class OrganizationImagePage extends StatelessWidget {
+  final Organization organization;
+  const OrganizationImagePage({super.key, required this.organization});
 
   @override
   Widget build(BuildContext context) {
@@ -31,29 +33,44 @@ class ProfileImagePage extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (context) => UpdateProfilePictureBloc(
-            updateProfilePictureUseCase:
-                DependencyInjection.get<UpdateProfilePictureUseCase>(),
-            deleteProfilePictureUseCase:
-                DependencyInjection.get<DeleteProfilePictureUseCase>(),
-            repository: DependencyInjection.get<ProfileRepository>(),
-          ),
+          create: (context) =>
+              GetUserOrganizationDetailsBloc(
+                getUserOrganizationDetailUseCase:
+                    DependencyInjection.get<GetUserOrganizationDetailUseCase>(),
+                getOrganizationMembersUseCase:
+                    DependencyInjection.get<GetOrganizationMembersUseCase>(),
+                canManageOrganizationUseCase:
+                    DependencyInjection.get<CanManageOrganizationUseCase>(),
+              )..add(
+                GetUserOrganizationDetailsRequested(
+                  organizationId: organization.id,
+                  userId: userId,
+                ),
+              ),
         ),
         BlocProvider(
-          create: (context) => GetCurrentUserProfileDetailsBloc(
-            getCurrentUserProfileUseCase: DependencyInjection.get(),
+          create: (context) => UpdateOrganizationLogoBloc(
+            updateOrganizationLogoUseCase:
+                DependencyInjection.get<UpdateOrganizationLogoUseCase>(),
+            deleteOrganizationLogoUseCase:
+                DependencyInjection.get<DeleteOrganizationLogoUseCase>(),
+            repository: DependencyInjection.get<OrganizationRepository>(),
           ),
         ),
       ],
-      child: ProfileImageView(user: user, userId: userId),
+      child: OrganizationImageView(organization: organization, userId: userId),
     );
   }
 }
 
-class ProfileImageView extends StatelessWidget {
-  final User user;
+class OrganizationImageView extends StatelessWidget {
+  final Organization organization;
   final String userId;
-  ProfileImageView({super.key, required this.user, required this.userId});
+  OrganizationImageView({
+    super.key,
+    required this.organization,
+    required this.userId,
+  });
 
   final ValueNotifier<File?> _selectedImage = ValueNotifier<File?>(null);
 
@@ -61,8 +78,8 @@ class ProfileImageView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(user.fullName),
-        actions: user.userId != userId
+        title: Text(organization.name),
+        actions: organization.createdBy != userId
             ? null
             : [
                 AppPopupMenu(
@@ -96,47 +113,56 @@ class ProfileImageView extends StatelessWidget {
                 ),
               ],
       ),
-      body: BlocListener<UpdateProfilePictureBloc, UpdateProfilePictureState>(
-        listener: (context, state) {
-          if (state is UpdateProfilePictureError) {
-            // print(state.message);
-            _showErrorSnackBar(context, state.message);
-          }
-        },
-        child: BlocBuilder<UpdateProfilePictureBloc, UpdateProfilePictureState>(
-          builder: (context, state) {
-            return Stack(
-              children: [
-                InteractiveViewer(
-                  child: Center(
-                    child: ValueListenableBuilder<File?>(
-                      valueListenable: _selectedImage,
-                      builder: (context, file, _) {
-                        if (file != null) {
-                          return Image.file(file, fit: BoxFit.contain);
-                        }
-                        return user.imageUrl != null
-                            ? CachedNetworkImage(imageUrl: user.imageUrl!)
-                            : const Text('Hello');
-                      },
-                    ),
-                  ),
-                ),
+      body:
+          BlocListener<UpdateOrganizationLogoBloc, UpdateOrganizationLogoState>(
+            listener: (context, state) {
+              if (state is UpdateOrganizationLogoError) {
+                // print(state.message);
+                _showErrorSnackBar(context, state.message);
+              }
+            },
+            child:
+                BlocBuilder<
+                  UpdateOrganizationLogoBloc,
+                  UpdateOrganizationLogoState
+                >(
+                  builder: (context, state) {
+                    return Stack(
+                      children: [
+                        InteractiveViewer(
+                          child: Center(
+                            child: ValueListenableBuilder<File?>(
+                              valueListenable: _selectedImage,
+                              builder: (context, file, _) {
+                                if (file != null) {
+                                  return Image.file(file, fit: BoxFit.contain);
+                                }
+                                return organization.logoUrl != null
+                                    ? CachedNetworkImage(
+                                        imageUrl: organization.logoUrl!,
+                                      )
+                                    : const Text('Hello');
+                              },
+                            ),
+                          ),
+                        ),
 
-                // overlay loader
-                if (state is ProfilePictureUpdating ||
-                    state is ProfilePictureDeleting)
-                  Container(
-                    color: Colors.black45,
-                    child: const Center(
-                      child: CircularProgressIndicator(color: Colors.white),
-                    ),
-                  ),
-              ],
-            );
-          },
-        ),
-      ),
+                        // overlay loader
+                        if (state is OrganizationLogoUpdating ||
+                            state is OrganizationLogoDeleting)
+                          Container(
+                            color: Colors.black45,
+                            child: const Center(
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                      ],
+                    );
+                  },
+                ),
+          ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: ValueListenableBuilder<File?>(
         valueListenable: _selectedImage,
@@ -170,11 +196,11 @@ class ProfileImageView extends StatelessWidget {
   }
 
   void _onSaveAvatar(BuildContext context, File file) {
-    context.read<UpdateProfilePictureBloc>().add(
-      UpdateProfilePictureRequested(
-        userId: user.userId,
-        newPictureFile: file,
-        existingImageUrlToDelete: user.imageUrl,
+    context.read<UpdateOrganizationLogoBloc>().add(
+      UpdateOrganizationLogoRequested(
+        organizationId: organization.id,
+        newLogoFile: file,
+        existingLogoToDelete: organization.logoUrl,
       ),
     );
     // for real time view //
@@ -186,10 +212,10 @@ class ProfileImageView extends StatelessWidget {
   }
 
   Future<void> _onDeleteAvatarImage(BuildContext context) async {
-    context.read<UpdateProfilePictureBloc>().add(
-      DeleteProfilePictureRequested(
-        userId: user.userId,
-        pictureUrlToDelete: user.imageUrl!,
+    context.read<UpdateOrganizationLogoBloc>().add(
+      DeleteOrganizationLogoRequested(
+        organizationId: organization.id,
+        logoUrlToDelete: organization.logoUrl!,
       ),
     );
   }
@@ -289,8 +315,11 @@ class ProfileImageView extends StatelessWidget {
   }
 
   void _onRefresh(BuildContext context) {
-    context.read<GetCurrentUserProfileDetailsBloc>().add(
-      GetCurrentUserProfileDetailsRequested(userId: user.userId),
+    context.read<GetUserOrganizationDetailsBloc>().add(
+      GetUserOrganizationDetailsRequested(
+        organizationId: organization.id,
+        userId: userId,
+      ),
     );
   }
 }
