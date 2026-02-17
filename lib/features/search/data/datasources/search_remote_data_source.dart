@@ -150,11 +150,11 @@ class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
   Future<Map<String, int>> _buildInterestMap(String userId) async {
     try {
       // Fetch tags/amenities from posts the user liked
-      final liked = await supabase
-          .from('post_likes')
-          .select('posts(tags, amenities)')
-          .eq('user_id', userId)
-          .limit(60);
+      // final liked = await supabase
+      //     .from('post_likes')
+      //     .select('posts(tags, amenities)')
+      //     .eq('user_id', userId)
+      //     .limit(60);
 
       // Fetch tags/amenities from posts the user saved
       final saved = await supabase
@@ -175,7 +175,10 @@ class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
         }
       }
 
-      for (final row in [...liked, ...saved]) {
+      for (final row in [
+        // ...liked,
+        ...saved,
+      ]) {
         final post = row['posts'] as Map<String, dynamic>?;
         if (post == null) continue;
         extractList(post['tags']);
@@ -232,33 +235,55 @@ class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
   }) async {
     try {
       // Run interest-map fetch + user fetch + org fetch concurrently
-      final results = await Future.wait(
-        [
-              _buildInterestMap(currentUserId),
-              // Suggested users: exclude self, any role, ordered by created_at
-              supabase
-                  .from('users')
-                  .select(_userSelect)
-                  .neq('user_id', currentUserId)
-                  .order('created_at', ascending: false)
-                  .limit(10),
-              // Featured orgs: most recently added
-              supabase
-                  .from('organizations')
-                  .select(_orgSelect)
-                  .order('created_at', ascending: false)
-                  .limit(10),
-              // Candidate posts: status=available, not by current user
-              supabase
-                  .from('posts')
-                  .select(_postSelect)
-                  .eq('status', PostStatus.available.name)
-                  .neq('created_by', currentUserId)
-                  .order('created_at', ascending: false)
-                  .limit(limit * 5), // fetch 5× to allow re-ranking
-            ]
-            as Iterable<Future<dynamic>>,
-      );
+      // final results = await Future.wait(
+      //   [
+      //         _buildInterestMap(currentUserId),
+      //         // Suggested users: exclude self, any role, ordered by created_at
+      //         supabase
+      //             .from('users')
+      //             .select(_userSelect)
+      //             .neq('user_id', currentUserId)
+      //             .order('created_at', ascending: false)
+      //             .limit(10),
+      //         // Featured orgs: most recently added
+      //         supabase
+      //             .from('organizations')
+      //             .select(_orgSelect)
+      //             .order('created_at', ascending: false)
+      //             .limit(10),
+      //         // Candidate posts: status=available, not by current user
+      //         supabase
+      //             .from('posts')
+      //             .select(_postSelect)
+      //             .eq('status', PostStatus.available.name)
+      //             .neq('created_by', currentUserId)
+      //             .order('created_at', ascending: false)
+      //             .limit(limit * 5), // fetch 5× to allow re-ranking
+      //       ]
+      //       as Iterable<Future<dynamic>>,
+      // );
+
+      final results = await Future.wait<dynamic>([
+        _buildInterestMap(currentUserId),
+        supabase
+            .from('users')
+            .select(_userSelect)
+            .neq('user_id', currentUserId)
+            .order('created_at', ascending: false)
+            .limit(10),
+        supabase
+            .from('organizations')
+            .select(_orgSelect)
+            .order('created_at', ascending: false)
+            .limit(10),
+        supabase
+            .from('posts')
+            .select(_postSelect)
+            .eq('status', PostStatus.available.name)
+            .neq('created_by', currentUserId)
+            .order('created_at', ascending: false)
+            .limit(limit * 5),
+      ]);
 
       final freq = results[0] as Map<String, int>;
       final userRows = results[1] as List<dynamic>;
@@ -359,6 +384,8 @@ class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
           .or('title.ilike.%$query%,description.ilike.%$query%')
           .order('created_at', ascending: false)
           .range(offset, offset + limit - 1);
+
+      // print(rows.first);
 
       return rows.map((r) => _postFromRow(r)).toList();
     } on _supabase.PostgrestException catch (e) {

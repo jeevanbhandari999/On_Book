@@ -616,6 +616,7 @@ class _PostsMasonrySliver extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print(posts);
     if (posts.isEmpty) {
       return const SliverFillRemaining(
         child: Center(child: Text('No posts found')),
