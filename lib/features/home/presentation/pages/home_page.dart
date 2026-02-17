@@ -56,8 +56,8 @@ class HomePage extends StatelessWidget {
               )..add(
                 FetchNearbyPosts(
                   userId: userId,
-                  latitude: latitude,
-                  longitude: longitude,
+                  latitude: 37.421998,
+                  longitude: -122.084000,
                 ),
               ),
         ),
@@ -92,6 +92,7 @@ class HomeView extends StatelessWidget {
               return const HomeShimmer();
             }
             if (state is HomeError) {
+              // print(state.message);
               return Center(child: Text(state.message));
             }
 
@@ -331,9 +332,10 @@ class HomeView extends StatelessWidget {
                       crossAxisSpacing: UiConstants.spacingSm,
                       itemBuilder: (context, index) {
                         final post = state.posts[index];
+                        // print(state.posts[index].title);
+
                         final organization =
                             state.organizations[post.organizationId];
-
                         if (organization == null) {
                           context.read<HomeBloc>().add(
                             FetchOrganizationDetails(post.organizationId),
