@@ -30,6 +30,27 @@ class HomeShimmer extends StatelessWidget {
                 padding: EdgeInsets.all(UiConstants.spacingSm),
                 child: CircleAvatar(backgroundColor: Colors.white),
               ),
+              title: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    height: 25,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(UiConstants.radiusMd),
+                    ),
+                  ),
+                  const SizedBox(height: UiConstants.spacingSm),
+                  Container(
+                    height: 20,
+                    width: 100,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(UiConstants.radiusMd),
+                    ),
+                  ),
+                ],
+              ),
               actions: const [
                 Padding(
                   padding: EdgeInsets.only(right: 8.0),
@@ -47,18 +68,86 @@ class HomeShimmer extends StatelessWidget {
                 ),
               ],
               flexibleSpace: FlexibleSpaceBar(
-                background: Container(color: Colors.white),
+                background: Container(
+                  padding: const EdgeInsets.fromLTRB(16, 85, 16, 34),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: baseColor),
+                    borderRadius: const BorderRadius.vertical(
+                      bottom: Radius.circular(UiConstants.radiusLg),
+                    ),
+                    color: Colors.transparent,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                width: 230,
+                                height: 25,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(
+                                    UiConstants.radiusMd,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: UiConstants.spacingSm),
+                              Container(
+                                height: 20,
+                                width: 130,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(
+                                    UiConstants.radiusMd,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: UiConstants.spacingSm),
+                              Container(
+                                height: 16,
+                                width: 200,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(
+                                    UiConstants.radiusMd,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Container(
+                            height: 40,
+                            width: 80,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(
+                                UiConstants.radiusMd,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
 
-            // 2. Organization Horizontal List
             SliverToBoxAdapter(
               child: SizedBox(
                 height: 100,
                 child: ListView.separated(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: UiConstants.spacingMd,
-                    vertical: UiConstants.spacingSm,
+                  padding: const EdgeInsets.only(
+                    right: UiConstants.spacingMd,
+                    left: UiConstants.spacingMd,
+                    top: UiConstants.spacingMd,
+                    bottom: UiConstants.spacingSm,
                   ),
                   scrollDirection: Axis.horizontal,
                   itemCount: 6, // Simulate 6 items
