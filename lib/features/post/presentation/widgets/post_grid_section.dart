@@ -3,6 +3,7 @@ import 'package:app/core/constants/ui_constants.dart';
 import 'package:app/core/widgets/common_widgets.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:go_router/go_router.dart';
 import 'post_card.dart';
@@ -25,32 +26,47 @@ class PostGridSection extends StatelessWidget {
           return StaggeredGridTile.fit(
             // crossAxisCellCount: isWide ? 2 : 1,
             crossAxisCellCount: 1,
-            child: PostCard(
-              key: ValueKey(post['imageUrl'] ?? post['videoUrl'] ?? index),
-              title: post['title'] ?? 'Untitled',
-              imageUrl: post['imageUrl'],
-              videoUrl: post['videoUrl'],
-              description: post['description'] ?? '',
-              price: (post['price'] as num?)?.toDouble() ?? 0.0,
-              onTap: () {
-                if (post['posts'] as bool == true) {
-                  context.push(
-                    RouteConstants.postDetailsPage,
-                    extra: {
-                      'postId': post['postId'],
-                      'post': post['post'],
-                      'userId': post['userId'],
-                    },
-                  );
-                }
-                if (post['images'] as bool == true) {
-                  _showModalBottomSheetForImage(context, post: post);
-                }
-              },
-              posts: (post['posts'] as bool),
-              videos: (post['videos'] as bool),
-              images: (post['images'] as bool),
-            ),
+            child:
+                PostCard(
+                      key: ValueKey(
+                        post['imageUrl'] ?? post['videoUrl'] ?? index,
+                      ),
+                      title: post['title'] ?? 'Untitled',
+                      imageUrl: post['imageUrl'],
+                      videoUrl: post['videoUrl'],
+                      description: post['description'] ?? '',
+                      price: (post['price'] as num?)?.toDouble() ?? 0.0,
+                      onTap: () {
+                        if (post['posts'] as bool == true) {
+                          context.push(
+                            RouteConstants.postDetailsPage,
+                            extra: {
+                              'postId': post['postId'],
+                              'post': post['post'],
+                              'userId': post['userId'],
+                            },
+                          );
+                        }
+                        if (post['images'] as bool == true) {
+                          _showModalBottomSheetForImage(context, post: post);
+                        }
+                      },
+                      posts: (post['posts'] as bool),
+                      videos: (post['videos'] as bool),
+                      images: (post['images'] as bool),
+                    )
+                    .animate(delay: (index * 80).ms)
+                    .slideX(
+                      begin: index.isEven ? -0.3 : 0.3,
+                      duration: UiConstants.animationSlow,
+                      curve: Curves.easeOutCubic,
+                    )
+                    .scale(
+                      begin: const Offset(0.9, 1),
+                      duration: UiConstants.animationSlow,
+                      curve: Curves.easeInOut,
+                    )
+                    .fade(duration: UiConstants.animationSlow),
           );
         }),
       ),

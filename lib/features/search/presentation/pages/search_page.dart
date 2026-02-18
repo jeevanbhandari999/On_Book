@@ -656,7 +656,19 @@ List<Widget> _buildAllSlivers(
                   separatorBuilder: (_, __) =>
                       const SizedBox(width: UiConstants.spacingXs),
                   itemBuilder: (_, i) =>
-                      _HotelCard(org: result.organizations[i]),
+                      _HotelCard(org: result.organizations[i])
+                          .animate(delay: (i * 80).ms)
+                          .slideX(
+                            begin: i.isEven ? -0.3 : 0.3,
+                            duration: UiConstants.animationSlow,
+                            curve: Curves.easeOutCubic,
+                          )
+                          .scale(
+                            begin: const Offset(0.9, 1),
+                            duration: UiConstants.animationSlow,
+                            curve: Curves.easeInOut,
+                          )
+                          .fade(duration: UiConstants.animationSlow),
                 ),
               ),
             ),
@@ -740,7 +752,19 @@ class _AllResultsSliver extends StatelessWidget {
               separatorBuilder: (_, __) =>
                   const SizedBox(width: UiConstants.spacingSm),
               itemBuilder: (_, i) =>
-                  _HotelGridCard(org: result.organizations[i]),
+                  _HotelGridCard(org: result.organizations[i])
+                      .animate(delay: (i * 80).ms)
+                      .slideY(
+                        begin: i.isEven ? -0.3 : 0.3,
+                        duration: UiConstants.animationSlow,
+                        curve: Curves.easeOutCubic,
+                      )
+                      .scale(
+                        begin: const Offset(0.9, 1),
+                        duration: UiConstants.animationSlow,
+                        curve: Curves.easeInOut,
+                      )
+                      .fade(duration: UiConstants.animationSlow),
             ),
           ),
           const SizedBox(height: UiConstants.spacingMd),
@@ -784,11 +808,24 @@ class _PostsMasonrySliver extends StatelessWidget {
         mainAxisSpacing: UiConstants.spacingSm,
         crossAxisSpacing: UiConstants.spacingSm,
         childCount: posts.length,
-        itemBuilder: (context, i) => _PostCard(
-          post: posts[i],
-          height: i.isEven ? 200.0 : 260.0,
-          currentUserId: currentUserId,
-        ),
+        itemBuilder: (context, i) =>
+            _PostCard(
+                  post: posts[i],
+                  height: i.isEven ? 200.0 : 260.0,
+                  currentUserId: currentUserId,
+                )
+                .animate(delay: (i * 80).ms)
+                .slideX(
+                  begin: i.isEven ? -0.3 : 0.3,
+                  duration: UiConstants.animationSlow,
+                  curve: Curves.easeOutCubic,
+                )
+                .scale(
+                  begin: const Offset(0.9, 1),
+                  duration: UiConstants.animationSlow,
+                  curve: Curves.easeInOut,
+                )
+                .fade(duration: UiConstants.animationSlow),
       ),
     );
   }
@@ -839,12 +876,31 @@ class _HotelsGridSliver extends StatelessWidget {
     }
     return SliverPadding(
       padding: const EdgeInsets.all(UiConstants.spacingMd),
-      sliver: SliverGrid.count(
-        crossAxisCount: 2,
-        mainAxisSpacing: UiConstants.spacingSm,
-        crossAxisSpacing: UiConstants.spacingSm,
-        childAspectRatio: 0.85,
-        children: orgs.map((o) => _HotelGridCard(org: o)).toList(),
+      sliver: SliverGrid.builder(
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          mainAxisSpacing: UiConstants.spacingSm,
+          crossAxisSpacing: UiConstants.spacingSm,
+          childAspectRatio: 0.85,
+        ),
+        itemCount: orgs.length,
+        itemBuilder: (context, i) {
+          final org = orgs[i];
+
+          return _HotelGridCard(org: org)
+              .animate(delay: (i * 80).ms)
+              .slideX(
+                begin: i.isEven ? -0.3 : 0.3,
+                duration: UiConstants.animationSlow,
+                curve: Curves.easeOutCubic,
+              )
+              .scale(
+                begin: const Offset(0.9, 1),
+                duration: UiConstants.animationSlow,
+                curve: Curves.easeInOut,
+              )
+              .fade(duration: UiConstants.animationSlow);
+        },
       ),
     );
   }

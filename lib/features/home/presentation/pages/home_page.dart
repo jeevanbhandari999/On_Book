@@ -359,10 +359,22 @@ class HomeView extends StatelessWidget {
                         }
 
                         return PostCard(
-                          post: post,
-                          organization: organization,
-                          userId: userId,
-                        );
+                              post: post,
+                              organization: organization,
+                              userId: userId,
+                            )
+                            .animate(delay: (index * 80).ms)
+                            .slideX(
+                              begin: index.isEven ? -0.3 : 0.3,
+                              duration: UiConstants.animationSlow,
+                              curve: Curves.easeOutCubic,
+                            )
+                            .scale(
+                              begin: const Offset(0.9, 1),
+                              duration: UiConstants.animationSlow,
+                              curve: Curves.easeInOut,
+                            )
+                            .fade(duration: UiConstants.animationSlow);
                       },
                       childCount: state.posts.length,
                     ),
@@ -425,22 +437,25 @@ class HomeView extends StatelessWidget {
         child: Column(
           children: [
             CircleAvatar(
-              radius: 28,
-              backgroundColor: Theme.of(context).colorScheme.primary,
-              backgroundImage: org.logoUrl != null && org.logoUrl!.isNotEmpty
-                  ? NetworkImage(org.logoUrl!)
-                  : null,
-              child: (org.logoUrl == null || org.logoUrl!.isEmpty)
-                  ? Text(
-                      _getInitialCharactrOfOrganization(org.name),
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                      ),
-                    )
-                  : null,
-            ),
+                  radius: 28,
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  backgroundImage:
+                      org.logoUrl != null && org.logoUrl!.isNotEmpty
+                      ? NetworkImage(org.logoUrl!)
+                      : null,
+                  child: (org.logoUrl == null || org.logoUrl!.isEmpty)
+                      ? Text(
+                          _getInitialCharactrOfOrganization(org.name),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                          ),
+                        )
+                      : null,
+                )
+                .animate(delay: UiConstants.animationFast)
+                .scale(duration: UiConstants.animationNormal),
             AutoMarqueeText(
               text: org.name,
               style: const TextStyle(fontSize: 12),
