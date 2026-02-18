@@ -8,6 +8,7 @@ import 'package:app/features/post/presentation/bloc/posts_bloc.dart';
 import 'package:app/features/post/presentation/pages/dummy_post_page.dart';
 import 'package:app/features/post/presentation/pages/manager_or_staff_with_out_organization_page.dart';
 import 'package:app/features/post/presentation/pages/owner_page.dart';
+import 'package:app/features/post/presentation/pages/post_detail_shimmer_effect_page.dart';
 import 'package:app/features/post/services/post_services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -19,20 +20,17 @@ class PostPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create:
-          (context) => OrganizationPostsBloc(
-            getAllPostsByOrganizationId:
-                DependencyInjection.get<GetAllPostsByOrganizationIdUseCase>(),
-            getAllPostsWithImagesByOrganizationId:
-                DependencyInjection.get<
-                  GetAllPostsWithImagesByOrganizationIdUseCase
-                >(),
-            getAllPostsWithVideosByOrganizationId:
-                DependencyInjection.get<
-                  GetAllPostsWithVideosByOrganizationId
-                >(),
-            postServices: DependencyInjection.get<PostServices>(),
-          )..add(const ChecKUserRoleAndOrganizationDetailStatus()),
+      create: (context) => OrganizationPostsBloc(
+        getAllPostsByOrganizationId:
+            DependencyInjection.get<GetAllPostsByOrganizationIdUseCase>(),
+        getAllPostsWithImagesByOrganizationId:
+            DependencyInjection.get<
+              GetAllPostsWithImagesByOrganizationIdUseCase
+            >(),
+        getAllPostsWithVideosByOrganizationId:
+            DependencyInjection.get<GetAllPostsWithVideosByOrganizationId>(),
+        postServices: DependencyInjection.get<PostServices>(),
+      )..add(const ChecKUserRoleAndOrganizationDetailStatus()),
       child: const PostView(),
     );
   }
@@ -53,8 +51,9 @@ class PostView extends StatelessWidget {
         builder: (context, state) {
           // print(state);
           if (state is UserRoleAndOrganizationDetailStatusChecking) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (state is OrganizationOwnerLoggedIn) {
+            return const PostDetailShimmerEffectPage();
+          } 
+          else if (state is OrganizationOwnerLoggedIn) {
             final user = state.user;
             final organization = state.organization;
             return OwnerPage(user: user, organization: organization);
