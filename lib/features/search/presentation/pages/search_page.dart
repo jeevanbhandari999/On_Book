@@ -239,7 +239,10 @@
 // ─────────────────────────────────────────────────────────────────
 
 import 'package:app/app/dependency_injection.dart';
+import 'package:app/app/router/route_constants.dart';
 import 'package:app/core/constants/ui_constants.dart';
+import 'package:app/core/theme/app_colors.dart';
+import 'package:app/core/widgets/auto_marquee_text.dart';
 import 'package:app/core/widgets/common_widgets.dart';
 import 'package:app/core/widgets/loading_widget.dart';
 import 'package:app/features/auth/domain/entities/organization.dart';
@@ -252,6 +255,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:go_router/go_router.dart';
 import 'package:shimmer/shimmer.dart';
 
 // ── Filter enum ───────────────────────────────────────────────────
@@ -359,6 +363,7 @@ class _SearchViewState extends State<_SearchView> {
                   result: result,
                   filter: filter,
                   isSearchMode: state is SearchResultsLoaded,
+                  currentUserId: widget.currentUserId,
                 )
               else
                 const _ShimmerGrid(),
@@ -426,7 +431,7 @@ class _SearchHeader extends StatelessWidget {
                     ),
                   );
                 },
-                hint: 'Search posts, people, hotels...',
+                hint: 'Search what you want...',
                 prefixIcon: const Icon(Icons.search),
                 suffixIcon: controller.text.isNotEmpty
                     ? IconButton(
@@ -441,7 +446,6 @@ class _SearchHeader extends StatelessWidget {
                     : null,
               ),
               const SizedBox(height: UiConstants.spacingSm),
-              // ── Filter chips ──────────────────────────────────────
               SizedBox(
                 height: 40,
                 child: ListView.separated(
@@ -450,7 +454,6 @@ class _SearchHeader extends StatelessWidget {
                   separatorBuilder: (_, __) =>
                       const SizedBox(width: UiConstants.spacingXs),
                   itemBuilder: (context, index) {
-                    // ✅ BUG FIX: each chip gets its own filter value
                     final chipFilter = SearchFilter.values[index];
                     return _FilterChip(
                       filter: chipFilter,
@@ -470,9 +473,6 @@ class _SearchHeader extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────
-// Filter chip
-// ─────────────────────────────────────────────────────────────────
 class _FilterChip extends StatelessWidget {
   final SearchFilter filter;
   final bool isActive;
@@ -504,9 +504,6 @@ class _FilterChip extends StatelessWidget {
               ? Theme.of(context).colorScheme.primaryContainer
               : Colors.transparent,
           borderRadius: BorderRadius.circular(UiConstants.radiusMd),
-          // border: Border.all(
-          //   color: isActive ? Colors.transparent : Colors.white30,
-          // ),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -533,29 +530,157 @@ class _FilterChip extends StatelessWidget {
 // ─────────────────────────────────────────────────────────────────
 // Results dispatcher
 // ─────────────────────────────────────────────────────────────────
+// class _ResultsSliver extends StatelessWidget {
+//   final SearchResult result;
+//   final SearchFilter filter;
+//   final bool isSearchMode;
+
+//   const _ResultsSliver({
+//     required this.result,
+//     required this.filter,
+//     required this.isSearchMode,
+//   });
+
+//   @override
+//   Widget build(BuildContext context) {
+//     print(result.organizations.length);
+//     print(result.posts.length);
+//     print(result.users.length);
+//     return switch (filter) {
+//       SearchFilter.all => _AllResultsSliver(
+//         result: result,
+//         isSearchMode: isSearchMode,
+//       ),
+//       SearchFilter.people => _PeopleListSliver(users: result.users),
+//       SearchFilter.hotels => _HotelsGridSliver(orgs: result.organizations),
+//       SearchFilter.posts => _PostsMasonrySliver(posts: result.posts),
+//     };
+//   }
+// }
+
 class _ResultsSliver extends StatelessWidget {
   final SearchResult result;
   final SearchFilter filter;
   final bool isSearchMode;
+  final String currentUserId;
 
   const _ResultsSliver({
     required this.result,
     required this.filter,
     required this.isSearchMode,
+    required this.currentUserId,
   });
 
   @override
   Widget build(BuildContext context) {
-    return switch (filter) {
-      SearchFilter.all => _AllResultsSliver(
-        result: result,
-        isSearchMode: isSearchMode,
-      ),
-      SearchFilter.people => _PeopleListSliver(users: result.users),
-      SearchFilter.hotels => _HotelsGridSliver(orgs: result.organizations),
-      SearchFilter.posts => _PostsMasonrySliver(posts: result.posts),
+    final slivers = switch (filter) {
+      SearchFilter.all => _buildAllSlivers(result, isSearchMode, currentUserId),
+      SearchFilter.people => [
+        _PeopleListSliver(users: result.users, currentUserId: currentUserId),
+      ],
+      SearchFilter.hotels => [_HotelsGridSliver(orgs: result.organizations)],
+      SearchFilter.posts => [
+        _PostsMasonrySliver(posts: result.posts, currentUserId: currentUserId),
+      ],
     };
+
+    return SliverMainAxisGroup(slivers: slivers);
   }
+}
+
+List<Widget> _buildAllSlivers(
+  SearchResult result,
+  bool isSearchMode,
+  String currentUserId,
+) {
+  final List<Widget> slivers = [];
+
+  if (result.users.isNotEmpty) {
+    slivers.add(
+      SliverToBoxAdapter(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _SectionHeader(
+              title: isSearchMode ? 'People' : 'Suggested People',
+              icon: Icons.people_outline,
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: UiConstants.spacingMd,
+              ),
+              child: SizedBox(
+                height: 100,
+                child: ListView.separated(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: UiConstants.spacingMd,
+                    vertical: UiConstants.spacingSm,
+                  ),
+                  scrollDirection: Axis.horizontal,
+                  itemCount: result.users.length,
+                  separatorBuilder: (_, __) =>
+                      const SizedBox(width: UiConstants.spacingMd),
+                  itemBuilder: (_, i) => _UserBubble(
+                    user: result.users[i],
+                    currentUserId: currentUserId,
+                  ),
+                ),
+              ),
+            ),
+            // const SizedBox(height: UiConstants.spacingMd),
+          ],
+        ),
+      ),
+    );
+  }
+
+  if (result.organizations.isNotEmpty) {
+    slivers.add(
+      SliverToBoxAdapter(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _SectionHeader(
+              title: isSearchMode ? 'Hotels' : 'Featured Hotels',
+              icon: Icons.hotel_outlined,
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: UiConstants.spacingMd,
+              ),
+              child: SizedBox(
+                height: 200,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: result.organizations.length,
+                  separatorBuilder: (_, __) =>
+                      const SizedBox(width: UiConstants.spacingXs),
+                  itemBuilder: (_, i) =>
+                      _HotelCard(org: result.organizations[i]),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  if (result.posts.isNotEmpty) {
+    slivers.add(
+      SliverToBoxAdapter(
+        child: _SectionHeader(
+          title: isSearchMode ? 'Posts' : 'Trending Posts',
+          icon: Icons.grid_view_outlined,
+        ),
+      ),
+    );
+    slivers.add(
+      _PostsMasonrySliver(posts: result.posts, currentUserId: currentUserId),
+    );
+  }
+
+  return slivers;
 }
 
 // ─────────────────────────────────────────────────────────────────
@@ -563,9 +688,14 @@ class _ResultsSliver extends StatelessWidget {
 // ─────────────────────────────────────────────────────────────────
 class _AllResultsSliver extends StatelessWidget {
   final SearchResult result;
+  final String currentUserId;
   final bool isSearchMode;
 
-  const _AllResultsSliver({required this.result, required this.isSearchMode});
+  const _AllResultsSliver({
+    required this.result,
+    required this.isSearchMode,
+    required this.currentUserId,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -587,7 +717,10 @@ class _AllResultsSliver extends StatelessWidget {
               itemCount: result.users.length,
               separatorBuilder: (_, __) =>
                   const SizedBox(width: UiConstants.spacingMd),
-              itemBuilder: (_, i) => _UserBubble(user: result.users[i]),
+              itemBuilder: (_, i) => _UserBubble(
+                user: result.users[i],
+                currentUserId: currentUserId,
+              ),
             ),
           ),
           const SizedBox(height: UiConstants.spacingMd),
@@ -600,27 +733,30 @@ class _AllResultsSliver extends StatelessWidget {
             icon: Icons.hotel_outlined,
           ),
           SizedBox(
-            height: 160,
+            height: 200,
             child: ListView.separated(
-              padding: const EdgeInsets.symmetric(
-                horizontal: UiConstants.spacingMd,
-              ),
               scrollDirection: Axis.horizontal,
               itemCount: result.organizations.length,
               separatorBuilder: (_, __) =>
-                  const SizedBox(width: UiConstants.spacingMd),
-              itemBuilder: (_, i) => _HotelCard(org: result.organizations[i]),
+                  const SizedBox(width: UiConstants.spacingSm),
+              itemBuilder: (_, i) =>
+                  _HotelGridCard(org: result.organizations[i]),
             ),
           ),
           const SizedBox(height: UiConstants.spacingMd),
         ],
 
         // ── Posts header (grid rendered in next sliver) ─────────
-        if (result.posts.isNotEmpty)
+        if (result.posts.isNotEmpty) ...[
           _SectionHeader(
             title: isSearchMode ? 'Posts' : 'Trending Posts',
             icon: Icons.grid_view_outlined,
           ),
+          _PostsMasonrySliver(
+            posts: result.posts,
+            currentUserId: currentUserId,
+          ),
+        ],
       ]),
     );
   }
@@ -631,25 +767,28 @@ class _AllResultsSliver extends StatelessWidget {
 // ─────────────────────────────────────────────────────────────────
 class _PostsMasonrySliver extends StatelessWidget {
   final List<Post> posts;
-  const _PostsMasonrySliver({required this.posts});
+  final String currentUserId;
+  const _PostsMasonrySliver({required this.posts, required this.currentUserId});
 
   @override
   Widget build(BuildContext context) {
-    print(posts);
     if (posts.isEmpty) {
       return const SliverFillRemaining(
         child: Center(child: Text('No posts found')),
       );
     }
     return SliverPadding(
-      padding: const EdgeInsets.all(UiConstants.spacingMd),
+      padding: const EdgeInsets.symmetric(horizontal: UiConstants.spacingMd),
       sliver: SliverMasonryGrid.count(
         crossAxisCount: 2,
         mainAxisSpacing: UiConstants.spacingSm,
         crossAxisSpacing: UiConstants.spacingSm,
         childCount: posts.length,
-        itemBuilder: (context, i) =>
-            _PostCard(post: posts[i], height: i.isEven ? 200.0 : 260.0),
+        itemBuilder: (context, i) => _PostCard(
+          post: posts[i],
+          height: i.isEven ? 200.0 : 260.0,
+          currentUserId: currentUserId,
+        ),
       ),
     );
   }
@@ -660,7 +799,9 @@ class _PostsMasonrySliver extends StatelessWidget {
 // ─────────────────────────────────────────────────────────────────
 class _PeopleListSliver extends StatelessWidget {
   final List<User> users;
-  const _PeopleListSliver({required this.users});
+  final String currentUserId;
+
+  const _PeopleListSliver({required this.users, required this.currentUserId});
 
   @override
   Widget build(BuildContext context) {
@@ -675,7 +816,8 @@ class _PeopleListSliver extends StatelessWidget {
         itemCount: users.length,
         separatorBuilder: (_, __) =>
             Divider(height: 1, color: Colors.grey[200]),
-        itemBuilder: (_, i) => _UserListTile(user: users[i]),
+        itemBuilder: (_, i) =>
+            _UserListTile(user: users[i], currentUserId: currentUserId),
       ),
     );
   }
@@ -747,59 +889,72 @@ class _SectionHeader extends StatelessWidget {
 // ─────────────────────────────────────────────────────────────────
 class _UserBubble extends StatelessWidget {
   final User user;
-  const _UserBubble({required this.user});
+  final String currentUserId;
+
+  const _UserBubble({required this.user, required this.currentUserId});
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: 80,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          CircleAvatar(
-            radius: 30,
-            backgroundImage: user.imageUrl != null
-                ? NetworkImage(user.imageUrl!)
-                : null,
-            backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-            child: user.imageUrl == null
-                ? Text(
-                    user.fullName.isNotEmpty
-                        ? user.fullName[0].toUpperCase()
-                        : '?',
-                    style: const TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  )
-                : null,
-          ),
-          const SizedBox(height: 6),
-          Text(
-            user.fullName,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-          ),
-          // Show role badge
-          Container(
-            margin: const EdgeInsets.only(top: 2),
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.secondaryContainer,
-              borderRadius: BorderRadius.circular(20),
+    return InkWell(
+      onTap: () {
+        if (user.userId == currentUserId) {
+          context.go(RouteConstants.profilePage);
+        } else {
+          context.push(
+            RouteConstants.viewUserProfilePage,
+            extra: {'userId': user.userId, 'currentUserId': currentUserId},
+          );
+        }
+      },
+      child: SizedBox(
+        width: 60,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CircleAvatar(
+                  radius: 28,
+                  // backgroundColor: Theme.of(context).colorScheme.primary,
+                  backgroundImage:
+                      user.imageUrl != null && user.imageUrl!.isNotEmpty
+                      ? NetworkImage(user.imageUrl!)
+                      : null,
+                  child: (user.imageUrl == null || user.imageUrl!.isEmpty)
+                      ? Text(
+                          user.fullName.isNotEmpty
+                              ? user.fullName[0].toUpperCase()
+                              : '?',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                          ),
+                        )
+                      : null,
+                )
+                .animate(delay: UiConstants.animationFast)
+                .scale(duration: UiConstants.animationNormal),
+            AutoMarqueeText(
+              text: user.fullName,
+              style: const TextStyle(fontSize: 12),
             ),
-            child: Text(
-              user.role.name,
-              style: TextStyle(
-                fontSize: 9,
-                color: Theme.of(context).colorScheme.onSecondaryContainer,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-        ],
+            // // Show role badge
+            // Container(
+            //   margin: const EdgeInsets.only(top: 2),
+            //   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+            //   decoration: BoxDecoration(
+            //     color: Theme.of(context).colorScheme.secondaryContainer,
+            //     borderRadius: BorderRadius.circular(20),
+            //   ),
+            //   child: Text(
+            //     user.role.name,
+            //     style: TextStyle(
+            //       fontSize: 9,
+            //       color: Theme.of(context).colorScheme.onSecondaryContainer,
+            //       fontWeight: FontWeight.w600,
+            //     ),
+            //   ),
+            // ),
+          ],
+        ),
       ),
     );
   }
@@ -810,7 +965,8 @@ class _UserBubble extends StatelessWidget {
 // ─────────────────────────────────────────────────────────────────
 class _UserListTile extends StatelessWidget {
   final User user;
-  const _UserListTile({required this.user});
+  final String currentUserId;
+  const _UserListTile({required this.user, required this.currentUserId});
 
   @override
   Widget build(BuildContext context) {
@@ -818,19 +974,24 @@ class _UserListTile extends StatelessWidget {
       contentPadding: const EdgeInsets.symmetric(
         vertical: UiConstants.spacingXs,
       ),
-      leading: CircleAvatar(
-        radius: 24,
-        backgroundImage: user.imageUrl != null
-            ? NetworkImage(user.imageUrl!)
-            : null,
-        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-        child: user.imageUrl == null
-            ? Text(
-                user.fullName.isNotEmpty ? user.fullName[0].toUpperCase() : '?',
-                style: const TextStyle(fontWeight: FontWeight.bold),
+      leading:
+          CircleAvatar(
+                radius: 24,
+                backgroundImage: user.imageUrl != null
+                    ? NetworkImage(user.imageUrl!)
+                    : null,
+                backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                child: user.imageUrl == null
+                    ? Text(
+                        user.fullName.isNotEmpty
+                            ? user.fullName[0].toUpperCase()
+                            : '?',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      )
+                    : null,
               )
-            : null,
-      ),
+              .animate(delay: UiConstants.animationFast)
+              .scale(duration: UiConstants.animationNormal),
       title: Text(
         user.fullName,
         style: const TextStyle(fontWeight: FontWeight.w600),
@@ -846,16 +1007,19 @@ class _UserListTile extends StatelessWidget {
           ? const Icon(Icons.business_outlined, size: 18, color: Colors.grey)
           : null,
       onTap: () {
-        // context.push(RouteConstants.userProfile, extra: user.id);
+        if (user.userId == currentUserId) {
+          context.go(RouteConstants.profilePage);
+        } else {
+          context.push(
+            RouteConstants.viewUserProfilePage,
+            extra: {'userId': user.userId, 'currentUserId': currentUserId},
+          );
+        }
       },
     );
   }
 }
 
-// ─────────────────────────────────────────────────────────────────
-// Hotel horizontal card — "All" tab scroll row
-// Uses Organization.name, .logoUrl, .address
-// ─────────────────────────────────────────────────────────────────
 class _HotelCard extends StatelessWidget {
   final Organization org;
   const _HotelCard({required this.org});
@@ -863,7 +1027,8 @@ class _HotelCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 140,
+      height: double.infinity,
+      width: 160,
       child: Card(
         clipBehavior: Clip.hardEdge,
         shape: RoundedRectangleBorder(
@@ -873,15 +1038,33 @@ class _HotelCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
-              child: org.logoUrl != null
-                  ? Image.network(
-                      org.logoUrl!,
-                      fit: BoxFit.cover,
-                      width: double.infinity,
-                      errorBuilder: (_, __, ___) =>
-                          const _Placeholder(icon: Icons.hotel),
-                    )
-                  : const _Placeholder(icon: Icons.hotel),
+              child: Container(
+                color: Colors.grey.shade400,
+                child: org.logoUrl != null
+                    ? Image.network(
+                        org.logoUrl!,
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                        height: double.infinity,
+                        errorBuilder: (_, __, ___) =>
+                            const _Placeholder(icon: Icons.hotel),
+                      )
+                    : Center(
+                        child:
+                            CircleAvatar(
+                                  radius: 50,
+                                  child: Text(
+                                    _getInitialCharactrOfOrganization(org.name),
+                                    style: const TextStyle(
+                                      fontSize: 30,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                )
+                                .animate(delay: UiConstants.animationFast)
+                                .scale(duration: UiConstants.animationNormal),
+                      ),
+              ),
             ),
             Padding(
               padding: const EdgeInsets.all(8),
@@ -890,19 +1073,20 @@ class _HotelCard extends StatelessWidget {
                 children: [
                   Text(
                     org.name,
-                    maxLines: 1,
+                    maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
-                      fontSize: 12,
+                      fontSize: 13,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
-                  if (org.address != null)
+                  if (org.address != null) ...[
+                    const SizedBox(height: 2),
                     Row(
                       children: [
                         Icon(
                           Icons.location_on_outlined,
-                          size: 10,
+                          size: 11,
                           color: Colors.grey[600],
                         ),
                         Expanded(
@@ -911,13 +1095,34 @@ class _HotelCard extends StatelessWidget {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
-                              fontSize: 10,
+                              fontSize: 11,
                               color: Colors.grey[600],
                             ),
                           ),
                         ),
                       ],
                     ),
+                  ],
+                  if (org.phone != null) ...[
+                    const SizedBox(height: 2),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.phone_outlined,
+                          size: 11,
+                          color: Colors.grey[600],
+                        ),
+                        const SizedBox(width: 2),
+                        Text(
+                          org.phone!,
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -946,15 +1151,33 @@ class _HotelGridCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
-            child: org.logoUrl != null
-                ? Image.network(
-                    org.logoUrl!,
-                    fit: BoxFit.cover,
-                    width: double.infinity,
-                    errorBuilder: (_, __, ___) =>
-                        const _Placeholder(icon: Icons.hotel),
-                  )
-                : const _Placeholder(icon: Icons.hotel),
+            child: Container(
+              color: Colors.grey.shade400,
+              child: org.logoUrl != null
+                  ? Image.network(
+                      org.logoUrl!,
+                      fit: BoxFit.cover,
+                      width: double.infinity,
+                      height: double.infinity,
+                      errorBuilder: (_, __, ___) =>
+                          const _Placeholder(icon: Icons.hotel),
+                    )
+                  : Center(
+                      child:
+                          CircleAvatar(
+                                radius: 50,
+                                child: Text(
+                                  _getInitialCharactrOfOrganization(org.name),
+                                  style: const TextStyle(
+                                    fontSize: 30,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              )
+                              .animate(delay: UiConstants.animationFast)
+                              .scale(duration: UiConstants.animationNormal),
+                    ),
+            ),
           ),
           Padding(
             padding: const EdgeInsets.all(8),
@@ -1027,13 +1250,21 @@ class _HotelGridCard extends StatelessWidget {
 class _PostCard extends StatelessWidget {
   final Post post;
   final double height;
-  const _PostCard({required this.post, required this.height});
+  final String currentUserId;
+  const _PostCard({
+    required this.post,
+    required this.height,
+    required this.currentUserId,
+  });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        // context.push(RouteConstants.postDetail, extra: post.id);
+        context.push(
+          RouteConstants.postDetailsPage,
+          extra: {'postId': post.id, 'post': post, 'userId': currentUserId},
+        );
       },
       child: Container(
         height: height,
@@ -1376,4 +1607,13 @@ class _ErrorSliver extends StatelessWidget {
       ),
     );
   }
+}
+
+String _getInitialCharactrOfOrganization(String name) {
+  return name
+      .trim()
+      .split(' ')
+      .where((word) => word.isNotEmpty)
+      .map((word) => word[0].toUpperCase())
+      .join();
 }
