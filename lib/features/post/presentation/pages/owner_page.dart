@@ -13,7 +13,9 @@ import 'package:app/features/post/presentation/widgets/post_grid_section.dart';
 import 'package:app/features/post/services/post_services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shimmer/shimmer.dart';
 
 class OwnerPage extends StatelessWidget {
   final UserModel user;
@@ -151,7 +153,21 @@ Widget _buildPostsList(
   return BlocBuilder<OrganizationPostsBloc, OrganizationPostsState>(
     builder: (context, state) {
       if (state is OrganizationPostsLoading) {
-        return const Center(child: CircularProgressIndicator());
+        return SingleChildScrollView(
+          padding: const EdgeInsets.all(UiConstants.spacingSm),
+          child: StaggeredGrid.count(
+            crossAxisCount: 2,
+            mainAxisSpacing: UiConstants.spacingSm,
+            crossAxisSpacing: UiConstants.spacingSm,
+            children: List.generate(10, (index) {
+              final height = index.isEven ? 200.0 : 260.0;
+              return StaggeredGridTile.fit(
+                crossAxisCellCount: 1,
+                child: _buildPostCardShimmer(height),
+              );
+            }),
+          ),
+        );
       } else if (state is OrganizationPostsLoaded) {
         final posts = state.posts.toList();
 
@@ -215,7 +231,21 @@ Widget _buildPostVideos(
   return BlocBuilder<OrganizationPostsBloc, OrganizationPostsState>(
     builder: (context, state) {
       if (state is OrganizationPostsLoading) {
-        return const Center(child: CircularProgressIndicator());
+        return SingleChildScrollView(
+          padding: const EdgeInsets.all(UiConstants.spacingSm),
+          child: StaggeredGrid.count(
+            crossAxisCount: 2,
+            mainAxisSpacing: UiConstants.spacingSm,
+            crossAxisSpacing: UiConstants.spacingSm,
+            children: List.generate(10, (index) {
+              final height = index.isEven ? 200.0 : 260.0;
+              return StaggeredGridTile.fit(
+                crossAxisCellCount: 1,
+                child: _buildPostCardShimmer(height),
+              );
+            }),
+          ),
+        );
       } else if (state is OrganizationPostsVideosLoaded) {
         final postsWithImages = state.postVideos;
         final postsOnly = state.posts;
@@ -314,7 +344,21 @@ Widget _buildPostImages(
     builder: (context, state) {
       // print(state);
       if (state is OrganizationPostsLoading) {
-        return const Center(child: CircularProgressIndicator());
+        return SingleChildScrollView(
+          padding: const EdgeInsets.all(UiConstants.spacingSm),
+          child: StaggeredGrid.count(
+            crossAxisCount: 2,
+            mainAxisSpacing: UiConstants.spacingSm,
+            crossAxisSpacing: UiConstants.spacingSm,
+            children: List.generate(10, (index) {
+              final height = index.isEven ? 200.0 : 260.0;
+              return StaggeredGridTile.fit(
+                crossAxisCellCount: 1,
+                child: _buildPostCardShimmer(height),
+              );
+            }),
+          ),
+        );
       } else if (state is OrganizationPostsImagesLoaded) {
         final postsWithImages = state.postImages;
         final postsOnly = state.posts;
@@ -384,6 +428,74 @@ Widget _buildPostImages(
       }
       return const SizedBox.shrink();
     },
+  );
+}
+
+Widget _buildPostCardShimmer(double height) {
+  final baseColor = Colors.grey[300]!;
+  final highlightColor = Colors.grey[100]!;
+  return Shimmer.fromColors(
+    baseColor: baseColor,
+    highlightColor: highlightColor,
+    child: Container(
+      height: height,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(UiConstants.radiusMd),
+        border: Border.all(color: Colors.grey[200]!),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Image Placeholder
+          Expanded(
+            child: Container(
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.vertical(
+                  top: Radius.circular(UiConstants.radiusMd),
+                ),
+              ),
+            ),
+          ),
+          // Content Placeholder
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const CircleAvatar(
+                      radius: 10,
+                      backgroundColor: Colors.white,
+                    ),
+                    const SizedBox(width: 8),
+                    Container(
+                      width: 80,
+                      height: 10,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Container(
+                  width: double.infinity,
+                  height: 10,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    ),
   );
 }
 
