@@ -1488,14 +1488,17 @@ import 'package:app/core/widgets/common_widgets.dart';
 import 'package:app/core/widgets/loading_widget.dart';
 import 'package:app/features/auth/services/auth_service.dart';
 import 'package:app/features/booking/domain/entities/booking.dart';
+import 'package:app/features/home/presentation/widgets/home_shimmer.dart';
 import 'package:app/features/library/domain/entities/library_filter_enum.dart';
 import 'package:app/features/library/domain/usecases/get_all_booking_by_user_id_use_case.dart';
 import 'package:app/features/library/domain/usecases/get_all_booking_related_to_organization_use_case.dart';
 import 'package:app/features/library/domain/usecases/get_all_saved_posts_use_case.dart';
 import 'package:app/features/library/domain/usecases/update_booking_status_by_id_use_case.dart';
 import 'package:app/features/library/presentation/bloc/library_bloc.dart';
+import 'package:app/features/library/presentation/widgets/library_shimmer.dart';
 import 'package:app/features/post/domain/entities/post.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
@@ -1511,7 +1514,7 @@ class LibraryPage extends StatelessWidget {
       future: authDependency.getCurrentUserOrganizationId(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: LoadingWidget());
+          return const LibraryShimmer();
         }
 
         if (snapshot.hasError) {
@@ -1521,7 +1524,7 @@ class LibraryPage extends StatelessWidget {
         final organizationId = snapshot.data;
 
         if (userId == null) {
-          return const Center(child: LoadingWidget());
+          return const LibraryShimmer();
         }
 
         return BlocProvider(
@@ -1559,13 +1562,11 @@ class LibraryView extends StatelessWidget {
       body: BlocBuilder<LibraryBloc, LibraryState>(
         builder: (context, state) {
           if (state is LibraryLoading) {
-            return const Center(child: LoadingWidget());
+            return const LibraryShimmer();
           }
-
           if (state is LibraryError) {
             return _buildErrorState(state, context);
           }
-
           if (state is LibraryLoaded) {
             return Column(
               children: [
@@ -1580,8 +1581,7 @@ class LibraryView extends StatelessWidget {
               ],
             );
           }
-
-          return const LoadingWidget();
+          return const LibraryShimmer();
         },
       ),
     );
@@ -1619,43 +1619,66 @@ class _LibraryFilterTabs extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(
-        UiConstants.spacingLg,
-        UiConstants.spacingXxl + UiConstants.spacingSm,
-        UiConstants.spacingLg,
-        UiConstants.spacingLg,
-      ),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primary,
-        borderRadius: const BorderRadius.vertical(
-          bottom: Radius.circular(UiConstants.radiusXl),
+    return Stack(
+      children: [
+        Positioned.fill(
+          child:
+              Container(
+                    padding: const EdgeInsets.fromLTRB(
+                      UiConstants.spacingLg,
+                      UiConstants.spacingXxl + UiConstants.spacingSm,
+                      UiConstants.spacingLg,
+                      UiConstants.spacingLg,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primary,
+                      borderRadius: const BorderRadius.vertical(
+                        bottom: Radius.circular(UiConstants.radiusXl),
+                      ),
+                    ),
+                  )
+                  .animate()
+                  .slideY(
+                    begin: -2,
+                    duration: UiConstants.animationSlow,
+                    curve: Curves.easeOutCubic,
+                  )
+                  .fadeIn(duration: UiConstants.animationSlow),
         ),
-      ),
-      child: SizedBox(
-        height: 40,
-        child: ListView.separated(
-          scrollDirection: Axis.horizontal,
-          itemCount: LibraryFilter.values.length,
-          separatorBuilder: (_, __) =>
-              const SizedBox(width: UiConstants.spacingXs),
-          itemBuilder: (context, index) {
-            final filter = LibraryFilter.values[index];
-            final isActive = filter == activeFilter;
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.fromLTRB(
+            UiConstants.spacingLg,
+            UiConstants.spacingXxl + UiConstants.spacingSm,
+            UiConstants.spacingLg,
+            UiConstants.spacingLg,
+          ),
 
-            return _FilterChip(
-              filter: filter,
-              isActive: isActive,
-              onTap: () {
-                context.read<LibraryBloc>().add(
-                  ChangeLibraryFilterTabRequested(filter: filter),
+          child: SizedBox(
+            height: 40,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: LibraryFilter.values.length,
+              separatorBuilder: (_, __) =>
+                  const SizedBox(width: UiConstants.spacingXs),
+              itemBuilder: (context, index) {
+                final filter = LibraryFilter.values[index];
+                final isActive = filter == activeFilter;
+
+                return _FilterChip(
+                  filter: filter,
+                  isActive: isActive,
+                  onTap: () {
+                    context.read<LibraryBloc>().add(
+                      ChangeLibraryFilterTabRequested(filter: filter),
+                    );
+                  },
                 );
               },
-            );
-          },
+            ),
+          ),
         ),
-      ),
+      ],
     );
   }
 }
