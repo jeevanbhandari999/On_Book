@@ -4,12 +4,11 @@
 
 import 'dart:async';
 
+import 'package:app/features/search/domain/entities/search_filter_enum.dart';
 import 'package:app/features/search/domain/entities/search_result.dart';
-import 'package:app/features/search/presentation/pages/search_page.dart';
 import 'package:equatable/equatable.dart';
 import 'package:app/features/search/domain/usecases/search_use_cases.dart';
-import 'package:app/features/search/presentation/pages/search_page.dart'
-    show SearchFilter;
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 abstract class SearchEvent extends Equatable {
