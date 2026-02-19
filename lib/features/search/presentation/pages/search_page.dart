@@ -1,247 +1,6 @@
-// import 'dart:async';
-// import 'package:app/core/constants/ui_constants.dart';
-// import 'package:app/core/widgets/common_widgets.dart';
-// import 'package:flutter/material.dart';
-// import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-// import 'package:shimmer/shimmer.dart';
-
-// class SearchPage extends StatefulWidget {
-//   const SearchPage({super.key});
-
-//   @override
-//   State<SearchPage> createState() => _SearchPageState();
-// }
-
-// class _SearchPageState extends State<SearchPage> {
-//   final TextEditingController _controller = TextEditingController();
-//   bool _isLoading = true;
-//   SearchFilter _filter = SearchFilter.all;
-
-//   @override
-//   void initState() {
-//     super.initState();
-//     _simulateLoading();
-//   }
-
-//   void _simulateLoading() {
-//     setState(() => _isLoading = true);
-//     Timer(const Duration(seconds: 2), () {
-//       if (mounted) {
-//         setState(() => _isLoading = false);
-//       }
-//     });
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       body: CustomScrollView(
-//         slivers: [
-//           SliverAppBar(
-//             expandedHeight: 100 + UiConstants.spacingLg,
-//             collapsedHeight: 100 + UiConstants.spacingLg,
-//             foregroundColor: Colors.white,
-//             floating: false,
-//             pinned: true,
-//             flexibleSpace: FlexibleSpaceBar(
-//               background: Container(
-//                 padding: const EdgeInsets.only(
-//                   right: UiConstants.spacingMd,
-//                   left: UiConstants.spacingMd,
-//                   bottom: UiConstants.spacingMd,
-//                 ),
-//                 decoration: BoxDecoration(
-//                   color: Theme.of(context).colorScheme.primary,
-//                   borderRadius: const BorderRadius.only(
-//                     bottomLeft: Radius.circular(UiConstants.radiusXl),
-//                     bottomRight: Radius.circular(UiConstants.radiusXl),
-//                   ),
-//                 ),
-//                 child: Column(
-//                   children: [
-//                     const SizedBox(height: kToolbarHeight),
-//                     CustomTextField(
-//                       controller: _controller,
-//                       onChanged: (value) {
-//                         setState(() {
-//                           // searchQuery = value;
-//                         });
-//                       },
-//                       hint: 'What do you want...',
-//                       prefixIcon: const Icon(Icons.search),
-//                     ),
-//                     const SizedBox(height: UiConstants.spacingSm),
-//                     SizedBox(
-//                       height: 40,
-//                       child: ListView.separated(
-//                         scrollDirection: Axis.horizontal,
-//                         itemBuilder: (context, index) {
-//                           return _FilterChip(
-//                             filter: _filter,
-//                             isActive: _filter == SearchFilter.values[index],
-//                             onTap: () {
-//                               setState(() {
-//                                 _filter = SearchFilter.values[index];
-//                               });
-//                             },
-//                           );
-//                         },
-//                         separatorBuilder: (context, index) =>
-//                             const SizedBox(width: UiConstants.spacingXs),
-//                         itemCount: SearchFilter.values.length,
-//                       ),
-//                     ),
-//                   ],
-//                 ),
-//               ),
-//             ),
-//           ),
-//           SliverPadding(
-//             padding: const EdgeInsets.all(UiConstants.spacingMd),
-//             sliver: SliverMasonryGrid.count(
-//               crossAxisCount: 2,
-//               mainAxisSpacing: UiConstants.spacingSm,
-//               crossAxisSpacing: UiConstants.spacingSm,
-//               childCount: 10,
-//               itemBuilder: (context, index) {
-//                 final height = index.isEven ? 200.0 : 260.0;
-//                 return _buildPostCardShimmer(height);
-//               },
-//             ),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-
-//   Widget _buildPostCardShimmer(double height) {
-//     final baseColor = Colors.grey[300]!;
-//     final highlightColor = Colors.grey[100]!;
-//     return Shimmer.fromColors(
-//       baseColor: baseColor,
-//       highlightColor: highlightColor,
-//       child: Container(
-//         height: height,
-//         decoration: BoxDecoration(
-//           color: Colors.transparent,
-//           borderRadius: BorderRadius.circular(UiConstants.radiusMd),
-//           border: Border.all(color: Colors.grey[200]!),
-//         ),
-//         child: Column(
-//           crossAxisAlignment: CrossAxisAlignment.start,
-//           children: [
-//             Expanded(
-//               child: Container(
-//                 decoration: const BoxDecoration(
-//                   color: Colors.white,
-//                   borderRadius: BorderRadius.vertical(
-//                     top: Radius.circular(UiConstants.radiusMd),
-//                   ),
-//                 ),
-//               ),
-//             ),
-//             Padding(
-//               padding: const EdgeInsets.all(8.0),
-//               child: Column(
-//                 crossAxisAlignment: CrossAxisAlignment.start,
-//                 children: [
-//                   Row(
-//                     children: [
-//                       const CircleAvatar(
-//                         radius: 10,
-//                         backgroundColor: Colors.white,
-//                       ),
-//                       const SizedBox(width: 8),
-//                       Container(
-//                         width: 80,
-//                         height: 10,
-//                         decoration: BoxDecoration(
-//                           color: Colors.white,
-//                           borderRadius: BorderRadius.circular(
-//                             UiConstants.spacingSm,
-//                           ),
-//                         ),
-//                       ),
-//                     ],
-//                   ),
-//                   const SizedBox(height: 8),
-//                   Container(
-//                     width: double.infinity,
-//                     height: 10,
-//                     decoration: BoxDecoration(
-//                       color: Colors.white,
-//                       borderRadius: BorderRadius.circular(
-//                         UiConstants.spacingSm,
-//                       ),
-//                     ),
-//                   ),
-//                 ],
-//               ),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
-
-// class _FilterChip extends StatelessWidget {
-//   final SearchFilter filter;
-//   final bool isActive;
-//   final VoidCallback onTap;
-
-//   const _FilterChip({
-//     required this.filter,
-//     required this.isActive,
-//     required this.onTap,
-//   });
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return InkWell(
-//       borderRadius: BorderRadius.circular(UiConstants.radiusMd),
-//       onTap: onTap,
-//       child: AnimatedContainer(
-//         duration: const Duration(milliseconds: 200),
-//         padding: const EdgeInsets.symmetric(horizontal: UiConstants.spacingMd),
-//         decoration: BoxDecoration(
-//           color: isActive
-//               ? Theme.of(context).colorScheme.primaryContainer
-//               : Colors.transparent,
-//           borderRadius: BorderRadius.circular(UiConstants.radiusMd),
-//         ),
-//         child: Row(
-//           mainAxisSize: MainAxisSize.min,
-//           children: [
-//             if (isActive) ...[
-//               const Icon(Icons.check, size: 16, color: Colors.black),
-//               const SizedBox(width: 6),
-//             ],
-//             Text(
-//               filter.name,
-//               style: TextStyle(
-//                 fontSize: 14,
-//                 fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
-//                 color: isActive ? Colors.black87 : Colors.white,
-//               ),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
-
-// enum SearchFilter { all, people, hotels, posts }
-
-// ─────────────────────────────────────────────────────────────────
-// features/search/presentation/pages/search_page.dart
-// ─────────────────────────────────────────────────────────────────
-
 import 'package:app/app/dependency_injection.dart';
 import 'package:app/app/router/route_constants.dart';
 import 'package:app/core/constants/ui_constants.dart';
-import 'package:app/core/theme/app_colors.dart';
 import 'package:app/core/widgets/auto_marquee_text.dart';
 import 'package:app/core/widgets/common_widgets.dart';
 import 'package:app/core/widgets/loading_widget.dart';
@@ -258,12 +17,8 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shimmer/shimmer.dart';
 
-// ── Filter enum ───────────────────────────────────────────────────
 enum SearchFilter { all, people, hotels, posts }
 
-// ─────────────────────────────────────────────────────────────────
-// Entry — BlocProvider wrapper (mirrors LibraryPage pattern)
-// ─────────────────────────────────────────────────────────────────
 class SearchPage extends StatelessWidget {
   const SearchPage({super.key});
 
@@ -332,42 +87,52 @@ class _SearchViewState extends State<_SearchView> {
         final result = _result(state);
         final query = _activeQuery(state);
 
-        return Scaffold(
-          body: CustomScrollView(
-            slivers: [
-              // ── Sticky header ──────────────────────────────────
-              SliverAppBar(
-                expandedHeight: 100 + UiConstants.spacingLg,
-                collapsedHeight: 100 + UiConstants.spacingLg,
-                foregroundColor: Colors.white,
-                floating: false,
-                pinned: true,
-                flexibleSpace: FlexibleSpaceBar(
-                  background: _SearchHeader(
-                    controller: _controller,
-                    activeFilter: filter,
-                    currentUserId: widget.currentUserId,
+        return RefreshIndicator(
+          onRefresh: () async {
+            context.read<SearchBloc>().add(
+              LoadDiscoveryFeed(currentUserId: widget.currentUserId),
+            );
+          },
+          child: Scaffold(
+            body: CustomScrollView(
+              slivers: [
+                // ── Sticky header ──────────────────────────────────
+                SliverAppBar(
+                  expandedHeight: 100 + UiConstants.spacingLg,
+                  collapsedHeight: 100 + UiConstants.spacingLg,
+                  foregroundColor: Colors.white,
+                  floating: false,
+                  pinned: true,
+                  flexibleSpace: FlexibleSpaceBar(
+                    background: _SearchHeader(
+                      controller: _controller,
+                      activeFilter: filter,
+                      currentUserId: widget.currentUserId,
+                    ),
                   ),
                 ),
-              ),
 
-              // ── Body ──────────────────────────────────────────
-              if (state is SearchLoading || state is SearchInitial)
-                const _ShimmerGrid()
-              else if (state is SearchError)
-                _ErrorSliver(message: state.message)
-              else if (result != null && result.isEmpty)
-                _EmptySliver(query: query)
-              else if (result != null)
-                _ResultsSliver(
-                  result: result,
-                  filter: filter,
-                  isSearchMode: state is SearchResultsLoaded,
-                  currentUserId: widget.currentUserId,
-                )
-              else
-                const _ShimmerGrid(),
-            ],
+                // ── Body ──────────────────────────────────────────
+                if (state is SearchLoading || state is SearchInitial) ...[
+                  const SliverFillRemaining(
+                    hasScrollBody: true,
+                    child: SearchShimmerView(),
+                  ),
+                ] else if (state is SearchError)
+                  _ErrorSliver(message: state.message)
+                else if (result != null && result.isEmpty)
+                  _EmptySliver(query: query)
+                else if (result != null)
+                  _ResultsSliver(
+                    result: result,
+                    filter: filter,
+                    isSearchMode: state is SearchResultsLoaded,
+                    currentUserId: widget.currentUserId,
+                  )
+                else
+                  const _ShimmerGrid(),
+              ],
+            ),
           ),
         );
       },
@@ -693,97 +458,6 @@ List<Widget> _buildAllSlivers(
   }
 
   return slivers;
-}
-
-// ─────────────────────────────────────────────────────────────────
-// "All" — stacked sections: users row, hotels row, posts grid
-// ─────────────────────────────────────────────────────────────────
-class _AllResultsSliver extends StatelessWidget {
-  final SearchResult result;
-  final String currentUserId;
-  final bool isSearchMode;
-
-  const _AllResultsSliver({
-    required this.result,
-    required this.isSearchMode,
-    required this.currentUserId,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SliverList(
-      delegate: SliverChildListDelegate([
-        // ── People row ──────────────────────────────────────────
-        if (result.users.isNotEmpty) ...[
-          _SectionHeader(
-            title: isSearchMode ? 'People' : 'Suggested People',
-            icon: Icons.people_outline,
-          ),
-          SizedBox(
-            height: 110,
-            child: ListView.separated(
-              padding: const EdgeInsets.symmetric(
-                horizontal: UiConstants.spacingMd,
-              ),
-              scrollDirection: Axis.horizontal,
-              itemCount: result.users.length,
-              separatorBuilder: (_, __) =>
-                  const SizedBox(width: UiConstants.spacingMd),
-              itemBuilder: (_, i) => _UserBubble(
-                user: result.users[i],
-                currentUserId: currentUserId,
-              ),
-            ),
-          ),
-          const SizedBox(height: UiConstants.spacingMd),
-        ],
-
-        // ── Hotels row ──────────────────────────────────────────
-        if (result.organizations.isNotEmpty) ...[
-          _SectionHeader(
-            title: isSearchMode ? 'Hotels' : 'Featured Hotels',
-            icon: Icons.hotel_outlined,
-          ),
-          SizedBox(
-            height: 200,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              itemCount: result.organizations.length,
-              separatorBuilder: (_, __) =>
-                  const SizedBox(width: UiConstants.spacingSm),
-              itemBuilder: (_, i) =>
-                  _HotelGridCard(org: result.organizations[i])
-                      .animate(delay: (i * 80).ms)
-                      .slideY(
-                        begin: i.isEven ? -0.3 : 0.3,
-                        duration: UiConstants.animationSlow,
-                        curve: Curves.easeOutCubic,
-                      )
-                      .scale(
-                        begin: const Offset(0.9, 1),
-                        duration: UiConstants.animationSlow,
-                        curve: Curves.easeInOut,
-                      )
-                      .fade(duration: UiConstants.animationSlow),
-            ),
-          ),
-          const SizedBox(height: UiConstants.spacingMd),
-        ],
-
-        // ── Posts header (grid rendered in next sliver) ─────────
-        if (result.posts.isNotEmpty) ...[
-          _SectionHeader(
-            title: isSearchMode ? 'Posts' : 'Trending Posts',
-            icon: Icons.grid_view_outlined,
-          ),
-          _PostsMasonrySliver(
-            posts: result.posts,
-            currentUserId: currentUserId,
-          ),
-        ],
-      ]),
-    );
-  }
 }
 
 // ─────────────────────────────────────────────────────────────────
@@ -1672,4 +1346,206 @@ String _getInitialCharactrOfOrganization(String name) {
       .where((word) => word.isNotEmpty)
       .map((word) => word[0].toUpperCase())
       .join();
+}
+
+// ─────────────────────────────────────────────
+// SHIMMER VIEW
+// ─────────────────────────────────────────────
+
+// class SearchShimmerView extends StatelessWidget {
+//   const SearchShimmerView({super.key});
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Shimmer.fromColors(
+//       baseColor: Colors.grey[300]!,
+//       highlightColor: Colors.grey[100]!,
+//       child: const SingleChildScrollView(
+//         physics: NeverScrollableScrollPhysics(),
+//         child: Column(
+//           crossAxisAlignment: CrossAxisAlignment.start,
+//           children: [
+//             SizedBox(height: UiConstants.spacingMd),
+//             _TitleShimmer(width: 160, height: 20),
+//             _HorizontalAvatarShimmer(),
+
+//             _TitleShimmer(width: 230, height: 20),
+//             _HorizontalCardShimmer(),
+//             SizedBox(height: UiConstants.spacingLg),
+//             _TitleShimmer(width: 200, height: 20),
+//             _GridShimmer(),
+//             SizedBox(height: UiConstants.spacingLg),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+// }
+
+class SearchShimmerView extends StatelessWidget {
+  const SearchShimmerView({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      child: const SingleChildScrollView(
+        physics: NeverScrollableScrollPhysics(),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(height: UiConstants.spacingMd),
+
+            // People section
+            _TitleShimmer(width: 160, height: 20),
+            SizedBox(height: UiConstants.spacingSm),
+            _HorizontalAvatarShimmer(),
+            SizedBox(height: UiConstants.spacingSm),
+
+            // Hotels section
+            _TitleShimmer(width: 230, height: 20),
+            SizedBox(height: UiConstants.spacingSm),
+            _HorizontalCardShimmer(),
+            SizedBox(height: UiConstants.spacingLg),
+
+            // Posts section
+            _TitleShimmer(width: 200, height: 20),
+            SizedBox(height: UiConstants.spacingSm),
+            _GridShimmer(),
+
+            SizedBox(height: UiConstants.spacingLg),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _GridShimmer extends StatelessWidget {
+  const _GridShimmer();
+
+  @override
+  Widget build(BuildContext context) {
+    // Manually build rows instead of GridView to avoid sizing issues inside Column
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: UiConstants.spacingMd),
+      child: Column(
+        children: List.generate(4, (rowIndex) {
+          final leftHeight = rowIndex.isEven ? 200.0 : 260.0;
+          final rightHeight = rowIndex.isEven ? 260.0 : 200.0;
+          return Padding(
+            padding: const EdgeInsets.only(bottom: UiConstants.spacingSm),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(child: _ShimmerBox(height: leftHeight)),
+                const SizedBox(width: UiConstants.spacingSm),
+                Expanded(child: _ShimmerBox(height: rightHeight)),
+              ],
+            ),
+          );
+        }),
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────
+// REUSABLE SHIMMER BOX
+// ─────────────────────────────────────────────
+
+class _ShimmerBox extends StatelessWidget {
+  final double? height;
+  final double? width;
+  final double radius;
+
+  const _ShimmerBox({this.height, this.width, this.radius = 8});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: height,
+      width: width,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(radius),
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────
+// TITLE SHIMMER
+// ─────────────────────────────────────────────
+
+class _TitleShimmer extends StatelessWidget {
+  final double height;
+  final double width;
+  const _TitleShimmer({required this.height, required this.width});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: UiConstants.spacingMd,
+        vertical: UiConstants.spacingSm,
+      ),
+      child: _ShimmerBox(height: height, width: width),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────
+// HORIZONTAL AVATAR SHIMMER
+// ─────────────────────────────────────────────
+
+class _HorizontalAvatarShimmer extends StatelessWidget {
+  const _HorizontalAvatarShimmer();
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 100,
+      child: ListView.separated(
+        padding: const EdgeInsets.symmetric(horizontal: UiConstants.spacingMd),
+        scrollDirection: Axis.horizontal,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: 6,
+        separatorBuilder: (_, __) =>
+            const SizedBox(width: UiConstants.spacingMd),
+        itemBuilder: (_, __) => const Column(
+          children: [
+            CircleAvatar(radius: 28, backgroundColor: Colors.white),
+            SizedBox(height: 8),
+            _ShimmerBox(height: 10, width: 50, radius: 4),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────
+// HORIZONTAL CARD SHIMMER
+// ─────────────────────────────────────────────
+
+class _HorizontalCardShimmer extends StatelessWidget {
+  const _HorizontalCardShimmer();
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 220,
+      child: ListView.separated(
+        padding: const EdgeInsets.symmetric(horizontal: UiConstants.spacingMd),
+        scrollDirection: Axis.horizontal,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: 6,
+        separatorBuilder: (_, __) =>
+            const SizedBox(width: UiConstants.spacingMd),
+        itemBuilder: (_, __) => const _ShimmerBox(height: 220, width: 160),
+      ),
+    );
+  }
 }
