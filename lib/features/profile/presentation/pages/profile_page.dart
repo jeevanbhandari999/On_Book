@@ -8,13 +8,17 @@ import 'package:app/features/auth/data/models/user_model.dart';
 import 'package:app/features/auth/domain/entities/user.dart';
 import 'package:app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:app/features/auth/services/auth_service.dart';
+import 'package:app/features/organizations/domain/usecases/get_user_organization_detail_use_case.dart';
+import 'package:app/features/organizations/presentation/bloc/get_user_organization_details_bloc.dart';
 import 'package:app/features/profile/domain/repositories/profile_repository.dart';
 import 'package:app/features/profile/domain/usecases/delete_profile_picture_use_case.dart';
 import 'package:app/features/profile/domain/usecases/update_profile_picture_use_case.dart';
 import 'package:app/features/profile/presentation/bloc/get_current_user_profile_details_bloc.dart';
 import 'package:app/features/profile/presentation/bloc/update_profile_picture_bloc.dart';
 import 'package:app/features/profile/presentation/pages/profile_image_page.dart';
+import 'package:app/features/profile/presentation/pages/view_user_profile_page.dart';
 import 'package:app/features/profile/presentation/widgets/show_on_collapsed_sliver_app_bar.dart';
+import 'package:app/features/profile/presentation/widgets/view_user_profile_detail_shimmer.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -51,143 +55,152 @@ class ProfilePage extends StatelessWidget {
           ),
         ),
       ],
-      child: const ProfileView(),
+      child: ProfileView(userId: userId),
     );
   }
 }
 
 class ProfileView extends StatelessWidget {
-  const ProfileView({super.key});
+  const ProfileView({super.key, required this.userId});
+  final String userId;
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: BlocListener<AuthBloc, AuthState>(
-        listener: (context, state) {
-          if (state is AuthUnauthenticated) {
-            context.go(RouteConstants.login);
-          }
-        },
-        child:
-            BlocConsumer<
-              GetCurrentUserProfileDetailsBloc,
-              GetCurrentUserProfileDetailsState
-            >(
-              listener: (context, state) {
-                if (state is GetCurrentUserProfileDetailsError) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(state.message),
-                      backgroundColor: Theme.of(context).colorScheme.error,
-                    ),
-                  );
-                }
-              },
-              builder: (context, state) {
-                if (state is GetCurrentUserProfileDetailsLoading) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                if (state is GetCurrentUserProfileDetailsSuccess) {
-                  final user = state.user;
-                  return CustomScrollView(
-                    slivers: [
-                      _buildSliverAppBar(context, user),
-                      SliverToBoxAdapter(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: UiConstants.spacingMd,
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const SizedBox(height: UiConstants.spacingMd),
-                              const Text(
-                                'Personal Information',
-                                style: TextStyle(fontSize: 18),
-                              ),
-                              const SizedBox(height: UiConstants.spacingSm),
-                              SizedBox(
-                                width: double.infinity,
-                                child: Container(
-                                  padding: const EdgeInsets.all(
-                                    UiConstants.spacingMd,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(
-                                      UiConstants.radiusXl,
+    return RefreshIndicator(
+      onRefresh: () async {
+        context.read<GetCurrentUserProfileDetailsBloc>().add(
+          GetCurrentUserProfileDetailsRequested(userId: userId),
+        );
+      },
+      child: Scaffold(
+        body: BlocListener<AuthBloc, AuthState>(
+          listener: (context, state) {
+            if (state is AuthUnauthenticated) {
+              context.go(RouteConstants.login);
+            }
+          },
+          child:
+              BlocConsumer<
+                GetCurrentUserProfileDetailsBloc,
+                GetCurrentUserProfileDetailsState
+              >(
+                listener: (context, state) {
+                  if (state is GetCurrentUserProfileDetailsError) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(state.message),
+                        backgroundColor: Theme.of(context).colorScheme.error,
+                      ),
+                    );
+                  }
+                },
+                builder: (context, state) {
+                  if (state is GetCurrentUserProfileDetailsLoading) {
+                    // return const Center(child: CircularProgressIndicator());
+                    return const ViewUserProfileShimmer();
+                  }
+                  if (state is GetCurrentUserProfileDetailsSuccess) {
+                    final user = state.user;
+                    return CustomScrollView(
+                      slivers: [
+                        _buildSliverAppBar(context, user),
+                        SliverToBoxAdapter(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: UiConstants.spacingMd,
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const SizedBox(height: UiConstants.spacingMd),
+                                const Text(
+                                  'Personal Information',
+                                  style: TextStyle(fontSize: 18),
+                                ),
+                                const SizedBox(height: UiConstants.spacingSm),
+                                SizedBox(
+                                  width: double.infinity,
+                                  child: Container(
+                                    padding: const EdgeInsets.all(
+                                      UiConstants.spacingMd,
                                     ),
-                                    gradient: LinearGradient(
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
-                                      colors: [
-                                        Colors.white.withAlpha(90),
-                                        Colors.white.withAlpha(40),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(
+                                        UiConstants.radiusXl,
+                                      ),
+                                      gradient: LinearGradient(
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                        colors: [
+                                          Colors.white.withAlpha(90),
+                                          Colors.white.withAlpha(40),
+                                        ],
+                                      ),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withAlpha(22),
+                                          blurRadius: 20,
+                                          spreadRadius: 2,
+                                          offset: const Offset(0, 8),
+                                        ),
+                                      ],
+                                      border: Border.all(
+                                        color: Colors.black.withAlpha(80),
+                                        width: 1.2,
+                                      ),
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          user.fullName.trim(),
+                                          style: const TextStyle(
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        Text(
+                                          _getRoleDisplayName(user.role),
+                                          style: const TextStyle(fontSize: 17),
+                                        ),
                                       ],
                                     ),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withAlpha(22),
-                                        blurRadius: 20,
-                                        spreadRadius: 2,
-                                        offset: const Offset(0, 8),
-                                      ),
-                                    ],
-                                    border: Border.all(
-                                      color: Colors.black.withAlpha(80),
-                                      width: 1.2,
-                                    ),
-                                  ),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        user.fullName.trim(),
-                                        style: const TextStyle(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      Text(
-                                        _getRoleDisplayName(user.role),
-                                        style: const TextStyle(fontSize: 17),
-                                      ),
-                                    ],
                                   ),
                                 ),
-                              ),
-                              const SizedBox(height: UiConstants.spacingMd),
-                              const Text(
-                                'Contact Information',
-                                style: TextStyle(fontSize: 18),
-                              ),
-                              const SizedBox(height: UiConstants.spacingSm),
-                              _buildProfileInfoCard(user),
-                              const SizedBox(height: UiConstants.spacingMd),
-                              const Text(
-                                'Additional Information',
-                                style: TextStyle(fontSize: 18),
-                              ),
-                              const SizedBox(height: UiConstants.spacingSm),
-                              _buildInfoSection(context, user),
-                              const SizedBox(height: UiConstants.spacingMd),
-                              const Text(
-                                'Settings',
-                                style: TextStyle(fontSize: 18),
-                              ),
-                              const SizedBox(height: UiConstants.spacingSm),
-                              _buildSettingsList(context, user),
-                              const SizedBox(height: UiConstants.spacingXl),
-                            ],
+                                const SizedBox(height: UiConstants.spacingMd),
+                                const Text(
+                                  'Contact Information',
+                                  style: TextStyle(fontSize: 18),
+                                ),
+                                const SizedBox(height: UiConstants.spacingSm),
+                                _buildProfileInfoCard(user),
+                                const SizedBox(height: UiConstants.spacingMd),
+                                const Text(
+                                  'Additional Information',
+                                  style: TextStyle(fontSize: 18),
+                                ),
+                                const SizedBox(height: UiConstants.spacingSm),
+                                _buildInfoSection(context, user),
+                                const SizedBox(height: UiConstants.spacingMd),
+                                const Text(
+                                  'Settings',
+                                  style: TextStyle(fontSize: 18),
+                                ),
+                                const SizedBox(height: UiConstants.spacingSm),
+                                _buildSettingsList(context, user),
+                                const SizedBox(height: UiConstants.spacingXl),
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                    ],
-                  );
-                }
-                return const SizedBox.shrink();
-              },
-            ),
+                      ],
+                    );
+                  }
+                  return const SizedBox.shrink();
+                },
+              ),
+        ),
       ),
     );
   }
@@ -497,14 +510,20 @@ class ProfileView extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildInfoTile(
-            context,
-            icon: Icons.business,
-            title: 'Organization',
-            subtitle: user.organizationId != null
-                ? 'Member of organization'
-                : 'No organization yet',
-          ),
+          // _buildInfoTile(
+          //   context,
+          //   icon: Icons.business,
+          //   title: 'Organization',
+          //   subtitle: user.organizationId != null
+          //       ? 'Member of organization'
+          //       : 'No organization yet',
+          // ),
+          if (user.organizationId != null)
+            OrganizationDetailTile(
+              organizationId: user.organizationId!,
+              userId: user.userId,
+              role: user.role.name,
+            ),
 
           _buildInfoTile(
             context,
@@ -564,17 +583,17 @@ class ProfileView extends StatelessWidget {
   Widget _buildSettingsList(BuildContext context, User user) {
     return Column(
       children: [
-        _buildSettingItem(
-          context,
-          icon: Icons.business,
-          title: user.organizationId != null
-              ? 'Member of organization'
-              : 'No organization yet',
-          borderColor: AppColors.black,
-          onTap: () {
-            context.push(RouteConstants.organizationDetailsPageOwnerSide);
-          },
-        ),
+        // _buildSettingItem(
+        //   context,
+        //   icon: Icons.business,
+        //   title: user.organizationId != null
+        //       ? 'Member of organization'
+        //       : 'No organization yet',
+        //   borderColor: AppColors.black,
+        //   onTap: () {
+        //     context.push(RouteConstants.organizationDetailsPageOwnerSide);
+        //   },
+        // ),
         const SizedBox(height: UiConstants.spacingSm),
         _buildSettingItem(
           context,
