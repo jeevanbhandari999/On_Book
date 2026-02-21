@@ -98,14 +98,14 @@ class HomeView extends StatelessWidget {
     return Scaffold(
       body: RefreshIndicator(
         onRefresh: () async {
-          // context.read<HomeBloc>().add(RefreshNearbyPosts(userId: userId));
-          context.read<HomeBloc>().add(
-            FetchNearByAndContentBasedFilteringPosts(
-              userId: userId,
-              // latitude: 37.421998,
-              // longitude: -122.084000,
-            ),
-          );
+          context.read<HomeBloc>().add(RefreshNearbyPosts(userId: userId));
+          // context.read<HomeBloc>().add(
+          //   FetchNearByAndContentBasedFilteringPosts(
+          //     userId: userId,
+          //     // latitude: 37.421998,
+          //     // longitude: -122.084000,
+          //   ),
+          // );
         },
         child: BlocBuilder<HomeBloc, HomeState>(
           builder: (context, state) {
