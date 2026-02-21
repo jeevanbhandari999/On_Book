@@ -16,7 +16,6 @@ class GetAllPostRecommendedByContentFilterUseCase {
     if (params.userId.trim().isEmpty) {
       return const Left(ValidationFailure('User ID is required'));
     }
-
     return await repository.getRecommendedPosts(
       userId: params.userId,
       longitude: params.longitude,

@@ -82,19 +82,19 @@ class HomeRepositoryImpl implements HomeRepository {
     String? cursor,
   }) async {
     try {
-      // First check is cache is expired
-      final isCacheExpired = await localDataSource.isCacheExpired(userId);
-      // print(isCacheExpired);
-      if (!isCacheExpired) {
-        // Try to get the caches posts first
-        final cachePosts = await localDataSource.getCachedPosts(userId);
-        if (cachePosts != null && cachePosts.isNotEmpty) {
-          final posts = cachePosts
-              .map((postModel) => postModel.toEntity())
-              .toList();
-          return Right((posts: posts, nextCursor: null));
-        }
-      }
+      // // First check is cache is expired
+      // final isCacheExpired = await localDataSource.isCacheExpired(userId);
+      // // print(isCacheExpired);
+      // if (!isCacheExpired) {
+      //   // Try to get the caches posts first
+      //   final cachePosts = await localDataSource.getCachedPosts(userId);
+      //   if (cachePosts != null && cachePosts.isNotEmpty) {
+      //     final posts = cachePosts
+      //         .map((postModel) => postModel.toEntity())
+      //         .toList();
+      //     return Right((posts: posts, nextCursor: null));
+      //   }
+      // }
 
       // Fetch from remote if cache is expired or empty
       final remotePostModels = await remoteDataSource.getNearByPosts(
@@ -111,9 +111,9 @@ class HomeRepositoryImpl implements HomeRepository {
         },
         (data) async {
           // Save cache only for FIRST page
-          if (cursor != null) {
-            await localDataSource.cachePosts(userId, data.posts);
-          }
+          // if (cursor != null) {
+          //   await localDataSource.cachePosts(userId, data.posts);
+          // }
 
           // Fetch the images related to the post
           final postRepo = DependencyInjection.get<PostRepository>();

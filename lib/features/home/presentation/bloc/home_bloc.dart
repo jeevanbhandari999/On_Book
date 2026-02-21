@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:app/features/auth/domain/entities/organization.dart';
+import 'package:app/features/home/domain/usecases/get_all_post_recommended_by_content_filter_use_case.dart';
 import 'package:app/features/home/domain/usecases/get_all_posts_near_by_user_use_case.dart';
 import 'package:app/features/home/domain/usecases/get_organization_detail_by_post_organization_id.dart';
 import 'package:app/features/post/domain/entities/post.dart';
@@ -30,6 +33,23 @@ class FetchNearbyPosts extends HomeEvent {
 
   @override
   List<Object?> get props => [userId, latitude, longitude, cursor, limit];
+}
+
+class FetchNearByAndContentBasedFilteringPosts extends HomeEvent {
+  final String userId;
+  final double? latitude;
+  final double? longitude;
+  final int limit;
+
+  const FetchNearByAndContentBasedFilteringPosts({
+    required this.userId,
+    this.longitude,
+    this.latitude,
+    this.limit = 15,
+  });
+
+  @override
+  List<Object?> get props => [userId, longitude, latitude, limit];
 }
 
 class RefreshNearbyPosts extends HomeEvent {
@@ -111,12 +131,18 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   final GetAllPostsNearByUserUseCase getNearbyPostsUseCase;
   final GetOrganizationDetailByPostOrganizationIdUseCase
   getOrganizationDetailByPostOrganizationIdUseCase;
+  final GetAllPostRecommendedByContentFilterUseCase
+  getAllPostRecommendedByContentFilterUseCase;
 
   HomeBloc({
     required this.getNearbyPostsUseCase,
     required this.getOrganizationDetailByPostOrganizationIdUseCase,
+    required this.getAllPostRecommendedByContentFilterUseCase,
   }) : super(const HomeInitial()) {
     on<FetchNearbyPosts>(_onFetchNearbyPosts);
+    on<FetchNearByAndContentBasedFilteringPosts>(
+      _onFetchNearByAndContentBasedFilteringPosts,
+    );
     on<FetchOrganizationDetails>(_onFetchOrganizationDetails);
     on<RefreshNearbyPosts>(_onRefreshNearbyPosts);
   }
@@ -195,6 +221,33 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       (failure) => emit(HomeError(failure.message)),
       (data) => emit(
         HomeLoaded(data.posts, data.nextCursor, organizations: const {}),
+      ),
+    );
+  }
+
+  Future<void> _onFetchNearByAndContentBasedFilteringPosts(
+    FetchNearByAndContentBasedFilteringPosts event,
+    Emitter<HomeState> emit,
+  ) async {
+    emit(const HomeLoading());
+
+    final result = await getAllPostRecommendedByContentFilterUseCase(
+      GetAllPostRecommendedByContentFilterParams(
+        userId: event.userId,
+        latitude: event.latitude,
+        longitude: event.longitude,
+        limit: event.limit,
+      ),
+    );
+
+    result.fold(
+      (failure) => emit(HomeError(failure.message)),
+      (posts) => emit(
+        HomeLoaded(
+          posts,
+          null, // No cursor for recommendation feed (for now)
+          organizations: const {},
+        ),
       ),
     );
   }
