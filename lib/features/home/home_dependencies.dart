@@ -2,6 +2,7 @@ import 'package:app/features/home/data/datasources/home_local_data_source.dart';
 import 'package:app/features/home/data/datasources/home_remote_data_source.dart';
 import 'package:app/features/home/data/repositories/home_repository_impl.dart';
 import 'package:app/features/home/domain/repositories/home_repository.dart';
+import 'package:app/features/home/domain/usecases/get_all_post_recommended_by_content_filter_use_case.dart';
 import 'package:app/features/home/domain/usecases/get_all_posts_near_by_user_use_case.dart';
 import 'package:app/features/home/domain/usecases/get_organization_detail_by_post_organization_id.dart';
 import 'package:app/features/home/domain/usecases/get_organization_list_based_on_global_score_use_case.dart';
@@ -58,6 +59,10 @@ class HomeDependencies {
     getIt.registerLazySingleton<TogglePostSaveOrUnsaveUseCase>(
       () => TogglePostSaveOrUnsaveUseCase(getIt<HomeRepository>()),
     );
+    getIt.registerLazySingleton<GetAllPostRecommendedByContentFilterUseCase>(
+      () =>
+          GetAllPostRecommendedByContentFilterUseCase(getIt<HomeRepository>()),
+    );
 
     // BLoC
     getIt.registerFactory<HomeBloc>(
@@ -67,6 +72,11 @@ class HomeDependencies {
         ),
         getOrganizationDetailByPostOrganizationIdUseCase:
             GetOrganizationDetailByPostOrganizationIdUseCase(
+              getIt<HomeRepository>(),
+            ),
+
+        getAllPostRecommendedByContentFilterUseCase:
+            GetAllPostRecommendedByContentFilterUseCase(
               getIt<HomeRepository>(),
             ),
       ),
