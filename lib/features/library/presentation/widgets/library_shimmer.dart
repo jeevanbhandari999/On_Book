@@ -277,4 +277,4 @@ class LibraryShimmer extends StatelessWidget {
   }
 }
 
-final widthOfButtons = [370, 200, 300, 350, 250, 440, 300, 410];
+final widthOfButtons = [130, 100, 90, 120, 140, 60, 94, 130];
