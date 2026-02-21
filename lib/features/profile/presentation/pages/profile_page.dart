@@ -8,8 +8,6 @@ import 'package:app/features/auth/data/models/user_model.dart';
 import 'package:app/features/auth/domain/entities/user.dart';
 import 'package:app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:app/features/auth/services/auth_service.dart';
-import 'package:app/features/organizations/domain/usecases/get_user_organization_detail_use_case.dart';
-import 'package:app/features/organizations/presentation/bloc/get_user_organization_details_bloc.dart';
 import 'package:app/features/profile/domain/repositories/profile_repository.dart';
 import 'package:app/features/profile/domain/usecases/delete_profile_picture_use_case.dart';
 import 'package:app/features/profile/domain/usecases/update_profile_picture_use_case.dart';
