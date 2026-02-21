@@ -22,6 +22,8 @@ abstract class HomeRemoteDataSource {
   Future<Either<Failure, List<PostModel>>> getRecommendedPosts({
     required String userId,
     int limit = 15,
+    double? latitude,
+    double? longitude,
   });
 
   // Get the organization detail by post id
@@ -47,76 +49,6 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
   final SupabaseClient supabaseClient;
 
   const HomeRemoteDataSourceImpl({required this.supabaseClient});
-
-  // @override
-  // Future<Either<Failure, ({String? nextCursor, List<PostModel> posts})>>
-  // getNearByPosts({
-  //   required String userId,
-  //   double? latitude,
-  //   double? longitude,
-  //   int limit = 15,
-  //   String? cursor,
-  // }) async {
-  //   try {
-  //     if (latitude == null || longitude == null) {
-  //       var query = supabaseClient.from('posts').select().limit(limit + 1);
-  //       if (cursor != null) {
-  //         query = supabaseClient
-  //             .from('posts')
-  //             .select()
-  //             .lt('created_at', cursor)
-  //             .limit(limit + 1);
-  //       }
-  //       final response = await query;
-  //       final posts = (response as List)
-  //           .map((json) => PostModel.fromJson(json))
-  //           .toList();
-
-  //       String? nextCursor;
-  //       if (posts.length > limit) {
-  //         posts.removeLast();
-  //         nextCursor = posts.last.createdAt.toIso8601String();
-  //       }
-
-  //       return Right((posts: posts, nextCursor: nextCursor));
-  //     }
-
-  //     // With location: use RPC
-  //     final cursorDate = cursor != null ? DateTime.parse(cursor).toUtc() : null;
-
-  //     final response = await supabaseClient.rpc(
-  //       'get_nearby_posts',
-  //       params: {
-  //         'p_lat': latitude,
-  //         'p_lng': longitude,
-  //         'p_limit': limit,
-  //         'p_cursor': cursorDate?.toIso8601String(),
-  //       },
-  //     );
-
-  //     // Assuming the response is a list of rows as the function returns a table.
-  //     final List<dynamic> data = response as List;
-
-  //     // Convert the response to a list of PostModel objects
-  //     final List<PostModel> posts = data
-  //         .map((json) => PostModel.fromJson(json as Map<String, dynamic>))
-  //         .toList();
-
-  //     // Extract the nextCursor, which is the `created_at` value of the last post.
-  //     String? nextCursor;
-  //     if (posts.isNotEmpty) {
-  //       nextCursor = posts.last.createdAt
-  //           .toIso8601String(); // Use the created_at timestamp as the cursor
-  //     }
-
-  //     return Right((posts: posts, nextCursor: nextCursor));
-  //     // return Right((posts: [], nextCursor: 'nextCursor'));
-  //   } on PostgrestException catch (e) {
-  //     return Left(ServerFailure('Supabase error: ${e.message}'));
-  //   } catch (e) {
-  //     return Left(ServerFailure('Failed to load posts: $e'));
-  //   }
-  // }
 
   @override
   Future<Either<Failure, ({String? nextCursor, List<PostModel> posts})>>
@@ -215,9 +147,133 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
   Future<Either<Failure, List<PostModel>>> getRecommendedPosts({
     required String userId,
     int limit = 15,
+    double? latitude,
+    double? longitude,
+  }) async {
+    try {
+      // 1️⃣ Build interest map
+      final interestMap = await _buildInterestMap(userId);
+
+      final maxFreq = interestMap.isEmpty
+          ? 1.0
+          : interestMap.values.reduce((a, b) => a > b ? a : b);
+
+      // 2️⃣ Fetch content-based candidates
+      final contentResponse = await supabaseClient
+          .from('posts')
+          .select('*, post_images(*)')
+          .order('created_at', ascending: false)
+          .limit(limit * 3);
+
+      List<Map<String, dynamic>> combined = (contentResponse as List)
+          .cast<Map<String, dynamic>>();
+
+      // 3️⃣ If location exists → fetch nearby too
+      if (latitude != null && longitude != null) {
+        final nearbyResponse = await supabaseClient.rpc(
+          'get_nearby_posts',
+          params: {
+            'p_lat': latitude,
+            'p_lng': longitude,
+            'p_limit': limit * 2,
+            'p_cursor': null,
+          },
+        );
+
+        final nearbyList = (nearbyResponse as List)
+            .cast<Map<String, dynamic>>();
+
+        combined.addAll(nearbyList);
+      }
+
+      // 4️⃣ Remove duplicates (by post id)
+      final Map<String, Map<String, dynamic>> uniqueMap = {
+        for (var post in combined) post['id']: post,
+      };
+
+      final uniquePosts = uniqueMap.values.toList();
+
+      // 5️⃣ Score posts (content based)
+      final scored = uniquePosts.map((json) {
+        final score = _contentScore(
+          tagsRaw: json['tags'],
+          amenitiesRaw: json['amenities'],
+          freq: interestMap,
+          maxFreq: maxFreq,
+        );
+
+        return MapEntry(json, score);
+      }).toList()..sort((a, b) => b.value.compareTo(a.value));
+
+      // 6️⃣ Take top limit
+      final finalPosts = scored
+          .take(limit)
+          .map((e) => PostModel.fromJson(e.key))
+          .toList();
+
+      return Right(finalPosts);
+    } on PostgrestException catch (e) {
+      return Left(ServerFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  double _contentScore({
+    required dynamic tagsRaw,
+    required dynamic amenitiesRaw,
+    required Map<String, double> freq,
+    required double maxFreq,
   }) {
-    // TODO: implement getRecommendedPosts
-    throw UnimplementedError();
+    if (freq.isEmpty) return 0;
+
+    final signals = <String>[...?_asList(tagsRaw), ...?_asList(amenitiesRaw)];
+    if (signals.isEmpty) return 0;
+
+    double total = 0;
+    for (final s in signals) {
+      total += (freq[s] ?? 0) / maxFreq;
+    }
+
+    return (total / signals.length).clamp(0.0, 1.0);
+  }
+
+  List<String>? _asList(dynamic raw) {
+    if (raw is List) return raw.whereType<String>().toList();
+    return null;
+  }
+
+  Future<Map<String, double>> _buildInterestMap(String userId) async {
+    try {
+      final saved = await supabaseClient
+          .from('user_saved_posts')
+          .select('posts(tags, amenities)')
+          .eq('user_id', userId)
+          .limit(30);
+
+      final Map<String, double> freq = {};
+
+      void extract(dynamic raw) {
+        if (raw is List) {
+          for (final item in raw) {
+            if (item is String && item.isNotEmpty) {
+              freq[item] = (freq[item] ?? 0) + 1.0;
+            }
+          }
+        }
+      }
+
+      for (final row in saved as List) {
+        final post = row['posts'] as Map<String, dynamic>?;
+        if (post == null) continue;
+        extract(post['tags']);
+        extract(post['amenities']);
+      }
+
+      return freq;
+    } catch (_) {
+      return {};
+    }
   }
 
   @override
