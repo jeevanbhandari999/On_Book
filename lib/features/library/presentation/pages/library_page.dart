@@ -1485,10 +1485,8 @@ import 'package:app/app/router/route_constants.dart';
 import 'package:app/core/constants/ui_constants.dart';
 import 'package:app/core/utils/date_formatter.dart';
 import 'package:app/core/widgets/common_widgets.dart';
-import 'package:app/core/widgets/loading_widget.dart';
 import 'package:app/features/auth/services/auth_service.dart';
 import 'package:app/features/booking/domain/entities/booking.dart';
-import 'package:app/features/home/presentation/widgets/home_shimmer.dart';
 import 'package:app/features/library/domain/entities/library_filter_enum.dart';
 import 'package:app/features/library/domain/usecases/get_all_booking_by_user_id_use_case.dart';
 import 'package:app/features/library/domain/usecases/get_all_booking_related_to_organization_use_case.dart';
@@ -1759,7 +1757,10 @@ class _LibraryContent extends StatelessWidget {
   Widget _buildContentByFilter() {
     // Handle saved posts filter
     if (state.activeFilter == LibraryFilter.saved) {
-      return _SavedPostsList(savedPostsData: state.savedPostsData);
+      return _SavedPostsList(
+        savedPostsData: state.savedPostsData,
+        userId: userId,
+      );
     }
 
     // Handle booking-related filters
@@ -1774,8 +1775,9 @@ class _LibraryContent extends StatelessWidget {
 
 class _SavedPostsList extends StatelessWidget {
   final SavedPostsData savedPostsData;
+  final String userId;
 
-  const _SavedPostsList({required this.savedPostsData});
+  const _SavedPostsList({required this.savedPostsData, required this.userId});
 
   @override
   Widget build(BuildContext context) {
@@ -1797,7 +1799,7 @@ class _SavedPostsList extends StatelessWidget {
             const SizedBox(height: UiConstants.spacingSm),
         itemBuilder: (context, index) {
           final post = savedPostsData.savedPosts[index];
-          return _SavedPostCard(post: post);
+          return _SavedPostCard(post: post, userId: userId);
         },
       ),
     );
@@ -1806,8 +1808,9 @@ class _SavedPostsList extends StatelessWidget {
 
 class _SavedPostCard extends StatelessWidget {
   final Post post;
+  final String userId;
 
-  const _SavedPostCard({required this.post});
+  const _SavedPostCard({required this.post, required this.userId});
 
   @override
   Widget build(BuildContext context) {
@@ -1819,7 +1822,7 @@ class _SavedPostCard extends StatelessWidget {
           // Navigate to post details
           context.push(
             RouteConstants.postDetailsPage,
-            extra: {'postId': post.id},
+            extra: {'postId': post.id, 'post': post, 'userId': userId},
           );
         },
         child: Padding(

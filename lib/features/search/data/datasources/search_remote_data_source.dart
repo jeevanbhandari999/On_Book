@@ -143,47 +143,100 @@ class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
       OrganizationModel.fromJson(row).toEntity();
 
   // ── Content-Based Filtering helpers ──────────────────────────────
+  // Future<Map<String, int>> _buildInterestMap(String userId) async {
+  //   try {
+  //     // Fetch tags/amenities from posts the user liked
+  //     // final liked = await supabase
+  //     //     .from('post_likes')
+  //     //     .select('posts(tags, amenities)')
+  //     //     .eq('user_id', userId)
+  //     //     .limit(60);
 
-  /// Step 1 — build interest-frequency map from liked + saved posts.
-  /// We look at both `tags` (List<PostTag>) and `amenities` (List<AmenityType>)
-  /// because your PostModel stores both as string arrays in Supabase.
-  Future<Map<String, int>> _buildInterestMap(String userId) async {
+  //     // Fetch tags/amenities from posts the user saved
+  //     final saved = await supabase
+  //         .from('user_saved_posts')
+  //         .select('posts(tags, amenities)')
+  //         .eq('user_id', userId)
+  //         .limit(20);
+
+  //     final Map<String, int> freq = {};
+
+  //     void extractList(dynamic raw) {
+  //       if (raw is List) {
+  //         for (final item in raw) {
+  //           if (item is String && item.isNotEmpty) {
+  //             freq[item] = (freq[item] ?? 0) + 1;
+  //           }
+  //         }
+  //       }
+  //     }
+
+  //     for (final row in [
+  //       // ...liked,
+  //       ...saved,
+  //     ]) {
+  //       final post = row['posts'] as Map<String, dynamic>?;
+  //       if (post == null) continue;
+  //       extractList(post['tags']);
+  //       extractList(post['amenities']);
+  //     }
+
+  //     return freq;
+  //   } catch (_) {
+  //     return {};
+  //   }
+  // }
+
+  Future<Map<String, double>> _buildInterestMap(String userId) async {
     try {
-      // Fetch tags/amenities from posts the user liked
-      // final liked = await supabase
-      //     .from('post_likes')
-      //     .select('posts(tags, amenities)')
-      //     .eq('user_id', userId)
-      //     .limit(60);
+      final results = await Future.wait([
+        supabase
+            .from('user_saved_posts')
+            .select('posts(tags, amenities)')
+            .eq('user_id', userId)
+            .limit(30),
 
-      // Fetch tags/amenities from posts the user saved
-      final saved = await supabase
-          .from('saved_posts')
-          .select('posts(tags, amenities)')
-          .eq('user_id', userId)
-          .limit(60);
+        supabase
+            .from('bookings')
+            .select('posts(tags, amenities)')
+            .eq('user_id', userId)
+            .limit(30),
 
-      final Map<String, int> freq = {};
+        supabase
+            .from('post_views')
+            .select('posts(tags, amenities)')
+            .eq('user_id', userId)
+            .limit(50),
+      ]);
 
-      void extractList(dynamic raw) {
+      final saved = results[0] as List;
+      final booked = results[1] as List;
+      final viewed = results[2] as List;
+
+      final Map<String, double> freq = {};
+
+      void extract(dynamic raw, double weight) {
         if (raw is List) {
           for (final item in raw) {
             if (item is String && item.isNotEmpty) {
-              freq[item] = (freq[item] ?? 0) + 1;
+              freq[item] = (freq[item] ?? 0) + weight;
             }
           }
         }
       }
 
-      for (final row in [
-        // ...liked,
-        ...saved,
-      ]) {
-        final post = row['posts'] as Map<String, dynamic>?;
-        if (post == null) continue;
-        extractList(post['tags']);
-        extractList(post['amenities']);
+      void processRows(List rows, double weight) {
+        for (final row in rows) {
+          final post = row['posts'] as Map<String, dynamic>?;
+          if (post == null) continue;
+          extract(post['tags'], weight);
+          extract(post['amenities'], weight);
+        }
       }
+
+      processRows(saved, 1.0); // strong signal
+      processRows(booked, 1.5); // very strong signal
+      processRows(viewed, 0.4); // weak signal
 
       return freq;
     } catch (_) {
@@ -192,13 +245,31 @@ class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
   }
 
   /// Step 2 — score a post row against the interest map.
+  // double _contentScore({
+  //   required dynamic tagsRaw,
+  //   required dynamic amenitiesRaw,
+  //   required Map<String, int> freq,
+  //   required int maxFreq,
+  // }) {
+  //   if (freq.isEmpty) return 0;
+  //   final signals = <String>[...?_asList(tagsRaw), ...?_asList(amenitiesRaw)];
+  //   if (signals.isEmpty) return 0;
+
+  //   double total = 0;
+  //   for (final s in signals) {
+  //     total += (freq[s] ?? 0) / maxFreq;
+  //   }
+  //   return (total / signals.length).clamp(0.0, 1.0);
+  // }
+
   double _contentScore({
     required dynamic tagsRaw,
     required dynamic amenitiesRaw,
-    required Map<String, int> freq,
-    required int maxFreq,
+    required Map<String, double> freq,
+    required double maxFreq,
   }) {
     if (freq.isEmpty) return 0;
+
     final signals = <String>[...?_asList(tagsRaw), ...?_asList(amenitiesRaw)];
     if (signals.isEmpty) return 0;
 
@@ -206,6 +277,7 @@ class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
     for (final s in signals) {
       total += (freq[s] ?? 0) / maxFreq;
     }
+
     return (total / signals.length).clamp(0.0, 1.0);
   }
 
@@ -227,6 +299,78 @@ class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
 
   // ── Discovery feed ────────────────────────────────────────────────
 
+  // @override
+  // Future<SearchResult> getDiscoveryFeed({
+  //   required String currentUserId,
+  //   int page = 1,
+  //   int limit = 20,
+  // }) async {
+  //   try {
+  //     final results = await Future.wait<dynamic>([
+  //       _buildInterestMap(currentUserId),
+  //       supabase
+  //           .from('users')
+  //           .select(_userSelect)
+  //           .neq('user_id', currentUserId)
+  //           .order('created_at', ascending: false)
+  //           .limit(10),
+  //       supabase
+  //           .from('organizations')
+  //           .select(_orgSelect)
+  //           .order('created_at', ascending: false)
+  //           .limit(10),
+  //       supabase
+  //           .from('posts')
+  //           .select(_postSelect)
+  //           .eq('status', PostStatus.available.name)
+  //           .neq('created_by', currentUserId)
+  //           .order('created_at', ascending: false)
+  //           .limit(limit * 5),
+  //     ]);
+
+  //     final freq = results[0] as Map<String, int>;
+  //     final userRows = results[1] as List<dynamic>;
+  //     final orgRows = results[2] as List<dynamic>;
+  //     final candidateRows = results[3] as List<dynamic>;
+
+  //     final maxFreq = freq.isEmpty
+  //         ? 1
+  //         : freq.values.reduce((a, b) => a > b ? a : b);
+
+  //     //   final maxFreq = freq.isEmpty
+  //     // ? 1.0
+  //     // : freq.values.reduce((a, b) => a > b ? a : b);
+
+  //     // Score & sort candidates
+  //     final scored = candidateRows.map((row) {
+  //       final r = row as Map<String, dynamic>;
+  //       final cs = _contentScore(
+  //         tagsRaw: r['tags'],
+  //         amenitiesRaw: r['amenities'],
+  //         freq: freq,
+  //         maxFreq: maxFreq,
+  //       );
+  //       final rs = _recencyScore(r['created_at'] as String?);
+  //       final blended = 0.6 * cs + 0.4 * rs;
+  //       return MapEntry(r, blended);
+  //     }).toList()..sort((a, b) => b.value.compareTo(a.value));
+
+  //     final posts = scored.take(limit).map((e) => _postFromRow(e.key)).toList();
+  //     final users = userRows
+  //         .map((r) => _userFromRow(r as Map<String, dynamic>))
+  //         .toList();
+  //     final orgs = orgRows
+  //         .map((r) => _orgFromRow(r as Map<String, dynamic>))
+  //         .toList();
+
+  //     return SearchResult(posts: posts, users: users, organizations: orgs);
+  //   } on _supabase.PostgrestException catch (e) {
+  //     throw ServerException(e.message);
+  //   } catch (e) {
+  //     throw ServerException(e.toString());
+  //   }
+  // }
+
   @override
   Future<SearchResult> getDiscoveryFeed({
     required String currentUserId,
@@ -234,89 +378,147 @@ class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
     int limit = 20,
   }) async {
     try {
-      // Run interest-map fetch + user fetch + org fetch concurrently
-      // final results = await Future.wait(
-      //   [
-      //         _buildInterestMap(currentUserId),
-      //         // Suggested users: exclude self, any role, ordered by created_at
-      //         supabase
-      //             .from('users')
-      //             .select(_userSelect)
-      //             .neq('user_id', currentUserId)
-      //             .order('created_at', ascending: false)
-      //             .limit(10),
-      //         // Featured orgs: most recently added
-      //         supabase
-      //             .from('organizations')
-      //             .select(_orgSelect)
-      //             .order('created_at', ascending: false)
-      //             .limit(10),
-      //         // Candidate posts: status=available, not by current user
-      //         supabase
-      //             .from('posts')
-      //             .select(_postSelect)
-      //             .eq('status', PostStatus.available.name)
-      //             .neq('created_by', currentUserId)
-      //             .order('created_at', ascending: false)
-      //             .limit(limit * 5), // fetch 5× to allow re-ranking
-      //       ]
-      //       as Iterable<Future<dynamic>>,
-      // );
-
       final results = await Future.wait<dynamic>([
         _buildInterestMap(currentUserId),
+
+        // user-org affinity
+        supabase.from('user_org_scores').select().eq('user_id', currentUserId),
+
+        // global org scores
+        supabase.from('org_global_scores').select(),
+
+        // user behavior signals
+        supabase.from('user_saved_posts').select('post_id'),
+
         supabase
-            .from('users')
-            .select(_userSelect)
-            .neq('user_id', currentUserId)
-            .order('created_at', ascending: false)
-            .limit(10),
+            .from('bookings')
+            .select('post_id')
+            .eq('user_id', currentUserId),
+
         supabase
-            .from('organizations')
-            .select(_orgSelect)
-            .order('created_at', ascending: false)
-            .limit(10),
+            .from('post_views')
+            .select('post_id')
+            .eq('user_id', currentUserId),
+
+        // candidate posts
         supabase
             .from('posts')
             .select(_postSelect)
             .eq('status', PostStatus.available.name)
             .neq('created_by', currentUserId)
-            .order('created_at', ascending: false)
             .limit(limit * 5),
+
+        // users
+        supabase
+            .from('users')
+            .select(_userSelect)
+            .neq('user_id', currentUserId)
+            .limit(20),
+
+        // organizations
+        supabase.from('organizations').select(_orgSelect).limit(20),
       ]);
 
-      final freq = results[0] as Map<String, int>;
-      final userRows = results[1] as List<dynamic>;
-      final orgRows = results[2] as List<dynamic>;
-      final candidateRows = results[3] as List<dynamic>;
+      final interestMap = results[0] as Map<String, double>;
+      final userOrgScores = results[1] as List<dynamic>;
+      final globalOrgScores = results[2] as List<dynamic>;
+      final savedPosts = (results[3] as List).map((e) => e['post_id']).toSet();
+      final bookedPosts = (results[4] as List).map((e) => e['post_id']).toSet();
+      final viewedPosts = (results[5] as List).map((e) => e['post_id']).toSet();
+      final candidateRows = results[6] as List<dynamic>;
+      final userRows = results[7] as List<dynamic>;
+      final orgRows = results[8] as List<dynamic>;
 
-      final maxFreq = freq.isEmpty
-          ? 1
-          : freq.values.reduce((a, b) => a > b ? a : b);
+      final maxFreq = interestMap.isEmpty
+          ? 1.0
+          : interestMap.values.reduce((a, b) => a > b ? a : b);
 
-      // Score & sort candidates
-      final scored = candidateRows.map((row) {
+      // Build maps for fast lookup
+      final userOrgMap = {
+        for (var row in userOrgScores)
+          row['organization_id']: (row['total_score'] ?? 0).toDouble(),
+      };
+
+      final globalOrgMap = {
+        for (var row in globalOrgScores)
+          row['organization_id']: (row['total_score'] ?? 0).toDouble(),
+      };
+
+      // ─────────────────────────────────────────────
+      // SCORE POSTS
+      // ─────────────────────────────────────────────
+
+      final scoredPosts = candidateRows.map((row) {
         final r = row as Map<String, dynamic>;
-        final cs = _contentScore(
+
+        final contentScore = _contentScore(
           tagsRaw: r['tags'],
           amenitiesRaw: r['amenities'],
-          freq: freq,
-          maxFreq: maxFreq,
+          freq: interestMap,
+          maxFreq: maxFreq.toDouble(),
         );
-        final rs = _recencyScore(r['created_at'] as String?);
-        final blended = 0.6 * cs + 0.4 * rs;
-        return MapEntry(r, blended);
+
+        final recencyScore = _recencyScore(r['created_at'] as String?);
+
+        double behaviorScore = 0;
+        if (savedPosts.contains(r['id'])) behaviorScore += 1.0;
+        if (bookedPosts.contains(r['id'])) behaviorScore += 0.8;
+        if (viewedPosts.contains(r['id'])) behaviorScore += 0.3;
+
+        behaviorScore = behaviorScore.clamp(0, 1);
+
+        final orgId = r['organization_id'];
+        final orgAffinity = (userOrgMap[orgId] ?? 0) / 100;
+        final globalScore = (globalOrgMap[orgId] ?? 0) / 100;
+
+        final finalScore =
+            0.35 * contentScore +
+            0.20 * behaviorScore +
+            0.15 * orgAffinity +
+            0.15 * globalScore +
+            0.15 * recencyScore;
+
+        return MapEntry(r, finalScore);
       }).toList()..sort((a, b) => b.value.compareTo(a.value));
 
-      final posts = scored.take(limit).map((e) => _postFromRow(e.key)).toList();
+      final posts = scoredPosts
+          .take(limit)
+          .map((e) => _postFromRow(e.key))
+          .toList();
+
+      // ─────────────────────────────────────────────
+      // SCORE ORGANIZATIONS
+      // ─────────────────────────────────────────────
+
+      final scoredOrgs = orgRows.map((row) {
+        final r = row as Map<String, dynamic>;
+        final orgId = r['id'];
+
+        final userScore = userOrgMap[orgId] ?? 0;
+        final globalScore = globalOrgMap[orgId] ?? 0;
+
+        final total = 0.6 * userScore + 0.4 * globalScore;
+        return MapEntry(r, total);
+      }).toList()..sort((a, b) => b.value.compareTo(a.value));
+
+      final organizations = scoredOrgs
+          .take(limit)
+          .map((e) => _orgFromRow(e.key))
+          .toList();
+
+      // ─────────────────────────────────────────────
+      // USERS (simple recency for now)
+      // ─────────────────────────────────────────────
+
       final users = userRows
           .map((r) => _userFromRow(r as Map<String, dynamic>))
           .toList();
-      final orgs = orgRows
-          .map((r) => _orgFromRow(r as Map<String, dynamic>))
-          .toList();
 
-      return SearchResult(posts: posts, users: users, organizations: orgs);
+      return SearchResult(
+        posts: posts,
+        users: users,
+        organizations: organizations,
+      );
     } on _supabase.PostgrestException catch (e) {
       throw ServerException(e.message);
     } catch (e) {
