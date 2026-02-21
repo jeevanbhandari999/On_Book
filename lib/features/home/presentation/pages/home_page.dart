@@ -4,6 +4,7 @@ import 'package:app/core/constants/ui_constants.dart';
 import 'package:app/core/widgets/auto_marquee_text.dart';
 import 'package:app/features/auth/domain/entities/organization.dart';
 import 'package:app/features/auth/services/auth_service.dart';
+import 'package:app/features/home/domain/usecases/get_all_post_recommended_by_content_filter_use_case.dart';
 import 'package:app/features/home/domain/usecases/get_all_posts_near_by_user_use_case.dart';
 import 'package:app/features/home/domain/usecases/get_organization_detail_by_post_organization_id.dart';
 import 'package:app/features/home/domain/usecases/get_organization_list_based_on_global_score_use_case.dart';
@@ -48,19 +49,31 @@ class HomePage extends StatelessWidget {
         BlocProvider(
           create: (context) =>
               HomeBloc(
-                getNearbyPostsUseCase:
-                    DependencyInjection.get<GetAllPostsNearByUserUseCase>(),
-                getOrganizationDetailByPostOrganizationIdUseCase:
-                    DependencyInjection.get<
-                      GetOrganizationDetailByPostOrganizationIdUseCase
-                    >(),
-              )..add(
-                FetchNearbyPosts(
-                  userId: userId,
-                  latitude: 37.421998,
-                  longitude: -122.084000,
+                  getNearbyPostsUseCase:
+                      DependencyInjection.get<GetAllPostsNearByUserUseCase>(),
+                  getOrganizationDetailByPostOrganizationIdUseCase:
+                      DependencyInjection.get<
+                        GetOrganizationDetailByPostOrganizationIdUseCase
+                      >(),
+                  getAllPostRecommendedByContentFilterUseCase:
+                      DependencyInjection.get<
+                        GetAllPostRecommendedByContentFilterUseCase
+                      >(),
+                )
+                // ..add(
+                //   FetchNearbyPosts(
+                //     userId: userId,
+                //     latitude: 37.421998,
+                //     longitude: -122.084000,
+                //   ),
+                // ),
+                ..add(
+                  FetchNearByAndContentBasedFilteringPosts(
+                    userId: userId,
+                    // latitude: 37.421998,
+                    // longitude: -122.084000,
+                  ),
                 ),
-              ),
         ),
         BlocProvider(
           create: (context) => GetOrganizationListBasedOnGlobalScoreBloc(
@@ -85,7 +98,14 @@ class HomeView extends StatelessWidget {
     return Scaffold(
       body: RefreshIndicator(
         onRefresh: () async {
-          context.read<HomeBloc>().add(RefreshNearbyPosts(userId: userId));
+          // context.read<HomeBloc>().add(RefreshNearbyPosts(userId: userId));
+          context.read<HomeBloc>().add(
+            FetchNearByAndContentBasedFilteringPosts(
+              userId: userId,
+              // latitude: 37.421998,
+              // longitude: -122.084000,
+            ),
+          );
         },
         child: BlocBuilder<HomeBloc, HomeState>(
           builder: (context, state) {
