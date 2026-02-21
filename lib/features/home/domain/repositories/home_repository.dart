@@ -18,8 +18,10 @@ abstract class HomeRepository {
   // Get the recommendation (content based or AI whatever)
   // TODO
   Future<Either<Failure, List<Post>>> getRecommendedPosts({
-    required String userId,
+   required String userId,
     int limit = 15,
+    double? latitude,
+    double? longitude,
   });
 
   // Get cached home page posts for offline supports

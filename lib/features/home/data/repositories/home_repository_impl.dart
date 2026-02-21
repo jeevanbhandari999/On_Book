@@ -152,9 +152,35 @@ class HomeRepositoryImpl implements HomeRepository {
   Future<Either<Failure, List<Post>>> getRecommendedPosts({
     required String userId,
     int limit = 15,
-  }) {
-    // TODO: implement getRecommendedPosts
-    throw UnimplementedError();
+    double? latitude,
+    double? longitude,
+  }) async {
+    try {
+      final remotePostModels = await remoteDataSource.getRecommendedPosts(
+        userId: userId,
+        longitude: longitude,
+        latitude: latitude,
+        limit: limit,
+      );
+
+      return remotePostModels.map(
+        (postModels) => postModels.map((model) => model.toEntity()).toList(),
+      );
+    } on ValidationException catch (e) {
+      return Left(ValidationFailure(e.message));
+    } on AuthException catch (e) {
+      return Left(AuthFailure(e.message));
+    } on PermissionException catch (e) {
+      return Left(PermissionFailure(e.message));
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
+    } on CacheException catch (e) {
+      return Left(CacheFailure(e.message));
+    } catch (e) {
+      return Left(UnknownFailure(e.toString()));
+    }
   }
 
   @override
