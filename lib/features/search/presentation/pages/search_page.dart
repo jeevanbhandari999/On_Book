@@ -160,7 +160,9 @@ class _ResultsSliver extends StatelessWidget {
       SearchFilter.people => [
         _PeopleListSliver(users: result.users, currentUserId: currentUserId),
       ],
-      SearchFilter.hotels => [_HotelsGridSliver(orgs: result.organizations)],
+      SearchFilter.hotels => [
+        _HotelsGridSliver(orgs: result.organizations, userId: currentUserId),
+      ],
       SearchFilter.posts => [
         _PostsMasonrySliver(posts: result.posts, currentUserId: currentUserId),
       ],
@@ -237,7 +239,10 @@ List<Widget> _buildAllSlivers(
                   separatorBuilder: (_, __) =>
                       const SizedBox(width: UiConstants.spacingXs),
                   itemBuilder: (_, i) =>
-                      _HotelCard(org: result.organizations[i])
+                      _HotelCard(
+                            org: result.organizations[i],
+                            userId: currentUserId,
+                          )
                           .animate(delay: (i * 80).ms)
                           .slideX(
                             begin: i.isEven ? -0.3 : 0.3,
@@ -346,7 +351,8 @@ class _PeopleListSliver extends StatelessWidget {
 
 class _HotelsGridSliver extends StatelessWidget {
   final List<Organization> orgs;
-  const _HotelsGridSliver({required this.orgs});
+  final String userId;
+  const _HotelsGridSliver({required this.orgs, required this.userId});
 
   @override
   Widget build(BuildContext context) {
@@ -368,7 +374,7 @@ class _HotelsGridSliver extends StatelessWidget {
         itemBuilder: (context, i) {
           final org = orgs[i];
 
-          return _HotelGridCard(org: org)
+          return _HotelGridCard(org: org, userId: userId)
               .animate(delay: (i * 80).ms)
               .slideX(
                 begin: i.isEven ? -0.3 : 0.3,
@@ -532,13 +538,145 @@ class _UserListTile extends StatelessWidget {
 
 class _HotelCard extends StatelessWidget {
   final Organization org;
-  const _HotelCard({required this.org});
+  final String userId;
+  const _HotelCard({required this.org, required this.userId});
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       height: double.infinity,
       width: 160,
+      child: InkWell(
+        onTap: () {
+          context.push(
+            RouteConstants.organizationDetailsPageUserSide,
+            extra: {'organizationId': org.id, 'userId': userId},
+          );
+        },
+        child: Card(
+          clipBehavior: Clip.hardEdge,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(UiConstants.radiusMd),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Container(
+                  color: Colors.grey.shade400,
+                  child: org.logoUrl != null
+                      ? Image.network(
+                          org.logoUrl!,
+                          fit: BoxFit.cover,
+                          width: double.infinity,
+                          height: double.infinity,
+                          errorBuilder: (_, __, ___) =>
+                              const _Placeholder(icon: Icons.hotel),
+                        )
+                      : Center(
+                          child:
+                              CircleAvatar(
+                                    radius: 50,
+                                    child: Text(
+                                      _getInitialCharactrOfOrganization(
+                                        org.name,
+                                      ),
+                                      style: const TextStyle(
+                                        fontSize: 30,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  )
+                                  .animate(delay: UiConstants.animationFast)
+                                  .scale(duration: UiConstants.animationNormal),
+                        ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      org.name,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    if (org.address != null) ...[
+                      const SizedBox(height: 2),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.location_on_outlined,
+                            size: 11,
+                            color: Colors.grey[600],
+                          ),
+                          Expanded(
+                            child: Text(
+                              org.address!,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                    if (org.phone != null) ...[
+                      const SizedBox(height: 2),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.phone_outlined,
+                            size: 11,
+                            color: Colors.grey[600],
+                          ),
+                          const SizedBox(width: 2),
+                          Text(
+                            org.phone!,
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────
+// Hotel grid card — Hotels tab
+// ─────────────────────────────────────────────────────────────────
+class _HotelGridCard extends StatelessWidget {
+  final Organization org;
+  final String userId;
+  const _HotelGridCard({required this.org, required this.userId});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () {
+        context.push(
+          RouteConstants.organizationDetailsPageUserSide,
+          extra: {'organizationId': org.id, 'userId': userId},
+        );
+      },
       child: Card(
         clipBehavior: Clip.hardEdge,
         shape: RoundedRectangleBorder(
@@ -638,115 +776,6 @@ class _HotelCard extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────
-// Hotel grid card — Hotels tab
-// ─────────────────────────────────────────────────────────────────
-class _HotelGridCard extends StatelessWidget {
-  final Organization org;
-  const _HotelGridCard({required this.org});
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      clipBehavior: Clip.hardEdge,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(UiConstants.radiusMd),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: Container(
-              color: Colors.grey.shade400,
-              child: org.logoUrl != null
-                  ? Image.network(
-                      org.logoUrl!,
-                      fit: BoxFit.cover,
-                      width: double.infinity,
-                      height: double.infinity,
-                      errorBuilder: (_, __, ___) =>
-                          const _Placeholder(icon: Icons.hotel),
-                    )
-                  : Center(
-                      child:
-                          CircleAvatar(
-                                radius: 50,
-                                child: Text(
-                                  _getInitialCharactrOfOrganization(org.name),
-                                  style: const TextStyle(
-                                    fontSize: 30,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              )
-                              .animate(delay: UiConstants.animationFast)
-                              .scale(duration: UiConstants.animationNormal),
-                    ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  org.name,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                if (org.address != null) ...[
-                  const SizedBox(height: 2),
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.location_on_outlined,
-                        size: 11,
-                        color: Colors.grey[600],
-                      ),
-                      Expanded(
-                        child: Text(
-                          org.address!,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-                if (org.phone != null) ...[
-                  const SizedBox(height: 2),
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.phone_outlined,
-                        size: 11,
-                        color: Colors.grey[600],
-                      ),
-                      const SizedBox(width: 2),
-                      Text(
-                        org.phone!,
-                        style: TextStyle(fontSize: 11, color: Colors.grey[600]),
-                      ),
-                    ],
-                  ),
-                ],
-              ],
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -1014,7 +1043,8 @@ class _ErrorSliver extends StatelessWidget {
               horizontal: UiConstants.spacingLg,
             ),
             child: Text(
-              message,
+              // message,
+              'Please try again in later.',
               textAlign: TextAlign.center,
               style: TextStyle(color: Colors.grey[600], fontSize: 13),
             ),
