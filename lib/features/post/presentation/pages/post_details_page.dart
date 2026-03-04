@@ -75,7 +75,10 @@ class PostDetailsView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(post?.title ?? 'Details Page'),
+        title: Text(
+          post?.title ?? 'Details Page',
+          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
         actions: [
           BlocBuilder<PostDetailsBloc, PostDetailState>(
             builder: (context, state) {
@@ -163,32 +166,6 @@ class PostDetailsView extends StatelessWidget {
           return _buildFallBackTryAgainState(context);
         },
       ),
-      // floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      // floatingActionButton: Padding(
-      //   padding: const EdgeInsets.symmetric(horizontal: UiConstants.spacingSm),
-      //   child: Row(
-      //     mainAxisAlignment: MainAxisAlignment.center,
-      //     mainAxisSize: MainAxisSize.min,
-      //     children: [
-      //       Expanded(
-      //         child: CustomButton(
-      //           text: 'Add to Library',
-      //           icon: const Icon(Icons.bookmark_outline),
-      //           onPressed: () {},
-      //           isOutlined: true,
-      //         ),
-      //       ),
-      //       const SizedBox(width: UiConstants.spacingSm),
-      //       Expanded(
-      //         child: CustomButton(
-      //           text: 'Book Now',
-      //           onPressed: () {},
-      //           icon: const Icon(Icons.event_available),
-      //         ),
-      //       ),
-      //     ],
-      //   ),
-      // ),
     );
   }
 }
@@ -215,53 +192,74 @@ Widget _buildPostDetailSection(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildImagePageView(context, stateLoaded),
-              _buildTitleAndPriceSection(
-                context,
-                title: post.title,
-                price: post.price!,
-              ),
-              _buildDescriptionSection(
-                context,
-                description: post.description!,
-                isExpanded: stateLoaded.isDescriptionExpanded,
-                onToggleExpand: () {
-                  context.read<PostDetailsBloc>().add(
-                    PostDetailToggleDescriptionRequested(
-                      isDescriptionToggled: stateLoaded.isDescriptionExpanded,
+              Padding(
+                padding: const EdgeInsets.all(UiConstants.spacingMd),
+                child: Column(
+                  children: [
+                    SectionContainer(
+                      borderRadius: BorderRadius.circular(UiConstants.radiusMd),
+                      child: Column(
+                        children: [
+                          _buildTitleAndPriceSection(
+                            context,
+                            title: post.title,
+                            price: post.price!,
+                          ),
+                          _buildDescriptionSection(
+                            context,
+                            description: post.description!,
+                            isExpanded: stateLoaded.isDescriptionExpanded,
+                            onToggleExpand: () {
+                              context.read<PostDetailsBloc>().add(
+                                PostDetailToggleDescriptionRequested(
+                                  isDescriptionToggled:
+                                      stateLoaded.isDescriptionExpanded,
+                                ),
+                              );
+                            },
+                          ),
+                          const SizedBox(height: UiConstants.spacingSm),
+                          _buildActionButtons(context),
+                        ],
+                      ),
                     ),
-                  );
-                },
-              ),
-              const SizedBox(height: UiConstants.spacingSm),
-              _buildActionButtons(context),
-              const SizedBox(height: UiConstants.spacingSm),
+                    const SizedBox(height: UiConstants.spacingSm),
 
-              _buildLocationSection(
-                context,
-                latitude: post.latitude,
-                longitude: post.longitude,
+                    _buildLocationSection(
+                      context,
+                      latitude: post.latitude,
+                      longitude: post.longitude,
+                    ),
+                    const SizedBox(height: UiConstants.spacingSm),
+
+                    _buildCustomerReviewSection(
+                      context,
+                      post: post,
+                      userId: userId,
+                    ),
+                    const SizedBox(height: UiConstants.spacingSm),
+                    _buildAmeniticsSection(
+                      context,
+                      amenityType: post.amenities,
+                    ),
+                    const SizedBox(height: UiConstants.spacingSm),
+                    _buildTagsSection(context, postTag: post.tags),
+                    const SizedBox(height: UiConstants.spacingSm),
+                    _buildOthersDetails(
+                      context,
+                      roomType: post.roomType,
+                      area: post.area,
+                      capacity: post.capacity,
+                    ),
+                    const SizedBox(height: UiConstants.spacingSm),
+                    _buildYoutubeVideoPreview(
+                      context,
+                      youtubeUrl: post.youtubeUrl,
+                    ),
+                  ],
+                ),
               ),
-              const SizedBox(height: UiConstants.spacingSm),
-              // _buildCustomerReviewSection(
-              //   context,
-              //   ratingValue: 4.5,
-              //   post: post,
-              //   userId: userId,
-              // ),
-              _buildCustomerReviewSection(context, post: post, userId: userId),
-              const SizedBox(height: UiConstants.spacingSm),
-              _buildAmeniticsSection(context, amenityType: post.amenities),
-              const SizedBox(height: UiConstants.spacingSm),
-              _buildTagsSection(context, postTag: post.tags),
-              const SizedBox(height: UiConstants.spacingSm),
-              _buildOthersDetails(
-                context,
-                roomType: post.roomType,
-                area: post.area,
-                capacity: post.capacity,
-              ),
-              const SizedBox(height: UiConstants.spacingSm),
-              _buildYoutubeVideoPreview(context, youtubeUrl: post.youtubeUrl),
+
               if (stateLoaded.isRelatedLoading)
                 const Padding(
                   padding: EdgeInsets.all(16),
@@ -352,125 +350,6 @@ Widget _buildRelatedPostsSection(
   );
 }
 
-// Widget _buildCustomerReviewSection(
-//   BuildContext context, {
-//   required double ratingValue,
-//   required Post post,
-//   required String userId,
-// }) {
-//   return SectionContainer(
-//     borderRadius: BorderRadius.zero,
-//     child: SizedBox(
-//       width: double.infinity,
-//       child: Column(
-//         crossAxisAlignment: CrossAxisAlignment.start,
-//         children: [
-//           const Text(
-//             'Customer Reviews!!!',
-//             style: TextStyle(fontWeight: FontWeight.bold),
-//           ),
-//           const SizedBox(height: UiConstants.spacingMd),
-
-//           // Wrap(
-//           //   alignment: WrapAlignment.spaceBetween,
-//           //   runSpacing: 8,
-//           //   children: [
-//           //     Row(
-//           //       mainAxisSize: MainAxisSize.min,
-//           //       children: [
-//           //         Text('$ratingValue out of 5.0'),
-//           //         const SizedBox(width: 8),
-//           //         RatingBarIndicator(
-//           //           rating: ratingValue,
-//           //           itemBuilder: (context, index) =>
-//           //               const Icon(Icons.star, color: Colors.amber),
-//           //           itemCount: 5,
-//           //           itemSize: 20,
-//           //           direction: Axis.horizontal,
-//           //         ),
-//           //       ],
-//           //     ),
-//           //     InkWell(
-//           //       onTap: () {
-//           //         // Later we will handle the review
-//           //         context.push(
-//           //           RouteConstants.writeAReviewPage,
-//           //           extra: {'post': post, 'userId': userId},
-//           //         );
-//           //       },
-//           //       child: const Text(
-//           //         'White a Review',
-//           //         style: TextStyle(color: Colors.blue),
-//           //       ),
-//           //     ),
-//           //   ],
-//           // ),
-//           Row(
-//             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//             children: [
-//               Row(
-//                 mainAxisSize: MainAxisSize.min,
-//                 children: [
-//                   Text('$ratingValue out of 5.0'),
-//                   const SizedBox(width: 8),
-//                   RatingBarIndicator(
-//                     rating: ratingValue,
-//                     itemBuilder: (context, index) =>
-//                         const Icon(Icons.star, color: Colors.amber),
-//                     itemCount: 5,
-//                     itemSize: 20,
-//                     direction: Axis.horizontal,
-//                   ),
-//                 ],
-//               ),
-//               InkWell(
-//                 onTap: () {
-//                   // Later we will handle the review
-//                   context.push(
-//                     RouteConstants.writeAReviewPage,
-//                     extra: {'post': post, 'userId': userId},
-//                   );
-//                 },
-//                 child: const Text(
-//                   'White a Review',
-//                   style: TextStyle(color: Colors.blue),
-//                 ),
-//               ),
-//             ],
-//           ),
-
-//           const SizedBox(height: UiConstants.spacingSm),
-//           Row(
-//             children: [
-//               const Text('25 Reviews:'),
-//               const SizedBox(width: 8),
-//               InkWell(
-//                 onTap: () {
-//                   // Later we will handle the review
-//                   context.push(
-//                     RouteConstants.customerReviewPage,
-//                     extra: {'post': post, 'userId': userId},
-//                   );
-//                 },
-//                 child: const Text(
-//                   'See all',
-//                   style: TextStyle(color: Colors.blue),
-//                 ),
-//               ),
-//             ],
-//           ),
-//           const SizedBox(height: UiConstants.spacingMd),
-//           const RatingProgressBar(
-//             ratingRange: '5 stars',
-//             percent: 65,
-//             peopleNumber: 21,
-//           ),
-//         ],
-//       ),
-//     ),
-//   );
-// }
-
 // 1. Remove the ratingValue parameter entirely — it's now dynamic
 Widget _buildCustomerReviewSection(
   BuildContext context, {
@@ -519,7 +398,7 @@ Widget _buildCustomerReviewSection(
             }
 
             return SectionContainer(
-              borderRadius: BorderRadius.zero,
+              borderRadius: BorderRadius.circular(UiConstants.radiusMd),
               child: SizedBox(
                 width: double.infinity,
                 child: Column(
@@ -527,7 +406,10 @@ Widget _buildCustomerReviewSection(
                   children: [
                     const Text(
                       'Customer Reviews',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
                     ),
                     const SizedBox(height: UiConstants.spacingMd),
 
@@ -638,30 +520,27 @@ Widget _buildCustomerReviewSection(
 }
 
 Widget _buildActionButtons(BuildContext context) {
-  return Padding(
-    padding: const EdgeInsets.symmetric(horizontal: UiConstants.spacingSm),
-    child: SizedBox(
-      width: double.infinity,
-      child: Row(
-        children: [
-          Expanded(
-            child: CustomButton(
-              text: 'Add to Library',
-              icon: const Icon(Icons.bookmark_outline),
-              onPressed: () {},
-              isOutlined: true,
-            ),
+  return SizedBox(
+    width: double.infinity,
+    child: Row(
+      children: [
+        Expanded(
+          child: CustomButton(
+            text: 'Add to Library',
+            icon: const Icon(Icons.bookmark_outline),
+            onPressed: () {},
+            isOutlined: true,
           ),
-          const SizedBox(width: UiConstants.spacingSm),
-          Expanded(
-            child: CustomButton(
-              text: 'Book Now',
-              onPressed: () {},
-              icon: const Icon(Icons.event_available),
-            ),
+        ),
+        const SizedBox(width: UiConstants.spacingSm),
+        Expanded(
+          child: CustomButton(
+            text: 'Book Now',
+            onPressed: () {},
+            icon: const Icon(Icons.event_available),
           ),
-        ],
-      ),
+        ),
+      ],
     ),
   );
 }
@@ -822,7 +701,7 @@ Widget _buildLocationSection(
   } else {
     final location = LatLng(latitude!, longitude!);
     return SectionContainer(
-      borderRadius: BorderRadius.zero,
+      borderRadius: BorderRadius.circular(UiConstants.radiusMd),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -836,7 +715,7 @@ Widget _buildLocationSection(
               const SizedBox(width: 6),
               const Text(
                 'Find us here',
-                style: TextStyle(fontWeight: FontWeight.bold),
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
               ),
             ],
           ),
@@ -949,33 +828,30 @@ Widget _buildTitleAndPriceSection(
   required String title,
   required double price,
 }) {
-  return Padding(
-    padding: const EdgeInsets.all(UiConstants.spacingSm),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            const Text('Rs.', style: TextStyle(fontWeight: FontWeight.bold)),
-            Text(
-              '$price',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.primary,
-              ),
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(
+        title,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+      ),
+      Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          const Text('Rs.', style: TextStyle(fontWeight: FontWeight.bold)),
+          Text(
+            '$price',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Theme.of(context).colorScheme.primary,
             ),
-          ],
-        ),
-      ],
-    ),
+          ),
+        ],
+      ),
+    ],
   );
 }
 
@@ -985,84 +861,77 @@ Widget _buildDescriptionSection(
   required bool isExpanded,
   required VoidCallback onToggleExpand,
 }) {
-  return Padding(
-    padding: const EdgeInsets.symmetric(horizontal: UiConstants.spacingSm),
-    child: LayoutBuilder(
-      builder: (context, constraints) {
-        final textStyle = DefaultTextStyle.of(context).style;
-        final span = TextSpan(text: description, style: textStyle);
+  return LayoutBuilder(
+    builder: (context, constraints) {
+      final textStyle = DefaultTextStyle.of(context).style;
+      final span = TextSpan(text: description, style: textStyle);
 
-        final textPainter = TextPainter(
-          text: span,
-          textDirection: TextDirection.ltr,
-          maxLines: 3,
-          ellipsis: '...',
-        )..layout(maxWidth: constraints.maxWidth);
+      final textPainter = TextPainter(
+        text: span,
+        textDirection: TextDirection.ltr,
+        maxLines: 3,
+        ellipsis: '...',
+      )..layout(maxWidth: constraints.maxWidth);
 
-        final bool textExceedsThreeLines = textPainter.didExceedMaxLines;
+      final bool textExceedsThreeLines = textPainter.didExceedMaxLines;
 
-        return SizedBox(
-          width: double.infinity,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (isExpanded || !textExceedsThreeLines)
-                Text(
-                  description,
-                  style: textStyle,
-                  textAlign: TextAlign.justify,
-                )
-              else
-                Stack(
-                  children: [
-                    Text(
-                      description,
-                      maxLines: 3,
-                      overflow: TextOverflow.ellipsis,
-                      style: textStyle,
-                      textAlign: TextAlign.justify,
-                    ),
-                    Positioned(
-                      bottom: 0,
-                      right: 0,
-                      child: GestureDetector(
-                        onTap: onToggleExpand,
-                        child: Container(
-                          color: Theme.of(context).scaffoldBackgroundColor,
-                          padding: const EdgeInsets.only(left: 8),
-                          child: Text(
-                            isExpanded ? 'View Less' : 'View More',
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.primary,
-                              fontWeight: FontWeight.bold,
-                              backgroundColor: Theme.of(
-                                context,
-                              ).scaffoldBackgroundColor,
-                            ),
+      return SizedBox(
+        width: double.infinity,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (isExpanded || !textExceedsThreeLines)
+              Text(description, style: textStyle, textAlign: TextAlign.justify)
+            else
+              Stack(
+                children: [
+                  Text(
+                    description,
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                    style: textStyle,
+                    textAlign: TextAlign.justify,
+                  ),
+                  Positioned(
+                    bottom: 0,
+                    right: 0,
+                    child: GestureDetector(
+                      onTap: onToggleExpand,
+                      child: Container(
+                        color: Theme.of(context).scaffoldBackgroundColor,
+                        padding: const EdgeInsets.only(left: 8),
+                        child: Text(
+                          isExpanded ? 'View Less' : 'View More',
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.primary,
+                            fontWeight: FontWeight.bold,
+                            backgroundColor: Theme.of(
+                              context,
+                            ).scaffoldBackgroundColor,
                           ),
                         ),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
+              ),
 
-              // Show "View Less" when expanded and text was long
-              if (isExpanded && textExceedsThreeLines)
-                GestureDetector(
-                  onTap: onToggleExpand,
-                  child: Text(
-                    'View Less',
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.primary,
-                      fontWeight: FontWeight.bold,
-                    ),
+            // Show "View Less" when expanded and text was long
+            if (isExpanded && textExceedsThreeLines)
+              GestureDetector(
+                onTap: onToggleExpand,
+                child: Text(
+                  'View Less',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.primary,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-            ],
-          ),
-        );
-      },
-    ),
+              ),
+          ],
+        ),
+      );
+    },
   );
 }
 
@@ -1072,7 +941,7 @@ Widget _buildAmeniticsSection(
 }) {
   if (amenityType == null) return const SizedBox.shrink();
   return SectionContainer(
-    borderRadius: BorderRadius.zero,
+    borderRadius: BorderRadius.circular(UiConstants.radiusMd),
     child: SizedBox(
       width: double.infinity,
       child: Column(
@@ -1085,6 +954,7 @@ Widget _buildAmeniticsSection(
             itemLabel: (a) => _amenityLabel(a),
             readOnly: true,
             onChanged: null,
+            fontSize: 18,
           ),
         ],
       ),
@@ -1098,7 +968,7 @@ Widget _buildTagsSection(
 }) {
   if (postTag == null) return const SizedBox.shrink();
   return SectionContainer(
-    borderRadius: BorderRadius.zero,
+    borderRadius: BorderRadius.circular(UiConstants.radiusMd),
     child: SizedBox(
       width: double.infinity,
       child: Column(
@@ -1111,6 +981,7 @@ Widget _buildTagsSection(
             itemLabel: (p) => _tagLabel(p),
             readOnly: true,
             onChanged: null,
+            fontSize: 18,
           ),
         ],
       ),
@@ -1128,13 +999,13 @@ Widget _buildOthersDetails(
     return const SizedBox.shrink();
   }
   return SectionContainer(
-    borderRadius: BorderRadius.zero,
+    borderRadius: BorderRadius.circular(UiConstants.radiusMd),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
           'Others details!!!',
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
         ),
         const SizedBox(height: UiConstants.spacingSm),
         if (roomType != null)
@@ -1184,7 +1055,7 @@ Widget _buildYoutubeVideoPreview(
   final thumbnailUrl = "https://img.youtube.com/vi/$videoId/0.jpg";
 
   return SectionContainer(
-    borderRadius: BorderRadius.zero,
+    borderRadius: BorderRadius.circular(UiConstants.radiusMd),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

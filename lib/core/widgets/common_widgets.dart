@@ -466,6 +466,7 @@ class CustomMultiSelect<T> extends StatelessWidget {
   final ValueChanged<List<T>>? onChanged;
   final Widget? prefixIcon;
   final bool readOnly;
+  final double fontSize;
 
   const CustomMultiSelect({
     super.key,
@@ -476,6 +477,7 @@ class CustomMultiSelect<T> extends StatelessWidget {
     this.onChanged,
     this.prefixIcon,
     this.readOnly = false,
+    this.fontSize = 16,
   });
 
   @override
@@ -485,9 +487,7 @@ class CustomMultiSelect<T> extends StatelessWidget {
       children: [
         Text(
           label,
-          style: Theme.of(
-            context,
-          ).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w500),
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: fontSize),
         ),
         Wrap(
           spacing: 8,

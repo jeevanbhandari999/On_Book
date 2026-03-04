@@ -1,4 +1,5 @@
 import 'package:app/core/constants/ui_constants.dart';
+import 'package:app/core/widgets/common_widgets.dart';
 import 'package:flutter/material.dart';
 
 class DetailInfoTile extends StatelessWidget {
@@ -15,15 +16,12 @@ class DetailInfoTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SectionContainer(
       padding: const EdgeInsets.symmetric(
         vertical: UiConstants.spacingSm,
         horizontal: UiConstants.spacingMd,
       ),
-      decoration: BoxDecoration(
-        color: Theme.of(context).primaryColor.withAlpha(50),
-        borderRadius: BorderRadius.circular(UiConstants.radiusSm),
-      ),
+      borderRadius: BorderRadius.circular(UiConstants.radiusMd),
       child: Row(
         children: [
           Icon(icon, color: Theme.of(context).primaryColor),

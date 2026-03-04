@@ -961,6 +961,7 @@ import 'package:app/app/dependency_injection.dart';
 import 'package:app/app/router/route_constants.dart';
 import 'package:app/core/constants/ui_constants.dart';
 import 'package:app/core/utils/date_formatter.dart';
+import 'package:app/core/widgets/app_bar_popup_menu.dart';
 import 'package:app/core/widgets/common_widgets.dart';
 import 'package:app/features/booking/domain/entities/booking.dart';
 import 'package:app/features/booking/domain/usecases/get_booking_by_id_use_case.dart';
@@ -1000,34 +1001,31 @@ class BookingDetailsView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Booking Details'),
+        backgroundColor: Colors.transparent,
+        title: const Text(
+          'Booking Details',
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
         actions: [
           BlocBuilder<BookingDetailsBloc, BookingDetailsState>(
             builder: (context, state) {
               if (state is BookingDetailsLoaded) {
-                return PopupMenuButton<String>(
-                  onSelected: (value) {
-                    if (value == 'edit') {
-                      context.push(
-                        RouteConstants.bookingFormPage,
-                        extra: {
-                          'userId': state.booking.userId,
-                          'postId': state.booking.postId,
-                          'editBooking': state.booking,
-                        },
-                      );
-                    }
-                  },
-                  itemBuilder: (_) => const [
-                    PopupMenuItem(
+                return AppPopupMenu(
+                  items: [
+                    AppPopupMenuItem(
                       value: 'edit',
-                      child: Row(
-                        children: [
-                          Icon(Icons.edit, size: UiConstants.iconMd),
-                          SizedBox(width: UiConstants.spacingSm),
-                          Text('Edit Booking'),
-                        ],
-                      ),
+                      label: 'Edit Booking',
+                      icon: Icons.edit,
+                      onTap: () {
+                        context.push(
+                          RouteConstants.bookingFormPage,
+                          extra: {
+                            'userId': state.booking.userId,
+                            'postId': state.booking.postId,
+                            'editBooking': state.booking,
+                          },
+                        );
+                      },
                     ),
                   ],
                 );
