@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:app/app/dependency_injection.dart';
+import 'package:app/features/auth/domain/entities/organization.dart';
+import 'package:app/features/home/domain/usecases/get_organization_detail_by_post_organization_id.dart';
 import 'package:app/features/post/domain/entities/post.dart';
 import 'package:app/features/post/domain/entities/post_enums.dart';
 import 'package:app/features/post/domain/repositories/post_repository.dart';
@@ -178,6 +180,9 @@ class PostDetailLoaded extends PostDetailState {
   final bool isRelatedLoading;
   final String? relatedError;
 
+  // Organization details
+  final Map<String, Organization> organizations;
+
   const PostDetailLoaded({
     required this.post,
     required this.additionalImageUrls,
@@ -193,6 +198,9 @@ class PostDetailLoaded extends PostDetailState {
     this.relatedPosts = const [],
     this.isRelatedLoading = false,
     this.relatedError,
+
+    // Organization details
+    this.organizations = const {},
   });
 
   @override
@@ -210,6 +218,9 @@ class PostDetailLoaded extends PostDetailState {
     relatedPosts,
     isRelatedLoading,
     relatedError,
+
+    // Organizatiion detials
+    organizations,
   ];
 
   PostDetailLoaded copyWith({
@@ -227,6 +238,9 @@ class PostDetailLoaded extends PostDetailState {
     List<Post>? relatedPosts,
     bool? isRelatedLoading,
     String? relatedError,
+
+    // Organizations details
+    Map<String, Organization>? organizations,
   }) {
     return PostDetailLoaded(
       post: post ?? this.post,
@@ -243,6 +257,8 @@ class PostDetailLoaded extends PostDetailState {
       relatedError: relatedError ?? this.relatedError,
       relatedPosts: relatedPosts ?? this.relatedPosts,
       isRelatedLoading: isRelatedLoading ?? this.isRelatedLoading,
+
+      organizations: organizations ?? this.organizations,
     );
   }
 
@@ -299,12 +315,23 @@ class PostDetailNotFound extends PostDetailState {
   List<Object> get props => [postId];
 }
 
+class FetchOrganizationDetails extends PostDetailEvent {
+  final String organizationId;
+  const FetchOrganizationDetails(this.organizationId);
+
+  @override
+  List<Object?> get props => [organizationId];
+}
+
 // BLoC
 class PostDetailsBloc extends Bloc<PostDetailEvent, PostDetailState> {
   final GetPostByIdUseCase _getPostByIdUseCase;
   final DeletePostUseCase _deletePostUseCase;
   final GetRelatedPostsThroughAlgorithmUseCase
   _getRelatedPostsThroughAlgorithmUseCase;
+
+  final GetOrganizationDetailByPostOrganizationIdUseCase
+  _getOrganizationDetailByPostOrganizationIdUseCase;
 
   // Made optional for more customize
   String? _currentUserId;
@@ -315,10 +342,14 @@ class PostDetailsBloc extends Bloc<PostDetailEvent, PostDetailState> {
     required DeletePostUseCase deletePostUseCase,
     required GetRelatedPostsThroughAlgorithmUseCase
     getRelatedPostsThroughAlgorithmUseCase,
+    required GetOrganizationDetailByPostOrganizationIdUseCase
+    getOrganizationDetailByPostOrganizationIdUseCase,
   }) : _getPostByIdUseCase = getPostByIdUseCase,
        _deletePostUseCase = deletePostUseCase,
        _getRelatedPostsThroughAlgorithmUseCase =
            getRelatedPostsThroughAlgorithmUseCase,
+       _getOrganizationDetailByPostOrganizationIdUseCase =
+           getOrganizationDetailByPostOrganizationIdUseCase,
        super(const PostDetailInitial()) {
     on<PostDetailLoadRequested>(_onLoadRequested);
     on<PostDetailRefreshRequested>(_onRefreshRequested);
@@ -335,6 +366,9 @@ class PostDetailsBloc extends Bloc<PostDetailEvent, PostDetailState> {
 
     // For algorithm
     on<PostDetailRelatedPostsRequested>(_onRelatedPostsRequested);
+
+    // For organizaton details
+    on<FetchOrganizationDetails>(_onFetchOrganizationDetails);
   }
 
   Future<void> _onLoadRequested(
@@ -672,6 +706,39 @@ class PostDetailsBloc extends Bloc<PostDetailEvent, PostDetailState> {
             relatedPosts: filtered,
           ),
         );
+      },
+    );
+  }
+
+  Future<void> _onFetchOrganizationDetails(
+    FetchOrganizationDetails event,
+    Emitter<PostDetailState> emit,
+  ) async {
+    if (state is! PostDetailLoaded) return;
+
+    final currentState = state as PostDetailLoaded;
+
+    // Already cached? Don’t fetch again.
+    if (currentState.organizations.containsKey(event.organizationId)) {
+      return;
+    }
+
+    final result = await _getOrganizationDetailByPostOrganizationIdUseCase(
+      GetOrganizationDetailByPostOrganizationIdParams(
+        organizationId: event.organizationId,
+      ),
+    );
+
+    result.fold(
+      (failure) {
+        // You can ignore or show error
+      },
+      (organization) {
+        final updatedMap = Map<String, Organization>.from(
+          currentState.organizations,
+        );
+        updatedMap[event.organizationId] = organization;
+        emit(currentState.copyWith(organizations: updatedMap));
       },
     );
   }
