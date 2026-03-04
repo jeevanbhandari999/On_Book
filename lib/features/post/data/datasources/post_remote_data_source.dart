@@ -102,6 +102,13 @@ abstract class PostRemoteDataSource {
     required String postId,
     required String status,
   });
+
+  // Algorithm implementations
+  Future<List<PostModel>> getRelatedPosts({
+    required String userId,
+    required PostModel currentPost,
+    int limit = 10,
+  });
 }
 
 class PostRemoteDataSourceImpl implements PostRemoteDataSource {
@@ -715,4 +722,111 @@ class PostRemoteDataSourceImpl implements PostRemoteDataSource {
       throw core_exceptions.ServerException('Failed to update post status: $e');
     }
   }
+
+  // ALGORITHM IMPLEMENTATIONS
+
+  @override
+  Future<List<PostModel>> getRelatedPosts({
+    required String userId,
+    required PostModel currentPost,
+    int limit = 10,
+  }) async {
+    try {
+      final interestMap = await _buildInterestMap(userId);
+
+      final response = await supabaseClient
+          .from('posts')
+          .select('*, post_images(*)')
+          .neq('id', currentPost.id)
+          .overlaps('tags', currentPost.tags!)
+          .limit(limit * 3);
+
+      final List<Map<String, dynamic>> raw = (response as List)
+          .cast<Map<String, dynamic>>();
+
+      final scored = raw.map((json) {
+        final score = _contentScore(
+          tagsRaw: json['tags'],
+          amenitiesRaw: json['amenities'],
+          freq: interestMap,
+          maxFreq: interestMap.isEmpty
+              ? 1
+              : interestMap.values.reduce((a, b) => a > b ? a : b),
+        );
+
+        return MapEntry(json, score);
+      }).toList()..sort((a, b) => b.value.compareTo(a.value));
+
+      final posts = scored
+          .take(limit)
+          .map((e) => PostModel.fromJson(e.key))
+          .toList();
+
+      return posts;
+    } catch (e) {
+      throw core_exceptions.ServerException('Failed to get related posts: $e');
+    }
+  }
+
+  // Helpers methods
+  double _contentScore({
+    required dynamic tagsRaw,
+    required dynamic amenitiesRaw,
+    required Map<String, double> freq,
+    required double maxFreq,
+  }) {
+    if (freq.isEmpty) return 0;
+
+    final signals = <String>[...?_asList(tagsRaw), ...?_asList(amenitiesRaw)];
+    if (signals.isEmpty) return 0;
+
+    double total = 0;
+    for (final s in signals) {
+      total += (freq[s] ?? 0) / maxFreq;
+    }
+
+    return (total / signals.length).clamp(0.0, 1.0);
+  }
+
+  List<String>? _asList(dynamic raw) {
+    if (raw is List) return raw.whereType<String>().toList();
+    return null;
+  }
+
+  Future<Map<String, double>> _buildInterestMap(String userId) async {
+    try {
+      final saved = await supabaseClient
+          .from('user_saved_posts')
+          .select('posts(tags, amenities)')
+          .eq('user_id', userId)
+          .limit(30);
+
+      final Map<String, double> freq = {};
+
+      void extract(dynamic raw) {
+        if (raw is List) {
+          for (final item in raw) {
+            if (item is String && item.isNotEmpty) {
+              freq[item] = (freq[item] ?? 0) + 1.0;
+            }
+          }
+        }
+      }
+
+      for (final row in saved as List) {
+        final post = row['posts'] as Map<String, dynamic>?;
+        if (post == null) continue;
+        extract(post['tags']);
+        extract(post['amenities']);
+      }
+
+      return freq;
+    } catch (_) {
+      return {};
+    }
+  }
 }
+
+
+// 
+
