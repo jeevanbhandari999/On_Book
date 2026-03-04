@@ -282,29 +282,65 @@ class PostView extends StatelessWidget {
                                                 fontWeight: FontWeight.w600,
                                               ),
                                             ),
-                                            const Row(
-                                              children: [
-                                                Icon(
-                                                  Icons.star_rounded,
-                                                  size: 14,
-                                                  color: Colors.amber,
-                                                ),
-                                                SizedBox(width: 4),
-                                                Text(
-                                                  '$rating',
-                                                  style: TextStyle(
-                                                    fontSize: 11,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                                SizedBox(width: 2),
-                                                Text(
-                                                  '($reviewCount)',
-                                                  style: TextStyle(
-                                                    fontSize: 10,
-                                                  ),
-                                                ),
-                                              ],
+
+                                            BlocBuilder<
+                                              PostRatingSummaryBloc,
+                                              PostRatingSummaryState
+                                            >(
+                                              builder: (context, state) {
+                                                if (state
+                                                    is PostRatingSummaryLoading) {
+                                                  return const SizedBox(
+                                                    height: 14,
+                                                    width: 60,
+                                                    child:
+                                                        LinearProgressIndicator(),
+                                                  );
+                                                }
+
+                                                if (state
+                                                    is PostRatingSummaryLoaded) {
+                                                  // Show nothing if no reviews yet — keeps card clean
+                                                  if (state.reviewCount == 0) {
+                                                    return Text(
+                                                      'No reviews yet',
+                                                      style: TextStyle(
+                                                        fontSize: 10,
+                                                        color: Colors.grey[400],
+                                                      ),
+                                                    );
+                                                  }
+
+                                                  return Row(
+                                                    children: [
+                                                      const Icon(
+                                                        Icons.star_rounded,
+                                                        size: 14,
+                                                        color: Colors.amber,
+                                                      ),
+                                                      const SizedBox(width: 4),
+                                                      Text(
+                                                        '${state.average}',
+                                                        style: const TextStyle(
+                                                          fontSize: 11,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        ),
+                                                      ),
+                                                      const SizedBox(width: 2),
+                                                      Text(
+                                                        '(${state.reviewCount})',
+                                                        style: const TextStyle(
+                                                          fontSize: 10,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  );
+                                                }
+
+                                                // Error or initial — show nothing, don't break layout
+                                                return const SizedBox.shrink();
+                                              },
                                             ),
                                           ],
                                         ),
