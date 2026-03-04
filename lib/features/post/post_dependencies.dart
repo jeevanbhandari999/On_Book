@@ -1,4 +1,7 @@
 import 'package:app/features/auth/services/auth_service.dart';
+import 'package:app/features/home/domain/repositories/home_repository.dart';
+import 'package:app/features/home/domain/usecases/get_organization_detail_by_post_organization_id.dart';
+import 'package:app/features/organizations/domain/repositories/organization_repository.dart';
 import 'package:app/features/post/data/datasources/post_local_data_source.dart';
 import 'package:app/features/post/data/datasources/post_remote_data_source.dart';
 import 'package:app/features/post/data/repositories/post_repository_impl.dart';
@@ -107,6 +110,11 @@ class PostDependencies {
         getRelatedPostsThroughAlgorithmUseCase:
             GetRelatedPostsThroughAlgorithmUseCase(
               repository: getIt<PostRepository>(),
+            ),
+
+        getOrganizationDetailByPostOrganizationIdUseCase:
+            GetOrganizationDetailByPostOrganizationIdUseCase(
+              getIt<HomeRepository>(),
             ),
       ),
     );
