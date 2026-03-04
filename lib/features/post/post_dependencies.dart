@@ -9,6 +9,7 @@ import 'package:app/features/post/domain/usecases/get_all_posts_by_organization_
 import 'package:app/features/post/domain/usecases/get_all_posts_with_images_by_orgnization_id.dart';
 import 'package:app/features/post/domain/usecases/get_all_posts_with_videos_by_organization_id.dart';
 import 'package:app/features/post/domain/usecases/get_post_by_id_use_case.dart';
+import 'package:app/features/post/domain/usecases/get_related_posts_through_algorithm_use_case.dart';
 import 'package:app/features/post/domain/usecases/update_post_use_case.dart';
 import 'package:app/features/post/presentation/bloc/post_details_bloc.dart';
 import 'package:app/features/post/presentation/bloc/post_form_bloc.dart';
@@ -47,7 +48,7 @@ class PostDependencies {
     getIt.registerLazySingleton<CreatePostUseCase>(
       () => CreatePostUseCase(getIt<PostRepository>()),
     );
-     getIt.registerLazySingleton<UpdatePostUseCase>(
+    getIt.registerLazySingleton<UpdatePostUseCase>(
       () => UpdatePostUseCase(getIt<PostRepository>()),
     );
     getIt.registerLazySingleton<GetAllPostsByOrganizationIdUseCase>(
@@ -69,6 +70,11 @@ class PostDependencies {
 
     getIt.registerLazySingleton<DeletePostUseCase>(
       () => DeletePostUseCase(getIt<PostRepository>()),
+    );
+    getIt.registerLazySingleton<GetRelatedPostsThroughAlgorithmUseCase>(
+      () => GetRelatedPostsThroughAlgorithmUseCase(
+        repository: getIt<PostRepository>(),
+      ),
     );
 
     // BLoC
@@ -98,6 +104,10 @@ class PostDependencies {
       () => PostDetailsBloc(
         getPostByIdUseCase: GetPostByIdUseCase(getIt<PostRepository>()),
         deletePostUseCase: DeletePostUseCase(getIt<PostRepository>()),
+        getRelatedPostsThroughAlgorithmUseCase:
+            GetRelatedPostsThroughAlgorithmUseCase(
+              repository: getIt<PostRepository>(),
+            ),
       ),
     );
   }
