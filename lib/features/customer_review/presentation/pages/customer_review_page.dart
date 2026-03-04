@@ -64,74 +64,6 @@ class CustomerReviewView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // return RefreshIndicator(
-    //   onRefresh: () async {
-    //     context.read<GetAllCustomerReviewRelatedToThePostBloc>().add(
-    //       GetAllCustomerReviewRelatedToThePostRefreshRequested(
-    //         postId: post.id,
-    //         userId: userId,
-    //       ),
-    //     );
-    //   },
-    //   child: Scaffold(
-    //     appBar: AppBar(
-    //       backgroundColor: AppColors.primaryLight,
-    //       title: const Text(
-    //         'Customer Review',
-    //         style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-    //       ),
-    //     ),
-    //     body:
-    //         BlocBuilder<
-    //           GetAllCustomerReviewRelatedToThePostBloc,
-    //           GetAllCustomerReviewRelatedToThePostState
-    //         >(
-    //           builder: (context, state) {
-    //             if (state is GetAllCustomerReviewRelatedToThePostLoading) {
-    //               return const Center(child: CircularProgressIndicator());
-    //             }
-    //             if (state is GetAllCustomerReviewRelatedToThePostError) {
-    //               ScaffoldMessenger.of(
-    //                 context,
-    //               ).showSnackBar(SnackBar(content: Text(state.message)));
-    //             }
-    //             if (state is GetAllCustomerReviewRelatedToThePostSuccess) {
-    //               final ratings = state.ratings;
-    //               return Padding(
-    //                 padding: const EdgeInsets.all(UiConstants.spacingMd),
-    //                 child: Column(
-    //                   children: [
-    //                     _buildCustomerReviewHeader(context, state.ratings),
-    //                     _ratingDetailInPercentage(context, state.ratings),
-    //                     const SizedBox(height: UiConstants.spacingLg),
-    //                     Expanded(
-    //                       child: ListView.separated(
-    //                         physics: const AlwaysScrollableScrollPhysics(),
-    //                         itemBuilder: (context, index) {
-    //                           final rating = ratings[index];
-    //                           return CustomerReviewItem(
-    //                             rating: rating,
-    //                             userId: userId,
-    //                           );
-    //                         },
-    //                         separatorBuilder: (context, index) {
-    //                           return const SizedBox(
-    //                             height: UiConstants.spacingMd,
-    //                           );
-    //                         },
-    //                         itemCount: state.ratings.length,
-    //                       ),
-    //                     ),
-    //                   ],
-    //                 ),
-    //               );
-    //             }
-    //             return const SizedBox.shrink();
-    //           },
-    //         ),
-    //   ),
-    // );
-
     return Scaffold(
       body: RefreshIndicator(
         onRefresh: () async {
@@ -167,8 +99,7 @@ class CustomerReviewView extends StatelessWidget {
                       SliverAppBar(
                         backgroundColor: AppColors.primaryLight,
                         pinned: true,
-                        expandedHeight: 325,
-                        collapsedHeight: 100,
+                        expandedHeight: 300,
                         foregroundColor: Colors.white,
                         flexibleSpace: Stack(
                           children: [
@@ -220,12 +151,64 @@ class CustomerReviewView extends StatelessWidget {
                             ),
                           ],
                         ),
+
                         title: const Text(
                           'Customer Review',
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
+                          ),
+                        ),
+
+                        bottom: PreferredSize(
+                          preferredSize: const Size.fromHeight(kToolbarHeight),
+                          child: Builder(
+                            builder: (context) {
+                              final settings = context
+                                  .dependOnInheritedWidgetOfExactType<
+                                    FlexibleSpaceBarSettings
+                                  >();
+                              final isCollapsed =
+                                  settings != null &&
+                                  settings.currentExtent <=
+                                      settings.minExtent + 10;
+
+                              return AnimatedOpacity(
+                                duration: const Duration(milliseconds: 200),
+                                opacity: isCollapsed ? 1.0 : 0.0,
+                                child: Padding(
+                                  padding: const EdgeInsets.only(
+                                    bottom: UiConstants.spacingMd,
+                                    left: UiConstants.spacingMd,
+                                    right: UiConstants.spacingMd,
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      const SizedBox(
+                                        height: UiConstants.spacingXs,
+                                      ),
+                                      _buildRatingStarIcon(
+                                        context,
+                                        post,
+                                        ratings,
+                                      ),
+                                      Text(
+                                        '${ratings.length} Ratings',
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      const SizedBox(
+                                        height: UiConstants.spacingXs,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
                           ),
                         ),
                       ),
@@ -281,19 +264,40 @@ class CustomerReviewView extends StatelessWidget {
       spacing: 5,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // const Text(
+        //   'Customer Reviews',
+        //   style: TextStyle(fontSize: 16, color: Colors.white),
+        // ),
         const Text(
-          'Customer Reviews',
-          style: TextStyle(fontSize: 16, color: Colors.white),
-        ),
-        const Text(
-          'Ratings',
-          style: TextStyle(fontSize: 16, color: Colors.white),
-        ),
-        _buildRatingStarIcon(context, post, ratings),
+              'Ratings',
+              style: TextStyle(fontSize: 16, color: Colors.white),
+            )
+            .animate(delay: UiConstants.animationFast)
+            .slideY(
+              begin: -1.5,
+              duration: UiConstants.animationSlow,
+              curve: Curves.easeOutCubic,
+            )
+            .fadeIn(duration: UiConstants.animationSlow),
+        _buildRatingStarIcon(context, post, ratings)
+            .animate(delay: UiConstants.animationNormal)
+            .slideY(
+              begin: 0.5,
+              duration: UiConstants.animationNormal,
+              curve: Curves.easeOutCubic,
+            )
+            .fadeIn(duration: UiConstants.animationNormal),
         Text(
-          '${ratings.length} Ratings',
-          style: TextStyle(color: Colors.white),
-        ),
+              '${ratings.length} Ratings',
+              style: const TextStyle(color: Colors.white),
+            )
+            .animate(delay: UiConstants.animationFast)
+            .slideX(
+              begin: -1,
+              duration: UiConstants.animationNormal,
+              curve: Curves.easeOutCubic,
+            )
+            .fadeIn(duration: UiConstants.animationNormal),
         const SizedBox(height: UiConstants.spacingXs),
       ],
     );
@@ -313,18 +317,26 @@ class CustomerReviewView extends StatelessWidget {
           children: [
             Text(
               '${average.toStringAsFixed(1)} out of 5.0',
-              style: TextStyle(color: Colors.white),
+              style: const TextStyle(color: Colors.white),
             ),
             const SizedBox(width: 8),
-            RatingBarIndicator(
-              rating: average.toDouble(),
-              itemBuilder: (context, index) =>
-                  const Icon(Icons.star, color: Colors.amber),
-              itemCount: 5,
-              itemSize: 20,
-              direction: Axis.horizontal,
-              unratedColor: Colors.grey,
-            ),
+            // RatingBarIndicator(
+            //       rating: average.toDouble(),
+            //       itemBuilder: (context, index) =>
+            //           const Icon(Icons.star, color: Colors.amber),
+            //       itemCount: 5,
+            //       itemSize: 20,
+            //       direction: Axis.horizontal,
+            //       unratedColor: Colors.grey,
+            //     )
+            //     .animate()
+            //     .scale(
+            //       begin: const Offset(0.8, 0.8),
+            //       duration: UiConstants.animationNormal,
+            //       curve: Curves.easeOutBack,
+            //     )
+            //     .fadeIn(duration: UiConstants.animationNormal),
+            AnimatedStarRating(rating: average, itemSize: 20, itemCount: 5),
           ],
         ),
         const Spacer(),
@@ -335,7 +347,7 @@ class CustomerReviewView extends StatelessWidget {
           ),
           child: const Text(
             'White a Review',
-            style: TextStyle(color: Colors.blue),
+            style: TextStyle(color: Colors.white, fontSize: 16),
           ),
         ),
       ],
@@ -366,7 +378,7 @@ class CustomerReviewView extends StatelessWidget {
 
         return RatingProgressBar(
           backgroundColor: Colors.grey,
-          filledColor: Colors.white,
+          filledColor: Theme.of(context).colorScheme.primaryContainer,
           ratingRange: star == 1 ? '1 Star' : '$star Stars',
           percent: percent.toDouble(),
           peopleNumber: count,
@@ -656,4 +668,120 @@ class _UserHeaderShimmer extends StatelessWidget {
       ),
     );
   }
+}
+
+class AnimatedStarRating extends StatefulWidget {
+  final double rating;
+  final double itemSize;
+  final int itemCount;
+
+  const AnimatedStarRating({
+    super.key,
+    required this.rating,
+    this.itemSize = 20,
+    this.itemCount = 5,
+  });
+
+  @override
+  State<AnimatedStarRating> createState() => _AnimatedStarRatingState();
+}
+
+class _AnimatedStarRatingState extends State<AnimatedStarRating>
+    with TickerProviderStateMixin {
+  late List<AnimationController> _controllers;
+  late List<Animation<double>> _fillAnimations;
+
+  @override
+  void initState() {
+    super.initState();
+    _controllers = List.generate(
+      widget.itemCount,
+      (i) => AnimationController(
+        vsync: this,
+        duration: const Duration(milliseconds: 400),
+      ),
+    );
+
+    _fillAnimations = List.generate(widget.itemCount, (i) {
+      final starFill = (widget.rating - i).clamp(0.0, 1.0);
+      return Tween<double>(begin: 0.0, end: starFill).animate(
+        CurvedAnimation(parent: _controllers[i], curve: Curves.easeOutCubic),
+      );
+    });
+
+    _startStaggeredAnimation();
+  }
+
+  Future<void> _startStaggeredAnimation() async {
+    for (int i = 0; i < widget.itemCount; i++) {
+      await Future.delayed(UiConstants.animationFast);
+      if (mounted) _controllers[i].forward();
+    }
+  }
+
+  @override
+  void dispose() {
+    for (final c in _controllers) {
+      c.dispose();
+    }
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: List.generate(widget.itemCount, (i) {
+        return AnimatedBuilder(
+          animation: _fillAnimations[i],
+          builder: (context, _) {
+            return _WaterFillStar(
+              fillAmount: _fillAnimations[i].value,
+              size: widget.itemSize,
+            );
+          },
+        );
+      }),
+    );
+  }
+}
+
+class _WaterFillStar extends StatelessWidget {
+  final double fillAmount;
+  final double size;
+
+  const _WaterFillStar({required this.fillAmount, required this.size});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: size,
+      height: size,
+      child: Stack(
+        children: [
+          Icon(Icons.star_rounded, size: size, color: Colors.grey.shade300),
+
+          ClipRect(
+            clipper: _BottomUpClipper(fillAmount: fillAmount),
+            child: Icon(Icons.star_rounded, size: size, color: Colors.amber),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _BottomUpClipper extends CustomClipper<Rect> {
+  final double fillAmount;
+
+  const _BottomUpClipper({required this.fillAmount});
+
+  @override
+  Rect getClip(Size size) {
+    final top = size.height * (1 - fillAmount);
+    return Rect.fromLTWH(0, top, size.width, size.height);
+  }
+
+  @override
+  bool shouldReclip(_BottomUpClipper old) => old.fillAmount != fillAmount;
 }
