@@ -1,6 +1,7 @@
 import 'package:app/app/dependency_injection.dart';
 import 'package:app/app/router/route_constants.dart';
 import 'package:app/core/constants/ui_constants.dart';
+import 'package:app/core/theme/app_colors.dart';
 import 'package:app/core/utils/date_formatter.dart';
 import 'package:app/features/customer_review/domain/entities/rating.dart';
 import 'package:app/features/customer_review/domain/entities/review_reaction.dart';
@@ -10,15 +11,26 @@ import 'package:app/features/customer_review/domain/usecases/toggle_review_react
 import 'package:app/features/customer_review/presentation/bloc/get_all_customer_review_related_to_the_post_bloc.dart';
 import 'package:app/features/customer_review/presentation/bloc/review_reaction_bloc.dart';
 import 'package:app/features/customer_review/presentation/widgets/rating_progress_bar_widget.dart';
+import 'package:app/features/post/domain/entities/post.dart';
+import 'package:app/features/profile/domain/usecases/get_current_user_profile_use_case.dart';
+import 'package:app/features/profile/presentation/bloc/get_current_user_profile_details_bloc.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shimmer/shimmer.dart';
 
 class CustomerReviewPage extends StatelessWidget {
+  final Post post;
   final String postId;
   final String? userId;
-  const CustomerReviewPage({super.key, required this.postId, this.userId});
+  const CustomerReviewPage({
+    super.key,
+    required this.post,
+    required this.postId,
+    this.userId,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -47,19 +59,26 @@ class CustomerReviewPage extends StatelessWidget {
         //   ),
         // ),
       ],
-      child: CustomerReviewView(userId: userId),
+      child: CustomerReviewView(userId: userId, post: post),
     );
   }
 }
 
 class CustomerReviewView extends StatelessWidget {
   final String? userId;
-  const CustomerReviewView({super.key, this.userId});
+  final Post post;
+  const CustomerReviewView({super.key, required this.post, this.userId});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Customer Review')),
+      appBar: AppBar(
+        backgroundColor: AppColors.primaryLight,
+        title: const Text(
+          'Customer Review',
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+      ),
       body:
           BlocBuilder<
             GetAllCustomerReviewRelatedToThePostBloc,
@@ -133,14 +152,18 @@ class CustomerReviewView extends StatelessWidget {
       children: [
         const Text('Customer Reviews', style: TextStyle(fontSize: 16)),
         const Text('Ratings', style: TextStyle(fontSize: 16)),
-        _buildRatingStarIcon(context, ratings),
+        _buildRatingStarIcon(context, post, ratings),
         Text('${ratings.length} Ratings'),
         const SizedBox(height: UiConstants.spacingXs),
       ],
     );
   }
 
-  Widget _buildRatingStarIcon(BuildContext context, List<Rating> ratings) {
+  Widget _buildRatingStarIcon(
+    BuildContext context,
+    Post post,
+    List<Rating> ratings,
+  ) {
     final average = _calculateAverageRating(ratings);
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -162,13 +185,10 @@ class CustomerReviewView extends StatelessWidget {
         ),
         const Spacer(),
         InkWell(
-          onTap: () {
-            // Later we will handle the review
-            context.push(
-              RouteConstants.writeAReviewPage,
-              // extra: {'post': post, 'userId': userId},
-            );
-          },
+          onTap: () => context.push(
+            RouteConstants.writeAReviewPage,
+            extra: {'post': post, 'userId': userId},
+          ),
           child: const Text(
             'White a Review',
             style: TextStyle(color: Colors.blue),
@@ -222,169 +242,240 @@ class CustomerReviewItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // PROVIDE THE BLOC HERE
-    return BlocProvider(
-      create: (context) => ReviewReactionBloc(
-        toggleUseCase: DependencyInjection.get<ToggleReviewReactionUseCase>(),
-        streamUseCase: DependencyInjection.get<StreamReviewReactionsUseCase>(),
-      )..add(ReviewReactionStarted(rating.id)), // Start stream immediately
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(UiConstants.spacingMd),
-        decoration: BoxDecoration(
-          color: Colors.blue[300]!.withAlpha(70),
-          borderRadius: BorderRadius.circular(UiConstants.radiusSm),
-          border: Border.all(color: Colors.grey[300]!),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => ReviewReactionBloc(
+            toggleUseCase:
+                DependencyInjection.get<ToggleReviewReactionUseCase>(),
+            streamUseCase:
+                DependencyInjection.get<StreamReviewReactionsUseCase>(),
+          )..add(ReviewReactionStarted(rating.id)),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // ... (Your existing Header/User info code) ...
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
+        BlocProvider(
+          create: (context) => GetCurrentUserProfileDetailsBloc(
+            getCurrentUserProfileUseCase:
+                DependencyInjection.get<GetCurrentUserProfileUseCase>(),
+          )..add(GetCurrentUserProfileDetailsRequested(userId: rating.userId)),
+        ),
+      ],
+      child: _ReviewTileBody(rating: rating, userId: userId),
+    );
+  }
+}
+
+class _ReviewTileBody extends StatelessWidget {
+  final Rating rating;
+  final String? userId;
+
+  const _ReviewTileBody({required this.rating, required this.userId});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(UiConstants.spacingMd),
+      decoration: BoxDecoration(
+        // color: Theme.of(context).colorScheme.primary.withAlpha(50),
+        color: Colors.blue[300]!.withAlpha(70),
+        borderRadius: BorderRadius.circular(UiConstants.radiusSm),
+        border: Border.all(color: Theme.of(context).colorScheme.primary),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildHeader(context),
+          const SizedBox(height: UiConstants.spacingSm),
+
+          if (rating.comment != null && rating.comment!.isNotEmpty)
+            Text(
+              rating.comment!,
+              style: const TextStyle(color: Colors.black87),
+            ),
+
+          const SizedBox(height: UiConstants.spacingXs),
+
+          Text(
+            DateFormatter.format(rating.createdAt),
+            style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+          ),
+
+          const SizedBox(height: UiConstants.spacingMd),
+
+          _buildReactionRow(context),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildReactionRow(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        BlocBuilder<ReviewReactionBloc, ReviewReactionState>(
+          builder: (context, reactionState) {
+            final isLiked = reactionState.reactions.any(
+              (r) =>
+                  r.userId == userId && r.reaction == ReviewReactionType.like,
+            );
+
+            final isDisliked = reactionState.reactions.any(
+              (r) =>
+                  r.userId == userId &&
+                  r.reaction == ReviewReactionType.dislike,
+            );
+
+            return Row(
               children: [
-                CircleAvatar(
-                  radius: 16,
-                  backgroundColor: Colors.grey[400],
-                  child: const Icon(Icons.person, color: Colors.white),
-                ),
-                const SizedBox(width: 12),
-                const Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Username', // Replace with rating.userName if available
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                        ),
+                Text('Helpful ?', style: TextStyle(color: Colors.grey[600])),
+                const SizedBox(width: UiConstants.spacingSm),
+
+                InkWell(
+                  onTap: () {
+                    if (userId == null) return;
+                    context.read<ReviewReactionBloc>().add(
+                      ReviewReactionToggleRequested(
+                        ratingId: rating.id,
+                        userId: userId!,
+                        reaction: ReviewReactionType.like,
                       ),
-                      SizedBox(height: 4),
+                    );
+                  },
+                  child: Row(
+                    children: [
+                      Icon(
+                        isLiked ? Icons.thumb_up : Icons.thumb_up_alt_outlined,
+                        color: isLiked ? Colors.blue : null,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 4),
+                      Text('${reactionState.likes}'),
                     ],
                   ),
                 ),
-                RatingBarIndicator(
-                  rating: rating.ratingValue.toDouble(),
-                  itemBuilder: (context, index) =>
-                      const Icon(Icons.star, color: Colors.amber),
-                  itemCount: 5,
-                  itemSize: 16,
-                  direction: Axis.horizontal,
-                ),
-              ],
-            ),
-            const SizedBox(height: UiConstants.spacingSm),
-            if (rating.comment != null && rating.comment!.isNotEmpty)
-              Text(
-                rating.comment!,
-                style: const TextStyle(color: Colors.black87),
-              ),
-            const SizedBox(height: UiConstants.spacingXs),
-            Text(
-              DateFormatter.format(rating.createdAt),
-              style: TextStyle(color: Colors.grey[600]),
-            ),
-            const SizedBox(height: UiConstants.spacingMd),
 
-            // ACTIONS ROW
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                // THIS BLOC BUILDER NOW LISTENS TO THE LOCAL BLOC
-                BlocBuilder<ReviewReactionBloc, ReviewReactionState>(
-                  builder: (context, reactionState) {
-                    // Optional: Check if current user has reacted
-                    final isLiked = reactionState.reactions.any(
-                      (r) =>
-                          r.userId == userId &&
-                          r.reaction == ReviewReactionType.like,
-                    );
-                    final isDisliked = reactionState.reactions.any(
-                      (r) =>
-                          r.userId == userId &&
-                          r.reaction == ReviewReactionType.dislike,
-                    );
+                const SizedBox(width: UiConstants.spacingMd),
 
-                    return Row(
-                      children: [
-                        Text(
-                          'Helpful ?',
-                          style: TextStyle(color: Colors.grey[600]),
-                        ),
-                        const SizedBox(width: UiConstants.spacingSm),
-
-                        // LIKE BUTTON
-                        InkWell(
-                          onTap: () {
-                            if (userId == null) return; // Handle guest
-                            context.read<ReviewReactionBloc>().add(
-                              ReviewReactionToggleRequested(
-                                ratingId: rating.id,
-                                userId: userId!,
-                                reaction: ReviewReactionType.like,
-                              ),
-                            );
-                          },
-                          child: Row(
-                            children: [
-                              Icon(
-                                isLiked
-                                    ? Icons.thumb_up
-                                    : Icons.thumb_up_alt_outlined,
-                                color: isLiked ? Colors.blue : null,
-                                size: 20,
-                              ),
-                              const SizedBox(width: 4),
-                              Text('${reactionState.likes}'),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(width: UiConstants.spacingMd),
-
-                        // DISLIKE BUTTON
-                        InkWell(
-                          onTap: () {
-                            if (userId == null) return;
-                            context.read<ReviewReactionBloc>().add(
-                              ReviewReactionToggleRequested(
-                                ratingId: rating.id,
-                                userId: userId!,
-                                reaction: ReviewReactionType.dislike,
-                              ),
-                            );
-                          },
-                          child: Row(
-                            children: [
-                              Icon(
-                                isDisliked
-                                    ? Icons.thumb_down
-                                    : Icons.thumb_down_alt_outlined,
-                                color: isDisliked ? Colors.red : null,
-                                size: 20,
-                              ),
-                              const SizedBox(width: 4),
-                              Text('${reactionState.dislikes}'),
-                            ],
-                          ),
-                        ),
-                      ],
-                    );
-                  },
-                ),
                 InkWell(
                   onTap: () {
-                    // Report logic
+                    if (userId == null) return;
+                    context.read<ReviewReactionBloc>().add(
+                      ReviewReactionToggleRequested(
+                        ratingId: rating.id,
+                        userId: userId!,
+                        reaction: ReviewReactionType.dislike,
+                      ),
+                    );
                   },
-                  child: const Text(
-                    'Report',
-                    style: TextStyle(fontSize: 14, color: Colors.black),
+                  child: Row(
+                    children: [
+                      Icon(
+                        isDisliked
+                            ? Icons.thumb_down
+                            : Icons.thumb_down_alt_outlined,
+                        color: isDisliked ? Colors.red : null,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 4),
+                      Text('${reactionState.dislikes}'),
+                    ],
                   ),
                 ),
               ],
+            );
+          },
+        ),
+        const Text(
+          'Report',
+          style: TextStyle(fontSize: 14, color: Colors.blue),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildHeader(BuildContext context) {
+    return BlocBuilder<
+      GetCurrentUserProfileDetailsBloc,
+      GetCurrentUserProfileDetailsState
+    >(
+      builder: (context, state) {
+        if (state is! GetCurrentUserProfileDetailsSuccess) {
+          return _UserHeaderShimmer();
+        }
+
+        final user = state.user;
+
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            CircleAvatar(
+              radius: 16,
+              child: ClipOval(
+                child: user.imageUrl != null && user.imageUrl!.isNotEmpty
+                    ? CachedNetworkImage(
+                        imageUrl: user.imageUrl!,
+                        width: 32,
+                        height: 32,
+                        fit: BoxFit.cover,
+                        placeholder: (context, url) => Shimmer.fromColors(
+                          baseColor: Colors.grey.shade300,
+                          highlightColor: Colors.grey.shade100,
+                          child: Container(color: Colors.white),
+                        ),
+                        errorWidget: (_, __, ___) => const Icon(Icons.person),
+                      )
+                    : Text(
+                        user.fullName[0].toUpperCase(),
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                user.userId == userId ? 'You' : user.fullName,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+              ),
+            ),
+            RatingBarIndicator(
+              rating: rating.ratingValue.toDouble(),
+              itemBuilder: (_, __) =>
+                  const Icon(Icons.star, color: Colors.amber),
+              itemCount: 5,
+              itemSize: 16,
             ),
           ],
-        ),
+        );
+      },
+    );
+  }
+}
+
+class _UserHeaderShimmer extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      child: Row(
+        children: [
+          const CircleAvatar(radius: 16),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Container(
+              height: 14,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Container(width: 60, height: 14, color: Colors.white),
+        ],
       ),
     );
   }

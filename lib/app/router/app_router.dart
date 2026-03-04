@@ -297,7 +297,7 @@ class AppRouter {
           final post = extraData['post'] as Post;
           final postId = post.id;
           final userId = extraData['userId'] as String;
-          return CustomerReviewPage(postId: postId, userId: userId);
+          return CustomerReviewPage(postId: postId, post: post, userId: userId);
         },
       ),
 
