@@ -2,6 +2,7 @@ import 'package:app/app/app_config.dart';
 import 'package:app/app/dependency_injection.dart';
 import 'package:app/app/router/route_constants.dart';
 import 'package:app/core/constants/ui_constants.dart';
+import 'package:app/core/widgets/app_bar_popup_menu.dart';
 import 'package:app/core/widgets/common_widgets.dart';
 import 'package:app/features/customer_review/domain/entities/rating.dart';
 import 'package:app/features/customer_review/domain/usecases/get_all_customer_review_related_to_post_use_case.dart';
@@ -78,53 +79,37 @@ class PostDetailsView extends StatelessWidget {
         actions: [
           BlocBuilder<PostDetailsBloc, PostDetailState>(
             builder: (context, state) {
-              return PopupMenuButton<String>(
-                elevation: 3,
-                onSelected: (value) {
-                  if (value == 'edit') {
-                    context.push(
-                      RouteConstants.editPostPage,
-                      extra: {
-                        // pasing the post id and userid to get the post detail through bloc in case the post is unavailabel at that moment
-                        'postId': post?.id,
-                        'post': post,
-                        'userId': post?.createdBy,
-                      },
-                    );
-                  }
-                  if (value == 'delete') {
-                    _showDeleteConfirmDialog(
-                      context,
-                      title: post?.title,
-                      userId: userId ?? '',
-                      state: state,
-                    );
-                  }
-                },
-                itemBuilder: (context) => [
-                  const PopupMenuItem(
+              return AppPopupMenu(
+                items: [
+                  AppPopupMenuItem(
                     value: 'edit',
-                    child: Row(
-                      children: [
-                        Icon(Icons.edit, size: UiConstants.iconMd),
-                        SizedBox(width: UiConstants.spacingSm),
-                        Text('Edit'),
-                      ],
-                    ),
+                    label: 'Edit',
+                    icon: Icons.edit,
+                    onTap: () {
+                      context.push(
+                        RouteConstants.editPostPage,
+                        extra: {
+                          // pasing the post id and userid to get the post detail through bloc in case the post is unavailabel at that moment
+                          'postId': post?.id,
+                          'post': post,
+                          'userId': post?.createdBy,
+                        },
+                      );
+                    },
                   ),
-                  const PopupMenuItem(
+                  AppPopupMenuItem(
                     value: 'delete',
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.delete,
-                          size: UiConstants.iconMd,
-                          color: Colors.red,
-                        ),
-                        SizedBox(width: UiConstants.spacingSm),
-                        Text('Delete', style: TextStyle(color: Colors.red)),
-                      ],
-                    ),
+                    label: 'Delete',
+                    icon: Icons.delete,
+                    onTap: () {
+                      _showDeleteConfirmDialog(
+                        context,
+                        title: post?.title,
+                        userId: userId ?? '',
+                        state: state,
+                      );
+                    },
+                    isDistructive: true,
                   ),
                 ],
               );
@@ -223,7 +208,6 @@ Widget _buildPostDetailSection(
         return _buildImageViewer(context, state);
       }
 
-      print('The related posts are: ${stateLoaded.relatedPosts.length}');
       return RefreshIndicator(
         onRefresh: () => _onRefresh(context),
         child: SingleChildScrollView(
