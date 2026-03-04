@@ -6,6 +6,7 @@ import 'package:app/core/widgets/loading_widget.dart';
 import 'package:app/features/auth/domain/entities/organization.dart';
 import 'package:app/features/auth/domain/entities/user.dart';
 import 'package:app/features/auth/services/auth_service.dart';
+import 'package:app/features/home/presentation/widgets/post_card.dart';
 import 'package:app/features/post/domain/entities/post.dart';
 import 'package:app/features/search/domain/entities/search_filter_enum.dart';
 import 'package:app/features/search/domain/entities/search_result.dart';
@@ -318,6 +319,7 @@ class _PostsMasonrySliver extends StatelessWidget {
                   curve: Curves.easeInOut,
                 )
                 .fade(duration: UiConstants.animationSlow),
+        // PostCard(post: posts[i], organization: organization, userId: currentUserId)
       ),
     );
   }

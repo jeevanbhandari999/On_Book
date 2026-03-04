@@ -11,7 +11,8 @@ class SearchHeader extends StatelessWidget {
   final SearchFilter activeFilter;
   final String currentUserId;
 
-  const SearchHeader({super.key, 
+  const SearchHeader({
+    super.key,
     required this.controller,
     required this.activeFilter,
     required this.currentUserId,
@@ -143,8 +144,7 @@ class _FilterChip extends StatelessWidget {
             Text(
               _label,
               style: TextStyle(
-                fontSize: 14,
-                fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
+                fontSize: isActive ? 16 : 14,
                 color: isActive ? Colors.black87 : Colors.white,
               ),
             ),
