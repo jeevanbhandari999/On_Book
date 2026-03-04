@@ -27,6 +27,20 @@ class GetAllCustomerReviewRelatedToThePostRequested
   List<Object?> get props => [postId, userId];
 }
 
+class GetAllCustomerReviewRelatedToThePostRefreshRequested
+    extends GetAllCustomerReviewRelatedToThePostEvent {
+  final String postId;
+  final String? userId; // For future need
+
+  const GetAllCustomerReviewRelatedToThePostRefreshRequested({
+    required this.postId,
+    this.userId,
+  });
+
+  @override
+  List<Object?> get props => [postId, userId];
+}
+
 // States
 abstract class GetAllCustomerReviewRelatedToThePostState extends Equatable {
   const GetAllCustomerReviewRelatedToThePostState();
@@ -86,10 +100,48 @@ class GetAllCustomerReviewRelatedToThePostBloc
     on<GetAllCustomerReviewRelatedToThePostRequested>(
       _onGetAllCustomerReviewRelatedToThePostRequested,
     );
+    on<GetAllCustomerReviewRelatedToThePostRefreshRequested>(
+      _onGetAllCustomerReviewRelatedToThePostRefreshRequested,
+    );
   }
 
   Future<void> _onGetAllCustomerReviewRelatedToThePostRequested(
     GetAllCustomerReviewRelatedToThePostRequested event,
+    Emitter<GetAllCustomerReviewRelatedToThePostState> emit,
+  ) async {
+    emit(const GetAllCustomerReviewRelatedToThePostLoading());
+    try {
+      final getAllCustomerReviewRelatedToPostParams =
+          GetAllCustomerReviewRelatedToPostParams(
+            postId: event.postId,
+            userId: event.userId,
+          );
+
+      final response = await _getAllCustomerReviewRelatedToPostUseCase(
+        getAllCustomerReviewRelatedToPostParams,
+      );
+
+      response.fold(
+        (failure) => emit(
+          GetAllCustomerReviewRelatedToThePostError(message: failure.message),
+        ),
+        (customerReviewRatings) => emit(
+          GetAllCustomerReviewRelatedToThePostSuccess(
+            ratings: customerReviewRatings,
+          ),
+        ),
+      );
+    } catch (e) {
+      emit(
+        GetAllCustomerReviewRelatedToThePostError(
+          message: 'Failed to fetch the customer review $e',
+        ),
+      );
+    }
+  }
+
+  Future<void> _onGetAllCustomerReviewRelatedToThePostRefreshRequested(
+    GetAllCustomerReviewRelatedToThePostRefreshRequested event,
     Emitter<GetAllCustomerReviewRelatedToThePostState> emit,
   ) async {
     try {

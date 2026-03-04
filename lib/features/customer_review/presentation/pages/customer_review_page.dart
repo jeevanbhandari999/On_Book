@@ -50,14 +50,6 @@ class CustomerReviewPage extends StatelessWidget {
                 ),
               ),
         ),
-        // BlocProvider(
-        //   create: (context) => ReviewReactionBloc(
-        //     toggleUseCase:
-        //         DependencyInjection.get<ToggleReviewReactionUseCase>(),
-        //     streamUseCase:
-        //         DependencyInjection.get<StreamReviewReactionsUseCase>(),
-        //   ),
-        // ),
       ],
       child: CustomerReviewView(userId: userId, post: post),
     );
@@ -71,64 +63,72 @@ class CustomerReviewView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: AppColors.primaryLight,
-        title: const Text(
-          'Customer Review',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-        ),
-      ),
-      body:
-          BlocBuilder<
-            GetAllCustomerReviewRelatedToThePostBloc,
-            GetAllCustomerReviewRelatedToThePostState
-          >(
-            builder: (context, state) {
-              // print(state);
-              if (state is GetAllCustomerReviewRelatedToThePostLoading) {
-                return const Center(child: CircularProgressIndicator());
-              }
-              if (state is GetAllCustomerReviewRelatedToThePostError) {
-                ScaffoldMessenger.of(
-                  context,
-                ).showSnackBar(SnackBar(content: Text(state.message)));
-              }
-              if (state is GetAllCustomerReviewRelatedToThePostSuccess) {
-                final ratings = state.ratings;
-                return Padding(
-                  padding: const EdgeInsets.all(UiConstants.spacingMd),
-                  child: Column(
-                    children: [
-                      _buildCustomerReviewHeader(context, state.ratings),
-                      _ratingDetailInPercentage(context, state.ratings),
-                      const SizedBox(height: UiConstants.spacingLg),
-                      Expanded(
-                        child: ListView.separated(
-                          itemBuilder: (context, index) {
-                            final rating = ratings[index];
-
-                            // Pass the data to the isolated widget
-                            return CustomerReviewItem(
-                              rating: rating,
-                              userId: userId,
-                            );
-                          },
-                          separatorBuilder: (context, index) {
-                            return const SizedBox(
-                              height: UiConstants.spacingMd,
-                            );
-                          },
-                          itemCount: state.ratings.length,
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }
-              return const SizedBox.shrink();
-            },
+    return RefreshIndicator(
+      onRefresh: () async {
+        context.read<GetAllCustomerReviewRelatedToThePostBloc>().add(
+          GetAllCustomerReviewRelatedToThePostRequested(
+            postId: post.id,
+            userId: userId,
           ),
+        );
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: AppColors.primaryLight,
+          title: const Text(
+            'Customer Review',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+        ),
+        body:
+            BlocBuilder<
+              GetAllCustomerReviewRelatedToThePostBloc,
+              GetAllCustomerReviewRelatedToThePostState
+            >(
+              builder: (context, state) {
+                if (state is GetAllCustomerReviewRelatedToThePostLoading) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if (state is GetAllCustomerReviewRelatedToThePostError) {
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text(state.message)));
+                }
+                if (state is GetAllCustomerReviewRelatedToThePostSuccess) {
+                  final ratings = state.ratings;
+                  return Padding(
+                    padding: const EdgeInsets.all(UiConstants.spacingMd),
+                    child: Column(
+                      children: [
+                        _buildCustomerReviewHeader(context, state.ratings),
+                        _ratingDetailInPercentage(context, state.ratings),
+                        const SizedBox(height: UiConstants.spacingLg),
+                        Expanded(
+                          child: ListView.separated(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            itemBuilder: (context, index) {
+                              final rating = ratings[index];
+                              return CustomerReviewItem(
+                                rating: rating,
+                                userId: userId,
+                              );
+                            },
+                            separatorBuilder: (context, index) {
+                              return const SizedBox(
+                                height: UiConstants.spacingMd,
+                              );
+                            },
+                            itemCount: state.ratings.length,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+                return const SizedBox.shrink();
+              },
+            ),
+      ),
     );
   }
 
@@ -276,8 +276,8 @@ class _ReviewTileBody extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(UiConstants.spacingMd),
       decoration: BoxDecoration(
-        // color: Theme.of(context).colorScheme.primary.withAlpha(50),
-        color: Colors.blue[300]!.withAlpha(70),
+        color: Theme.of(context).colorScheme.primary.withAlpha(50),
+        // color: Colors.blue[300]!.withAlpha(70),
         borderRadius: BorderRadius.circular(UiConstants.radiusSm),
         border: Border.all(color: Theme.of(context).colorScheme.primary),
       ),
@@ -286,7 +286,6 @@ class _ReviewTileBody extends StatelessWidget {
         children: [
           _buildHeader(context),
           const SizedBox(height: UiConstants.spacingSm),
-
           if (rating.comment != null && rating.comment!.isNotEmpty)
             Text(
               rating.comment!,
@@ -408,26 +407,40 @@ class _ReviewTileBody extends StatelessWidget {
         return Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            CircleAvatar(
-              radius: 16,
-              child: ClipOval(
-                child: user.imageUrl != null && user.imageUrl!.isNotEmpty
-                    ? CachedNetworkImage(
-                        imageUrl: user.imageUrl!,
-                        width: 32,
-                        height: 32,
-                        fit: BoxFit.cover,
-                        placeholder: (context, url) => Shimmer.fromColors(
-                          baseColor: Colors.grey.shade300,
-                          highlightColor: Colors.grey.shade100,
-                          child: Container(color: Colors.white),
+            InkWell(
+              onTap: () {
+                if (userId != null) {
+                  if (user.userId == userId) {
+                    context.go(RouteConstants.profilePage);
+                  } else {
+                    context.push(
+                      RouteConstants.viewUserProfilePage,
+                      extra: {'userId': user.userId, 'currentUserId': userId!},
+                    );
+                  }
+                }
+              },
+              child: CircleAvatar(
+                radius: 16,
+                child: ClipOval(
+                  child: user.imageUrl != null && user.imageUrl!.isNotEmpty
+                      ? CachedNetworkImage(
+                          imageUrl: user.imageUrl!,
+                          width: 32,
+                          height: 32,
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) => Shimmer.fromColors(
+                            baseColor: Colors.grey.shade300,
+                            highlightColor: Colors.grey.shade100,
+                            child: Container(color: Colors.white),
+                          ),
+                          errorWidget: (_, __, ___) => const Icon(Icons.person),
+                        )
+                      : Text(
+                          user.fullName[0].toUpperCase(),
+                          style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
-                        errorWidget: (_, __, ___) => const Icon(Icons.person),
-                      )
-                    : Text(
-                        user.fullName[0].toUpperCase(),
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
+                ),
               ),
             ),
             const SizedBox(width: 12),
@@ -473,8 +486,25 @@ class _UserHeaderShimmer extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(width: 12),
-          Container(width: 60, height: 14, color: Colors.white),
+          const SizedBox(width: UiConstants.spacingXl),
+          Container(
+            height: 14,
+            color: Colors.transparent,
+            child: Row(
+              children: List.generate(
+                5,
+                (index) => Container(
+                  height: 12,
+                  width: 12,
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                  ),
+                  margin: const EdgeInsets.only(right: UiConstants.spacingXs),
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );
