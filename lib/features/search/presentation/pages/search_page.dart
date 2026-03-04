@@ -6,7 +6,7 @@ import 'package:app/core/widgets/loading_widget.dart';
 import 'package:app/features/auth/domain/entities/organization.dart';
 import 'package:app/features/auth/domain/entities/user.dart';
 import 'package:app/features/auth/services/auth_service.dart';
-import 'package:app/features/home/presentation/widgets/post_card.dart';
+// import 'package:app/features/home/presentation/widgets/post_card.dart';
 import 'package:app/features/post/domain/entities/post.dart';
 import 'package:app/features/search/domain/entities/search_filter_enum.dart';
 import 'package:app/features/search/domain/entities/search_result.dart';
@@ -810,7 +810,7 @@ class _PostCard extends StatelessWidget {
           border: Border.all(color: Colors.grey[200]!),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withAlpha(15),
               blurRadius: 6,
               offset: const Offset(0, 2),
             ),
@@ -845,7 +845,7 @@ class _PostCard extends StatelessWidget {
                             vertical: 2,
                           ),
                           decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.65),
+                            color: Colors.black.withAlpha(20),
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text(

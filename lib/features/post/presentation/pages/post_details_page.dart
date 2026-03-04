@@ -9,6 +9,9 @@ import 'package:app/features/customer_review/domain/usecases/get_all_customer_re
 import 'package:app/features/customer_review/presentation/bloc/get_all_customer_review_related_to_the_post_bloc.dart';
 import 'package:app/features/customer_review/presentation/widgets/rating_progress_bar_widget.dart';
 import 'package:app/features/home/domain/usecases/get_organization_detail_by_post_organization_id.dart';
+import 'package:app/features/home/domain/usecases/stream_saved_post_use_case.dart';
+import 'package:app/features/home/domain/usecases/toggle_post_save_or_unsave_use_case.dart';
+import 'package:app/features/home/presentation/bloc/toggle_post_save_or_unsave_bloc.dart';
 import 'package:app/features/home/presentation/widgets/post_card.dart';
 import 'package:app/features/post/domain/entities/post.dart';
 import 'package:app/features/post/domain/entities/post_enums.dart';
@@ -42,19 +45,33 @@ class PostDetailsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<PostDetailsBloc>(
-      create: (context) {
-        return PostDetailsBloc(
-          getPostByIdUseCase: DependencyInjection.get<GetPostByIdUseCase>(),
-          deletePostUseCase: DependencyInjection.get<DeletePostUseCase>(),
-          getRelatedPostsThroughAlgorithmUseCase:
-              DependencyInjection.get<GetRelatedPostsThroughAlgorithmUseCase>(),
-          getOrganizationDetailByPostOrganizationIdUseCase:
-              DependencyInjection.get<
-                GetOrganizationDetailByPostOrganizationIdUseCase
-              >(),
-        )..add(PostDetailLoadRequested(postId: postId, userId: userId));
-      },
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<PostDetailsBloc>(
+          create: (context) {
+            return PostDetailsBloc(
+              getPostByIdUseCase: DependencyInjection.get<GetPostByIdUseCase>(),
+              deletePostUseCase: DependencyInjection.get<DeletePostUseCase>(),
+              getRelatedPostsThroughAlgorithmUseCase:
+                  DependencyInjection.get<
+                    GetRelatedPostsThroughAlgorithmUseCase
+                  >(),
+              getOrganizationDetailByPostOrganizationIdUseCase:
+                  DependencyInjection.get<
+                    GetOrganizationDetailByPostOrganizationIdUseCase
+                  >(),
+            )..add(PostDetailLoadRequested(postId: postId, userId: userId));
+          },
+        ),
+        if (userId != null)
+          BlocProvider(
+            create: (context) => TogglePostSaveOrUnsaveBloc(
+              toggleUseCase:
+                  DependencyInjection.get<TogglePostSaveOrUnsaveUseCase>(),
+              streamUseCase: DependencyInjection.get<StreamSavedPostsUseCase>(),
+            )..add(PostSaveStarted(userId!)),
+          ),
+      ],
       child: PostDetailsView(postId: postId, post: post, userId: userId),
     );
   }
@@ -75,6 +92,7 @@ class PostDetailsView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.transparent,
         title: Text(
           post?.title ?? 'Details Page',
           style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
@@ -219,7 +237,7 @@ Widget _buildPostDetailSection(
                             },
                           ),
                           const SizedBox(height: UiConstants.spacingSm),
-                          _buildActionButtons(context),
+                          _buildActionButtons(context, userId, post),
                         ],
                       ),
                     ),
@@ -519,24 +537,57 @@ Widget _buildCustomerReviewSection(
   );
 }
 
-Widget _buildActionButtons(BuildContext context) {
+Widget _buildActionButtons(BuildContext context, String userId, Post post) {
+  final isAvailable = post.status == PostStatus.available;
   return SizedBox(
     width: double.infinity,
     child: Row(
       children: [
         Expanded(
-          child: CustomButton(
-            text: 'Add to Library',
-            icon: const Icon(Icons.bookmark_outline),
-            onPressed: () {},
-            isOutlined: true,
-          ),
+          child:
+              BlocBuilder<
+                TogglePostSaveOrUnsaveBloc,
+                TogglePostSaveOrUnsaveState
+              >(
+                buildWhen: (prev, curr) =>
+                    prev.isSaved(post.id) != curr.isSaved(post.id),
+                builder: (context, state) {
+                  final isSaved = state.isSaved(post.id);
+                  return CustomButton(
+                    text: isSaved ? 'Remove from Library' : 'Add to Library',
+                    icon: Icon(
+                      isSaved ? Icons.bookmark_sharp : Icons.bookmark_outline,
+                    ),
+                    onPressed: () {
+                      context.read<TogglePostSaveOrUnsaveBloc>().add(
+                        PostSaveToggleRequested(
+                          postId: post.id,
+                          userId: userId,
+                          organizationId: post.organizationId,
+                        ),
+                      );
+                    },
+                    isOutlined: true,
+                  );
+                },
+              ),
         ),
         const SizedBox(width: UiConstants.spacingSm),
         Expanded(
           child: CustomButton(
             text: 'Book Now',
-            onPressed: () {},
+            onPressed: isAvailable
+                ? () {
+                    context.push(
+                      RouteConstants.bookingFormPage,
+                      extra: {
+                        'userId': userId,
+                        'postId': post.id,
+                        'post': post,
+                      },
+                    );
+                  }
+                : null,
             icon: const Icon(Icons.event_available),
           ),
         ),
