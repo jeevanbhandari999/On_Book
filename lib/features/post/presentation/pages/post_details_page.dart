@@ -3,6 +3,7 @@ import 'package:app/app/dependency_injection.dart';
 import 'package:app/app/router/route_constants.dart';
 import 'package:app/core/constants/ui_constants.dart';
 import 'package:app/core/widgets/app_bar_popup_menu.dart';
+import 'package:app/core/widgets/app_shimmer.dart';
 import 'package:app/core/widgets/common_widgets.dart';
 import 'package:app/features/customer_review/domain/entities/rating.dart';
 import 'package:app/features/customer_review/domain/usecases/get_all_customer_review_related_to_post_use_case.dart';
@@ -368,6 +369,37 @@ Widget _buildRelatedPostsSection(
   );
 }
 
+Widget _buildReviewShimmer() {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      const AppShimmer(height: 20, width: 180),
+      const SizedBox(height: 16),
+
+      const Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          AppShimmer(height: 20, width: 140),
+          AppShimmer(height: 16, width: 100),
+        ],
+      ),
+
+      const SizedBox(height: 12),
+
+      const AppShimmer(height: 14, width: 120),
+      const SizedBox(height: 16),
+
+      ...List.generate(
+        5,
+        (_) => const Padding(
+          padding: EdgeInsets.only(bottom: 10),
+          child: AppShimmer(height: 14, width: double.infinity),
+        ),
+      ),
+    ],
+  );
+}
+
 // 1. Remove the ratingValue parameter entirely — it's now dynamic
 Widget _buildCustomerReviewSection(
   BuildContext context, {
@@ -430,104 +462,101 @@ Widget _buildCustomerReviewSection(
                       ),
                     ),
                     const SizedBox(height: UiConstants.spacingMd),
-
-                    // ── Rating row + Write a review ───────────────────────────
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        if (isLoading)
-                          const SizedBox(
-                            height: 20,
-                            width: 120,
-                            child: LinearProgressIndicator(),
-                          )
-                        else
+                    if (isLoading)
+                      _buildReviewShimmer()
+                    else
+                      // ── Rating row + Write a review ───────────────────────────
+                      Column(
+                        children: [
                           Row(
-                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text('${average.toStringAsFixed(1)} out of 5.0'),
-                              const SizedBox(width: 8),
-                              RatingBarIndicator(
-                                rating: average,
-                                itemBuilder: (context, _) =>
-                                    const Icon(Icons.star, color: Colors.amber),
-                                itemCount: 5,
-                                itemSize: 20,
-                                direction: Axis.horizontal,
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    '${average.toStringAsFixed(1)} out of 5.0',
+                                  ),
+                                  const SizedBox(width: 8),
+                                  RatingBarIndicator(
+                                    rating: average,
+                                    itemBuilder: (context, _) => const Icon(
+                                      Icons.star,
+                                      color: Colors.amber,
+                                    ),
+                                    itemCount: 5,
+                                    itemSize: 20,
+                                    direction: Axis.horizontal,
+                                  ),
+                                ],
+                              ),
+                              InkWell(
+                                onTap: () => context.push(
+                                  RouteConstants.writeAReviewPage,
+                                  extra: {'post': post, 'userId': userId},
+                                ),
+                                child: const Text(
+                                  'Write a Review',
+                                  style: TextStyle(color: Colors.blue),
+                                ),
                               ),
                             ],
                           ),
-                        InkWell(
-                          onTap: () => context.push(
-                            RouteConstants.writeAReviewPage,
-                            extra: {'post': post, 'userId': userId},
-                          ),
-                          child: const Text(
-                            'Write a Review',
-                            style: TextStyle(color: Colors.blue),
-                          ),
-                        ),
-                      ],
-                    ),
+                          const SizedBox(height: UiConstants.spacingSm),
 
-                    const SizedBox(height: UiConstants.spacingSm),
-
-                    // ── Review count + See all ────────────────────────────────
-                    Row(
-                      children: [
-                        if (isLoading)
-                          const SizedBox(
-                            height: 14,
-                            width: 80,
-                            child: LinearProgressIndicator(),
-                          )
-                        else
-                          Text(
-                            '$reviewCount Review${reviewCount == 1 ? '' : 's'}:',
+                          // ── Review count + See all ────────────────────────────────
+                          Row(
+                            children: [
+                              if (isLoading)
+                                const SizedBox(
+                                  height: 14,
+                                  width: 80,
+                                  child: LinearProgressIndicator(),
+                                )
+                              else
+                                Text(
+                                  '$reviewCount Review${reviewCount == 1 ? '' : 's'}:',
+                                ),
+                              const SizedBox(width: 8),
+                              InkWell(
+                                onTap: () => context.push(
+                                  RouteConstants.customerReviewPage,
+                                  extra: {'post': post, 'userId': userId},
+                                ),
+                                child: const Text(
+                                  'See all',
+                                  style: TextStyle(color: Colors.blue),
+                                ),
+                              ),
+                            ],
                           ),
-                        const SizedBox(width: 8),
-                        InkWell(
-                          onTap: () => context.push(
-                            RouteConstants.customerReviewPage,
-                            extra: {'post': post, 'userId': userId},
-                          ),
-                          child: const Text(
-                            'See all',
-                            style: TextStyle(color: Colors.blue),
-                          ),
-                        ),
-                      ],
-                    ),
 
-                    const SizedBox(height: UiConstants.spacingMd),
+                          const SizedBox(height: UiConstants.spacingMd),
 
-                    // ── Per-star progress bars (5 → 1) ───────────────────────
-                    if (isLoading)
-                      const Center(
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(vertical: 8),
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        ),
-                      )
-                    else if (ratings.isEmpty)
-                      Text(
-                        'No reviews yet. Be the first to review!',
-                        style: TextStyle(color: Colors.grey[500], fontSize: 13),
-                      )
-                    else
-                      ...List.generate(5, (i) {
-                        final star = 5 - i; // 5 down to 1
-                        final count = grouped[star] ?? 0;
-                        final percent = reviewCount == 0
-                            ? 0.0
-                            : (count / reviewCount) * 100;
+                          // ── Per-star progress bars (5 → 1) ───────────────────────
+                          if (ratings.isEmpty)
+                            const Text(
+                              'No reviews yet. Be the first to review!',
+                              style: TextStyle(fontSize: 13),
+                            )
+                          else
+                            ...List.generate(5, (i) {
+                              final star = 5 - i; // 5 down to 1
+                              final count = grouped[star] ?? 0;
+                              final percent = reviewCount == 0
+                                  ? 0.0
+                                  : (count / reviewCount) * 100;
 
-                        return RatingProgressBar(
-                          ratingRange: star == 1 ? '1 star' : '$star stars',
-                          percent: percent,
-                          peopleNumber: count,
-                        );
-                      }),
+                              return RatingProgressBar(
+                                ratingRange: star == 1
+                                    ? '1 star'
+                                    : '$star stars',
+                                percent: percent,
+                                peopleNumber: count,
+                              );
+                            }),
+                        ],
+                      ),
                   ],
                 ),
               ),
