@@ -5,12 +5,18 @@ class RatingProgressBar extends StatelessWidget {
   final String ratingRange;
   final double percent;
   final int peopleNumber;
+  final Color? backgroundColor;
+  final Color? textColor;
+  final Color? filledColor;
 
   const RatingProgressBar({
     super.key,
     required this.ratingRange,
     required this.percent,
     required this.peopleNumber,
+    this.backgroundColor,
+    this.textColor,
+    this.filledColor,
   });
 
   @override
@@ -25,10 +31,10 @@ class RatingProgressBar extends StatelessWidget {
             alignment: Alignment.centerLeft,
             children: [
               const Text(
-                '5 stars',
+                '5 Stars',
                 style: TextStyle(color: Colors.transparent),
               ),
-              Text(ratingRange),
+              Text(ratingRange, style: TextStyle(color: textColor)),
             ],
           ),
 
@@ -39,12 +45,14 @@ class RatingProgressBar extends StatelessWidget {
               child: LinearProgressIndicator(
                 value: normalized,
                 minHeight: 14,
-                backgroundColor: Colors.grey[300],
+                backgroundColor: backgroundColor ?? Colors.grey[300],
                 borderRadius: const BorderRadius.only(
                   topRight: Radius.circular(UiConstants.radiusRound),
                   bottomRight: Radius.circular(UiConstants.radiusRound),
                 ),
-                // valueColor: const AlwaysStoppedAnimation<Color>(Colors.blue),
+                valueColor: filledColor == null
+                    ? null
+                    : AlwaysStoppedAnimation(filledColor),
               ),
             ),
           ),
@@ -53,12 +61,16 @@ class RatingProgressBar extends StatelessWidget {
 
           Row(
             children: [
-              Text('${percent.toStringAsFixed(0).padLeft(2, ' ')}%'),
+              Text(
+                '${percent.toStringAsFixed(0).padLeft(2, ' ')}%',
+                style: TextStyle(color: textColor),
+              ),
               const SizedBox(width: 4),
               Text(
                 peopleNumber < 100
                     ? peopleNumber.toString().padLeft(2, '0')
                     : '+99',
+                style: TextStyle(color: textColor),
               ),
             ],
           ),

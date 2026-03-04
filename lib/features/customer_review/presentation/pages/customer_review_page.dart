@@ -16,6 +16,7 @@ import 'package:app/features/profile/domain/usecases/get_current_user_profile_us
 import 'package:app/features/profile/presentation/bloc/get_current_user_profile_details_bloc.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:go_router/go_router.dart';
@@ -63,24 +64,85 @@ class CustomerReviewView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return RefreshIndicator(
-      onRefresh: () async {
-        context.read<GetAllCustomerReviewRelatedToThePostBloc>().add(
-          GetAllCustomerReviewRelatedToThePostRequested(
-            postId: post.id,
-            userId: userId,
-          ),
-        );
-      },
-      child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: AppColors.primaryLight,
-          title: const Text(
-            'Customer Review',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
-        ),
-        body:
+    // return RefreshIndicator(
+    //   onRefresh: () async {
+    //     context.read<GetAllCustomerReviewRelatedToThePostBloc>().add(
+    //       GetAllCustomerReviewRelatedToThePostRefreshRequested(
+    //         postId: post.id,
+    //         userId: userId,
+    //       ),
+    //     );
+    //   },
+    //   child: Scaffold(
+    //     appBar: AppBar(
+    //       backgroundColor: AppColors.primaryLight,
+    //       title: const Text(
+    //         'Customer Review',
+    //         style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+    //       ),
+    //     ),
+    //     body:
+    //         BlocBuilder<
+    //           GetAllCustomerReviewRelatedToThePostBloc,
+    //           GetAllCustomerReviewRelatedToThePostState
+    //         >(
+    //           builder: (context, state) {
+    //             if (state is GetAllCustomerReviewRelatedToThePostLoading) {
+    //               return const Center(child: CircularProgressIndicator());
+    //             }
+    //             if (state is GetAllCustomerReviewRelatedToThePostError) {
+    //               ScaffoldMessenger.of(
+    //                 context,
+    //               ).showSnackBar(SnackBar(content: Text(state.message)));
+    //             }
+    //             if (state is GetAllCustomerReviewRelatedToThePostSuccess) {
+    //               final ratings = state.ratings;
+    //               return Padding(
+    //                 padding: const EdgeInsets.all(UiConstants.spacingMd),
+    //                 child: Column(
+    //                   children: [
+    //                     _buildCustomerReviewHeader(context, state.ratings),
+    //                     _ratingDetailInPercentage(context, state.ratings),
+    //                     const SizedBox(height: UiConstants.spacingLg),
+    //                     Expanded(
+    //                       child: ListView.separated(
+    //                         physics: const AlwaysScrollableScrollPhysics(),
+    //                         itemBuilder: (context, index) {
+    //                           final rating = ratings[index];
+    //                           return CustomerReviewItem(
+    //                             rating: rating,
+    //                             userId: userId,
+    //                           );
+    //                         },
+    //                         separatorBuilder: (context, index) {
+    //                           return const SizedBox(
+    //                             height: UiConstants.spacingMd,
+    //                           );
+    //                         },
+    //                         itemCount: state.ratings.length,
+    //                       ),
+    //                     ),
+    //                   ],
+    //                 ),
+    //               );
+    //             }
+    //             return const SizedBox.shrink();
+    //           },
+    //         ),
+    //   ),
+    // );
+
+    return Scaffold(
+      body: RefreshIndicator(
+        onRefresh: () async {
+          context.read<GetAllCustomerReviewRelatedToThePostBloc>().add(
+            GetAllCustomerReviewRelatedToThePostRefreshRequested(
+              postId: post.id,
+              userId: userId,
+            ),
+          );
+        },
+        child:
             BlocBuilder<
               GetAllCustomerReviewRelatedToThePostBloc,
               GetAllCustomerReviewRelatedToThePostState
@@ -89,42 +151,111 @@ class CustomerReviewView extends StatelessWidget {
                 if (state is GetAllCustomerReviewRelatedToThePostLoading) {
                   return const Center(child: CircularProgressIndicator());
                 }
+
                 if (state is GetAllCustomerReviewRelatedToThePostError) {
                   ScaffoldMessenger.of(
                     context,
                   ).showSnackBar(SnackBar(content: Text(state.message)));
                 }
+
                 if (state is GetAllCustomerReviewRelatedToThePostSuccess) {
                   final ratings = state.ratings;
-                  return Padding(
-                    padding: const EdgeInsets.all(UiConstants.spacingMd),
-                    child: Column(
-                      children: [
-                        _buildCustomerReviewHeader(context, state.ratings),
-                        _ratingDetailInPercentage(context, state.ratings),
-                        const SizedBox(height: UiConstants.spacingLg),
-                        Expanded(
-                          child: ListView.separated(
-                            physics: const AlwaysScrollableScrollPhysics(),
-                            itemBuilder: (context, index) {
-                              final rating = ratings[index];
-                              return CustomerReviewItem(
-                                rating: rating,
-                                userId: userId,
-                              );
-                            },
-                            separatorBuilder: (context, index) {
-                              return const SizedBox(
-                                height: UiConstants.spacingMd,
-                              );
-                            },
-                            itemCount: state.ratings.length,
+
+                  return CustomScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    slivers: [
+                      SliverAppBar(
+                        backgroundColor: AppColors.primaryLight,
+                        pinned: true,
+                        expandedHeight: 325,
+                        collapsedHeight: 100,
+                        foregroundColor: Colors.white,
+                        flexibleSpace: Stack(
+                          children: [
+                            Positioned.fill(
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.primary,
+                                      borderRadius: const BorderRadius.vertical(
+                                        bottom: Radius.circular(
+                                          UiConstants.radiusXl,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                )
+                                .animate()
+                                .slideY(
+                                  begin: -2,
+                                  duration: UiConstants.animationSlow,
+                                  curve: Curves.easeOutCubic,
+                                )
+                                .fadeIn(duration: UiConstants.animationSlow),
+                            FlexibleSpaceBar(
+                              collapseMode: CollapseMode.parallax,
+                              background: SafeArea(
+                                child: Padding(
+                                  padding: const EdgeInsets.fromLTRB(
+                                    UiConstants.spacingMd,
+                                    60,
+                                    UiConstants.spacingMd,
+                                    UiConstants.spacingMd,
+                                  ),
+                                  child: Column(
+                                    children: [
+                                      _buildCustomerReviewHeader(
+                                        context,
+                                        ratings,
+                                      ),
+                                      _ratingDetailInPercentage(
+                                        context,
+                                        ratings,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        title: const Text(
+                          'Customer Review',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+
+                      SliverPadding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: UiConstants.spacingMd,
+                        ),
+                        sliver: SliverList(
+                          delegate: SliverChildBuilderDelegate((
+                            context,
+                            index,
+                          ) {
+                            final rating = ratings[index];
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: UiConstants.spacingMd,
+                              ),
+                              child: CustomerReviewItem(
+                                rating: rating,
+                                userId: userId,
+                              ),
+                            );
+                          }, childCount: ratings.length),
+                        ),
+                      ),
+                    ],
                   );
                 }
+
                 return const SizedBox.shrink();
               },
             ),
@@ -150,10 +281,19 @@ class CustomerReviewView extends StatelessWidget {
       spacing: 5,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Customer Reviews', style: TextStyle(fontSize: 16)),
-        const Text('Ratings', style: TextStyle(fontSize: 16)),
+        const Text(
+          'Customer Reviews',
+          style: TextStyle(fontSize: 16, color: Colors.white),
+        ),
+        const Text(
+          'Ratings',
+          style: TextStyle(fontSize: 16, color: Colors.white),
+        ),
         _buildRatingStarIcon(context, post, ratings),
-        Text('${ratings.length} Ratings'),
+        Text(
+          '${ratings.length} Ratings',
+          style: TextStyle(color: Colors.white),
+        ),
         const SizedBox(height: UiConstants.spacingXs),
       ],
     );
@@ -171,7 +311,10 @@ class CustomerReviewView extends StatelessWidget {
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('${average.toStringAsFixed(1)} out of 5.0'),
+            Text(
+              '${average.toStringAsFixed(1)} out of 5.0',
+              style: TextStyle(color: Colors.white),
+            ),
             const SizedBox(width: 8),
             RatingBarIndicator(
               rating: average.toDouble(),
@@ -180,6 +323,7 @@ class CustomerReviewView extends StatelessWidget {
               itemCount: 5,
               itemSize: 20,
               direction: Axis.horizontal,
+              unratedColor: Colors.grey,
             ),
           ],
         ),
@@ -221,9 +365,12 @@ class CustomerReviewView extends StatelessWidget {
             : ((count / totalReviews) * 100).round();
 
         return RatingProgressBar(
-          ratingRange: star == 1 ? '1 star' : '$star stars',
+          backgroundColor: Colors.grey,
+          filledColor: Colors.white,
+          ratingRange: star == 1 ? '1 Star' : '$star Stars',
           percent: percent.toDouble(),
           peopleNumber: count,
+          textColor: Colors.white,
         );
       }),
     );

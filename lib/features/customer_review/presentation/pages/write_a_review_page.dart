@@ -236,7 +236,10 @@ class _WriteAReviewViewState extends State<WriteAReviewView> {
                       width: double.infinity,
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: Colors.blue[300]!.withAlpha(70),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.primary.withAlpha(50),
+                        // color: Colors.blue[300]!.withAlpha(70),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Column(
