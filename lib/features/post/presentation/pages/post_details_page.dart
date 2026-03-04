@@ -4,6 +4,8 @@ import 'package:app/app/router/route_constants.dart';
 import 'package:app/core/constants/ui_constants.dart';
 import 'package:app/core/widgets/common_widgets.dart';
 import 'package:app/features/customer_review/presentation/widgets/rating_progress_bar_widget.dart';
+import 'package:app/features/home/domain/usecases/get_organization_detail_by_post_organization_id.dart';
+import 'package:app/features/home/presentation/widgets/post_card.dart';
 import 'package:app/features/post/domain/entities/post.dart';
 import 'package:app/features/post/domain/entities/post_enums.dart';
 import 'package:app/features/post/domain/usecases/delete_post_use_case.dart';
@@ -17,6 +19,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
 
@@ -42,6 +45,10 @@ class PostDetailsPage extends StatelessWidget {
           deletePostUseCase: DependencyInjection.get<DeletePostUseCase>(),
           getRelatedPostsThroughAlgorithmUseCase:
               DependencyInjection.get<GetRelatedPostsThroughAlgorithmUseCase>(),
+          getOrganizationDetailByPostOrganizationIdUseCase:
+              DependencyInjection.get<
+                GetOrganizationDetailByPostOrganizationIdUseCase
+              >(),
         )..add(PostDetailLoadRequested(postId: postId, userId: userId));
       },
       child: PostDetailsView(postId: postId, post: post, userId: userId),
@@ -278,6 +285,7 @@ Widget _buildPostDetailSection(
                   context,
                   stateLoaded.relatedPosts,
                   userId,
+                  stateLoaded,
                 ),
 
               if (stateLoaded.relatedError != null)
@@ -301,58 +309,56 @@ Widget _buildRelatedPostsSection(
   BuildContext context,
   List<Post> posts,
   String userId,
+  PostDetailLoaded stateLoaded,
 ) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
       const Padding(
-        padding: EdgeInsets.all(16),
+        padding: EdgeInsets.symmetric(
+          horizontal: UiConstants.spacingMd,
+          vertical: UiConstants.spacingSm,
+        ),
         child: Text(
           "Recommended For You",
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
       ),
-      SizedBox(
-        height: 220,
-        child: ListView.builder(
-          scrollDirection: Axis.horizontal,
-          itemCount: posts.length,
-          itemBuilder: (context, index) {
-            final post = posts[index];
+      MasonryGridView.count(
+        crossAxisCount: 2,
+        mainAxisSpacing: UiConstants.spacingSm,
+        crossAxisSpacing: UiConstants.spacingSm,
+        padding: const EdgeInsets.symmetric(horizontal: UiConstants.spacingMd),
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: posts.length,
+        itemBuilder: (context, index) {
+          final post = posts[index];
 
-            return GestureDetector(
-              onTap: () {
-                context.push(
-                  RouteConstants.postDetailsPage,
-                  extra: {'postId': post.id, 'post': post, 'userId': userId},
-                );
-              },
-              child: Container(
-                width: 160,
-                margin: const EdgeInsets.symmetric(horizontal: 8),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: CachedNetworkImage(
-                        imageUrl: post.primaryImageUrl,
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      post.title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    Text("Rs. ${post.price}"),
-                  ],
-                ),
-              ),
+          final organization = stateLoaded.organizations[post.organizationId];
+          if (organization == null) {
+            context.read<PostDetailsBloc>().add(
+              FetchOrganizationDetails(post.organizationId),
             );
-          },
-        ),
+            return const SizedBox(
+              height: 120,
+              child: Center(child: CircularProgressIndicator()),
+            );
+          }
+          return GestureDetector(
+            onTap: () {
+              context.push(
+                RouteConstants.postDetailsPage,
+                extra: {'postId': post.id, 'post': post, 'userId': userId},
+              );
+            },
+            child: PostCard(
+              post: post,
+              organization: organization,
+              userId: userId,
+            ),
+          );
+        },
       ),
     ],
   );
