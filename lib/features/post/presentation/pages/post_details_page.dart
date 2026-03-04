@@ -3,6 +3,9 @@ import 'package:app/app/dependency_injection.dart';
 import 'package:app/app/router/route_constants.dart';
 import 'package:app/core/constants/ui_constants.dart';
 import 'package:app/core/widgets/common_widgets.dart';
+import 'package:app/features/customer_review/domain/entities/rating.dart';
+import 'package:app/features/customer_review/domain/usecases/get_all_customer_review_related_to_post_use_case.dart';
+import 'package:app/features/customer_review/presentation/bloc/get_all_customer_review_related_to_the_post_bloc.dart';
 import 'package:app/features/customer_review/presentation/widgets/rating_progress_bar_widget.dart';
 import 'package:app/features/home/domain/usecases/get_organization_detail_by_post_organization_id.dart';
 import 'package:app/features/home/presentation/widgets/post_card.dart';
@@ -255,12 +258,13 @@ Widget _buildPostDetailSection(
                 longitude: post.longitude,
               ),
               const SizedBox(height: UiConstants.spacingSm),
-              _buildCustomerReviewSection(
-                context,
-                ratingValue: 4.5,
-                post: post,
-                userId: userId,
-              ),
+              // _buildCustomerReviewSection(
+              //   context,
+              //   ratingValue: 4.5,
+              //   post: post,
+              //   userId: userId,
+              // ),
+              _buildCustomerReviewSection(context, post: post, userId: userId),
               const SizedBox(height: UiConstants.spacingSm),
               _buildAmeniticsSection(context, amenityType: post.amenities),
               const SizedBox(height: UiConstants.spacingSm),
@@ -364,122 +368,288 @@ Widget _buildRelatedPostsSection(
   );
 }
 
+// Widget _buildCustomerReviewSection(
+//   BuildContext context, {
+//   required double ratingValue,
+//   required Post post,
+//   required String userId,
+// }) {
+//   return SectionContainer(
+//     borderRadius: BorderRadius.zero,
+//     child: SizedBox(
+//       width: double.infinity,
+//       child: Column(
+//         crossAxisAlignment: CrossAxisAlignment.start,
+//         children: [
+//           const Text(
+//             'Customer Reviews!!!',
+//             style: TextStyle(fontWeight: FontWeight.bold),
+//           ),
+//           const SizedBox(height: UiConstants.spacingMd),
+
+//           // Wrap(
+//           //   alignment: WrapAlignment.spaceBetween,
+//           //   runSpacing: 8,
+//           //   children: [
+//           //     Row(
+//           //       mainAxisSize: MainAxisSize.min,
+//           //       children: [
+//           //         Text('$ratingValue out of 5.0'),
+//           //         const SizedBox(width: 8),
+//           //         RatingBarIndicator(
+//           //           rating: ratingValue,
+//           //           itemBuilder: (context, index) =>
+//           //               const Icon(Icons.star, color: Colors.amber),
+//           //           itemCount: 5,
+//           //           itemSize: 20,
+//           //           direction: Axis.horizontal,
+//           //         ),
+//           //       ],
+//           //     ),
+//           //     InkWell(
+//           //       onTap: () {
+//           //         // Later we will handle the review
+//           //         context.push(
+//           //           RouteConstants.writeAReviewPage,
+//           //           extra: {'post': post, 'userId': userId},
+//           //         );
+//           //       },
+//           //       child: const Text(
+//           //         'White a Review',
+//           //         style: TextStyle(color: Colors.blue),
+//           //       ),
+//           //     ),
+//           //   ],
+//           // ),
+//           Row(
+//             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//             children: [
+//               Row(
+//                 mainAxisSize: MainAxisSize.min,
+//                 children: [
+//                   Text('$ratingValue out of 5.0'),
+//                   const SizedBox(width: 8),
+//                   RatingBarIndicator(
+//                     rating: ratingValue,
+//                     itemBuilder: (context, index) =>
+//                         const Icon(Icons.star, color: Colors.amber),
+//                     itemCount: 5,
+//                     itemSize: 20,
+//                     direction: Axis.horizontal,
+//                   ),
+//                 ],
+//               ),
+//               InkWell(
+//                 onTap: () {
+//                   // Later we will handle the review
+//                   context.push(
+//                     RouteConstants.writeAReviewPage,
+//                     extra: {'post': post, 'userId': userId},
+//                   );
+//                 },
+//                 child: const Text(
+//                   'White a Review',
+//                   style: TextStyle(color: Colors.blue),
+//                 ),
+//               ),
+//             ],
+//           ),
+
+//           const SizedBox(height: UiConstants.spacingSm),
+//           Row(
+//             children: [
+//               const Text('25 Reviews:'),
+//               const SizedBox(width: 8),
+//               InkWell(
+//                 onTap: () {
+//                   // Later we will handle the review
+//                   context.push(
+//                     RouteConstants.customerReviewPage,
+//                     extra: {'post': post, 'userId': userId},
+//                   );
+//                 },
+//                 child: const Text(
+//                   'See all',
+//                   style: TextStyle(color: Colors.blue),
+//                 ),
+//               ),
+//             ],
+//           ),
+//           const SizedBox(height: UiConstants.spacingMd),
+//           const RatingProgressBar(
+//             ratingRange: '5 stars',
+//             percent: 65,
+//             peopleNumber: 21,
+//           ),
+//         ],
+//       ),
+//     ),
+//   );
+// }
+
+// 1. Remove the ratingValue parameter entirely — it's now dynamic
 Widget _buildCustomerReviewSection(
   BuildContext context, {
-  required double ratingValue,
   required Post post,
   required String userId,
 }) {
-  return SectionContainer(
-    borderRadius: BorderRadius.zero,
-    child: SizedBox(
-      width: double.infinity,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Customer Reviews!!!',
-            style: TextStyle(fontWeight: FontWeight.bold),
+  return BlocProvider(
+    create: (context) =>
+        GetAllCustomerReviewRelatedToThePostBloc(
+          getAllCustomerReviewRelatedToPostUseCase:
+              DependencyInjection.get<
+                GetAllCustomerReviewRelatedToPostUseCase
+              >(),
+        )..add(
+          GetAllCustomerReviewRelatedToThePostRequested(
+            postId: post.id,
+            userId: userId,
           ),
-          const SizedBox(height: UiConstants.spacingMd),
+        ),
+    child:
+        BlocBuilder<
+          GetAllCustomerReviewRelatedToThePostBloc,
+          GetAllCustomerReviewRelatedToThePostState
+        >(
+          builder: (context, state) {
+            // ── derive values from state ──────────────────────────────────────
+            final isLoading =
+                state is GetAllCustomerReviewRelatedToThePostLoading ||
+                state is GetAllCustomerReviewRelatedToThePostInitial;
 
-          // Wrap(
-          //   alignment: WrapAlignment.spaceBetween,
-          //   runSpacing: 8,
-          //   children: [
-          //     Row(
-          //       mainAxisSize: MainAxisSize.min,
-          //       children: [
-          //         Text('$ratingValue out of 5.0'),
-          //         const SizedBox(width: 8),
-          //         RatingBarIndicator(
-          //           rating: ratingValue,
-          //           itemBuilder: (context, index) =>
-          //               const Icon(Icons.star, color: Colors.amber),
-          //           itemCount: 5,
-          //           itemSize: 20,
-          //           direction: Axis.horizontal,
-          //         ),
-          //       ],
-          //     ),
-          //     InkWell(
-          //       onTap: () {
-          //         // Later we will handle the review
-          //         context.push(
-          //           RouteConstants.writeAReviewPage,
-          //           extra: {'post': post, 'userId': userId},
-          //         );
-          //       },
-          //       child: const Text(
-          //         'White a Review',
-          //         style: TextStyle(color: Colors.blue),
-          //       ),
-          //     ),
-          //   ],
-          // ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text('$ratingValue out of 5.0'),
-                  const SizedBox(width: 8),
-                  RatingBarIndicator(
-                    rating: ratingValue,
-                    itemBuilder: (context, index) =>
-                        const Icon(Icons.star, color: Colors.amber),
-                    itemCount: 5,
-                    itemSize: 20,
-                    direction: Axis.horizontal,
-                  ),
-                ],
-              ),
-              InkWell(
-                onTap: () {
-                  // Later we will handle the review
-                  context.push(
-                    RouteConstants.writeAReviewPage,
-                    extra: {'post': post, 'userId': userId},
-                  );
-                },
-                child: const Text(
-                  'White a Review',
-                  style: TextStyle(color: Colors.blue),
+            final ratings = state is GetAllCustomerReviewRelatedToThePostSuccess
+                ? state.ratings
+                : <Rating>[];
+
+            final average = ratings.isEmpty
+                ? 0.0
+                : ratings.fold<double>(0, (s, r) => s + r.ratingValue) /
+                      ratings.length;
+
+            final reviewCount = ratings.length;
+
+            // Group by star for progress bars
+            final Map<int, int> grouped = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0};
+            for (final r in ratings) {
+              grouped[r.ratingValue] = (grouped[r.ratingValue] ?? 0) + 1;
+            }
+
+            return SectionContainer(
+              borderRadius: BorderRadius.zero,
+              child: SizedBox(
+                width: double.infinity,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Customer Reviews',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: UiConstants.spacingMd),
+
+                    // ── Rating row + Write a review ───────────────────────────
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        if (isLoading)
+                          const SizedBox(
+                            height: 20,
+                            width: 120,
+                            child: LinearProgressIndicator(),
+                          )
+                        else
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text('${average.toStringAsFixed(1)} out of 5.0'),
+                              const SizedBox(width: 8),
+                              RatingBarIndicator(
+                                rating: average,
+                                itemBuilder: (context, _) =>
+                                    const Icon(Icons.star, color: Colors.amber),
+                                itemCount: 5,
+                                itemSize: 20,
+                                direction: Axis.horizontal,
+                              ),
+                            ],
+                          ),
+                        InkWell(
+                          onTap: () => context.push(
+                            RouteConstants.writeAReviewPage,
+                            extra: {'post': post, 'userId': userId},
+                          ),
+                          child: const Text(
+                            'Write a Review',
+                            style: TextStyle(color: Colors.blue),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: UiConstants.spacingSm),
+
+                    // ── Review count + See all ────────────────────────────────
+                    Row(
+                      children: [
+                        if (isLoading)
+                          const SizedBox(
+                            height: 14,
+                            width: 80,
+                            child: LinearProgressIndicator(),
+                          )
+                        else
+                          Text(
+                            '$reviewCount Review${reviewCount == 1 ? '' : 's'}:',
+                          ),
+                        const SizedBox(width: 8),
+                        InkWell(
+                          onTap: () => context.push(
+                            RouteConstants.customerReviewPage,
+                            extra: {'post': post, 'userId': userId},
+                          ),
+                          child: const Text(
+                            'See all',
+                            style: TextStyle(color: Colors.blue),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: UiConstants.spacingMd),
+
+                    // ── Per-star progress bars (5 → 1) ───────────────────────
+                    if (isLoading)
+                      const Center(
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(vertical: 8),
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                      )
+                    else if (ratings.isEmpty)
+                      Text(
+                        'No reviews yet. Be the first to review!',
+                        style: TextStyle(color: Colors.grey[500], fontSize: 13),
+                      )
+                    else
+                      ...List.generate(5, (i) {
+                        final star = 5 - i; // 5 down to 1
+                        final count = grouped[star] ?? 0;
+                        final percent = reviewCount == 0
+                            ? 0.0
+                            : (count / reviewCount) * 100;
+
+                        return RatingProgressBar(
+                          ratingRange: star == 1 ? '1 star' : '$star stars',
+                          percent: percent,
+                          peopleNumber: count,
+                        );
+                      }),
+                  ],
                 ),
               ),
-            ],
-          ),
-
-          const SizedBox(height: UiConstants.spacingSm),
-          Row(
-            children: [
-              const Text('25 Reviews:'),
-              const SizedBox(width: 8),
-              InkWell(
-                onTap: () {
-                  // Later we will handle the review
-                  context.push(
-                    RouteConstants.customerReviewPage,
-                    extra: {'post': post, 'userId': userId},
-                  );
-                },
-                child: const Text(
-                  'See all',
-                  style: TextStyle(color: Colors.blue),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: UiConstants.spacingMd),
-          const RatingProgressBar(
-            ratingRange: '5 stars',
-            percent: 65,
-            peopleNumber: 21,
-          ),
-        ],
-      ),
-    ),
+            );
+          },
+        ),
   );
 }
 

@@ -49,7 +49,7 @@ class GetAllCustomerReviewRelatedToThePostLoading
 
 // Success state after get all rating requested
 class GetAllCustomerReviewRelatedToThePostSuccess
-    extends GetAllCustomerReviewRelatedToThePostInitial {
+    extends GetAllCustomerReviewRelatedToThePostState {
   final List<Rating> ratings;
   const GetAllCustomerReviewRelatedToThePostSuccess({required this.ratings});
 

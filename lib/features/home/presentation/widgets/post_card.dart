@@ -77,9 +77,6 @@ class PostView extends StatelessWidget {
     final theme = Theme.of(context);
     final isAvailable = post.status == PostStatus.available;
 
-    const double rating = 4.8;
-    const int reviewCount = 12;
-
     return BlocListener<
       TogglePostSaveOrUnsaveBloc,
       TogglePostSaveOrUnsaveState

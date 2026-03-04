@@ -1,11 +1,9 @@
-// features/customer_review/presentation/bloc/post_rating_summary_bloc.dart
-
 import 'dart:async';
 import 'package:app/features/customer_review/domain/usecases/get_all_customer_review_related_to_post_use_case.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-// ── Events ──────────────────────────────────────────────────────────────────
+//  Events
 
 abstract class PostRatingSummaryEvent extends Equatable {
   const PostRatingSummaryEvent();
@@ -21,7 +19,7 @@ class PostRatingSummaryRequested extends PostRatingSummaryEvent {
   List<Object?> get props => [postId];
 }
 
-// ── States ───────────────────────────────────────────────────────────────────
+//  States─
 
 abstract class PostRatingSummaryState extends Equatable {
   const PostRatingSummaryState();
@@ -55,7 +53,7 @@ class PostRatingSummaryError extends PostRatingSummaryState {
   const PostRatingSummaryError();
 }
 
-// ── BLoC ─────────────────────────────────────────────────────────────────────
+//  BLoC─
 
 class PostRatingSummaryBloc
     extends Bloc<PostRatingSummaryEvent, PostRatingSummaryState> {
