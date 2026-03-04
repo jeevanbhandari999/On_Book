@@ -6,6 +6,7 @@ import 'package:app/features/post/domain/entities/post_enums.dart';
 import 'package:app/features/post/domain/repositories/post_repository.dart';
 import 'package:app/features/post/domain/usecases/delete_post_use_case.dart';
 import 'package:app/features/post/domain/usecases/get_post_by_id_use_case.dart';
+import 'package:app/features/post/domain/usecases/get_related_posts_through_algorithm_use_case.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -105,6 +106,20 @@ class PostDetailToggleDescriptionRequested extends PostDetailEvent {
   List<Object?> get props => [isDescriptionToggled];
 }
 
+// For algorithm implementations
+class PostDetailRelatedPostsRequested extends PostDetailEvent {
+  final Post currentPost;
+  final String userId;
+
+  const PostDetailRelatedPostsRequested({
+    required this.currentPost,
+    required this.userId,
+  });
+
+  @override
+  List<Object?> get props => [currentPost, userId];
+}
+
 // States
 abstract class PostDetailState extends Equatable {
   const PostDetailState();
@@ -158,6 +173,11 @@ class PostDetailLoaded extends PostDetailState {
   final bool isDescriptionExpanded;
   final bool isInFullScreenImageMode;
 
+  // For algorithm
+  final List<Post> relatedPosts;
+  final bool isRelatedLoading;
+  final String? relatedError;
+
   const PostDetailLoaded({
     required this.post,
     required this.additionalImageUrls,
@@ -168,6 +188,11 @@ class PostDetailLoaded extends PostDetailState {
     this.isSharing = false,
     this.isDescriptionExpanded = false,
     this.isInFullScreenImageMode = false,
+
+    // For algorithm
+    this.relatedPosts = const [],
+    this.isRelatedLoading = false,
+    this.relatedError,
   });
 
   @override
@@ -180,6 +205,11 @@ class PostDetailLoaded extends PostDetailState {
     isSharing,
     isDescriptionExpanded,
     isInFullScreenImageMode,
+
+    // For algorithm
+    relatedPosts,
+    isRelatedLoading,
+    relatedError,
   ];
 
   PostDetailLoaded copyWith({
@@ -192,6 +222,11 @@ class PostDetailLoaded extends PostDetailState {
     bool? isSharing,
     bool? isDescriptionExpanded,
     bool? isInFullScreenImageMode,
+
+    // For algorithm
+    List<Post>? relatedPosts,
+    bool? isRelatedLoading,
+    String? relatedError,
   }) {
     return PostDetailLoaded(
       post: post ?? this.post,
@@ -205,6 +240,9 @@ class PostDetailLoaded extends PostDetailState {
           isDescriptionExpanded ?? this.isDescriptionExpanded,
       isInFullScreenImageMode:
           isInFullScreenImageMode ?? this.isInFullScreenImageMode,
+      relatedError: relatedError ?? this.relatedError,
+      relatedPosts: relatedPosts ?? this.relatedPosts,
+      isRelatedLoading: isRelatedLoading ?? this.isRelatedLoading,
     );
   }
 
@@ -265,6 +303,8 @@ class PostDetailNotFound extends PostDetailState {
 class PostDetailsBloc extends Bloc<PostDetailEvent, PostDetailState> {
   final GetPostByIdUseCase _getPostByIdUseCase;
   final DeletePostUseCase _deletePostUseCase;
+  final GetRelatedPostsThroughAlgorithmUseCase
+  _getRelatedPostsThroughAlgorithmUseCase;
 
   // Made optional for more customize
   String? _currentUserId;
@@ -273,8 +313,12 @@ class PostDetailsBloc extends Bloc<PostDetailEvent, PostDetailState> {
   PostDetailsBloc({
     required GetPostByIdUseCase getPostByIdUseCase,
     required DeletePostUseCase deletePostUseCase,
+    required GetRelatedPostsThroughAlgorithmUseCase
+    getRelatedPostsThroughAlgorithmUseCase,
   }) : _getPostByIdUseCase = getPostByIdUseCase,
        _deletePostUseCase = deletePostUseCase,
+       _getRelatedPostsThroughAlgorithmUseCase =
+           getRelatedPostsThroughAlgorithmUseCase,
        super(const PostDetailInitial()) {
     on<PostDetailLoadRequested>(_onLoadRequested);
     on<PostDetailRefreshRequested>(_onRefreshRequested);
@@ -288,6 +332,9 @@ class PostDetailsBloc extends Bloc<PostDetailEvent, PostDetailState> {
     on<PostDetailSharedRequested>(_onSharedRequested);
     on<PostDetailDeleteRequested>(_onDeleteRequested);
     on<PostDetailToggleDescriptionRequested>(_onToggleDescriptionRequested);
+
+    // For algorithm
+    on<PostDetailRelatedPostsRequested>(_onRelatedPostsRequested);
   }
 
   Future<void> _onLoadRequested(
@@ -343,6 +390,12 @@ class PostDetailsBloc extends Bloc<PostDetailEvent, PostDetailState> {
       // Check the permission also
       if (event.userId != null) {
         add(PostDetailPermissionCheckedRequested(userId: event.userId!));
+        add(
+          PostDetailRelatedPostsRequested(
+            currentPost: postData,
+            userId: event.userId!,
+          ),
+        );
       }
 
       // result.fold(
@@ -577,5 +630,49 @@ class PostDetailsBloc extends Bloc<PostDetailEvent, PostDetailState> {
         ),
       );
     }
+  }
+
+  // For algorithm use
+  Future<void> _onRelatedPostsRequested(
+    PostDetailRelatedPostsRequested event,
+    Emitter<PostDetailState> emit,
+  ) async {
+    final currentState = state;
+    if (currentState is! PostDetailLoaded) return;
+
+    // Show loading state for related only
+    emit(currentState.copyWith(isRelatedLoading: true, relatedError: null));
+
+    final result = await _getRelatedPostsThroughAlgorithmUseCase(
+      GetRelatedPostsThroughAlgorithmParams(
+        userId: event.userId,
+        currentPost: event.currentPost,
+        limit: 10,
+      ),
+    );
+
+    result.fold(
+      (failure) {
+        emit(
+          currentState.copyWith(
+            isRelatedLoading: false,
+            relatedError: failure.message,
+          ),
+        );
+      },
+      (posts) {
+        // 🔥 remove current post from recommendation
+        final filtered = posts
+            .where((p) => p.id != event.currentPost.id)
+            .toList();
+
+        emit(
+          currentState.copyWith(
+            isRelatedLoading: false,
+            relatedPosts: filtered,
+          ),
+        );
+      },
+    );
   }
 }
