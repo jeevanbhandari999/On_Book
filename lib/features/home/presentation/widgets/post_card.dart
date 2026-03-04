@@ -5,8 +5,10 @@ import 'package:app/app/router/route_constants.dart';
 import 'package:app/core/constants/ui_constants.dart';
 import 'package:app/core/widgets/common_widgets.dart';
 import 'package:app/features/auth/domain/entities/organization.dart';
+import 'package:app/features/customer_review/domain/usecases/get_all_customer_review_related_to_post_use_case.dart';
 import 'package:app/features/home/domain/usecases/stream_saved_post_use_case.dart';
 import 'package:app/features/home/domain/usecases/toggle_post_save_or_unsave_use_case.dart';
+import 'package:app/features/home/presentation/bloc/post_rating_summary_bloc.dart';
 import 'package:app/features/home/presentation/bloc/toggle_post_save_or_unsave_bloc.dart';
 import 'package:app/features/post/domain/entities/post.dart';
 import 'package:app/features/post/domain/entities/post_enums.dart';
@@ -29,11 +31,25 @@ class PostCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => TogglePostSaveOrUnsaveBloc(
-        toggleUseCase: DependencyInjection.get<TogglePostSaveOrUnsaveUseCase>(),
-        streamUseCase: DependencyInjection.get<StreamSavedPostsUseCase>(),
-      )..add(PostSaveStarted(userId)),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => TogglePostSaveOrUnsaveBloc(
+            toggleUseCase:
+                DependencyInjection.get<TogglePostSaveOrUnsaveUseCase>(),
+            streamUseCase: DependencyInjection.get<StreamSavedPostsUseCase>(),
+          )..add(PostSaveStarted(userId)),
+        ),
+
+        BlocProvider(
+          create: (context) => PostRatingSummaryBloc(
+            getReviewsUseCase:
+                DependencyInjection.get<
+                  GetAllCustomerReviewRelatedToPostUseCase
+                >(),
+          )..add(PostRatingSummaryRequested(postId: post.id)),
+        ),
+      ],
       child: PostView(post: post, organization: organization, userId: userId),
     );
   }

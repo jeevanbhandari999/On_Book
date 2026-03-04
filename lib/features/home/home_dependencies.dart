@@ -1,3 +1,5 @@
+import 'package:app/features/customer_review/domain/repositories/customer_review_repository.dart';
+import 'package:app/features/customer_review/domain/usecases/get_all_customer_review_related_to_post_use_case.dart';
 import 'package:app/features/home/data/datasources/home_local_data_source.dart';
 import 'package:app/features/home/data/datasources/home_remote_data_source.dart';
 import 'package:app/features/home/data/repositories/home_repository_impl.dart';
@@ -10,6 +12,7 @@ import 'package:app/features/home/domain/usecases/stream_saved_post_use_case.dar
 import 'package:app/features/home/domain/usecases/toggle_post_save_or_unsave_use_case.dart';
 import 'package:app/features/home/presentation/bloc/get_organization_list_based_on_global_score_bloc.dart';
 import 'package:app/features/home/presentation/bloc/home_bloc.dart';
+import 'package:app/features/home/presentation/bloc/post_rating_summary_bloc.dart';
 import 'package:app/features/home/presentation/bloc/toggle_post_save_or_unsave_bloc.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
@@ -96,6 +99,14 @@ class HomeDependencies {
         toggleUseCase: TogglePostSaveOrUnsaveUseCase(getIt<HomeRepository>()),
 
         streamUseCase: StreamSavedPostsUseCase(getIt<HomeRepository>()),
+      ),
+    );
+
+    getIt.registerFactory<PostRatingSummaryBloc>(
+      () => PostRatingSummaryBloc(
+        getReviewsUseCase: GetAllCustomerReviewRelatedToPostUseCase(
+          getIt<CustomerReviewRepository>(),
+        ),
       ),
     );
   }
