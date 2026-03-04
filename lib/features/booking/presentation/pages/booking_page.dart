@@ -130,30 +130,31 @@ class BookingFormView extends StatelessWidget {
             backgroundColor: AppColors.primaryLight,
             title: Text(
               state.isEditMode ? 'Manage Booking' : 'Create Booking',
-              style: const TextStyle(fontWeight: FontWeight.bold),
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
             ),
           ),
           SliverPadding(
-            padding: const EdgeInsets.only(
-              bottom: UiConstants.spacingMd,
-              top: UiConstants.spacingSm,
+            padding: const EdgeInsets.symmetric(
+              horizontal: UiConstants.spacingMd,
+              vertical: UiConstants.spacingSm,
             ),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 _buildUserDetailsCard(context, state.user, state.isEditMode),
+                const SizedBox(height: UiConstants.spacingMd),
                 if (post != null)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: UiConstants.spacingMd,
-                      vertical: UiConstants.spacingSm,
-                    ),
-                    child: Hero(
-                      tag: 'post_${post!.id}',
-                      child: BookingPostSummary(post: post!),
-                    ),
+                  Hero(
+                    tag: 'post_${post!.id}',
+                    child: BookingPostSummary(post: post!),
                   ),
+                const SizedBox(height: UiConstants.spacingMd),
                 if (!state.isEditMode) ...[
                   _buildDatesCard(context, state),
+                  const SizedBox(height: UiConstants.spacingMd),
                   _buildNotesAndPaymentCard(context, state),
                 ],
                 if (state.isEditMode) ...[
@@ -178,12 +179,11 @@ class BookingFormView extends StatelessWidget {
     return Card(
       elevation: 3,
       shadowColor: Colors.black12,
-      margin: const EdgeInsets.symmetric(
-        horizontal: UiConstants.spacingMd,
-        vertical: UiConstants.spacingSm,
-      ),
+
       color: Theme.of(context).colorScheme.primary,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(UiConstants.radiusMd),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(UiConstants.spacingMd),
         child: Column(
@@ -251,96 +251,79 @@ class BookingFormView extends StatelessWidget {
         ? '${duration.inHours}h ${duration.inMinutes % 60}m'
         : '${duration.inDays} Night${duration.inDays > 1 ? 's' : ''}';
 
-    return Card(
-      elevation: 3,
-      shadowColor: Colors.black12,
-      margin: const EdgeInsets.symmetric(
-        horizontal: UiConstants.spacingMd,
-        vertical: UiConstants.spacingSm,
-      ),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      child: Padding(
-        padding: const EdgeInsets.all(UiConstants.spacingMd),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header + type pill
-            Row(
+    return SectionContainer(
+      borderRadius: BorderRadius.circular(UiConstants.radiusMd),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header + type pill
+          Row(
+            children: [
+              const Text('Booking Schedule', style: TextStyle(fontSize: 20)),
+              const Spacer(),
+              _BookingTypePill(isHourly: isHourly),
+            ],
+          ),
+          const SizedBox(height: UiConstants.spacingMd),
+
+          // Check-in tile
+          _DateTimeTile(
+            label: 'CHECK-IN',
+            icon: Icons.login_rounded,
+            accentColor: const Color(0xFF10B981),
+            dateTime: checkIn,
+            onTap: () =>
+                _selectDateTime(context, isCheckIn: true, current: checkIn),
+          ),
+
+          // Duration connector
+          _DurationConnector(label: durationLabel, isHourly: isHourly),
+
+          // Check-out tile
+          _DateTimeTile(
+            label: 'CHECK-OUT',
+            icon: Icons.logout_rounded,
+            accentColor: const Color(0xFFEF4444),
+            dateTime: checkOut,
+            onTap: () =>
+                _selectDateTime(context, isCheckIn: false, current: checkOut),
+          ),
+
+          const SizedBox(height: UiConstants.spacingMd),
+
+          // Summary banner
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
+            decoration: BoxDecoration(
+              color: Theme.of(
+                context,
+              ).colorScheme.primaryContainer.withAlpha(110),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: Theme.of(context).colorScheme.primary.withAlpha(38),
+              ),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                Icon(
+                  isHourly ? Icons.schedule_rounded : Icons.nights_stay_rounded,
+                  size: 16,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                const SizedBox(width: 8),
                 Text(
-                  'Booking Schedule',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w700,
+                  '$durationLabel · ${DateFormatter.range(checkIn, checkOut)}',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Theme.of(context).colorScheme.primary,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
-                const Spacer(),
-                _BookingTypePill(isHourly: isHourly),
               ],
             ),
-            const SizedBox(height: UiConstants.spacingMd),
-
-            // Check-in tile
-            _DateTimeTile(
-              label: 'CHECK-IN',
-              icon: Icons.login_rounded,
-              accentColor: const Color(0xFF10B981),
-              dateTime: checkIn,
-              onTap: () =>
-                  _selectDateTime(context, isCheckIn: true, current: checkIn),
-            ),
-
-            // Duration connector
-            _DurationConnector(label: durationLabel, isHourly: isHourly),
-
-            // Check-out tile
-            _DateTimeTile(
-              label: 'CHECK-OUT',
-              icon: Icons.logout_rounded,
-              accentColor: const Color(0xFFEF4444),
-              dateTime: checkOut,
-              onTap: () =>
-                  _selectDateTime(context, isCheckIn: false, current: checkOut),
-            ),
-
-            const SizedBox(height: UiConstants.spacingMd),
-
-            // Summary banner
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
-              decoration: BoxDecoration(
-                color: Theme.of(
-                  context,
-                ).colorScheme.primaryContainer.withAlpha(110),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: Theme.of(context).colorScheme.primary.withAlpha(38),
-                ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    isHourly
-                        ? Icons.schedule_rounded
-                        : Icons.nights_stay_rounded,
-                    size: 16,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    '$durationLabel · ${DateFormatter.range(checkIn, checkOut)}',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.primary,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -349,67 +332,49 @@ class BookingFormView extends StatelessWidget {
     BuildContext context,
     BookingFormReady state,
   ) {
-    return Card(
-      elevation: 3,
-      shadowColor: Colors.black12,
-      margin: const EdgeInsets.symmetric(
-        horizontal: UiConstants.spacingMd,
-        vertical: UiConstants.spacingSm,
-      ),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      child: Padding(
-        padding: const EdgeInsets.all(UiConstants.spacingMd),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Additional Details',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w700,
-                color: Theme.of(context).colorScheme.primary,
+    return SectionContainer(
+      borderRadius: BorderRadius.circular(UiConstants.radiusMd),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Additional Details', style: TextStyle(fontSize: 20)),
+          const SizedBox(height: UiConstants.spacingMd),
+          CustomTextField(
+            hint: 'e.g., Late arrival, special requests...',
+            label: 'Notes (Optional)',
+            maxLines: 4,
+            onChanged: (value) => context.read<BookingFormBloc>().add(
+              BookingFormNotesChanged(value),
+            ),
+            controller: TextEditingController(text: state.notes)
+              ..selection = TextSelection.fromPosition(
+                TextPosition(offset: state.notes.length),
               ),
-            ),
-            const SizedBox(height: UiConstants.spacingMd),
-            CustomTextField(
-              hint: 'e.g., Late arrival, special requests...',
-              label: 'Notes (Optional)',
-              maxLines: 4,
-              onChanged: (value) => context.read<BookingFormBloc>().add(
-                BookingFormNotesChanged(value),
-              ),
-              controller: TextEditingController(text: state.notes)
-                ..selection = TextSelection.fromPosition(
-                  TextPosition(offset: state.notes.length),
-                ),
-            ),
-            const SizedBox(height: 24),
-            CustomDropdown<PaymentMethod>(
-              title: 'Payment Method',
-              hint: 'Select payment method',
-              dropdownHeaderName: 'List of Payment Methods',
-              initialValue: state.paymentMethod,
-              shouldDivideItems: true,
-              items: PaymentMethod.values
-                  .map(
-                    (m) => DropdownItem<PaymentMethod>(
-                      value: m,
-                      child: Text(
-                        m.displayName,
-                        style: const TextStyle(fontWeight: FontWeight.w500),
-                      ),
-                    ),
-                  )
-                  .toList(),
-              onChanged: (val) {
-                if (val != null) {
-                  context.read<BookingFormBloc>().add(
-                    BookingFormPaymentMethodChanged(val),
-                  );
-                }
-              },
-            ),
-          ],
-        ),
+          ),
+          const SizedBox(height: 24),
+          CustomDropdown<PaymentMethod>(
+            title: 'Payment Method',
+            hint: 'Select payment method',
+            dropdownHeaderName: 'List of Payment Methods',
+            initialValue: state.paymentMethod,
+            shouldDivideItems: true,
+            items: PaymentMethod.values
+                .map(
+                  (m) => DropdownItem<PaymentMethod>(
+                    value: m,
+                    child: Text(m.displayName),
+                  ),
+                )
+                .toList(),
+            onChanged: (val) {
+              if (val != null) {
+                context.read<BookingFormBloc>().add(
+                  BookingFormPaymentMethodChanged(val),
+                );
+              }
+            },
+          ),
+        ],
       ),
     );
   }

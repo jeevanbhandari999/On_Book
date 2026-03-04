@@ -3,6 +3,7 @@ import 'package:app/core/widgets/common_widgets.dart';
 import 'package:app/features/post/domain/entities/post.dart';
 import 'package:app/features/post/domain/entities/post_enums.dart';
 import 'package:app/features/post/presentation/pages/post_details_page.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 class BookingPostSummary extends StatelessWidget {
@@ -12,12 +13,10 @@ class BookingPostSummary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final images = [
-      post.primaryImageUrl,
-      ...post.additionalImagesForHomeFeed.take(5),
-    ];
+    final images = [post.primaryImageUrl, ...post.existingAdditionalImages!];
 
     return SectionContainer(
+      borderRadius: BorderRadius.circular(UiConstants.radiusMd),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -34,8 +33,8 @@ class BookingPostSummary extends StatelessWidget {
               itemBuilder: (context, index) {
                 return ClipRRect(
                   borderRadius: BorderRadius.circular(8),
-                  child: Image.network(
-                    images[index],
+                  child: CachedNetworkImage(
+                    imageUrl: images[index],
                     width: 200,
                     fit: BoxFit.cover,
                   ),

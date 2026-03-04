@@ -102,11 +102,7 @@ class _CustomDropdownState<T> extends State<CustomDropdown<T>> {
                       : (widget.selectedItem ??
                             Text(
                               _getDisplayText(_selectedValue),
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.black87,
-                              ),
+                              style: const TextStyle(fontSize: 16),
                             )),
                 ),
                 Icon(
@@ -191,11 +187,7 @@ class _CustomDropdownState<T> extends State<CustomDropdown<T>> {
                   ),
                   child: Text(
                     widget.dropdownHeaderName!,
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black87,
-                    ),
+                    style: const TextStyle(fontSize: 15, color: Colors.black),
                   ),
                 ),
                 const Divider(height: 1),
