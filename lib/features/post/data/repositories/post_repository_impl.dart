@@ -969,4 +969,30 @@ class PostRepositoryImpl implements PostRepository {
       return Left(UnknownFailure(e.toString()));
     }
   }
+
+  @override
+  Future<Either<Failure, List<Post>>> getRelatedPosts({
+    required String userId,
+    required Post currentPost,
+    int limit = 10,
+  }) async {
+    try {
+      // Convert entity to model
+      final postModel = PostModel.fromEntity(currentPost);
+      final posts = await remoteDataSource.getRelatedPosts(
+        userId: userId,
+        currentPost: postModel,
+        limit: limit,
+      );
+      final postEntities = posts.map((post) => post.toEntity()).toList();
+
+      return Right(postEntities);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } on NetworkException catch (e) {
+      return Left(NetworkFailure(e.message));
+    } catch (e) {
+      return Left(UnknownFailure(e.toString()));
+    }
+  }
 }

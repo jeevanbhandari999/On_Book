@@ -136,8 +136,15 @@ abstract class PostRepository {
   });
 
   // For booking updation
-   Future<Either<Failure, void>> updatePostStatus({
+  Future<Either<Failure, void>> updatePostStatus({
     required String postId,
     required String status,
+  });
+
+  // Algorithm implementations
+  Future<Either<Failure, List<Post>>> getRelatedPosts({
+    required String userId,
+    required Post currentPost,
+    int limit = 10,
   });
 }
