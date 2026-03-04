@@ -6,6 +6,7 @@ class AppPopupMenuItem {
   final IconData icon;
   final VoidCallback onTap;
   final bool isDistructive;
+  final bool isLoading;
 
   const AppPopupMenuItem({
     required this.value,
@@ -13,6 +14,7 @@ class AppPopupMenuItem {
     required this.icon,
     required this.onTap,
     this.isDistructive = false,
+    this.isLoading = false,
   });
 }
 
@@ -21,6 +23,7 @@ class AppPopupMenu extends StatefulWidget {
   final IconData icon;
   final Color iconColor;
   final double iconSize;
+  final bool isLoading;
 
   const AppPopupMenu({
     super.key,
@@ -28,6 +31,7 @@ class AppPopupMenu extends StatefulWidget {
     this.icon = Icons.more_vert,
     this.iconColor = Colors.black,
     this.iconSize = 24,
+    this.isLoading = false,
   });
 
   @override
@@ -41,8 +45,14 @@ class _AppPopupMenuState extends State<AppPopupMenu> {
   Widget build(BuildContext context) {
     return IconButton(
       key: _iconKey,
-      icon: Icon(widget.icon, color: widget.iconColor, size: widget.iconSize),
-      onPressed: () => _showPopup(context),
+      onPressed: widget.isLoading ? null : () => _showPopup(context),
+      icon: widget.isLoading
+          ? const SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            )
+          : Icon(widget.icon, color: widget.iconColor, size: widget.iconSize),
     );
   }
 

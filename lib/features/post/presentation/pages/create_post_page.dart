@@ -44,7 +44,13 @@ class CreatePostView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const CustomAppBar(title: 'Create Post'),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        title: const Text(
+          'Creating Post',
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+      ),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -66,4 +72,3 @@ class CreatePostView extends StatelessWidget {
     );
   }
 }
-

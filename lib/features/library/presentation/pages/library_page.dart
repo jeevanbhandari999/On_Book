@@ -375,7 +375,7 @@
 // //                             child: const Icon(
 // //                               Icons.hotel,
 // //                               size: 50,
-// //                               color: Colors.grey,
+// //
 // //                             ),
 // //                           ),
 // //                   ),
@@ -1015,7 +1015,7 @@
 //                       child: const Icon(
 //                         Icons.article,
 //                         size: 50,
-//                         color: Colors.grey,
+//
 //                       ),
 //                     ),
 //                   const SizedBox(width: UiConstants.spacingMd),
@@ -1046,7 +1046,7 @@
 //                           'Saved ${DateFormatter.format(post.createdAt)}',
 //                           style: const TextStyle(
 //                             fontSize: 12,
-//                             color: Colors.grey,
+//
 //                           ),
 //                         ),
 //                       ],
@@ -1234,7 +1234,7 @@
 //                             child: const Icon(
 //                               Icons.hotel,
 //                               size: 50,
-//                               color: Colors.grey,
+//
 //                             ),
 //                           ),
 //                   ),
@@ -1856,7 +1856,7 @@
 //                       child: const Icon(
 //                         Icons.article,
 //                         size: 50,
-//                         color: Colors.grey,
+//
 //                       ),
 //                     ),
 //                   const SizedBox(width: UiConstants.spacingMd),
@@ -1887,7 +1887,7 @@
 //                           'Saved ${DateFormatter.format(post.createdAt)}',
 //                           style: const TextStyle(
 //                             fontSize: 12,
-//                             color: Colors.grey,
+//
 //                           ),
 //                         ),
 //                       ],
@@ -2074,7 +2074,7 @@
 //                             child: const Icon(
 //                               Icons.hotel,
 //                               size: 50,
-//                               color: Colors.grey,
+//
 //                             ),
 //                           ),
 //                   ),
@@ -2324,6 +2324,7 @@ import 'package:app/app/dependency_injection.dart';
 import 'package:app/app/router/route_constants.dart';
 import 'package:app/core/constants/ui_constants.dart';
 import 'package:app/core/utils/date_formatter.dart';
+import 'package:app/core/widgets/app_bar_popup_menu.dart';
 import 'package:app/core/widgets/common_widgets.dart';
 import 'package:app/features/auth/services/auth_service.dart';
 import 'package:app/features/booking/domain/entities/booking.dart';
@@ -2647,6 +2648,7 @@ class _SavedPostCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return SectionContainer(
       padding: const EdgeInsets.all(UiConstants.spacingSm),
+      borderRadius: BorderRadius.circular(UiConstants.radiusMd),
       child: InkWell(
         borderRadius: BorderRadius.circular(UiConstants.radiusMd),
         onTap: () => context.push(
@@ -2671,11 +2673,7 @@ class _SavedPostCard extends StatelessWidget {
                         width: 100,
                         height: 100,
                         color: Colors.grey[300],
-                        child: const Icon(
-                          Icons.article,
-                          size: 50,
-                          color: Colors.grey,
-                        ),
+                        child: const Icon(Icons.article, size: 50),
                       ),
               ),
               const SizedBox(width: UiConstants.spacingMd),
@@ -2863,167 +2861,199 @@ class _BookingCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final statusColor = _statusColor(booking.status);
+    final chips = booking.buildStatusChips(
+      isHourly: _isHourly,
+      isOngoing: isOngoing,
+      isPast: isPast,
+    );
 
-    return SectionContainer(
-      padding: const EdgeInsets.all(UiConstants.spacingSm),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(UiConstants.radiusMd),
-        onTap: () => context.push(
-          RouteConstants.bookingDetailsPage,
-          extra: {'userId': userId, 'bookingId': booking.id},
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(UiConstants.spacingSm),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // ── Top row: image + details + menu ──
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Thumbnail
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(UiConstants.radiusSm),
-                    child: booking.primaryImageUrl.isNotEmpty
-                        ? Image.network(
-                            booking.primaryImageUrl,
-                            width: 90,
-                            height: 90,
-                            fit: BoxFit.cover,
-                          )
-                        : Container(
-                            width: 90,
-                            height: 90,
-                            color: Colors.grey[300],
-                            child: const Icon(
-                              Icons.hotel,
-                              size: 40,
-                              color: Colors.grey,
+    return Stack(
+      children: [
+        SectionContainer(
+          borderRadius: BorderRadius.circular(UiConstants.radiusMd),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(UiConstants.radiusMd),
+            onTap: () => context.push(
+              RouteConstants.bookingDetailsPage,
+              extra: {'userId': userId, 'bookingId': booking.id},
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(UiConstants.radiusSm),
+                      child: booking.primaryImageUrl.isNotEmpty
+                          ? Image.network(
+                              booking.primaryImageUrl,
+                              width: 90,
+                              height: 90,
+                              fit: BoxFit.cover,
+                            )
+                          : Container(
+                              width: 90,
+                              height: 90,
+                              color: Colors.grey[300],
+                              child: const Icon(Icons.hotel, size: 40),
+                            ),
+                    ),
+                    const SizedBox(width: UiConstants.spacingMd),
+
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Title
+                          Padding(
+                            padding: const EdgeInsets.only(
+                              right: UiConstants.spacingLg,
+                            ),
+                            child: Text(
+                              booking.title,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 15,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                  ),
-                  const SizedBox(width: UiConstants.spacingMd),
-
-                  // Details
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Title
-                        Text(
-                          booking.title,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 15,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        if (booking.description != null) ...[
-                          const SizedBox(height: 2),
-                          Text(
-                            booking.description!,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              fontSize: 13,
-                              color: Colors.grey,
+                          if (booking.description != null) ...[
+                            const SizedBox(height: 2),
+                            Text(
+                              booking.description!,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(fontSize: 13),
                             ),
+                          ],
+                          const SizedBox(height: 6),
+
+                          // Date range row
+                          Row(
+                            children: [
+                              Icon(
+                                _isHourly
+                                    ? Icons.schedule_rounded
+                                    : Icons.calendar_today_rounded,
+                                size: 13,
+                              ),
+                              const SizedBox(width: 4),
+                              Expanded(
+                                child: Text(
+                                  _dateRangeLabel,
+                                  style: const TextStyle(fontSize: 13),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+
+                          // Duration + price row
+                          Row(
+                            children: [
+                              // Booking type badge
+                              _BookingTypeBadge(isHourly: _isHourly),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  '$_durationLabel  •  Rs.${booking.totalAmount.toStringAsFixed(0)}',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.primary,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
                           ),
                         ],
-                        const SizedBox(height: 6),
-
-                        // Date range row
-                        Row(
-                          children: [
-                            Icon(
-                              _isHourly
-                                  ? Icons.schedule_rounded
-                                  : Icons.calendar_today_rounded,
-                              size: 13,
-                              color: Colors.grey,
-                            ),
-                            const SizedBox(width: 4),
-                            Expanded(
-                              child: Text(
-                                _dateRangeLabel,
-                                style: const TextStyle(
-                                  fontSize: 13,
-                                  color: Colors.grey,
-                                ),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 4),
-
-                        // Duration + price row
-                        Row(
-                          children: [
-                            // Booking type badge
-                            _BookingTypeBadge(isHourly: _isHourly),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                '$_durationLabel  •  Rs.${booking.totalAmount.toStringAsFixed(0)}',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                  color: Theme.of(context).colorScheme.primary,
-                                ),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  // Action menu
-                  _BookingActionMenu(
-                    booking: booking,
-                    isUserBookingOwner: isUserBookingOwner,
-                    isOrganizationMember: isOrganizationMember,
-                    isUpdating: isUpdating,
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: UiConstants.spacingSm),
-
-              // ── Bottom row: status chips + booked-at ──
-              Row(
-                children: [
-                  _StatusChip(label: booking.status.name, color: statusColor),
-                  if (_isHourly) ...[
-                    const SizedBox(width: 6),
-                    _StatusChip(
-                      label: 'HOURLY',
-                      color: const Color(0xFFEA580C),
+                      ),
                     ),
                   ],
-                  if (isOngoing) ...[
-                    const SizedBox(width: 6),
-                    _StatusChip(label: 'ONGOING', color: Colors.orange),
+                ),
+
+                const SizedBox(height: UiConstants.spacingSm),
+
+                // ── Bottom row: status chips + booked-at ──
+                Row(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: chips.map((chip) {
+                            return Padding(
+                              padding: const EdgeInsets.only(right: 6),
+                              child: _StatusChip(
+                                label: chip.label,
+                                color: chip.color,
+                              ),
+                            );
+                          }).toList(),
+                          //  [
+                          //   _StatusChip(
+                          //     label: booking.status.name,
+                          //     color: statusColor,
+                          //   ),
+                          //   if (_isHourly) ...[
+                          //     const SizedBox(width: 6),
+                          //     const _StatusChip(
+                          //       label: 'HOURLY',
+                          //       color: Color(0xFFEA580C),
+                          //     ),
+                          //   ],
+                          //   if (isOngoing) ...[
+                          //     const SizedBox(width: 6),
+                          //     const _StatusChip(
+                          //       label: 'ONGOING',
+                          //       color: Colors.orange,
+                          //     ),
+                          //   ],
+                          //   if (isPast &&
+                          //       booking.status != BookingStatus.cancelled) ...[
+                          //     const SizedBox(width: 6),
+                          //     const _StatusChip(
+                          //       label: 'EXPIRED',
+                          //       color: Colors.red,
+                          //     ),
+                          //   ],
+                          // ],
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(width: UiConstants.spacingMd),
+                    Text(
+                      'Booked ${DateFormatter.format(booking.createdAt)}',
+                      style: const TextStyle(fontSize: 12),
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ],
-                  if (isPast && booking.status == BookingStatus.cancelled) ...[
-                    const SizedBox(width: 6),
-                    _StatusChip(label: 'CANCELLED', color: Colors.red),
-                  ],
-                  const Spacer(),
-                  Text(
-                    'Booked ${DateFormatter.format(booking.createdAt)}',
-                    style: const TextStyle(fontSize: 12, color: Colors.grey),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ),
-            ],
+                ),
+              ],
+            ),
           ),
         ),
-      ),
+        Positioned(
+          top: 0,
+          right: 0,
+          child: _BookingActionMenu(
+            booking: booking,
+            isUserBookingOwner: isUserBookingOwner,
+            isOrganizationMember: isOrganizationMember,
+            isUpdating: isUpdating,
+          ),
+        ),
+      ],
     );
   }
 
@@ -3148,10 +3178,6 @@ class _EmptyState extends StatelessWidget {
   }
 }
 
-// =============================================================================
-// ACTION MENU — unchanged logic, same as before
-// =============================================================================
-
 class _BookingActionMenu extends StatelessWidget {
   final Booking booking;
   final bool isUserBookingOwner;
@@ -3167,107 +3193,197 @@ class _BookingActionMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return PopupMenuButton<_BookingAction>(
-      enabled: !isUpdating,
-      icon: isUpdating
-          ? const SizedBox(
-              width: 20,
-              height: 20,
-              child: CircularProgressIndicator(strokeWidth: 2),
-            )
-          : const Icon(Icons.more_vert, size: 20),
-      itemBuilder: (context) {
-        final items = <PopupMenuEntry<_BookingAction>>[];
+    final items = <AppPopupMenuItem>[];
 
-        if (isUserBookingOwner && booking.status == BookingStatus.pending) {
-          items.add(
-            const PopupMenuItem(
-              value: _BookingAction.cancel,
-              child: Row(
-                children: [
-                  Icon(Icons.close, size: 18, color: Colors.red),
-                  SizedBox(width: 8),
-                  Text('Cancel Booking'),
-                ],
-              ),
-            ),
-          );
-        }
+    /// 🔹 User can cancel if pending
+    if (isUserBookingOwner && booking.status == BookingStatus.pending) {
+      items.add(
+        AppPopupMenuItem(
+          value: 'cancel',
+          label: 'Cancel Booking',
+          icon: Icons.close,
+          isDistructive: true,
+          onTap: () => _handleAction(context, 'cancel'),
+        ),
+      );
+    }
 
-        if (isOrganizationMember) {
-          if (booking.status == BookingStatus.pending) {
-            items.add(
-              const PopupMenuItem(
-                value: _BookingAction.confirm,
-                child: Row(
-                  children: [
-                    Icon(Icons.check_circle, size: 18, color: Colors.green),
-                    SizedBox(width: 8),
-                    Text('Confirm Booking'),
-                  ],
-                ),
-              ),
-            );
-          }
-          items.add(
-            const PopupMenuItem(
-              value: _BookingAction.updatePayment,
-              child: Row(
-                children: [
-                  Icon(Icons.currency_exchange, size: 18, color: Colors.blue),
-                  SizedBox(width: 8),
-                  Text('Update Payment'),
-                ],
-              ),
-            ),
-          );
-          items.add(
-            const PopupMenuItem(
-              value: _BookingAction.reject,
-              child: Row(
-                children: [
-                  Icon(Icons.do_not_disturb, size: 18, color: Colors.red),
-                  SizedBox(width: 8),
-                  Text('Reject Booking'),
-                ],
-              ),
-            ),
-          );
-        }
-
-        return items;
-      },
-      onSelected: (action) => _handleAction(context, action),
-    );
-  }
-
-  void _handleAction(BuildContext context, _BookingAction action) {
-    switch (action) {
-      case _BookingAction.confirm:
-        context.read<LibraryBloc>().add(
-          UpdateBookingStatusFromLibraryPage(
-            bookingId: booking.id,
-            status: BookingStatus.confirmed.name,
+    /// 🔹 Organization actions
+    if (isOrganizationMember) {
+      if (booking.status == BookingStatus.pending) {
+        items.add(
+          AppPopupMenuItem(
+            value: 'confirm',
+            label: 'Confirm Booking',
+            icon: Icons.check_circle,
+            onTap: () => _handleAction(context, 'confirm'),
           ),
         );
-      case _BookingAction.cancel:
+      }
+
+      items.add(
+        AppPopupMenuItem(
+          value: 'updatePayment',
+          label: 'Update Payment',
+          icon: Icons.currency_exchange,
+          onTap: () => _handleAction(context, 'updatePayment'),
+        ),
+      );
+
+      items.add(
+        AppPopupMenuItem(
+          value: 'reject',
+          label: 'Reject Booking',
+          icon: Icons.do_not_disturb,
+          isDistructive: true,
+          onTap: () => _handleAction(context, 'reject'),
+        ),
+      );
+    }
+
+    if (items.isEmpty) return const SizedBox.shrink();
+
+    return AppPopupMenu(items: items, isLoading: isUpdating);
+  }
+
+  void _handleAction(BuildContext context, String action) {
+    switch (action) {
+      case 'cancel':
         context.read<LibraryBloc>().add(
           UpdateBookingStatusFromLibraryPage(
             bookingId: booking.id,
             status: BookingStatus.cancelled.name,
           ),
         );
-      case _BookingAction.reject:
+        break;
+      case 'confirm':
+        context.read<LibraryBloc>().add(
+          UpdateBookingStatusFromLibraryPage(
+            bookingId: booking.id,
+            status: BookingStatus.confirmed.name,
+          ),
+        );
+        break;
+      case 'updatePayment':
+        // TODO
+        // call update payment
+        break;
+      case 'reject':
         context.read<LibraryBloc>().add(
           UpdateBookingStatusFromLibraryPage(
             bookingId: booking.id,
             status: BookingStatus.rejected.name,
           ),
         );
-      case _BookingAction.updatePayment:
         break;
     }
   }
 }
 
-enum _BookingAction { confirm, cancel, reject, updatePayment }
+// void _handleAction(BuildContext context, _BookingAction action) {
+//   switch (action) {
+//     case _BookingAction.confirm:
+//       context.read<LibraryBloc>().add(
+//         UpdateBookingStatusFromLibraryPage(
+//           bookingId: booking.id,
+//           status: BookingStatus.confirmed.name,
+//         ),
+//       );
+//     case _BookingAction.cancel:
+//       context.read<LibraryBloc>().add(
+//         UpdateBookingStatusFromLibraryPage(
+//           bookingId: booking.id,
+//           status: BookingStatus.cancelled.name,
+//         ),
+//       );
+//     case _BookingAction.reject:
+//       context.read<LibraryBloc>().add(
+//         UpdateBookingStatusFromLibraryPage(
+//           bookingId: booking.id,
+//           status: BookingStatus.rejected.name,
+//         ),
+//       );
+//     case _BookingAction.updatePayment:
+//       break;
+//   }
+// }
+
+// enum _BookingAction { confirm, cancel, reject, updatePayment }
+
+class BookingStatusChipData {
+  final String label;
+  final Color color;
+
+  const BookingStatusChipData({required this.label, required this.color});
+}
+
+extension BookingStatusUI on Booking {
+  List<BookingStatusChipData> buildStatusChips({
+    required bool isHourly,
+    required bool isOngoing,
+    required bool isPast,
+  }) {
+    final chips = <BookingStatusChipData>[];
+
+    /// 1️⃣ Main booking status
+    chips.add(_mapPrimaryStatus());
+
+    /// 2️⃣ Booking type
+    if (isHourly) {
+      chips.add(
+        const BookingStatusChipData(label: 'HOURLY', color: Color(0xFFEA580C)),
+      );
+    } else {
+      chips.add(
+        const BookingStatusChipData(label: 'NIGHTLY', color: Colors.blue),
+      );
+    }
+
+    /// 3️⃣ Time-based state
+    if (isOngoing) {
+      chips.add(
+        const BookingStatusChipData(label: 'ONGOING', color: Colors.orange),
+      );
+    }
+
+    if (isPast &&
+        status != BookingStatus.cancelled &&
+        status != BookingStatus.completed) {
+      chips.add(
+        const BookingStatusChipData(label: 'EXPIRED', color: Colors.red),
+      );
+    }
+
+    return chips;
+  }
+
+  BookingStatusChipData _mapPrimaryStatus() {
+    switch (status) {
+      case BookingStatus.pending:
+        return const BookingStatusChipData(
+          label: 'PENDING',
+          color: Colors.amber,
+        );
+      case BookingStatus.confirmed:
+        return const BookingStatusChipData(
+          label: 'CONFIRMED',
+          color: Colors.green,
+        );
+      case BookingStatus.cancelled:
+        return const BookingStatusChipData(
+          label: 'CANCELLED',
+          color: Colors.red,
+        );
+      case BookingStatus.rejected:
+        return const BookingStatusChipData(
+          label: 'REJECTED',
+          color: Colors.red,
+        );
+      case BookingStatus.completed:
+        return const BookingStatusChipData(
+          label: 'COMPLETED',
+          color: Colors.grey,
+        );
+    }
+  }
+}
