@@ -734,63 +734,62 @@ class PostRemoteDataSourceImpl implements PostRemoteDataSource {
     try {
       final interestMap = await _buildInterestMap(userId);
 
+      // ✅ Fix 1: Convert enum tags to raw strings for Supabase overlaps()
+      final rawTags = currentPost.tags
+          ?.map((t) => t.name) // or t.toString() depending on your enum
+          .toList();
+
+      if (rawTags == null || rawTags.isEmpty) {
+        // Fallback: just fetch recent posts if current post has no tags
+        final response = await supabaseClient
+            .from('posts')
+            .select('*, post_images(*)')
+            .neq('id', currentPost.id)
+            .order('created_at', ascending: false)
+            .limit(limit);
+
+        return (response as List)
+            .cast<Map<String, dynamic>>()
+            .map((json) => PostModel.fromJson(json))
+            .toList();
+      }
+
+      // ✅ Fix 2: Pass raw string list to overlaps
       final response = await supabaseClient
           .from('posts')
           .select('*, post_images(*)')
           .neq('id', currentPost.id)
-          .overlaps('tags', currentPost.tags!)
+          .overlaps('tags', rawTags) // <-- fixed
           .limit(limit * 3);
 
       final List<Map<String, dynamic>> raw = (response as List)
           .cast<Map<String, dynamic>>();
 
+      // ✅ Fix 3: Handle empty interestMap gracefully with a base score
+      final maxFreq = interestMap.isEmpty
+          ? 1.0
+          : interestMap.values.reduce((a, b) => a > b ? a : b);
+
       final scored = raw.map((json) {
-        final score = _contentScore(
+        double score = _contentScore(
           tagsRaw: json['tags'],
           amenitiesRaw: json['amenities'],
           freq: interestMap,
-          maxFreq: interestMap.isEmpty
-              ? 1
-              : interestMap.values.reduce((a, b) => a > b ? a : b),
+          maxFreq: maxFreq,
         );
+
+        // ✅ Fix 4: Boost posts sharing more tags with currentPost
+        final postTags = _asList(json['tags']) ?? [];
+        final overlap = postTags.where((t) => rawTags.contains(t)).length;
+        score += overlap * 0.1; // small boost per shared tag
 
         return MapEntry(json, score);
       }).toList()..sort((a, b) => b.value.compareTo(a.value));
 
-      final posts = scored
-          .take(limit)
-          .map((e) => PostModel.fromJson(e.key))
-          .toList();
-
-      return posts;
+      return scored.take(limit).map((e) => PostModel.fromJson(e.key)).toList();
     } catch (e) {
       throw core_exceptions.ServerException('Failed to get related posts: $e');
     }
-  }
-
-  // Helpers methods
-  double _contentScore({
-    required dynamic tagsRaw,
-    required dynamic amenitiesRaw,
-    required Map<String, double> freq,
-    required double maxFreq,
-  }) {
-    if (freq.isEmpty) return 0;
-
-    final signals = <String>[...?_asList(tagsRaw), ...?_asList(amenitiesRaw)];
-    if (signals.isEmpty) return 0;
-
-    double total = 0;
-    for (final s in signals) {
-      total += (freq[s] ?? 0) / maxFreq;
-    }
-
-    return (total / signals.length).clamp(0.0, 1.0);
-  }
-
-  List<String>? _asList(dynamic raw) {
-    if (raw is List) return raw.whereType<String>().toList();
-    return null;
   }
 
   Future<Map<String, double>> _buildInterestMap(String userId) async {
@@ -820,10 +819,39 @@ class PostRemoteDataSourceImpl implements PostRemoteDataSource {
         extract(post['amenities']);
       }
 
+      // ✅ Fix 5: Log so you can see what's being built
+      print('[InterestMap] Built for $userId: $freq');
       return freq;
-    } catch (_) {
+    } catch (e) {
+      // ✅ Fix 6: Don't swallow — at least print
+      print('[InterestMap] Error: $e');
       return {};
     }
+  }
+
+  // Helpers methods
+  double _contentScore({
+    required dynamic tagsRaw,
+    required dynamic amenitiesRaw,
+    required Map<String, double> freq,
+    required double maxFreq,
+  }) {
+    if (freq.isEmpty) return 0;
+
+    final signals = <String>[...?_asList(tagsRaw), ...?_asList(amenitiesRaw)];
+    if (signals.isEmpty) return 0;
+
+    double total = 0;
+    for (final s in signals) {
+      total += (freq[s] ?? 0) / maxFreq;
+    }
+
+    return (total / signals.length).clamp(0.0, 1.0);
+  }
+
+  List<String>? _asList(dynamic raw) {
+    if (raw is List) return raw.whereType<String>().toList();
+    return null;
   }
 }
 
