@@ -212,7 +212,9 @@ class CustomerReviewView extends StatelessWidget {
                           ),
                         ),
                       ),
-
+                      // const SliverToBoxAdapter(
+                      //   child: SizedBox(height: UiConstants.spacingSm),
+                      // ),
                       SliverPadding(
                         padding: const EdgeInsets.symmetric(
                           horizontal: UiConstants.spacingMd,
@@ -224,14 +226,26 @@ class CustomerReviewView extends StatelessWidget {
                           ) {
                             final rating = ratings[index];
                             return Padding(
-                              padding: const EdgeInsets.symmetric(
-                                vertical: UiConstants.spacingMd,
-                              ),
-                              child: CustomerReviewItem(
-                                rating: rating,
-                                userId: userId,
-                              ),
-                            );
+                                  padding: const EdgeInsets.only(
+                                    top: UiConstants.spacingMd,
+                                  ),
+                                  child: CustomerReviewItem(
+                                    rating: rating,
+                                    userId: userId,
+                                  ),
+                                )
+                                .animate(delay: (index * 80).ms)
+                                .slideX(
+                                  begin: index.isEven ? -0.3 : 0.3,
+                                  duration: UiConstants.animationSlow,
+                                  curve: Curves.easeOutCubic,
+                                )
+                                .scale(
+                                  begin: const Offset(0.9, 1),
+                                  duration: UiConstants.animationSlow,
+                                  curve: Curves.easeInOut,
+                                )
+                                .fade(duration: UiConstants.animationSlow);
                           }, childCount: ratings.length),
                         ),
                       ),
