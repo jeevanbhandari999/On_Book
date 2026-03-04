@@ -413,7 +413,7 @@ class _ChatViewState extends State<ChatView> {
                         const Icon(Icons.person),
                   )
                 : Text(
-                    room.getDisplayName(widget.currentUserId)[0],
+                    room.getDisplayName(widget.currentUserId)[0].toUpperCase(),
                     style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,

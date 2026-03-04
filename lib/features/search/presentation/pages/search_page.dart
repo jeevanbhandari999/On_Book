@@ -6,6 +6,7 @@ import 'package:app/core/widgets/loading_widget.dart';
 import 'package:app/features/auth/domain/entities/organization.dart';
 import 'package:app/features/auth/domain/entities/user.dart';
 import 'package:app/features/auth/services/auth_service.dart';
+import 'package:app/features/home/presentation/widgets/post_card.dart';
 // import 'package:app/features/home/presentation/widgets/post_card.dart';
 import 'package:app/features/post/domain/entities/post.dart';
 import 'package:app/features/search/domain/entities/search_filter_enum.dart';
@@ -165,7 +166,11 @@ class _ResultsSliver extends StatelessWidget {
         _HotelsGridSliver(orgs: result.organizations, userId: currentUserId),
       ],
       SearchFilter.posts => [
-        _PostsMasonrySliver(posts: result.posts, currentUserId: currentUserId),
+        _PostsMasonrySliver(
+          posts: result.posts,
+          organizations: result.organizations,
+          currentUserId: currentUserId,
+        ),
       ],
     };
 
@@ -275,17 +280,75 @@ List<Widget> _buildAllSlivers(
       ),
     );
     slivers.add(
-      _PostsMasonrySliver(posts: result.posts, currentUserId: currentUserId),
+      _PostsMasonrySliver(
+        posts: result.posts,
+        organizations: result.organizations,
+        currentUserId: currentUserId,
+      ),
     );
   }
 
   return slivers;
 }
 
+// class _PostsMasonrySliver extends StatelessWidget {
+//   final List<Post> posts;
+//   final String currentUserId;
+//   final List<Organization> organizations;
+//   const _PostsMasonrySliver({
+//     required this.posts,
+//     required this.organizations,
+//     required this.currentUserId,
+//   });
+
+//   @override
+//   Widget build(BuildContext context) {
+//     if (posts.isEmpty) {
+//       return const SliverFillRemaining(
+//         child: Center(child: Text('No posts found')),
+//       );
+//     }
+//     return SliverPadding(
+//       padding: const EdgeInsets.symmetric(horizontal: UiConstants.spacingMd),
+//       sliver: SliverMasonryGrid.count(
+//         crossAxisCount: 2,
+//         mainAxisSpacing: UiConstants.spacingSm,
+//         crossAxisSpacing: UiConstants.spacingSm,
+//         childCount: posts.length,
+//         itemBuilder: (context, i) =>
+//             _PostCard(
+//                   post: posts[i],
+//                   height: i.isEven ? 200.0 : 260.0,
+//                   currentUserId: currentUserId,
+//                 )
+//                 .animate(delay: (i * 80).ms)
+//                 .slideX(
+//                   begin: i.isEven ? -0.3 : 0.3,
+//                   duration: UiConstants.animationSlow,
+//                   curve: Curves.easeOutCubic,
+//                 )
+//                 .scale(
+//                   begin: const Offset(0.9, 1),
+//                   duration: UiConstants.animationSlow,
+//                   curve: Curves.easeInOut,
+//                 )
+//                 .fade(duration: UiConstants.animationSlow),
+//         // PostCard(post: posts[i], organization: organization, userId: currentUserId)
+//       ),
+//     );
+//   }
+// }
+
 class _PostsMasonrySliver extends StatelessWidget {
   final List<Post> posts;
   final String currentUserId;
-  const _PostsMasonrySliver({required this.posts, required this.currentUserId});
+  final List<Organization> organizations;
+
+  const _PostsMasonrySliver({
+    required this.posts,
+    required this.organizations,
+    required this.currentUserId,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -294,6 +357,10 @@ class _PostsMasonrySliver extends StatelessWidget {
         child: Center(child: Text('No posts found')),
       );
     }
+
+    // ✅ Convert list → map once, O(1) lookup per post
+    final orgMap = {for (final org in organizations) org.id: org};
+
     return SliverPadding(
       padding: const EdgeInsets.symmetric(horizontal: UiConstants.spacingMd),
       sliver: SliverMasonryGrid.count(
@@ -301,25 +368,36 @@ class _PostsMasonrySliver extends StatelessWidget {
         mainAxisSpacing: UiConstants.spacingSm,
         crossAxisSpacing: UiConstants.spacingSm,
         childCount: posts.length,
-        itemBuilder: (context, i) =>
-            _PostCard(
-                  post: posts[i],
-                  height: i.isEven ? 200.0 : 260.0,
-                  currentUserId: currentUserId,
-                )
-                .animate(delay: (i * 80).ms)
-                .slideX(
-                  begin: i.isEven ? -0.3 : 0.3,
-                  duration: UiConstants.animationSlow,
-                  curve: Curves.easeOutCubic,
-                )
-                .scale(
-                  begin: const Offset(0.9, 1),
-                  duration: UiConstants.animationSlow,
-                  curve: Curves.easeInOut,
-                )
-                .fade(duration: UiConstants.animationSlow),
-        // PostCard(post: posts[i], organization: organization, userId: currentUserId)
+        itemBuilder: (context, i) {
+          final post = posts[i];
+          final organization = orgMap[post.organizationId]; // ✅ matched by id
+
+          if (organization == null) {
+            // Org not loaded yet — show placeholder
+            return const SizedBox(
+              height: 200,
+              child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+            );
+          }
+
+          return PostCard(
+                post: post,
+                organization: organization,
+                userId: currentUserId,
+              )
+              .animate(delay: (i * 80).ms)
+              .slideX(
+                begin: i.isEven ? -0.3 : 0.3,
+                duration: UiConstants.animationSlow,
+                curve: Curves.easeOutCubic,
+              )
+              .scale(
+                begin: const Offset(0.9, 1),
+                duration: UiConstants.animationSlow,
+                curve: Curves.easeInOut,
+              )
+              .fade(duration: UiConstants.animationSlow);
+        },
       ),
     );
   }

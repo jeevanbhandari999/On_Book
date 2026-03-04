@@ -327,7 +327,9 @@ class _RoomTile extends StatelessWidget {
                                     const Icon(Icons.person),
                               )
                             : Text(
-                                room.getDisplayName(currentUserId)[0],
+                                room
+                                    .getDisplayName(currentUserId)[0]
+                                    .toUpperCase(),
                                 style: const TextStyle(
                                   fontSize: 20,
                                   fontWeight: FontWeight.bold,
