@@ -320,23 +320,23 @@ class CustomerReviewView extends StatelessWidget {
               style: const TextStyle(color: Colors.white),
             ),
             const SizedBox(width: 8),
-            // RatingBarIndicator(
-            //       rating: average.toDouble(),
-            //       itemBuilder: (context, index) =>
-            //           const Icon(Icons.star, color: Colors.amber),
-            //       itemCount: 5,
-            //       itemSize: 20,
-            //       direction: Axis.horizontal,
-            //       unratedColor: Colors.grey,
-            //     )
-            //     .animate()
-            //     .scale(
-            //       begin: const Offset(0.8, 0.8),
-            //       duration: UiConstants.animationNormal,
-            //       curve: Curves.easeOutBack,
-            //     )
-            //     .fadeIn(duration: UiConstants.animationNormal),
-            AnimatedStarRating(rating: average, itemSize: 20, itemCount: 5),
+            RatingBarIndicator(
+                  rating: average.toDouble(),
+                  itemBuilder: (context, index) =>
+                      const Icon(Icons.star, color: Colors.amber),
+                  itemCount: 5,
+                  itemSize: 20,
+                  direction: Axis.horizontal,
+                  unratedColor: Colors.grey,
+                )
+                .animate(delay: UiConstants.animationSlow)
+                .scale(
+                  begin: const Offset(0.8, 0.8),
+                  duration: UiConstants.animationNormal,
+                  curve: Curves.easeOutBack,
+                )
+                .fadeIn(duration: UiConstants.animationNormal),
+            // AnimatedStarRating(rating: average, itemSize: 20, itemCount: 5),
           ],
         ),
         const Spacer(),
@@ -377,13 +377,25 @@ class CustomerReviewView extends StatelessWidget {
             : ((count / totalReviews) * 100).round();
 
         return RatingProgressBar(
-          backgroundColor: Colors.grey,
-          filledColor: Theme.of(context).colorScheme.primaryContainer,
-          ratingRange: star == 1 ? '1 Star' : '$star Stars',
-          percent: percent.toDouble(),
-          peopleNumber: count,
-          textColor: Colors.white,
-        );
+              backgroundColor: Colors.grey,
+              filledColor: Theme.of(context).colorScheme.primaryContainer,
+              ratingRange: star == 1 ? '1 Star' : '$star Stars',
+              percent: percent.toDouble(),
+              peopleNumber: count,
+              textColor: Colors.white,
+            )
+            .animate(delay: (index * 80).ms)
+            .slideX(
+              begin: index.isEven ? -0.3 : 0.3,
+              duration: UiConstants.animationSlow,
+              curve: Curves.easeOutCubic,
+            )
+            .scale(
+              begin: const Offset(0.9, 1),
+              duration: UiConstants.animationSlow,
+              curve: Curves.easeInOut,
+            )
+            .fade(duration: UiConstants.animationSlow);
       }),
     );
   }
