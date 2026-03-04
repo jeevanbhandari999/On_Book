@@ -8,6 +8,7 @@ import 'package:app/features/post/domain/entities/post.dart';
 import 'package:app/features/post/domain/entities/post_enums.dart';
 import 'package:app/features/post/domain/usecases/delete_post_use_case.dart';
 import 'package:app/features/post/domain/usecases/get_post_by_id_use_case.dart';
+import 'package:app/features/post/domain/usecases/get_related_posts_through_algorithm_use_case.dart';
 import 'package:app/features/post/presentation/bloc/post_details_bloc.dart';
 import 'package:app/features/post/presentation/widgets/detail_info_tile.dart';
 import 'package:app/features/post/presentation/widgets/post_detail_shimmer.dart';
@@ -39,6 +40,8 @@ class PostDetailsPage extends StatelessWidget {
         return PostDetailsBloc(
           getPostByIdUseCase: DependencyInjection.get<GetPostByIdUseCase>(),
           deletePostUseCase: DependencyInjection.get<DeletePostUseCase>(),
+          getRelatedPostsThroughAlgorithmUseCase:
+              DependencyInjection.get<GetRelatedPostsThroughAlgorithmUseCase>(),
         )..add(PostDetailLoadRequested(postId: postId, userId: userId));
       },
       child: PostDetailsView(postId: postId, post: post, userId: userId),
@@ -209,6 +212,8 @@ Widget _buildPostDetailSection(
       if (isViewingImage) {
         return _buildImageViewer(context, state);
       }
+
+      print('The related posts are: ${stateLoaded.relatedPosts.length}');
       return RefreshIndicator(
         onRefresh: () => _onRefresh(context),
         child: SingleChildScrollView(
@@ -262,12 +267,94 @@ Widget _buildPostDetailSection(
               ),
               const SizedBox(height: UiConstants.spacingSm),
               _buildYoutubeVideoPreview(context, youtubeUrl: post.youtubeUrl),
+              if (stateLoaded.isRelatedLoading)
+                const Padding(
+                  padding: EdgeInsets.all(16),
+                  child: Center(child: CircularProgressIndicator()),
+                ),
+
+              if (stateLoaded.relatedPosts.isNotEmpty)
+                _buildRelatedPostsSection(
+                  context,
+                  stateLoaded.relatedPosts,
+                  userId,
+                ),
+
+              if (stateLoaded.relatedError != null)
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Text(
+                    stateLoaded.relatedError!,
+                    style: const TextStyle(color: Colors.red),
+                  ),
+                ),
               const SizedBox(height: UiConstants.spacingXxl),
             ],
           ),
         ),
       );
     },
+  );
+}
+
+Widget _buildRelatedPostsSection(
+  BuildContext context,
+  List<Post> posts,
+  String userId,
+) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      const Padding(
+        padding: EdgeInsets.all(16),
+        child: Text(
+          "Recommended For You",
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+      ),
+      SizedBox(
+        height: 220,
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          itemCount: posts.length,
+          itemBuilder: (context, index) {
+            final post = posts[index];
+
+            return GestureDetector(
+              onTap: () {
+                context.push(
+                  RouteConstants.postDetailsPage,
+                  extra: {'postId': post.id, 'post': post, 'userId': userId},
+                );
+              },
+              child: Container(
+                width: 160,
+                margin: const EdgeInsets.symmetric(horizontal: 8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: CachedNetworkImage(
+                        imageUrl: post.primaryImageUrl,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      post.title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    Text("Rs. ${post.price}"),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    ],
   );
 }
 
