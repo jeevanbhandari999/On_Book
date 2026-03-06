@@ -104,7 +104,7 @@ class BookingFormView extends StatelessWidget {
         }
       },
       builder: (context, state) {
-        if (state is BookingFormReady || state is BookingFormInitial) {
+        if (state is BookingFormLoading || state is BookingFormInitial) {
           return const BookingFormShimmerEffect();
         }
         if (state is BookingFormSuccess) {
@@ -255,7 +255,6 @@ class BookingFormView extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header + type pill
           Row(
             children: [
               const Text('Booking Schedule', style: TextStyle(fontSize: 20)),
@@ -295,10 +294,8 @@ class BookingFormView extends StatelessWidget {
             width: double.infinity,
             padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
             decoration: BoxDecoration(
-              color: Theme.of(
-                context,
-              ).colorScheme.primaryContainer.withAlpha(110),
-              borderRadius: BorderRadius.circular(12),
+              color: Theme.of(context).colorScheme.primary.withAlpha(110),
+              borderRadius: BorderRadius.circular(UiConstants.radiusMd),
               border: Border.all(
                 color: Theme.of(context).colorScheme.primary.withAlpha(38),
               ),
@@ -309,15 +306,10 @@ class BookingFormView extends StatelessWidget {
                 Icon(
                   isHourly ? Icons.schedule_rounded : Icons.nights_stay_rounded,
                   size: 16,
-                  color: Theme.of(context).colorScheme.primary,
                 ),
                 const SizedBox(width: 8),
                 Text(
                   '$durationLabel · ${DateFormatter.range(checkIn, checkOut)}',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(context).colorScheme.primary,
-                    fontWeight: FontWeight.w600,
-                  ),
                 ),
               ],
             ),
@@ -492,18 +484,21 @@ class BookingFormView extends StatelessWidget {
   }
 
   Widget _buildErrorsCard(BuildContext context, Map<String, String> errors) {
-    return Container(
-      margin: const EdgeInsets.symmetric(
-        horizontal: UiConstants.spacingMd,
-        vertical: UiConstants.spacingSm,
-      ),
+    return SectionContainer(
+      margin: const EdgeInsets.symmetric(vertical: UiConstants.spacingSm),
       padding: const EdgeInsets.all(UiConstants.spacingMd),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.errorContainer,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.error.withAlpha(15),
-        ),
+      borderRadius: BorderRadius.circular(UiConstants.radiusMd),
+      gradientColor: LinearGradient(
+        colors: [
+          Colors.red.withAlpha(200),
+          Colors.red.withAlpha(170),
+
+          Colors.red.withAlpha(150),
+          Colors.red.withAlpha(150),
+          Colors.red.withAlpha(200),
+        ],
+        begin: AlignmentGeometry.topLeft,
+        end: AlignmentGeometry.bottomRight,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -860,10 +855,6 @@ class BookingFormView extends StatelessWidget {
   }
 }
 
-// =============================================================================
-// REUSABLE WIDGETS
-// =============================================================================
-
 /// Tappable tile showing date + time for one end of the booking.
 class _DateTimeTile extends StatelessWidget {
   final String label;
@@ -914,12 +905,11 @@ class _DateTimeTile extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
         decoration: BoxDecoration(
           color: accentColor.withAlpha(18),
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(UiConstants.radiusMd),
           border: Border.all(color: accentColor.withAlpha(60)),
         ),
         child: Row(
           children: [
-            // Left accent bar
             Container(
               width: 4,
               height: 50,
@@ -929,31 +919,28 @@ class _DateTimeTile extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 14),
-            // Icon
             Container(
-              padding: const EdgeInsets.all(9),
+              padding: const EdgeInsets.all(UiConstants.spacingSm),
               decoration: BoxDecoration(
                 color: accentColor.withAlpha(30),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(UiConstants.radiusSm),
               ),
-              child: Icon(icon, size: 18, color: accentColor),
+              child: Icon(icon, size: UiConstants.iconSm, color: accentColor),
             ),
-            const SizedBox(width: 14),
-            // Date label
+            const SizedBox(width: UiConstants.spacingSm),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     label,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.w800,
-                      color: accentColor,
+                      color: Colors.black,
                       letterSpacing: 0.8,
                     ),
                   ),
-                  const SizedBox(height: 4),
                   Text(
                     _dateLabel,
                     style: const TextStyle(
@@ -966,12 +953,14 @@ class _DateTimeTile extends StatelessWidget {
                 ],
               ),
             ),
-            // Time chip
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+              padding: const EdgeInsets.symmetric(
+                horizontal: UiConstants.spacingSm,
+                vertical: UiConstants.spacingXs,
+              ),
               decoration: BoxDecoration(
                 color: accentColor.withAlpha(25),
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(UiConstants.radiusRound),
                 border: Border.all(color: accentColor.withAlpha(80)),
               ),
               child: Row(
@@ -981,17 +970,15 @@ class _DateTimeTile extends StatelessWidget {
                   const SizedBox(width: 5),
                   Text(
                     _timeLabel,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w800,
-                      color: accentColor,
+                      color: Colors.black,
                     ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(width: 8),
-            Icon(Icons.edit_rounded, size: 14, color: Colors.grey.shade400),
           ],
         ),
       ),
@@ -1032,8 +1019,8 @@ class _DurationConnector extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.secondaryContainer,
-              borderRadius: BorderRadius.circular(20),
+              color: Theme.of(context).colorScheme.primary.withAlpha(200),
+              borderRadius: BorderRadius.circular(UiConstants.radiusRound),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -1043,17 +1030,10 @@ class _DurationConnector extends StatelessWidget {
                       ? Icons.hourglass_bottom_rounded
                       : Icons.nights_stay_rounded,
                   size: 13,
-                  color: Theme.of(context).colorScheme.onSecondaryContainer,
+                  color: Colors.white,
                 ),
                 const SizedBox(width: 5),
-                Text(
-                  label,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    color: Theme.of(context).colorScheme.onSecondaryContainer,
-                  ),
-                ),
+                Text(label, style: const TextStyle(color: Colors.white)),
               ],
             ),
           ),

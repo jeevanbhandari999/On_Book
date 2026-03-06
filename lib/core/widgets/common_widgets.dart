@@ -309,6 +309,7 @@ class SectionContainer extends StatelessWidget {
   final List<BoxShadow>? shadows;
   final VoidCallback? onTap;
   final BorderRadius? inkWellBorderRadius;
+  final LinearGradient? gradientColor;
 
   const SectionContainer({
     super.key,
@@ -320,6 +321,7 @@ class SectionContainer extends StatelessWidget {
     this.shadows,
     this.onTap,
     this.inkWellBorderRadius,
+    this.gradientColor,
   });
 
   @override
@@ -352,11 +354,13 @@ class SectionContainer extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius:
             borderRadius ?? BorderRadius.circular(UiConstants.radiusXl),
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Colors.white.withAlpha(90), Colors.white.withAlpha(40)],
-        ),
+        gradient:
+            gradientColor ??
+            LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Colors.white.withAlpha(90), Colors.white.withAlpha(40)],
+            ),
         color: backgroundColor,
         boxShadow:
             shadows ??
