@@ -149,7 +149,7 @@ class BookingFormView extends StatelessWidget {
                 if (post != null)
                   Hero(
                     tag: 'post_${post!.id}',
-                    child: BookingPostSummary(post: post!),
+                    child: BookingPosstSummary(post: post!, userId: userId),
                   ),
                 const SizedBox(height: UiConstants.spacingMd),
                 if (!state.isEditMode) ...[
@@ -697,7 +697,7 @@ class BookingFormView extends StatelessWidget {
   // HELPERS
   // ===========================================================================
 
-  Widget _buildAvatar(dynamic user) {
+  Widget _buildAvatar(User user) {
     final hasImage = user.imageUrl != null && user.imageUrl!.isNotEmpty;
     return Container(
       decoration: BoxDecoration(

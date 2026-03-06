@@ -1,10 +1,41 @@
+import 'package:app/app/dependency_injection.dart';
 import 'package:app/core/constants/ui_constants.dart';
 import 'package:app/core/widgets/common_widgets.dart';
+import 'package:app/features/home/domain/usecases/get_organization_detail_by_post_organization_id.dart';
 import 'package:app/features/post/domain/entities/post.dart';
 import 'package:app/features/post/domain/entities/post_enums.dart';
+import 'package:app/features/post/domain/usecases/delete_post_use_case.dart';
+import 'package:app/features/post/domain/usecases/get_post_by_id_use_case.dart';
+import 'package:app/features/post/domain/usecases/get_related_posts_through_algorithm_use_case.dart';
+import 'package:app/features/post/presentation/bloc/post_details_bloc.dart';
 import 'package:app/features/post/presentation/pages/post_details_page.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shimmer/shimmer.dart';
+
+class BookingPosstSummary extends StatelessWidget {
+  final Post post;
+  final String? userId;
+  const BookingPosstSummary({super.key, required this.post, this.userId});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => PostDetailsBloc(
+        getPostByIdUseCase: DependencyInjection.get<GetPostByIdUseCase>(),
+        deletePostUseCase: DependencyInjection.get<DeletePostUseCase>(),
+        getRelatedPostsThroughAlgorithmUseCase:
+            DependencyInjection.get<GetRelatedPostsThroughAlgorithmUseCase>(),
+        getOrganizationDetailByPostOrganizationIdUseCase:
+            DependencyInjection.get<
+              GetOrganizationDetailByPostOrganizationIdUseCase
+            >(),
+      )..add(PostDetailLoadRequested(postId: post.id, userId: userId)),
+      child: BookingPostSummary(post: post),
+    );
+  }
+}
 
 class BookingPostSummary extends StatelessWidget {
   final Post post;
@@ -13,103 +44,122 @@ class BookingPostSummary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final images = [post.primaryImageUrl, ...post.existingAdditionalImages!];
+    return BlocBuilder<PostDetailsBloc, PostDetailState>(
+      builder: (context, state) {
+        if (state is PostDetailError) {}
+        if (state is PostdetailLoading) {
+          return PostDetailShimmer();
+        }
+        if (state is PostDetailLoaded) {
+          // final images = [post.primaryImageUrl, ...post.additionalImagesForHomeFeed];
+          final images = state.getAllImages;
 
-    return SectionContainer(
-      borderRadius: BorderRadius.circular(UiConstants.radiusMd),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Align(
-            alignment: Alignment.topLeft,
-            child: Text('Hotel Details', style: TextStyle(fontSize: 20)),
-          ),
-          const SizedBox(height: UiConstants.spacingSm),
-          // Images
-          SizedBox(
-            height: 200,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              itemBuilder: (context, index) {
-                return ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: CachedNetworkImage(
-                    imageUrl: images[index],
-                    width: 200,
-                    fit: BoxFit.cover,
+          return SectionContainer(
+            borderRadius: BorderRadius.circular(UiConstants.radiusMd),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Align(
+                  alignment: Alignment.topLeft,
+                  child: Text('Hotel Details', style: TextStyle(fontSize: 20)),
+                ),
+                const SizedBox(height: UiConstants.spacingSm),
+                // Images
+                SizedBox(
+                  height: 200,
+                  child: ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    itemBuilder: (context, index) {
+                      final url = images[index];
+                      return ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: CachedNetworkImage(
+                          imageUrl: url,
+                          width: 200,
+                          fit: BoxFit.cover,
+                        ),
+                      );
+                    },
+                    separatorBuilder: (context, index) =>
+                        const SizedBox(width: UiConstants.spacingMd),
+                    itemCount: images.length,
                   ),
-                );
-              },
-              separatorBuilder: (context, index) =>
-                  const SizedBox(width: UiConstants.spacingMd),
-              itemCount: images.length,
-            ),
-          ),
+                ),
 
-          const SizedBox(height: UiConstants.spacingSm),
-          // Title + Status
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  post.title,
-                  maxLines: 2,
+                const SizedBox(height: UiConstants.spacingSm),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        post.title,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: getPostStatusColor(post.status),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        enumToString(post.status).toUpperCase(),
+                        style: const TextStyle(
+                          fontSize: 10,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                Text(
+                  post.description ?? '',
+                  maxLines: 3,
                   overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: UiConstants.spacingSm),
+
+                // Price
+                Text(
+                  'Rs. ${post.price} / night',
                   style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                decoration: BoxDecoration(
-                  color: getPostStatusColor(post.status),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  enumToString(post.status).toUpperCase(),
-                  style: const TextStyle(
-                    fontSize: 10,
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          Text(
-            post.description ?? '',
-            maxLines: 3,
-            overflow: TextOverflow.ellipsis,
-          ),
-          const SizedBox(height: UiConstants.spacingSm),
 
-          // Price
-          Text(
-            'Rs. ${post.price} / night',
-            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
-          ),
+                const SizedBox(height: UiConstants.spacingSm),
+                _buildAmeniticsSection(context, amenityType: post.amenities),
+                const SizedBox(height: UiConstants.spacingSm),
+                _buildTagsSection(context, postTag: post.tags),
+                // Key features (minimal)
+                Wrap(
+                  spacing: 12,
+                  runSpacing: 6,
+                  children: [
+                    if (post.roomType != null)
+                      _feature(Icons.bed, post.roomType!.displayName),
+                    if (post.capacity != null)
+                      _feature(Icons.people, '${post.capacity} guests'),
+                    if (post.area != null)
+                      _feature(Icons.square_foot, '${post.area} sqft'),
+                  ],
+                ),
+              ],
+            ),
+          );
+        }
 
-          const SizedBox(height: UiConstants.spacingSm),
-          _buildAmeniticsSection(context, amenityType: post.amenities),
-          const SizedBox(height: UiConstants.spacingSm),
-          _buildTagsSection(context, postTag: post.tags),
-          // Key features (minimal)
-          Wrap(
-            spacing: 12,
-            runSpacing: 6,
-            children: [
-              if (post.roomType != null)
-                _feature(Icons.bed, post.roomType!.displayName),
-              if (post.capacity != null)
-                _feature(Icons.people, '${post.capacity} guests'),
-              if (post.area != null)
-                _feature(Icons.square_foot, '${post.area} sqft'),
-            ],
-          ),
-        ],
-      ),
+        return const SizedBox.shrink();
+      },
     );
   }
 }
@@ -176,4 +226,109 @@ String _tagLabel(PostTag p) =>
 
 extension StringExt on String {
   String capitalize() => this[0].toUpperCase() + substring(1);
+}
+
+class PostDetailShimmer extends StatelessWidget {
+  const PostDetailShimmer({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return SectionContainer(
+      borderRadius: BorderRadius.circular(UiConstants.radiusMd),
+      child: Shimmer.fromColors(
+        baseColor: Colors.grey.shade300,
+        highlightColor: Colors.grey.shade100,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Title
+            Container(height: 22, width: 150, color: Colors.white),
+
+            const SizedBox(height: UiConstants.spacingSm),
+
+            // Image list shimmer
+            SizedBox(
+              height: 200,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: 3,
+                separatorBuilder: (_, __) =>
+                    const SizedBox(width: UiConstants.spacingMd),
+                itemBuilder: (_, __) => Container(
+                  width: 200,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              ),
+            ),
+
+            const SizedBox(height: UiConstants.spacingSm),
+
+            // Title + badge row
+            Row(
+              children: [
+                Expanded(child: Container(height: 18, color: Colors.white)),
+                const SizedBox(width: 12),
+                Container(
+                  height: 18,
+                  width: 60,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: UiConstants.spacingSm),
+
+            // Description
+            Container(height: 14, width: double.infinity, color: Colors.white),
+            const SizedBox(height: 6),
+            Container(height: 14, width: double.infinity, color: Colors.white),
+            const SizedBox(height: 6),
+            Container(height: 14, width: 200, color: Colors.white),
+
+            const SizedBox(height: UiConstants.spacingSm),
+
+            // Price
+            Container(height: 18, width: 120, color: Colors.white),
+
+            const SizedBox(height: UiConstants.spacingSm),
+
+            // Amenities shimmer
+            Wrap(
+              spacing: 10,
+              runSpacing: 10,
+              children: List.generate(
+                5,
+                (_) => Container(
+                  height: 30,
+                  width: 80,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                ),
+              ),
+            ),
+
+            const SizedBox(height: UiConstants.spacingSm),
+
+            // Features shimmer
+            Wrap(
+              spacing: 12,
+              runSpacing: 8,
+              children: List.generate(
+                3,
+                (_) => Container(height: 16, width: 90, color: Colors.white),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
