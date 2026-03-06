@@ -497,8 +497,41 @@ class CustomMultiSelect<T> extends StatelessWidget {
           spacing: 8,
           children: items.map((item) {
             final isSelected = selected.contains(item);
+            // return FilterChip(
+            //   label: Text(itemLabel(item)),
+            //   labelPadding: const EdgeInsets.symmetric(
+            //     horizontal: 12,
+            //     vertical: 4,
+            //   ),
+            //   selected: isSelected,
+            //   onSelected: readOnly
+            //       ? null
+            //       : (bool selected) {
+            //           final newSelected = List<T>.from(this.selected);
+            //           if (selected) {
+            //             newSelected.add(item);
+            //           } else {
+            //             newSelected.remove(item);
+            //           }
+            //           onChanged?.call(newSelected);
+            //         },
+            //   selectedColor: Theme.of(context).primaryColor.withAlpha(50),
+            //   checkmarkColor: Theme.of(context).primaryColor,
+            //   backgroundColor: Colors.grey.shade100,
+            //   shape: RoundedRectangleBorder(
+            //     borderRadius: BorderRadius.circular(8),
+            //     side: BorderSide(
+            //       color: isSelected
+            //           ? Theme.of(context).primaryColor
+            //           : Colors.grey.shade300,
+            //     ),
+            //   ),
+            // );
             return FilterChip(
-              label: Text(itemLabel(item)),
+              label: Text(
+                itemLabel(item),
+                style: const TextStyle(color: Colors.black),
+              ),
               labelPadding: const EdgeInsets.symmetric(
                 horizontal: 12,
                 vertical: 4,
@@ -515,18 +548,126 @@ class CustomMultiSelect<T> extends StatelessWidget {
                       }
                       onChanged?.call(newSelected);
                     },
-              selectedColor: Theme.of(context).primaryColor.withAlpha(50),
+
+              avatar: readOnly
+                  ? Icon(
+                      isSelected ? Icons.check : Icons.close,
+                      size: 18,
+                      color: isSelected ? Colors.green : Colors.red,
+                    )
+                  : null,
+
+              disabledColor: isSelected
+                  ? const Color(0xFF10B981).withAlpha(18)
+                  : const Color(0xFFEF4444).withAlpha(120),
+
+              labelStyle: const TextStyle(color: Colors.black),
+
+              selectedColor: readOnly
+                  ? (const Color(0xFF10B981).withAlpha(158))
+                  : Colors.green.withAlpha(150),
+
+              backgroundColor: readOnly
+                  ? (isSelected
+                        ? Colors.green.withAlpha(150)
+                        : Colors.red.withAlpha(30))
+                  : Colors.grey.shade100,
               checkmarkColor: Theme.of(context).primaryColor,
-              backgroundColor: Colors.grey.shade100,
+
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
                 side: BorderSide(
-                  color: isSelected
-                      ? Theme.of(context).primaryColor
-                      : Colors.grey.shade300,
+                  color: readOnly
+                      ? (isSelected ? Colors.green : Colors.red)
+                      : (isSelected
+                            ? Theme.of(context).primaryColor
+                            : Colors.grey.shade300),
                 ),
               ),
             );
+
+            // return Theme(
+            //   data: Theme.of(context).copyWith(
+            //     chipTheme: Theme.of(context).chipTheme.copyWith(
+            //       disabledColor: isSelected
+            //           ? Colors.green.withAlpha(150)
+            //           : Colors.red.withAlpha(100),
+            //       labelStyle: TextStyle(
+            //         color: readOnly
+            //             ? (isSelected ? Colors.black : Colors.black)
+            //             : Colors.black,
+            //       ),
+            //     ),
+            //   ),
+            //   child: FilterChip(
+            //     label: Text(
+            //       itemLabel(item),
+            //       style: TextStyle(
+            //         color: readOnly
+            //             ? (isSelected ? Colors.black : Colors.black)
+            //             : Colors.black,
+            //         fontWeight: isSelected
+            //             ? FontWeight.w600
+            //             : FontWeight.normal,
+            //       ),
+            //     ),
+            //     labelPadding: const EdgeInsets.symmetric(
+            //       horizontal: 12,
+            //       vertical: 4,
+            //     ),
+            //     selected: isSelected,
+            //     onSelected: readOnly
+            //         ? null
+            //         : (bool selected) {
+            //             final newSelected = List<T>.from(this.selected);
+            //             if (selected) {
+            //               newSelected.add(item);
+            //             } else {
+            //               newSelected.remove(item);
+            //             }
+            //             onChanged?.call(newSelected);
+            //           },
+            //     avatar: readOnly
+            //         ? Icon(
+            //             isSelected ? Icons.check : Icons.close,
+            //             size: 18,
+            //             color: isSelected ? Colors.green : Colors.red,
+            //           )
+            //         : null,
+            //     disabledColor: isSelected
+            //         ? Colors.green.withAlpha(150)
+            //         : Colors.red.withAlpha(100),
+
+            //     // ✅ This overrides disabled label color at the theme level for this chip
+            //     labelStyle: TextStyle(
+            //       color: readOnly
+            //           ? (isSelected
+            //                 ? Colors.green.shade800
+            //                 : Colors.red.shade800)
+            //           : Colors.black,
+            //       fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+            //     ),
+            //     selectedColor: readOnly
+            //         ? Colors.green.withAlpha(170)
+            //         : Colors.green.withAlpha(150),
+            //     backgroundColor: readOnly
+            //         ? (isSelected
+            //               ? Colors.green.withAlpha(150)
+            //               : Colors.red.withAlpha(30))
+            //         : Colors.grey.shade100,
+            //     checkmarkColor: Theme.of(context).primaryColor,
+            //     shape: RoundedRectangleBorder(
+            //       borderRadius: BorderRadius.circular(8),
+            //       side: BorderSide(
+            //         color: readOnly
+            //             ? (isSelected ? Colors.green : Colors.red)
+            //             : (isSelected
+            //                   ? Theme.of(context).primaryColor
+            //                   : Colors.grey.shade300),
+            //       ),
+            //     ),
+            //   ),
+            // );
           }).toList(),
         ),
       ],
