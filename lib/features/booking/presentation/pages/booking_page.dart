@@ -354,6 +354,7 @@ class BookingFormView extends StatelessWidget {
                   (m) => DropdownItem<PaymentMethod>(
                     value: m,
                     child: Text(m.displayName),
+                    
                   ),
                 )
                 .toList(),
@@ -1055,38 +1056,48 @@ class _BookingTypePill extends StatelessWidget {
       duration: const Duration(milliseconds: 300),
       transitionBuilder: (child, anim) =>
           ScaleTransition(scale: anim, child: child),
-      child: Container(
-        key: ValueKey(isHourly),
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-        decoration: BoxDecoration(
-          color: isHourly ? const Color(0xFFFFF7ED) : const Color(0xFFEFF6FF),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: isHourly ? const Color(0xFFFED7AA) : const Color(0xFFBFDBFE),
-          ),
+      child: Card(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(UiConstants.radiusXl),
         ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              isHourly ? Icons.bolt_rounded : Icons.nights_stay_rounded,
-              size: 13,
+        child: Container(
+          key: ValueKey(isHourly),
+          padding: const EdgeInsets.symmetric(
+            horizontal: UiConstants.spacingMd,
+            vertical: UiConstants.spacingSm,
+          ),
+          decoration: BoxDecoration(
+            color: isHourly ? const Color(0xFFFFF7ED) : const Color(0xFFEFF6FF),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
               color: isHourly
-                  ? const Color(0xFFEA580C)
-                  : const Color(0xFF2563EB),
+                  ? const Color(0xFFFED7AA)
+                  : const Color(0xFFBFDBFE),
             ),
-            const SizedBox(width: 4),
-            Text(
-              isHourly ? 'Hourly' : 'Nightly',
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w700,
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                isHourly ? Icons.bolt_rounded : Icons.nights_stay_rounded,
+                size: 13,
                 color: isHourly
                     ? const Color(0xFFEA580C)
                     : const Color(0xFF2563EB),
               ),
-            ),
-          ],
+              const SizedBox(width: 4),
+              Text(
+                isHourly ? 'Hourly' : 'Nightly',
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  color: isHourly
+                      ? const Color(0xFFEA580C)
+                      : const Color(0xFF2563EB),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
