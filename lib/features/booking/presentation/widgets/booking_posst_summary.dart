@@ -1,6 +1,8 @@
 import 'package:app/app/dependency_injection.dart';
+import 'package:app/core/constants/app_images.dart';
 import 'package:app/core/constants/ui_constants.dart';
 import 'package:app/core/widgets/common_widgets.dart';
+import 'package:app/core/widgets/custom_svg_icon.dart';
 import 'package:app/features/booking/presentation/widgets/booking_post_summary_shimmer_effect.dart';
 import 'package:app/features/home/domain/usecases/get_organization_detail_by_post_organization_id.dart';
 import 'package:app/features/post/domain/entities/post.dart';
@@ -55,105 +57,133 @@ class BookingPostSummary extends StatelessWidget {
           final images = state.getAllImages;
 
           return SectionContainer(
+            padding: const EdgeInsets.symmetric(
+              horizontal: UiConstants.spacingMd,
+            ),
             borderRadius: BorderRadius.circular(UiConstants.radiusMd),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Align(
-                  alignment: Alignment.topLeft,
-                  child: Text('Hotel Details', style: TextStyle(fontSize: 20)),
-                ),
-                const SizedBox(height: UiConstants.spacingSm),
-                // Images
-                SizedBox(
-                  height: 200,
-                  child: ListView.separated(
-                    scrollDirection: Axis.horizontal,
-                    itemBuilder: (context, index) {
-                      final url = images[index];
-                      return ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: CachedNetworkImage(
-                          imageUrl: url,
-                          width: 200,
-                          fit: BoxFit.cover,
-                        ),
-                      );
-                    },
-                    separatorBuilder: (context, index) =>
-                        const SizedBox(width: UiConstants.spacingMd),
-                    itemCount: images.length,
-                  ),
-                ),
-
-                const SizedBox(height: UiConstants.spacingSm),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        post.title,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 2,
-                      ),
-                      decoration: BoxDecoration(
-                        color: getPostStatusColor(post.status),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        enumToString(post.status).toUpperCase(),
-                        style: const TextStyle(
-                          fontSize: 10,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                Text(
-                  post.description ?? '',
-                  maxLines: 3,
+            child: Theme(
+              data: Theme.of(context).copyWith(
+                splashColor: Colors.transparent,
+                highlightColor: Colors.transparent,
+                hoverColor: Colors.transparent,
+                dividerColor: Colors.transparent,
+                splashFactory: NoSplash.splashFactory,
+              ),
+              child: ExpansionTile(
+                childrenPadding: EdgeInsets.zero,
+                tilePadding: EdgeInsets.zero,
+                backgroundColor: Colors.transparent,
+                collapsedBackgroundColor: Colors.transparent,
+                subtitle: Text(
+                  post.title,
+                  maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: UiConstants.spacingSm),
+                trailing: const CustomSvgIcon(path: AppImages.arrowDown),
+                title: const Text(
+                  'Hotel Details',
+                  style: TextStyle(fontSize: 20),
+                ),
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(
+                        height: 200,
+                        child: ListView.separated(
+                          scrollDirection: Axis.horizontal,
+                          itemBuilder: (context, index) {
+                            final url = images[index];
+                            return ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: CachedNetworkImage(
+                                imageUrl: url,
+                                width: 200,
+                                fit: BoxFit.cover,
+                              ),
+                            );
+                          },
+                          separatorBuilder: (context, index) =>
+                              const SizedBox(width: UiConstants.spacingMd),
+                          itemCount: images.length,
+                        ),
+                      ),
 
-                // Price
-                Text(
-                  'Rs. ${post.price} / night',
-                  style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
+                      const SizedBox(height: UiConstants.spacingSm),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              post.title,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: getPostStatusColor(post.status),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              enumToString(post.status).toUpperCase(),
+                              style: const TextStyle(
+                                fontSize: 10,
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      Text(
+                        post.description ?? '',
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: UiConstants.spacingSm),
+
+                      // Price
+                      Text(
+                        'Rs. ${post.price} / night',
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+
+                      const SizedBox(height: UiConstants.spacingSm),
+                      _buildAmeniticsSection(
+                        context,
+                        amenityType: post.amenities,
+                      ),
+                      const SizedBox(height: UiConstants.spacingSm),
+                      _buildTagsSection(context, postTag: post.tags),
+                      // Key features (minimal)
+                      Wrap(
+                        spacing: 12,
+                        runSpacing: 6,
+                        children: [
+                          if (post.roomType != null)
+                            _feature(Icons.bed, post.roomType!.displayName),
+                          if (post.capacity != null)
+                            _feature(Icons.people, '${post.capacity} guests'),
+                          if (post.area != null)
+                            _feature(Icons.square_foot, '${post.area} sqft'),
+                        ],
+                      ),
+                      const SizedBox(height: UiConstants.spacingMd),
+                    ],
                   ),
-                ),
-
-                const SizedBox(height: UiConstants.spacingSm),
-                _buildAmeniticsSection(context, amenityType: post.amenities),
-                const SizedBox(height: UiConstants.spacingSm),
-                _buildTagsSection(context, postTag: post.tags),
-                // Key features (minimal)
-                Wrap(
-                  spacing: 12,
-                  runSpacing: 6,
-                  children: [
-                    if (post.roomType != null)
-                      _feature(Icons.bed, post.roomType!.displayName),
-                    if (post.capacity != null)
-                      _feature(Icons.people, '${post.capacity} guests'),
-                    if (post.area != null)
-                      _feature(Icons.square_foot, '${post.area} sqft'),
-                  ],
-                ),
-              ],
+                ],
+              ),
             ),
           );
         }
