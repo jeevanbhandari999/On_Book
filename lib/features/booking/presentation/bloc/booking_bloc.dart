@@ -254,6 +254,7 @@ class BookingFormBloc extends Bloc<BookingFormEvent, BookingFormState> {
     BookingFormInitialized event,
     Emitter<BookingFormState> emit,
   ) async {
+    emit(const BookingFormLoading());
     final authRepository = DependencyInjection.get<AuthRepository>();
     final userEither = await authRepository.getCurrentUser();
 

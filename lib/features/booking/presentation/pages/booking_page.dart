@@ -10,6 +10,7 @@ import 'package:app/features/booking/domain/entities/booking.dart';
 import 'package:app/features/booking/domain/entities/payment_enums.dart';
 import 'package:app/features/booking/domain/usecases/create_booking_use_case.dart';
 import 'package:app/features/booking/presentation/bloc/booking_bloc.dart';
+import 'package:app/features/booking/presentation/widgets/booking_form_shimmer_effect.dart';
 import 'package:app/features/booking/presentation/widgets/booking_posst_summary.dart';
 import 'package:app/features/post/domain/entities/post.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -103,10 +104,8 @@ class BookingFormView extends StatelessWidget {
         }
       },
       builder: (context, state) {
-        if (state is BookingFormLoading || state is BookingFormInitial) {
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
+        if (state is BookingFormReady || state is BookingFormInitial) {
+          return const BookingFormShimmerEffect();
         }
         if (state is BookingFormSuccess) {
           return _buildSuccessView(context, state.booking, state.wasEdit);

@@ -1,6 +1,7 @@
 import 'package:app/app/dependency_injection.dart';
 import 'package:app/core/constants/ui_constants.dart';
 import 'package:app/core/widgets/common_widgets.dart';
+import 'package:app/features/booking/presentation/widgets/booking_post_summary_shimmer_effect.dart';
 import 'package:app/features/home/domain/usecases/get_organization_detail_by_post_organization_id.dart';
 import 'package:app/features/post/domain/entities/post.dart';
 import 'package:app/features/post/domain/entities/post_enums.dart';
@@ -12,7 +13,6 @@ import 'package:app/features/post/presentation/pages/post_details_page.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shimmer/shimmer.dart';
 
 class BookingPosstSummary extends StatelessWidget {
   final Post post;
@@ -48,7 +48,7 @@ class BookingPostSummary extends StatelessWidget {
       builder: (context, state) {
         if (state is PostDetailError) {}
         if (state is PostdetailLoading) {
-          return PostDetailShimmer();
+          return const BookingPostSummaryShimmerEffect();
         }
         if (state is PostDetailLoaded) {
           // final images = [post.primaryImageUrl, ...post.additionalImagesForHomeFeed];
@@ -226,109 +226,4 @@ String _tagLabel(PostTag p) =>
 
 extension StringExt on String {
   String capitalize() => this[0].toUpperCase() + substring(1);
-}
-
-class PostDetailShimmer extends StatelessWidget {
-  const PostDetailShimmer({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return SectionContainer(
-      borderRadius: BorderRadius.circular(UiConstants.radiusMd),
-      child: Shimmer.fromColors(
-        baseColor: Colors.grey.shade300,
-        highlightColor: Colors.grey.shade100,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Title
-            Container(height: 22, width: 150, color: Colors.white),
-
-            const SizedBox(height: UiConstants.spacingSm),
-
-            // Image list shimmer
-            SizedBox(
-              height: 200,
-              child: ListView.separated(
-                scrollDirection: Axis.horizontal,
-                itemCount: 3,
-                separatorBuilder: (_, __) =>
-                    const SizedBox(width: UiConstants.spacingMd),
-                itemBuilder: (_, __) => Container(
-                  width: 200,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-              ),
-            ),
-
-            const SizedBox(height: UiConstants.spacingSm),
-
-            // Title + badge row
-            Row(
-              children: [
-                Expanded(child: Container(height: 18, color: Colors.white)),
-                const SizedBox(width: 12),
-                Container(
-                  height: 18,
-                  width: 60,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: UiConstants.spacingSm),
-
-            // Description
-            Container(height: 14, width: double.infinity, color: Colors.white),
-            const SizedBox(height: 6),
-            Container(height: 14, width: double.infinity, color: Colors.white),
-            const SizedBox(height: 6),
-            Container(height: 14, width: 200, color: Colors.white),
-
-            const SizedBox(height: UiConstants.spacingSm),
-
-            // Price
-            Container(height: 18, width: 120, color: Colors.white),
-
-            const SizedBox(height: UiConstants.spacingSm),
-
-            // Amenities shimmer
-            Wrap(
-              spacing: 10,
-              runSpacing: 10,
-              children: List.generate(
-                5,
-                (_) => Container(
-                  height: 30,
-                  width: 80,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                ),
-              ),
-            ),
-
-            const SizedBox(height: UiConstants.spacingSm),
-
-            // Features shimmer
-            Wrap(
-              spacing: 12,
-              runSpacing: 8,
-              children: List.generate(
-                3,
-                (_) => Container(height: 16, width: 90, color: Colors.white),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }
