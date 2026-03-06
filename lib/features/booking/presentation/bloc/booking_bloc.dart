@@ -132,6 +132,7 @@ class BookingFormReady extends BookingFormState {
     this.isEditMode = false,
     this.originalBooking,
     required this.user,
+    // this.paymentMethod,
     this.paymentMethod = PaymentMethod.cash,
     this.hasUserInteracted = false,
     this.isSubmitting = false,
@@ -439,6 +440,10 @@ class BookingFormBloc extends Bloc<BookingFormEvent, BookingFormState> {
 
       // if (state.checkInDate.isBefore(tolerance)) {
       //   errors['checkIn'] = 'Check-in cannot be in the past';
+      // }
+
+      // if (state.paymentMethod == null) {
+      //   errors['paymentMethod'] = 'Please select your payment method';
       // }
 
       if (!state.checkOutDate.isAfter(state.checkInDate)) {

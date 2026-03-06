@@ -1,3 +1,5 @@
+import 'package:app/core/constants/app_images.dart';
+import 'package:app/core/widgets/custom_svg_icon.dart';
 import 'package:flutter/material.dart';
 
 class CustomDropdown<T> extends StatefulWidget {
@@ -12,6 +14,8 @@ class CustomDropdown<T> extends StatefulWidget {
   final EdgeInsets? itemPadding;
   final bool isRequired;
   final String? errorText;
+  final Color? tileColor;
+  final Color? borderColor;
 
   const CustomDropdown({
     super.key,
@@ -26,6 +30,8 @@ class CustomDropdown<T> extends StatefulWidget {
     this.itemPadding,
     this.isRequired = false,
     this.errorText,
+    this.tileColor,
+    this.borderColor,
   });
 
   @override
@@ -80,11 +86,11 @@ class _CustomDropdownState<T> extends State<CustomDropdown<T>> {
               border: Border.all(
                 color: widget.errorText != null
                     ? Colors.red
-                    : Colors.grey.shade400,
+                    : widget.borderColor ?? Colors.grey.shade400,
                 width: 1.2,
               ),
               borderRadius: BorderRadius.circular(12),
-              color: Colors.white,
+              color: widget.tileColor ?? Colors.white,
             ),
             child: Row(
               children: [
@@ -105,12 +111,11 @@ class _CustomDropdownState<T> extends State<CustomDropdown<T>> {
                               style: const TextStyle(fontSize: 16),
                             )),
                 ),
-                Icon(
-                  Icons.arrow_drop_down,
+                CustomSvgIcon(
+                  path: AppImages.arrowDown,
                   color: widget.errorText != null
                       ? Colors.red
                       : Colors.grey.shade700,
-                  size: 28,
                 ),
               ],
             ),

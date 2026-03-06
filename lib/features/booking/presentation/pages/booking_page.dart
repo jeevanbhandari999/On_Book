@@ -4,6 +4,7 @@ import 'package:app/core/theme/app_colors.dart';
 import 'package:app/core/utils/date_formatter.dart';
 import 'package:app/core/widgets/common_widgets.dart';
 import 'package:app/core/widgets/custom_drop_down.dart';
+import 'package:app/core/widgets/custom_svg_icon.dart';
 import 'package:app/core/widgets/loading_widget.dart';
 import 'package:app/features/auth/domain/entities/user.dart';
 import 'package:app/features/booking/domain/entities/booking.dart';
@@ -349,12 +350,35 @@ class BookingFormView extends StatelessWidget {
             dropdownHeaderName: 'List of Payment Methods',
             initialValue: state.paymentMethod,
             shouldDivideItems: true,
+            borderColor: state.paymentMethod.data.color,
+            // tileColor: state.paymentMethod.data.color?.withAlpha(100),
+            selectedItem: Row(
+              children: [
+                Container(
+                  width: 35,
+                  padding: const EdgeInsets.all(UiConstants.spacingXs),
+                  decoration: BoxDecoration(
+                    color: state.paymentMethod.data.color?.withAlpha(100),
+                    borderRadius: BorderRadius.circular(UiConstants.radiusSm),
+                  ),
+                  child: CustomSvgIcon(
+                    path: state.paymentMethod.data.svgPath,
+                    size: UiConstants.iconMd,
+                  ),
+                ),
+                const SizedBox(width: UiConstants.spacingMd),
+                Expanded(child: Text(state.paymentMethod.data.name)),
+              ],
+            ),
             items: PaymentMethod.values
                 .map(
                   (m) => DropdownItem<PaymentMethod>(
                     value: m,
-                    child: Text(m.displayName),
-                    
+                    child: Text(m.data.name),
+                    icon: CustomSvgIcon(
+                      path: m.data.svgPath,
+                      size: UiConstants.iconMd,
+                    ),
                   ),
                 )
                 .toList(),
