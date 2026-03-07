@@ -585,13 +585,14 @@ class BookingFormView extends StatelessWidget {
                     state.paymentMethod == PaymentMethod.khalti;
 
                 if (isOnlinePayment) {
-                  // ✅ Show review bottom sheet before submitting
+                  // Show review bottom sheet before submitting
                   _showPaymentReviewSheet(context, state);
                 } else {
-                  // ✅ Cash — submit directly
-                  context.read<BookingFormBloc>().add(
-                    const BookingFormSubmitted(),
-                  );
+                  // Cash — submit directly
+                  _showPaymentReviewSheet(context, state);
+                  // context.read<BookingFormBloc>().add(
+                  //   const BookingFormSubmitted(),
+                  // );
                 }
               }
             : null,
@@ -626,14 +627,23 @@ class BookingFormView extends StatelessWidget {
           child: BlocListener<BookingFormBloc, BookingFormState>(
             listener: (context, state) {
               if (state is BookingFormSuccess) {
-                // Close the sheet first
                 Navigator.of(sheetContext).pop();
-                // Then launch the payment SDK
-                _launchPaymentSdk(
-                  context,
-                  booking: state.booking,
-                  paymentMethod: state.booking.paymentMethod,
-                );
+                if (state.booking.paymentMethod.data.name == 'eSewa') {
+                  _launchPaymentSdk(
+                    context,
+                    booking: state.booking,
+                    paymentMethod: state.booking.paymentMethod,
+                  );
+                } else if (state.booking.paymentMethod.data.name == 'Khalti') {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                        'This feature is under development. You can payment through cash or anything later.',
+                      ),
+                      backgroundColor: AppColors.info,
+                    ),
+                  );
+                }
               }
             },
             child: DraggableScrollableSheet(
@@ -932,7 +942,6 @@ class BookingFormView extends StatelessWidget {
                                     onPressed: isSubmitting
                                         ? null
                                         : () {
-                                            // ✅ Create the booking first
                                             context.read<BookingFormBloc>().add(
                                               const BookingFormSubmitted(),
                                             );
@@ -1108,10 +1117,6 @@ class BookingFormView extends StatelessWidget {
       ),
     );
   }
-
-  // ===========================================================================
-  // HELPERS
-  // ===========================================================================
 
   Widget _buildAvatar(User user) {
     final hasImage = user.imageUrl != null && user.imageUrl!.isNotEmpty;
@@ -1551,7 +1556,7 @@ class _ReviewRow extends StatelessWidget {
           child: Icon(icon, size: 14, color: iconColor),
         ),
         const SizedBox(width: UiConstants.spacingSm),
-        Text(label, style: TextStyle(color: Colors.white, fontSize: 13)),
+        Text(label, style: const TextStyle(color: Colors.white, fontSize: 13)),
         const SizedBox(width: UiConstants.spacingMd),
         Expanded(
           child: Align(
