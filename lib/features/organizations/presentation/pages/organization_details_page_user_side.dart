@@ -158,8 +158,8 @@ class OrganizationDetailsViewUserSide extends StatelessWidget {
                         width: 48,
                         height: 48,
                         placeholder: (context, url) => Shimmer.fromColors(
-                          baseColor: Colors.grey.shade300,
-                          highlightColor: Colors.grey.shade100,
+                          baseColor: Colors.black,
+                          highlightColor: Colors.black,
                           child: Container(color: Colors.white),
                         ),
                         errorWidget: (context, error, stackTrace) =>
@@ -205,7 +205,6 @@ class OrganizationDetailsViewUserSide extends StatelessWidget {
             Theme.of(context).colorScheme.primary,
             t,
           );
-          print('The logo ${org.logoUrl}');
           return Container(
             decoration: BoxDecoration(
               color: bgColor,
@@ -382,10 +381,10 @@ class OrganizationDetailsViewUserSide extends StatelessWidget {
       children: [
         Text(
           title,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 15,
             fontWeight: FontWeight.w600,
-            color: Colors.blueGrey[700],
+            color: Colors.black,
           ),
         ),
         const SizedBox(height: 8),
@@ -406,7 +405,7 @@ class OrganizationDetailsViewUserSide extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(UiConstants.spacingMd),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(UiConstants.radiusXl),
+            borderRadius: BorderRadius.circular(UiConstants.radiusMd),
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
@@ -436,16 +435,19 @@ class OrganizationDetailsViewUserSide extends StatelessWidget {
                 const SizedBox(height: UiConstants.spacingXs),
                 Row(
                   children: [
-                    Icon(
-                      Icons.location_on_outlined,
+                    const Icon(
+                      Icons.location_on_sharp,
                       size: 16,
-                      color: Colors.grey[600],
+                      color: Colors.green,
                     ),
                     const SizedBox(width: 4),
                     Expanded(
                       child: Text(
                         org.address!,
-                        style: TextStyle(color: Colors.grey[700], fontSize: 14),
+                        style: const TextStyle(
+                          color: Colors.black,
+                          fontSize: 14,
+                        ),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
@@ -459,42 +461,6 @@ class OrganizationDetailsViewUserSide extends StatelessWidget {
     );
   }
 
-  // Widget _buildActionButtons(BuildContext context, Organization org) {
-  //   final hasPhone = org.phone != null && org.phone!.isNotEmpty;
-  //   final hasLocation = org.latitude != null && org.longitude != null;
-
-  //   if (!hasPhone && !hasLocation) return const SizedBox.shrink();
-
-  //   return Row(
-  //     children: [
-  //       if (hasPhone)
-  //         Expanded(
-  //           child: _ActionButton(
-  //             icon: Icons.phone,
-  //             label: "Call",
-  //             color: Colors.green,
-  //             onTap: () {
-  //               debugPrint("Calling ${org.phone}");
-  //             },
-  //           ),
-  //         ),
-  //       if (hasPhone && hasLocation) const SizedBox(width: 12),
-  //       if (hasLocation)
-  //         Expanded(
-  //           child: _ActionButton(
-  //             icon: Icons.map,
-  //             label: "Directions",
-  //             color: Colors.blue,
-  //             onTap: () {
-  //               // launchUrl(Uri.parse("google.navigation:q=${org.latitude},${org.longitude}"));
-  //               debugPrint("Navigating to ${org.latitude}, ${org.longitude}");
-  //             },
-  //           ),
-  //         ),
-  //     ],
-  //   );
-  // }
-
   // 4. Contact Information Card
   Widget _buildContactSection(BuildContext context, Organization org) {
     return _SectionCard(
@@ -504,6 +470,7 @@ class OrganizationDetailsViewUserSide extends StatelessWidget {
           _InfoTile(
             icon: Icons.phone_outlined,
             label: "Phone",
+            accentColor: const Color(0xFF10B981),
             value: org.phone!,
           ),
           const SizedBox(height: UiConstants.spacingMd),
@@ -514,6 +481,7 @@ class OrganizationDetailsViewUserSide extends StatelessWidget {
             icon: Icons.location_city_outlined,
             label: "Address",
             value: org.address!,
+            accentColor: const Color(0xFFEF4444),
           ),
         ],
         // Fallback if empty
@@ -522,7 +490,7 @@ class OrganizationDetailsViewUserSide extends StatelessWidget {
             padding: EdgeInsets.symmetric(vertical: 8.0),
             child: Text(
               "No contact information provided.",
-              style: TextStyle(color: Colors.grey),
+              style: TextStyle(color: Colors.black),
             ),
           ),
       ],
@@ -564,6 +532,7 @@ class OrganizationDetailsViewUserSide extends StatelessWidget {
           icon: Icons.calendar_today_outlined,
           label: "Member Since",
           value: dateStr,
+          accentColor: const Color(0xFF8B5CF6),
         ),
       ],
     );
@@ -586,7 +555,7 @@ class _SectionCard extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(UiConstants.spacingMd),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(UiConstants.radiusXl),
+            borderRadius: BorderRadius.circular(UiConstants.radiusMd),
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
@@ -613,11 +582,13 @@ class _InfoTile extends StatelessWidget {
   final IconData icon;
   final String label;
   final String value;
+  final Color? accentColor;
 
   const _InfoTile({
     required this.icon,
     required this.label,
     required this.value,
+    this.accentColor,
   });
 
   @override
@@ -625,7 +596,14 @@ class _InfoTile extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Icon(icon, color: Colors.grey[700], size: 22),
+        Container(
+          padding: const EdgeInsets.all(UiConstants.spacingSm),
+          decoration: BoxDecoration(
+            color: accentColor?.withAlpha(70),
+            borderRadius: BorderRadius.circular(UiConstants.radiusSm),
+          ),
+          child: Icon(icon, color: accentColor, size: 22),
+        ),
         const SizedBox(width: 16),
         Expanded(
           child: Column(
@@ -633,16 +611,10 @@ class _InfoTile extends StatelessWidget {
             children: [
               Text(
                 label,
-                style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                style: const TextStyle(fontSize: 14, color: Colors.black),
               ),
               const SizedBox(height: 4),
-              Text(
-                value,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
+              Text(value, style: const TextStyle(fontSize: 16)),
             ],
           ),
         ),
@@ -663,7 +635,7 @@ class _CoordinateBadge extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
         color: Colors.blueGrey[50],
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(UiConstants.radiusMd),
         border: Border.all(color: Colors.blueGrey.shade100),
       ),
       child: Column(
@@ -737,17 +709,11 @@ class _MemberTile extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    user.fullName,
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
+                  Text(user.fullName, style: const TextStyle(fontSize: 15)),
                   if (user.phone != null && user.phone!.isNotEmpty)
                     Text(
                       user.phone!,
-                      style: TextStyle(fontSize: 13, color: Colors.grey[700]),
+                      style: const TextStyle(fontSize: 13, color: Colors.black),
                     ),
                 ],
               ),
@@ -760,11 +726,7 @@ class _MemberTile extends StatelessWidget {
               ),
               child: Text(
                 user.role.value.toUpperCase(),
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  color: _getRoleColor(user.role),
-                ),
+                style: TextStyle(fontSize: 11, color: _getRoleColor(user.role)),
               ),
             ),
           ],

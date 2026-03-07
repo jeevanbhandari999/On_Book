@@ -612,8 +612,8 @@ class _BookingCard extends StatelessWidget {
                           Row(
                             children: [
                               // Booking type badge
-                              _BookingTypeBadge(isHourly: _isHourly),
-                              const SizedBox(width: 8),
+                              // _BookingTypeBadge(isHourly: _isHourly),
+                              // const SizedBox(width: 8),
                               Expanded(
                                 child: Text(
                                   '$_durationLabel  •  Rs.${booking.totalAmount.toStringAsFixed(0)}',

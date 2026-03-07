@@ -124,7 +124,7 @@ class ProfileView extends StatelessWidget {
                                     ),
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(
-                                        UiConstants.radiusXl,
+                                        UiConstants.radiusMd,
                                       ),
                                       gradient: LinearGradient(
                                         begin: Alignment.topLeft,
@@ -419,7 +419,7 @@ class ProfileView extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(UiConstants.spacingMd),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(UiConstants.radiusXl),
+        borderRadius: BorderRadius.circular(UiConstants.radiusMd),
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -442,17 +442,20 @@ class ProfileView extends StatelessWidget {
             icon: Icons.email_outlined,
             label: 'Email',
             value: user.email,
+            accentColor: const Color(0xFF3B82F6),
           ),
           const SizedBox(height: UiConstants.spacingMd),
           _buildInfoRow(
             icon: Icons.phone_outlined,
             label: 'Phone',
             value: user.phone ?? 'Not set',
+            accentColor: const Color(0xFF10B981),
           ),
           const SizedBox(height: UiConstants.spacingMd),
           _buildInfoRow(
             icon: Icons.location_on_outlined,
             label: 'Address',
+            accentColor: const Color(0xFFEF4444),
             value: user.address ?? 'Not set',
           ),
         ],
@@ -464,27 +467,25 @@ class ProfileView extends StatelessWidget {
     required IconData icon,
     required String label,
     required String value,
+    Color? accentColor,
   }) {
     return Row(
       children: [
-        Icon(icon, color: Colors.grey[700], size: 22),
+        Container(
+          padding: const EdgeInsets.all(UiConstants.spacingSm),
+          decoration: BoxDecoration(
+            color: accentColor?.withAlpha(70),
+            borderRadius: BorderRadius.circular(UiConstants.radiusSm),
+          ),
+          child: Icon(icon, color: accentColor, size: 22),
+        ),
         const SizedBox(width: 16),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                label,
-                style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                value,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
+              Text(label, style: const TextStyle(fontSize: 14)),
+              Text(value, style: const TextStyle(fontSize: 16)),
             ],
           ),
         ),
@@ -496,7 +497,7 @@ class ProfileView extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(UiConstants.spacingMd),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(UiConstants.radiusXl),
+        borderRadius: BorderRadius.circular(UiConstants.radiusMd),
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -523,36 +524,22 @@ class ProfileView extends StatelessWidget {
           //       ? 'Member of organization'
           //       : 'No organization yet',
           // ),
-          if (user.organizationId != null)
+          if (user.organizationId != null) ...[
             OrganizationDetailTile(
               organizationId: user.organizationId!,
               userId: user.userId,
               role: user.role.name,
             ),
-
-          _buildInfoTile(
-            context,
+            const SizedBox(height: UiConstants.spacingXs),
+          ],
+          _buildInfoRow(
             icon: Icons.calendar_today_outlined,
-            title: 'Joined',
-            subtitle: user.createdAt.toString().split(' ')[0],
+            label: 'Joined',
+            value: user.createdAt.toString().split(' ')[0],
+            accentColor: const Color(0xFF8B5CF6),
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildInfoTile(
-    BuildContext context, {
-    required IconData icon,
-    required String title,
-    required String subtitle,
-  }) {
-    return ListTile(
-      leading: Icon(icon),
-      title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
-      subtitle: Text(subtitle),
-      contentPadding: EdgeInsets.zero,
-      dense: true,
     );
   }
 
@@ -588,17 +575,6 @@ class ProfileView extends StatelessWidget {
   Widget _buildSettingsList(BuildContext context, User user) {
     return Column(
       children: [
-        // _buildSettingItem(
-        //   context,
-        //   icon: Icons.business,
-        //   title: user.organizationId != null
-        //       ? 'Member of organization'
-        //       : 'No organization yet',
-        //   borderColor: AppColors.black,
-        //   onTap: () {
-        //     context.push(RouteConstants.organizationDetailsPageOwnerSide);
-        //   },
-        // ),
         const SizedBox(height: UiConstants.spacingSm),
         _buildSettingItem(
           context,
@@ -608,7 +584,6 @@ class ProfileView extends StatelessWidget {
           onTap: () {},
         ),
         const SizedBox(height: UiConstants.spacingSm),
-
         _buildSettingItem(
           context,
           icon: Icons.notifications_active_rounded,

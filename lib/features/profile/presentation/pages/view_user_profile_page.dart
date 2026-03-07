@@ -554,7 +554,7 @@ class OrganizationTile extends StatelessWidget {
           contentPadding: EdgeInsets.zero,
           dense: true,
           leading: CircleAvatar(
-            radius: 24,
+            radius: 20,
             child: ClipOval(
               child:
                   state.organizationDetails.logoUrl != null &&
