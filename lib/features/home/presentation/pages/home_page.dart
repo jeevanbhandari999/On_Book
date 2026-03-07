@@ -1,7 +1,9 @@
 import 'package:app/app/dependency_injection.dart';
 import 'package:app/app/router/route_constants.dart';
+import 'package:app/core/constants/app_images.dart';
 import 'package:app/core/constants/ui_constants.dart';
 import 'package:app/core/widgets/auto_marquee_text.dart';
+import 'package:app/core/widgets/custom_svg_icon.dart';
 import 'package:app/features/auth/domain/entities/organization.dart';
 import 'package:app/features/auth/services/auth_service.dart';
 import 'package:app/features/home/domain/usecases/get_all_post_recommended_by_content_filter_use_case.dart';
@@ -10,6 +12,7 @@ import 'package:app/features/home/domain/usecases/get_organization_detail_by_pos
 import 'package:app/features/home/domain/usecases/get_organization_list_based_on_global_score_use_case.dart';
 import 'package:app/features/home/presentation/bloc/get_organization_list_based_on_global_score_bloc.dart';
 import 'package:app/features/home/presentation/bloc/home_bloc.dart';
+import 'package:app/features/home/presentation/widgets/animated_app_icon.dart';
 import 'package:app/features/home/presentation/widgets/home_shimmer.dart';
 import 'package:app/features/home/presentation/widgets/home_sliver_header.dart';
 import 'package:app/features/home/presentation/widgets/post_card.dart';
@@ -22,6 +25,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:go_router/go_router.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:shimmer/shimmer.dart';
 
 class HomePage extends StatelessWidget {
@@ -126,13 +130,47 @@ class HomeView extends StatelessWidget {
                     backgroundColor: Colors.transparent,
                     elevation: 0,
                     expandedHeight: 200,
-                    // expandedHeight: MediaQuery.of(context).size.height * 0.25,
                     centerTitle: true,
                     collapsedHeight: kToolbarHeight + UiConstants.spacingSm,
-                    leading: const Padding(
-                      padding: EdgeInsets.all(UiConstants.spacingSm),
-                      child: CircleAvatar(child: Text('OB')),
-                    ),
+                    // leading: Padding(
+                    //   padding: const EdgeInsets.all(UiConstants.spacingSm),
+                    //   child: ClipOval(
+                    //     child:
+                    //         Container(
+                    //               decoration: BoxDecoration(
+                    //                 border: Border.all(
+                    //                   color: Colors.white,
+                    //                   width: 1.5,
+                    //                 ),
+                    //                 color: Colors.transparent,
+                    //                 boxShadow: [
+                    //                   BoxShadow(
+                    //                     color: Colors.black.withAlpha(80),
+                    //                     blurRadius: 4,
+                    //                     offset: const Offset(0, 2),
+                    //                   ),
+                    //                 ],
+                    //               ),
+                    //               child: const CustomSvgIcon(
+                    //                 path: AppImages.appIconTransparentSvg,
+                    //               ),
+                    //             )
+                    //             .animate(onPlay: (c) => c.repeat(reverse: true))
+                    //             .scaleXY(
+                    //               begin: 1.0,
+                    //               end: 1.06,
+                    //               duration: 1800.ms,
+                    //               curve: Curves.easeInOut,
+                    //             )
+                    //             .shimmer(
+                    //               delay: 400.ms,
+                    //               duration: 1800.ms,
+                    //               color: Colors.white.withOpacity(0.15),
+                    //               angle: 0.5,
+                    //             ),
+                    //   ),
+                    // ),
+                    leading: const AnimatedAppIcon(),
                     actions: [
                       IconButton(
                         icon: const Icon(
@@ -268,6 +306,21 @@ class HomeView extends StatelessWidget {
                               child: Container(
                                 decoration: BoxDecoration(
                                   color: Theme.of(context).colorScheme.primary,
+                                  // gradient: LinearGradient(
+                                  //   colors: [
+                                  //     Theme.of(
+                                  //       context,
+                                  //     ).colorScheme.primary.withAlpha(100),
+                                  //     Theme.of(
+                                  //       context,
+                                  //     ).colorScheme.primary.withAlpha(150),
+                                  //     Theme.of(
+                                  //       context,
+                                  //     ).colorScheme.primary.withAlpha(200),
+                                  //   ],
+                                  //   begin: Alignment.topLeft,
+                                  //   end: Alignment.bottomRight,
+                                  // ),
                                   borderRadius: const BorderRadius.vertical(
                                     bottom: Radius.circular(
                                       UiConstants.radiusXl,

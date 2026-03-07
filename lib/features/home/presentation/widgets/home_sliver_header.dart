@@ -78,7 +78,16 @@ class HomeSliverHeader extends StatelessWidget {
                 children: [
                   Container(
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primary,
+                      // color: Theme.of(context).colorScheme.primary,
+                      gradient: LinearGradient(
+                        colors: [
+                          Theme.of(context).colorScheme.primary.withAlpha(100),
+                          Theme.of(context).colorScheme.primary.withAlpha(150),
+                          Theme.of(context).colorScheme.primary.withAlpha(200),
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
                       borderRadius: const BorderRadius.vertical(
                         bottom: Radius.circular(UiConstants.radiusXl),
                       ),

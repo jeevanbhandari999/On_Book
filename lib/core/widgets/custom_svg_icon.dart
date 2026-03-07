@@ -6,6 +6,7 @@ class CustomSvgIcon extends StatelessWidget {
   final Color? color;
   final double? size;
   final ColorFilter? colorFilter;
+  final BoxFit? fit;
 
   const CustomSvgIcon({
     super.key,
@@ -13,6 +14,7 @@ class CustomSvgIcon extends StatelessWidget {
     this.color,
     this.size,
     this.colorFilter,
+    this.fit,
   });
 
   bool get _shouldApplyColor => color != null || colorFilter != null;
@@ -20,6 +22,7 @@ class CustomSvgIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SvgPicture.asset(
+      fit: fit ?? BoxFit.contain,
       path,
       width: size,
       height: size,

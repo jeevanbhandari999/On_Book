@@ -5,6 +5,9 @@ class AppImages {
   // Logo images
 
   // svg files(assets)
+  static const String appIconSvg = 'assets/icons/app_icon_unique.svg';
+  static const String appIconTransparentSvg =
+      'assets/icons/app_icon_unique_transparent.svg';
 
   // Icons(svg files)
   static const String eyeCloseIcon = 'assets/svgs/eye_close_icon.svg';
