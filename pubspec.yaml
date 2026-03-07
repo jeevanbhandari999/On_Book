@@ -128,6 +128,40 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^5.0.0
 
+  # For app icons
+  flutter_launcher_icons: ^0.14.4
+
+# flutter_launcher_icons:
+#   android: "ic_launcher"
+#   ios: true
+#   remove_alpha_ios: true
+#   image_path: "assets/icons/app_icon_sharp.png"
+#   min_sdk_android: 21
+#   adaptive_icon_background: "#fff"
+#   adaptive_icon_foreground: "assets/icons/app_icon_sharp.png"
+#   adaptive_icon_monochrome: "assets/icons/app_icon_sharp.png"
+
+# flutter_launcher_icons:
+#   android: "ic_launcher"
+#   ios: true
+#   remove_alpha_ios: true
+#   image_path: "assets/icons/app_icon_outline.png"
+#   min_sdk_android: 21
+#   adaptive_icon_background: "#fff"
+#   adaptive_icon_foreground: "assets/icons/app_icon_outline.png"
+#   adaptive_icon_monochrome: "assets/icons/app_icon_outline.png"
+
+
+flutter_launcher_icons:
+  android: "ic_launcher"
+  ios: true
+  remove_alpha_ios: true
+  image_path: "assets/icons/app_icon_unique.png"
+  min_sdk_android: 21
+  adaptive_icon_background: "#fff"
+  adaptive_icon_foreground: "assets/icons/app_icon_unique.png"
+  adaptive_icon_monochrome: "assets/icons/app_icon_unique.png"
+
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
