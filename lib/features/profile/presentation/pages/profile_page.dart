@@ -516,14 +516,6 @@ class ProfileView extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // _buildInfoTile(
-          //   context,
-          //   icon: Icons.business,
-          //   title: 'Organization',
-          //   subtitle: user.organizationId != null
-          //       ? 'Member of organization'
-          //       : 'No organization yet',
-          // ),
           if (user.organizationId != null) ...[
             OrganizationDetailTile(
               organizationId: user.organizationId!,
