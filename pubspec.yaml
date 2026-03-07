@@ -34,32 +34,88 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
+
+  # For Env Files
   flutter_dotenv: ^6.0.0
+
+  # Comparing objects based on their values (properties) rather than their memory references(For state management)
   equatable: ^2.0.7
+
+  # For navigation through routes (Clean architecture)
   go_router: ^16.2.5
+
+  # For cache memory handling Large data
   flutter_secure_storage: ^9.2.4
+
+  # For state management
   flutter_bloc: ^9.1.1
+
+  # For storing small amount or data as a cache
   shared_preferences: ^2.5.3
+
+  # For error handling <Either>
   dartz: ^0.10.1
+
+  # For supabase backend
   supabase_flutter: ^2.10.3
+
+  # For dependency injection
   get_it: ^8.2.0
+
+  # For animations
   flutter_animate: ^4.5.2
+
+  # For loading (Shimmer effect)
   shimmer: ^3.0.0
+
+  # For Cloudinary 
   cloudinary_public: ^0.23.1
+
+  # For image picking 
   image_picker: ^1.2.0
+
+  # For Video related task
   video_thumbnail: ^0.5.6
+
+  # For dynamic height for the grid items
   flutter_staggered_grid_view: ^0.7.0
+
+  # For video related task
   video_player: ^2.10.1
+
+  # Efficiently display images from the internet
   cached_network_image: ^3.4.1
+
+  # For map 
   flutter_map: ^8.2.2
+
+  # For map
   latlong2: ^0.9.1
+
+  # For map
   location: ^8.0.1
+
+  # Launching external Url
   url_launcher: ^6.3.2
+
+  # For date time formatter
   intl: ^0.20.2
+
+  # For star rating UI and logics
   flutter_rating_bar: ^4.0.1
+
+  # For marquee effect
   marquee: ^2.3.0
+
+  # For dotted border 
   dotted_border: ^3.1.0
+
+  # Showing svg Pictures
   flutter_svg: ^2.2.3
+
+  # For Esewa Payment Integration
+  esewa_flutter_sdk:
+    path: ./esewa_flutter_sdk
 
 dev_dependencies:
   flutter_test:
