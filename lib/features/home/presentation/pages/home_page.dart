@@ -1,9 +1,7 @@
 import 'package:app/app/dependency_injection.dart';
 import 'package:app/app/router/route_constants.dart';
-import 'package:app/core/constants/app_images.dart';
 import 'package:app/core/constants/ui_constants.dart';
 import 'package:app/core/widgets/auto_marquee_text.dart';
-import 'package:app/core/widgets/custom_svg_icon.dart';
 import 'package:app/features/auth/domain/entities/organization.dart';
 import 'package:app/features/auth/services/auth_service.dart';
 import 'package:app/features/home/domain/usecases/get_all_post_recommended_by_content_filter_use_case.dart';
@@ -25,7 +23,6 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:go_router/go_router.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:shimmer/shimmer.dart';
 
 class HomePage extends StatelessWidget {
