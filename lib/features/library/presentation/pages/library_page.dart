@@ -2399,6 +2399,10 @@ class LibraryView extends StatelessWidget {
           if (state is LibraryLoading) return const LibraryShimmer();
           if (state is LibraryError) return _buildErrorState(state, context);
           if (state is LibraryLoaded) {
+            print(state.activeFilter);
+            print(state.bookingsData.allBookings.length);
+            print(state.bookingsData.myBooking.length);
+            print(state.bookingsData.myBooking.length);
             return Column(
               children: [
                 _LibraryFilterTabs(activeFilter: state.activeFilter),

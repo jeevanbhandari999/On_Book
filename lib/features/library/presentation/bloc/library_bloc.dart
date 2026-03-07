@@ -1882,7 +1882,6 @@
 //   }
 // }
 
-
 import 'dart:async';
 
 import 'package:app/core/errors/failures.dart';
@@ -2010,11 +2009,7 @@ class LibraryLoaded extends LibraryState {
   }
 
   @override
-  List<Object?> get props => [
-        activeFilter,
-        bookingsData,
-        savedPostsData,
-      ];
+  List<Object?> get props => [activeFilter, bookingsData, savedPostsData];
 }
 
 class LibraryError extends LibraryState {
@@ -2058,10 +2053,10 @@ class BookingsData extends Equatable {
       myBooking.isNotEmpty;
 
   List<Booking> get allBookings => [
-        ...ongoingBookings,
-        ...upcomingBookings,
-        ...pastBookings,
-      ];
+    ...ongoingBookings,
+    ...upcomingBookings,
+    ...pastBookings,
+  ];
 
   bool isBookingUpdating(String bookingId) => updatingBookingId == bookingId;
 
@@ -2099,33 +2094,31 @@ class BookingsData extends Equatable {
       cancelledBookings: cancelledBookings ?? this.cancelledBookings,
       confirmedBookings: confirmedBookings ?? this.confirmedBookings,
       rejectedBookings: rejectedBookings ?? this.rejectedBookings,
-      updatingBookingId:
-          clearUpdatingBookingId ? null : (updatingBookingId ?? this.updatingBookingId),
+      updatingBookingId: clearUpdatingBookingId
+          ? null
+          : (updatingBookingId ?? this.updatingBookingId),
     );
   }
 
   @override
   List<Object?> get props => [
-        myBooking,
-        upcomingBookings,
-        ongoingBookings,
-        pastBookings,
-        newBookings,
-        cancelledBookings,
-        confirmedBookings,
-        rejectedBookings,
-        updatingBookingId,
-      ];
+    myBooking,
+    upcomingBookings,
+    ongoingBookings,
+    pastBookings,
+    newBookings,
+    cancelledBookings,
+    confirmedBookings,
+    rejectedBookings,
+    updatingBookingId,
+  ];
 }
 
 class SavedPostsData extends Equatable {
   final List<Post> savedPosts;
   final String? updatingPostId;
 
-  const SavedPostsData({
-    required this.savedPosts,
-    this.updatingPostId,
-  });
+  const SavedPostsData({required this.savedPosts, this.updatingPostId});
 
   bool get hasSavedPosts => savedPosts.isNotEmpty;
 
@@ -2142,8 +2135,9 @@ class SavedPostsData extends Equatable {
   }) {
     return SavedPostsData(
       savedPosts: savedPosts ?? this.savedPosts,
-      updatingPostId:
-          clearUpdatingPostId ? null : (updatingPostId ?? this.updatingPostId),
+      updatingPostId: clearUpdatingPostId
+          ? null
+          : (updatingPostId ?? this.updatingPostId),
     );
   }
 
@@ -2155,22 +2149,22 @@ class SavedPostsData extends Equatable {
 class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
   final GetAllBookingsByUserIdUseCase _getAllBookingsByUserIdUseCase;
   final GetAllBookingRelatedToOrganizationUseCase
-      _getAllBookingRelatedToOrganizationUseCase;
+  _getAllBookingRelatedToOrganizationUseCase;
   final UpdateBookingStatusByIdUseCase _updateBookingStatusByIdUseCase;
   final GetAllSavedPostsUseCase _getAllSavedPostsUseCase;
 
   LibraryBloc({
     required GetAllBookingsByUserIdUseCase getAllBookingsByUserIdUseCase,
     required GetAllBookingRelatedToOrganizationUseCase
-        getAllBookingRelatedToOrganizationUseCase,
+    getAllBookingRelatedToOrganizationUseCase,
     required UpdateBookingStatusByIdUseCase updateBookingStatusByIdUseCase,
     required GetAllSavedPostsUseCase getAllSavedPostsUseCase,
-  })  : _getAllBookingsByUserIdUseCase = getAllBookingsByUserIdUseCase,
-        _getAllBookingRelatedToOrganizationUseCase =
-            getAllBookingRelatedToOrganizationUseCase,
-        _updateBookingStatusByIdUseCase = updateBookingStatusByIdUseCase,
-        _getAllSavedPostsUseCase = getAllSavedPostsUseCase,
-        super(const LibraryInitial()) {
+  }) : _getAllBookingsByUserIdUseCase = getAllBookingsByUserIdUseCase,
+       _getAllBookingRelatedToOrganizationUseCase =
+           getAllBookingRelatedToOrganizationUseCase,
+       _updateBookingStatusByIdUseCase = updateBookingStatusByIdUseCase,
+       _getAllSavedPostsUseCase = getAllSavedPostsUseCase,
+       super(const LibraryInitial()) {
     on<LoadUserLibrary>(_onLoadUserLibrary);
     on<RefreshUserLibrary>(_onRefreshUserLibrary);
     on<ChangeLibraryFilterTabRequested>(_onChangeFilter);
@@ -2183,8 +2177,9 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
     LoadUserLibrary event,
     Emitter<LibraryState> emit,
   ) async {
-    final previousFilter =
-        state is LibraryLoaded ? (state as LibraryLoaded).activeFilter : null;
+    final previousFilter = state is LibraryLoaded
+        ? (state as LibraryLoaded).activeFilter
+        : null;
     emit(const LibraryLoading());
 
     // Load both bookings and saved posts in parallel
@@ -2234,8 +2229,9 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
       );
     }
 
-    final previousFilter =
-        state is LibraryLoaded ? (state as LibraryLoaded).activeFilter : null;
+    final previousFilter = state is LibraryLoaded
+        ? (state as LibraryLoaded).activeFilter
+        : null;
 
     // Load both bookings and saved posts in parallel
     final results = await Future.wait([
@@ -2324,18 +2320,23 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
           }
 
           // Get all updated lists
-          final updatedMyBooking =
-              updateList(currentState.bookingsData.myBooking);
-          final updatedUpcoming =
-              updateList(currentState.bookingsData.upcomingBookings);
-          final updatedOngoing =
-              updateList(currentState.bookingsData.ongoingBookings);
-          final updatedPast = updateList(currentState.bookingsData.pastBookings);
+          final updatedMyBooking = updateList(
+            currentState.bookingsData.myBooking,
+          );
+          final updatedUpcoming = updateList(
+            currentState.bookingsData.upcomingBookings,
+          );
+          final updatedOngoing = updateList(
+            currentState.bookingsData.ongoingBookings,
+          );
+          final updatedPast = updateList(
+            currentState.bookingsData.pastBookings,
+          );
           final updatedNew = updateList(currentState.bookingsData.newBookings);
 
           // Merge all bookings to recalculate filtered lists
           final allBookings = <String, Booking>{};
-          
+
           for (final booking in [
             ...updatedMyBooking,
             ...updatedUpcoming,
@@ -2363,16 +2364,17 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
           final now = DateTime.now();
           final today = DateTime(now.year, now.month, now.day);
 
-          final recalculatedUpcoming = allBookingsList
-              .where(
-                (b) =>
-                    b.checkInDate.isAfter(
-                      today.subtract(const Duration(days: 1)),
-                    ) &&
-                    b.status != BookingStatus.cancelled,
-              )
-              .toList()
-            ..sort((a, b) => a.checkInDate.compareTo(b.checkInDate));
+          final recalculatedUpcoming =
+              allBookingsList
+                  .where(
+                    (b) =>
+                        b.checkInDate.isAfter(
+                          today.subtract(const Duration(days: 1)),
+                        ) &&
+                        b.status != BookingStatus.cancelled,
+                  )
+                  .toList()
+                ..sort((a, b) => a.checkInDate.compareTo(b.checkInDate));
 
           final recalculatedOngoing = allBookingsList
               .where(
@@ -2383,14 +2385,15 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
               )
               .toList();
 
-          final recalculatedPast = allBookingsList
-              .where(
-                (b) =>
-                    b.checkOutDate.isBefore(now) ||
-                    b.status == BookingStatus.cancelled,
-              )
-              .toList()
-            ..sort((a, b) => b.checkOutDate.compareTo(a.checkOutDate));
+          final recalculatedPast =
+              allBookingsList
+                  .where(
+                    (b) =>
+                        b.checkOutDate.isBefore(now) ||
+                        b.status == BookingStatus.cancelled,
+                  )
+                  .toList()
+                ..sort((a, b) => b.checkOutDate.compareTo(a.checkOutDate));
 
           final updatedBookingsData = currentState.bookingsData.copyWith(
             myBooking: updatedMyBooking,
@@ -2434,10 +2437,10 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
     if (organizationId != null) {
       final organizationBookingsResult =
           await _getAllBookingRelatedToOrganizationUseCase(
-        GetAllBookingRelatedToOrganizationParams(
-          organizationId: organizationId,
-        ),
-      );
+            GetAllBookingRelatedToOrganizationParams(
+              organizationId: organizationId,
+            ),
+          );
 
       return await userBookingsResult.fold(
         (failure) async {
@@ -2460,7 +2463,7 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
                   userBookings,
                   organizationBookings,
                 ),
-                error: null
+                error: null,
               );
             },
           );
@@ -2474,7 +2477,7 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
         (userBookings) async {
           return (
             data: _buildBookingsData(userBookings, userBookings, []),
-            error: null
+            error: null,
           );
         },
       );
@@ -2507,16 +2510,17 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
 
-    final upcoming = bookings
-        .where(
-          (b) =>
-              b.checkInDate.isAfter(
-                today.subtract(const Duration(days: 1)),
-              ) &&
-              b.status != BookingStatus.cancelled,
-        )
-        .toList()
-      ..sort((a, b) => a.checkInDate.compareTo(b.checkInDate));
+    final upcoming =
+        bookings
+            .where(
+              (b) =>
+                  b.checkInDate.isAfter(
+                    today.subtract(const Duration(days: 1)),
+                  ) &&
+                  b.status != BookingStatus.cancelled,
+            )
+            .toList()
+          ..sort((a, b) => a.checkInDate.compareTo(b.checkInDate));
 
     final ongoing = bookings
         .where(
@@ -2527,21 +2531,25 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
         )
         .toList();
 
-    final past = bookings
-        .where(
-          (b) =>
-              b.checkOutDate.isBefore(now) ||
-              b.status == BookingStatus.cancelled,
-        )
-        .toList()
-      ..sort((a, b) => b.checkOutDate.compareTo(a.checkOutDate));
+    final past =
+        bookings
+            .where(
+              (b) =>
+                  b.checkOutDate.isBefore(now) ||
+                  b.status == BookingStatus.cancelled,
+            )
+            .toList()
+          ..sort((a, b) => b.checkOutDate.compareTo(a.checkOutDate));
 
-    final cancelledBooking =
-        bookings.where((b) => b.status == BookingStatus.cancelled).toList();
-    final confirmedBooking =
-        bookings.where((b) => b.status == BookingStatus.confirmed).toList();
-    final rejectedBooking =
-        bookings.where((b) => b.status == BookingStatus.rejected).toList();
+    final cancelledBooking = bookings
+        .where((b) => b.status == BookingStatus.cancelled)
+        .toList();
+    final confirmedBooking = bookings
+        .where((b) => b.status == BookingStatus.confirmed)
+        .toList();
+    final rejectedBooking = bookings
+        .where((b) => b.status == BookingStatus.rejected)
+        .toList();
 
     return BookingsData(
       upcomingBookings: upcoming,
