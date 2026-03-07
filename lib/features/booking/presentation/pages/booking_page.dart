@@ -2,10 +2,12 @@ import 'package:app/app/dependency_injection.dart';
 import 'package:app/core/constants/ui_constants.dart';
 import 'package:app/core/theme/app_colors.dart';
 import 'package:app/core/utils/date_formatter.dart';
+import 'package:app/core/widgets/auto_marquee_text.dart';
 import 'package:app/core/widgets/common_widgets.dart';
 import 'package:app/core/widgets/custom_drop_down.dart';
 import 'package:app/core/widgets/custom_svg_icon.dart';
 import 'package:app/core/widgets/loading_widget.dart';
+import 'package:app/core/widgets/payment_method_tile.dart';
 import 'package:app/features/auth/domain/entities/user.dart';
 import 'package:app/features/booking/domain/entities/booking.dart';
 import 'package:app/features/booking/domain/entities/payment_enums.dart';
@@ -571,10 +573,27 @@ class BookingFormView extends StatelessWidget {
       ),
       child: LoadingButton(
         isLoading: state.isSubmitting,
+        // onPressed: state.isValid && !state.isSubmitting
+        //     ? () => context.read<BookingFormBloc>().add(
+        //         const BookingFormSubmitted(),
+        //       )
+        //     : null,
         onPressed: state.isValid && !state.isSubmitting
-            ? () => context.read<BookingFormBloc>().add(
-                const BookingFormSubmitted(),
-              )
+            ? () {
+                final isOnlinePayment =
+                    state.paymentMethod == PaymentMethod.esewa ||
+                    state.paymentMethod == PaymentMethod.khalti;
+
+                if (isOnlinePayment) {
+                  // ✅ Show review bottom sheet before submitting
+                  _showPaymentReviewSheet(context, state);
+                } else {
+                  // ✅ Cash — submit directly
+                  context.read<BookingFormBloc>().add(
+                    const BookingFormSubmitted(),
+                  );
+                }
+              }
             : null,
         style: ElevatedButton.styleFrom(
           shape: RoundedRectangleBorder(
@@ -583,6 +602,384 @@ class BookingFormView extends StatelessWidget {
           elevation: 0,
         ),
         text: state.isEditMode ? 'Update Booking' : 'Book Now',
+      ),
+    );
+  }
+
+  void _showPaymentReviewSheet(BuildContext context, BookingFormReady state) {
+    final bloc = context.read<BookingFormBloc>();
+    final duration = state.checkOutDate.difference(state.checkInDate);
+    final isHourly = duration.inHours < 24;
+    final nights = isHourly ? duration.inHours : duration.inDays;
+    final unitLabel = isHourly ? 'hour' : 'night';
+    final pricePerUnit = post?.price ?? 0;
+
+    final totalAmount = nights > 0 ? pricePerUnit * nights : pricePerUnit;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) {
+        return BlocProvider.value(
+          value: bloc,
+          child: BlocListener<BookingFormBloc, BookingFormState>(
+            listener: (context, state) {
+              if (state is BookingFormSuccess) {
+                // Close the sheet first
+                Navigator.of(sheetContext).pop();
+                // Then launch the payment SDK
+                _launchPaymentSdk(
+                  context,
+                  booking: state.booking,
+                  paymentMethod: state.booking.paymentMethod,
+                );
+              }
+            },
+            child: DraggableScrollableSheet(
+              initialChildSize: 0.75,
+              minChildSize: 0.5,
+              maxChildSize: 0.95,
+              builder: (_, scrollController) {
+                return Container(
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(24),
+                    ),
+                  ),
+                  child: Column(
+                    children: [
+                      // ── Handle ────────────────────────────────────────────
+                      Container(
+                        margin: const EdgeInsets.only(top: 12),
+                        width: 40,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade300,
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+
+                      Expanded(
+                        child: ListView(
+                          controller: scrollController,
+                          padding: const EdgeInsets.all(UiConstants.spacingMd),
+                          children: [
+                            // ── Header ────────────────────────────────────
+                            Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                    color:
+                                        state.paymentMethod ==
+                                            PaymentMethod.esewa
+                                        ? const Color(0xFF60BB46).withAlpha(30)
+                                        : const Color(0xFF5C2D91).withAlpha(30),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: CustomSvgIcon(
+                                    path: state.paymentMethod.data.svgPath,
+                                    size: 28,
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      'Review & Pay',
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    Text(
+                                      'via ${state.paymentMethod.data.name}',
+                                      style: TextStyle(
+                                        color: Colors.grey.shade600,
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+
+                            const SizedBox(height: UiConstants.spacingMd),
+
+                            // ── Post summary ──────────────────────────────
+                            if (post != null) ...[
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(12),
+                                child: CachedNetworkImage(
+                                  imageUrl: post!.primaryImageUrl,
+                                  height: 140,
+                                  width: double.infinity,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              Text(
+                                post!.title,
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                              const SizedBox(height: UiConstants.spacingMd),
+                            ],
+
+                            // ── Schedule ──────────────────────────────────
+                            Card(
+                              elevation: 3,
+                              shadowColor: Colors.black12,
+
+                              color: Theme.of(context).colorScheme.primary,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(
+                                  UiConstants.radiusMd,
+                                ),
+                              ),
+
+                              child: Container(
+                                padding: const EdgeInsets.all(
+                                  UiConstants.spacingMd,
+                                ),
+                                child: Column(
+                                  children: [
+                                    _ReviewRow(
+                                      icon: Icons.login_rounded,
+                                      iconColor: const Color(0xFF10B981),
+                                      label: 'Check-in',
+                                      value: DateFormatter.fullDateTime(
+                                        state.checkInDate,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    _ReviewRow(
+                                      icon: Icons.logout_rounded,
+                                      iconColor: const Color(0xFFEF4444),
+                                      label: 'Check-out',
+                                      value: DateFormatter.fullDateTime(
+                                        state.checkOutDate,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    _ReviewRow(
+                                      icon: isHourly
+                                          ? Icons.schedule_rounded
+                                          : Icons.nights_stay_rounded,
+                                      iconColor: Colors.white,
+                                      label: 'Duration',
+                                      value: isHourly
+                                          ? '${duration.inHours}h ${duration.inMinutes % 60}m'
+                                          : '${duration.inDays} Night${duration.inDays > 1 ? 's' : ''}',
+                                    ),
+
+                                    const SizedBox(
+                                      height: UiConstants.spacingMd,
+                                    ),
+                                    const SizedBox(
+                                      height: UiConstants.spacingMd,
+                                    ),
+
+                                    // ── Price breakdown ───────────────────────────
+                                    _PriceBreakdownRow(
+                                      label:
+                                          'Rs. $pricePerUnit × $nights $unitLabel${nights > 1 ? 's' : ''}',
+                                      amount: totalAmount,
+                                    ),
+                                    const SizedBox(height: 8),
+
+                                    // ── Total ─────────────────────────────────────
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        const Text(
+                                          'Total',
+                                          style: TextStyle(
+                                            fontSize: 18,
+
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                        Text(
+                                          'Rs. ${totalAmount.toStringAsFixed(2)}',
+                                          style: const TextStyle(
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.w900,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+
+                            if (state.notes.isNotEmpty) ...[
+                              const SizedBox(height: UiConstants.spacingSm),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Icon(
+                                    Icons.note_outlined,
+                                    size: 16,
+                                    color: Colors.grey.shade500,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      state.notes,
+                                      style: TextStyle(
+                                        color: Colors.grey.shade600,
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                            const SizedBox(height: UiConstants.spacingMd),
+                            PaymentMethodTile(
+                              methodId: state.paymentMethod.data.name,
+                              svgIconPath: state.paymentMethod.data.svgPath,
+                              showCheckmark: true,
+                              subtitle: 'Selected Payment Method',
+                              isSelected: true,
+                            ),
+                            const SizedBox(height: UiConstants.spacingMd),
+                            Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: Colors.amber.shade50,
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(
+                                  color: Colors.amber.shade200,
+                                ),
+                              ),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Icon(
+                                    Icons.info_outline_rounded,
+                                    size: 16,
+                                    color: Colors.amber.shade800,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      'Your booking will be confirmed immediately. '
+                                      'If payment fails, you can complete it later or switch to cash.',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.amber.shade900,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                            const SizedBox(height: UiConstants.spacingXxl),
+                          ],
+                        ),
+                      ),
+
+                      // ── Bottom action bar ─────────────────────────────────
+                      BlocBuilder<BookingFormBloc, BookingFormState>(
+                        builder: (context, state) {
+                          final isSubmitting =
+                              state is BookingFormReady && state.isSubmitting;
+                          return Container(
+                            padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withAlpha(15),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, -4),
+                                ),
+                              ],
+                            ),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: OutlinedButton(
+                                    onPressed: () =>
+                                        Navigator.of(sheetContext).pop(),
+                                    style: OutlinedButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 14,
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(14),
+                                      ),
+                                    ),
+                                    child: const Text('Cancel'),
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  flex: 2,
+                                  child: LoadingButton(
+                                    isLoading: isSubmitting,
+                                    onPressed: isSubmitting
+                                        ? null
+                                        : () {
+                                            // ✅ Create the booking first
+                                            context.read<BookingFormBloc>().add(
+                                              const BookingFormSubmitted(),
+                                            );
+                                          },
+                                    text: 'Proceed to Pay',
+                                    // 'Proceed to Pay · Rs. ${totalAmount.toStringAsFixed(0)}',
+                                    style: ElevatedButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 14,
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(14),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _launchPaymentSdk(
+    BuildContext context, {
+    required Booking booking,
+    required PaymentMethod paymentMethod,
+  }) {
+    // TODO: replace with your actual eSewa/Khalti SDK calls
+    // Example for Khalti:
+    // KhaltiScope.launch(context, onSuccess: ..., onFailure: ...);
+
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => PaymentProcessingPage(
+          booking: booking,
+          paymentMethod: paymentMethod,
+        ),
       ),
     );
   }
@@ -1122,6 +1519,179 @@ class _BookingTypePill extends StatelessWidget {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ReviewRow extends StatelessWidget {
+  final IconData icon;
+  final Color iconColor;
+  final String label;
+  final String value;
+
+  const _ReviewRow({
+    required this.icon,
+    required this.iconColor,
+    required this.label,
+    required this.value,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(6),
+          decoration: BoxDecoration(
+            color: iconColor.withAlpha(70),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(icon, size: 14, color: iconColor),
+        ),
+        const SizedBox(width: UiConstants.spacingSm),
+        Text(label, style: TextStyle(color: Colors.white, fontSize: 13)),
+        const SizedBox(width: UiConstants.spacingMd),
+        Expanded(
+          child: Align(
+            alignment: Alignment.centerRight,
+            child: AutoMarqueeText(
+              text: value,
+              style: const TextStyle(color: Colors.white, fontSize: 13),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _PriceBreakdownRow extends StatelessWidget {
+  final String label;
+  final double amount;
+  final bool isSubtle;
+
+  const _PriceBreakdownRow({
+    required this.label,
+    required this.amount,
+    this.isSubtle = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            color: isSubtle ? Colors.grey.shade500 : Colors.white,
+            fontSize: 14,
+          ),
+        ),
+        Text(
+          amount == 0 ? 'Free' : 'Rs. ${amount.toStringAsFixed(2)}',
+          style: TextStyle(
+            color: isSubtle ? Colors.grey.shade500 : Colors.white,
+            fontSize: 14,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class PaymentProcessingPage extends StatelessWidget {
+  final Booking booking;
+  final PaymentMethod paymentMethod;
+
+  const PaymentProcessingPage({
+    super.key,
+    required this.booking,
+    required this.paymentMethod,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Pay via ${paymentMethod.data.name}')),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // TODO: Initialize eSewa/Khalti SDK widget here
+            // On success → navigate to PaymentResultPage(success: true)
+            // On failure → navigate to PaymentResultPage(success: false)
+            ElevatedButton(
+              onPressed: () => Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => PaymentResultPage(
+                    booking: booking,
+                    success: true, // from SDK callback
+                  ),
+                ),
+              ),
+              child: const Text('Simulate Payment'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class PaymentResultPage extends StatelessWidget {
+  final Booking booking;
+  final bool success;
+
+  const PaymentResultPage({
+    super.key,
+    required this.booking,
+    required this.success,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: success ? Colors.green.shade50 : Colors.red.shade50,
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              success ? Icons.check_circle_rounded : Icons.cancel_rounded,
+              size: 80,
+              color: success ? Colors.green : Colors.red,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              success ? 'Payment Successful!' : 'Payment Failed',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: success ? Colors.green.shade800 : Colors.red.shade800,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              success
+                  ? 'Your booking #${booking.id.substring(0, 8)} is confirmed.'
+                  : 'Your booking is saved. You can pay later or switch to cash.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: success ? Colors.green.shade700 : Colors.red.shade700,
+              ),
+            ),
+            const SizedBox(height: 32),
+            ElevatedButton(
+              // ✅ Pop all the way back to home — booking is already saved
+              onPressed: () =>
+                  Navigator.of(context).popUntil((route) => route.isFirst),
+              child: const Text('Back to Home'),
+            ),
+          ],
         ),
       ),
     );
