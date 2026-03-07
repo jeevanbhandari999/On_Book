@@ -175,7 +175,14 @@ class OrganizationDetailsViewUserSide extends StatelessWidget {
               ),
             ),
             const SizedBox(width: UiConstants.spacingSm),
-            Text(org.name, style: const TextStyle(color: Colors.white)),
+            Text(
+              org.name,
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
           ],
         ),
       ),

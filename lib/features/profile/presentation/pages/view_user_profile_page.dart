@@ -209,7 +209,14 @@ class ViewUserProfileView extends StatelessWidget {
               ),
             ),
             const SizedBox(width: UiConstants.spacingSm),
-            Text(user.fullName, style: const TextStyle(color: Colors.white)),
+            Text(
+              user.fullName,
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
           ],
         ),
       ),
