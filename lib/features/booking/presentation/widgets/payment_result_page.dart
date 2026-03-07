@@ -1,9 +1,12 @@
 import 'package:app/core/constants/ui_constants.dart';
+import 'package:app/core/theme/app_colors.dart';
+import 'package:app/core/utils/date_formatter.dart';
 import 'package:app/core/widgets/common_widgets.dart';
+import 'package:app/core/widgets/payment_method_tile.dart';
 import 'package:app/features/booking/domain/entities/booking.dart';
+import 'package:app/features/booking/domain/entities/payment_enums.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 class PaymentResultPage extends StatelessWidget {
@@ -109,9 +112,9 @@ class PaymentResultPage extends StatelessWidget {
                         success
                             ? 'Your reservation is all set.'
                             : 'No booking was created. Please try again.',
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 14,
-                          color: primaryColor.withAlpha(180),
+                          color: Colors.black,
                           fontWeight: FontWeight.w500,
                         ),
                         textAlign: TextAlign.center,
@@ -163,6 +166,23 @@ class PaymentResultPage extends StatelessWidget {
                         ),
 
                     const SizedBox(height: UiConstants.spacingMd),
+                    PaymentMethodTile(
+                          methodId: booking!.paymentMethod.data.name,
+                          svgIconPath: booking!.paymentMethod.data.svgPath,
+                          showCheckmark: true,
+                          subtitle: 'Payment Completed',
+                          subtitleColor: AppColors.success,
+                          isSelected: true,
+                        )
+                        .animate()
+                        .fadeIn(delay: 950.ms, duration: 500.ms)
+                        .slideY(
+                          begin: 0.2,
+                          end: 0,
+                          duration: 400.ms,
+                          curve: Curves.easeOutCubic,
+                        ),
+                    const SizedBox(height: UiConstants.spacingMd),
 
                     _PaymentSummaryCard(booking: booking!)
                         .animate()
@@ -201,10 +221,7 @@ class PaymentResultPage extends StatelessWidget {
                           const SizedBox(height: 8),
                           const Text(
                             'What happened?',
-                            style: TextStyle(
-                              fontWeight: FontWeight.w700,
-                              fontSize: 16,
-                            ),
+                            style: TextStyle(fontSize: 16),
                           ),
                           const SizedBox(height: 4),
                           Text(
@@ -326,7 +343,7 @@ class _PaymentSummaryCard extends StatelessWidget {
         children: [
           const Text(
             'Payment Summary',
-            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: UiConstants.spacingSm),
           _SummaryRow(
@@ -357,11 +374,14 @@ class _PaymentSummaryCard extends StatelessWidget {
           Align(
             alignment: Alignment.centerRight,
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              padding: const EdgeInsets.symmetric(
+                horizontal: UiConstants.spacingMd,
+                vertical: UiConstants.spacingSm,
+              ),
               decoration: BoxDecoration(
-                color: paymentStatusColor.withAlpha(25),
+                color: paymentStatusColor.withAlpha(50),
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: paymentStatusColor.withAlpha(80)),
+                border: Border.all(color: paymentStatusColor),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -376,12 +396,7 @@ class _PaymentSummaryCard extends StatelessWidget {
                   const SizedBox(width: 4),
                   Text(
                     booking.paymentStatus.name.toUpperCase(),
-                    style: TextStyle(
-                      color: paymentStatusColor,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 11,
-                      letterSpacing: 0.8,
-                    ),
+                    style: TextStyle(fontSize: 12, letterSpacing: 1.2),
                   ),
                 ],
               ),
@@ -424,10 +439,7 @@ class _InfoTile extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                label,
-                style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
-              ),
+              Text(label, style: TextStyle(fontSize: 13)),
               Text(
                 value,
                 style: const TextStyle(
@@ -457,12 +469,9 @@ class _SummaryRow extends StatelessWidget {
         children: [
           Text(
             label,
-            style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+            style: const TextStyle(color: Colors.black, fontSize: 13),
           ),
-          Text(
-            value,
-            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
-          ),
+          Text(value, style: const TextStyle(fontSize: UiConstants.textLg)),
         ],
       ),
     );
@@ -540,45 +549,71 @@ class _BookingInfoCard extends StatelessWidget {
     return SectionContainer(
       borderRadius: BorderRadius.circular(UiConstants.radiusMd),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Status banner at top
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 10),
-            decoration: BoxDecoration(
-              color: statusColor.withAlpha(25),
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(UiConstants.radiusMd),
-                bottom: Radius.circular(UiConstants.radiusMd),
+          Row(
+            children: [
+              const Expanded(
+                child: Text(
+                  'Booking Summary',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+                ),
               ),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  width: 8,
-                  height: 8,
-                  decoration: BoxDecoration(
-                    color: statusColor,
-                    shape: BoxShape.circle,
-                  ),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: UiConstants.spacingMd,
+                  vertical: UiConstants.spacingSm,
                 ),
-                const SizedBox(width: 6),
-                Text(
-                  booking.paymentStatus.name.toUpperCase(),
-                  style: TextStyle(
-                    color: statusColor,
-                    fontWeight: FontWeight.w800,
-                    fontSize: 12,
-                    letterSpacing: 1.2,
-                  ),
+                decoration: BoxDecoration(
+                  color: statusColor.withAlpha(50),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: statusColor),
                 ),
-              ],
-            ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      booking.paymentStatus == PaymentStatus.paid
+                          ? Icons.check_circle_outline_rounded
+                          : Icons.schedule_rounded,
+                      size: 13,
+                      color: statusColor,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      booking.paymentStatus.name.toUpperCase(),
+                      style: const TextStyle(
+                        color: Colors.black,
+                        fontSize: 12,
+                        letterSpacing: 1.2,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
+
+          // Status banner at top
           const SizedBox(height: UiConstants.spacingSm),
           Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              _InfoTile(
+                icon: Icons.login_rounded,
+                iconColor: const Color(0xFF10B981),
+                label: 'Check-in',
+                value: DateFormatter.fullDateTime(booking.checkInDate),
+              ),
+              const SizedBox(height: UiConstants.spacingMd),
+              _InfoTile(
+                icon: Icons.logout_rounded,
+                iconColor: const Color(0xFFEF4444),
+                label: 'Check-out',
+                value: DateFormatter.fullDateTime(booking.checkOutDate),
+              ),
+              const SizedBox(height: UiConstants.spacingMd),
+
               _InfoTile(
                 icon: Icons.nights_stay_outlined,
                 iconColor: const Color(0xFF0EA5E9),
@@ -587,7 +622,8 @@ class _BookingInfoCard extends StatelessWidget {
                     '${booking.nights} Night${booking.nights > 1 ? 's' : ''}',
               ),
               if (booking.notes != null && booking.notes!.isNotEmpty) ...[
-                const Divider(height: 20),
+                const SizedBox(height: UiConstants.spacingMd),
+
                 _InfoTile(
                   icon: Icons.note_alt_outlined,
                   iconColor: const Color(0xFFF59E0B),

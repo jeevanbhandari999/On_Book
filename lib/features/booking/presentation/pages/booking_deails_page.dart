@@ -967,7 +967,6 @@ import 'package:app/features/booking/domain/entities/booking.dart';
 import 'package:app/features/booking/domain/usecases/get_booking_by_id_use_case.dart';
 import 'package:app/features/booking/presentation/bloc/booking_details_bloc.dart';
 import 'package:app/features/post/domain/entities/post_enums.dart';
-import 'package:app/features/post/presentation/pages/post_detail_shimmer_effect_page.dart';
 import 'package:app/features/post/presentation/widgets/detail_info_tile.dart';
 import 'package:app/features/post/presentation/widgets/post_detail_shimmer.dart';
 import 'package:cached_network_image/cached_network_image.dart';

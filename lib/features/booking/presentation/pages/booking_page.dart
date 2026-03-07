@@ -2631,9 +2631,12 @@ class BookingFormView extends StatelessWidget {
                                         ? null
                                         : () {
                                             if (isCash) {
+                                              Navigator.of(sheetContext).pop();
                                               context
                                                   .read<BookingFormBloc>()
-                                                  .add(BookingFormSubmitted());
+                                                  .add(
+                                                    const BookingFormSubmitted(),
+                                                  );
                                             } else if (isEsewa) {
                                               // eSewa: close sheet, launch SDK
                                               // Booking is submitted ONLY after payment success inside SDK callback
