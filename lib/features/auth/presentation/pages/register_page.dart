@@ -1,12 +1,15 @@
 import 'package:app/app/router/route_constants.dart';
+import 'package:app/core/constants/app_images.dart';
+import 'package:app/core/constants/ui_constants.dart';
 import 'package:app/core/utils/validators/form_validators.dart';
 import 'package:app/core/widgets/common_widgets.dart';
+import 'package:app/core/widgets/custom_svg_icon.dart';
 import 'package:app/core/widgets/loading_widget.dart';
 import 'package:app/features/auth/data/models/user_model.dart';
-// import 'package:app/features/auth/domain/usecases/login_use_case.dart';
-// import 'package:app/features/auth/domain/usecases/register_use_case.dart';
 import 'package:app/features/auth/services/auth_service.dart';
+import 'package:app/features/home/presentation/widgets/animated_app_icon.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:app/app/dependency_injection.dart';
@@ -18,11 +21,8 @@ class RegisterPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => AuthBloc(
-        // loginUseCase: DependencyInjection.get<LoginUseCase>(),
-        // registerUseCase: DependencyInjection.get<RegisterUseCase>(),
-        authService: DependencyInjection.get<AuthService>(),
-      ),
+      create: (context) =>
+          AuthBloc(authService: DependencyInjection.get<AuthService>()),
       child: const RegisterView(),
     );
   }
@@ -59,7 +59,6 @@ class _RegisterViewState extends State<RegisterView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Create Account'), centerTitle: true),
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthRegistrationSuccess) {
@@ -69,13 +68,6 @@ class _RegisterViewState extends State<RegisterView> {
                 backgroundColor: Colors.green,
               ),
             );
-            // if (_selectedRole == UserRole.owner ||
-            //     _selectedRole == UserRole.manager ||
-            //     _selectedRole == UserRole.worker) {
-            //   context.push(RouteConstants.createHotelOrganization, extra: state.user);
-            // } else {
-            //   context.go(RouteConstants.login);
-            // }
           }
           if (state is AuthNeedsOrganizationCreation) {
             context.push(
@@ -94,126 +86,222 @@ class _RegisterViewState extends State<RegisterView> {
           } else {
             context.go(RouteConstants.login);
           }
-          // if (state is AuthNeedsOrganizationCreation) {
-          //   context.push(
-          //     RouteConstants.createHotelOrganization,
-          //     extra: state.user,
-          //   );
-          // } else {
-          //   context.go(RouteConstants.login);
-          // }
         },
         builder: (context, state) {
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const SizedBox(height: 32),
-                  // Title
-                  Text(
-                    'Join Onbook',
-                    style: Theme.of(context).textTheme.headlineMedium,
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Create your account to get started',
-                    style: Theme.of(
-                      context,
-                    ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 32),
-                  // Full Name field
-                  CustomTextField(
-                    label: 'Full Name',
-                    controller: _fullNameController,
-                    validator: FormValidators.name,
-                    prefixIcon: const Icon(Icons.person_outlined),
-                  ),
-                  const SizedBox(height: 16),
-                  // Email field
-                  CustomTextField(
-                    label: 'Email',
-                    controller: _emailController,
-                    keyboardType: TextInputType.emailAddress,
-                    validator: FormValidators.email,
-                    prefixIcon: const Icon(Icons.email_outlined),
-                  ),
-                  const SizedBox(height: 16),
-                  // Password field
-                  CustomTextField(
-                    label: 'Password',
-                    controller: _passwordController,
-                    obscureText: _obscurePassword,
-                    validator: FormValidators.password,
-                    prefixIcon: const Icon(Icons.lock_outlined),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _obscurePassword
-                            ? Icons.visibility
-                            : Icons.visibility_off,
-                      ),
-                      onPressed: () =>
-                          setState(() => _obscurePassword = !_obscurePassword),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  // Confirm Password field
-                  CustomTextField(
-                    label: 'Confirm Password',
-                    controller: _confirmPasswordController,
-                    obscureText: _obscureConfirmPassword,
-                    validator: (value) => FormValidators.confirmPassword(
-                      value,
-                      _passwordController.text,
-                    ),
-                    prefixIcon: const Icon(Icons.lock_outlined),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _obscureConfirmPassword
-                            ? Icons.visibility
-                            : Icons.visibility_off,
-                      ),
-                      onPressed: () => setState(
-                        () =>
-                            _obscureConfirmPassword = !_obscureConfirmPassword,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  _buildRoleSelector(),
+          return CustomScrollView(
+            slivers: [
+              SliverAppBar(
+                automaticallyImplyLeading: false,
+                expandedHeight: 220,
+                collapsedHeight: kToolbarHeight,
+                pinned: true,
+                flexibleSpace: Stack(
+                  children: [
+                    Positioned.fill(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.primary,
 
-                  const SizedBox(height: 32),
-                  // Register button
-                  BlocBuilder<AuthBloc, AuthState>(
-                    builder: (context, state) {
-                      return LoadingButton(
-                        onPressed: () => _onRegisterPressed(context),
-                        text: 'Register',
-                        isLoading: state is AuthLoading,
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  // Login link
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text('Already have an account? '),
-                      TextButton(
-                        onPressed: () => context.go(RouteConstants.login),
-                        child: const Text('Sign In'),
+                              borderRadius: const BorderRadius.vertical(
+                                bottom: Radius.circular(UiConstants.radiusXl),
+                              ),
+                            ),
+                          ),
+                        )
+                        .animate()
+                        .slideY(
+                          begin: -2,
+                          duration: UiConstants.animationSlow,
+                          curve: Curves.easeOutCubic,
+                        )
+                        .fadeIn(duration: UiConstants.animationSlow),
+                    FlexibleSpaceBar(
+                      background: Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(UiConstants.spacingLg),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const SizedBox(height: UiConstants.spacingXl),
+
+                              SizedBox(
+                                width: 100,
+                                height: 100,
+                                child: const AnimatedAppIcon()
+                                    .animate()
+                                    .scaleXY(
+                                      begin: 0.8,
+                                      end: 1.1,
+                                      duration: UiConstants.animationSlowest,
+                                      curve: Curves.easeOutCubic,
+                                    )
+                                    .fadeIn(),
+                              ),
+                              const SizedBox(height: UiConstants.spacingSm),
+                              const Text(
+                                    "OnBook",
+                                    style: TextStyle(
+                                      fontSize: 30,
+                                      fontWeight: FontWeight.w900,
+                                      letterSpacing: 1.3,
+                                      color: Colors.white,
+                                    ),
+                                  )
+                                  .animate()
+                                  .slideY(
+                                    begin: 1,
+                                    duration: UiConstants.animationSlowest,
+                                    curve: Curves.easeOutCubic,
+                                  )
+                                  .fadeIn(),
+                              const Text(
+                                "BOOK SMARTER, LIVE BETTER",
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  letterSpacing: 0.3,
+                                  color: Colors.white70,
+                                ),
+                                textAlign: TextAlign.center,
+                              ).animate().fadeIn(delay: 300.ms),
+                            ],
+                          ),
+                        ),
                       ),
-                    ],
-                  ),
-                ],
+                    ),
+                  ],
+                ),
               ),
-            ),
+
+              /// FORM
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const SizedBox(height: 32),
+
+                        Text(
+                          'Join OnBook',
+                          style: Theme.of(context).textTheme.headlineLarge,
+                          textAlign: TextAlign.center,
+                        ),
+
+                        Text(
+                          'Create your account to get started',
+                          style: Theme.of(
+                            context,
+                          ).textTheme.bodyMedium?.copyWith(color: Colors.black),
+                          textAlign: TextAlign.center,
+                        ),
+
+                        const SizedBox(height: UiConstants.spacingLg),
+
+                        /// FULL NAME
+                        CustomTextField(
+                          label: 'Full Name',
+                          controller: _fullNameController,
+                          validator: FormValidators.name,
+                          prefixIcon: const Icon(Icons.person_outlined),
+                        ),
+
+                        const SizedBox(height: 16),
+
+                        /// EMAIL
+                        CustomTextField(
+                          label: 'Email',
+                          controller: _emailController,
+                          keyboardType: TextInputType.emailAddress,
+                          validator: FormValidators.email,
+                          prefixIcon: const Icon(Icons.email_outlined),
+                        ),
+
+                        const SizedBox(height: 16),
+
+                        /// PASSWORD
+                        CustomTextField(
+                          label: 'Password',
+                          controller: _passwordController,
+                          obscureText: _obscurePassword,
+                          validator: FormValidators.password,
+                          prefixIcon: const Icon(Icons.lock_outlined),
+                          suffixIcon: IconButton(
+                            icon: CustomSvgIcon(
+                              path: _obscurePassword
+                                  ? AppImages.eyeOpenIcon
+                                  : AppImages.eyeCloseIcon,
+                            ),
+                            onPressed: () => setState(
+                              () => _obscurePassword = !_obscurePassword,
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: UiConstants.spacingMd),
+
+                        /// CONFIRM PASSWORD
+                        CustomTextField(
+                          label: 'Confirm Password',
+                          controller: _confirmPasswordController,
+                          obscureText: _obscureConfirmPassword,
+                          validator: (value) => FormValidators.confirmPassword(
+                            value,
+                            _passwordController.text,
+                          ),
+                          prefixIcon: const Icon(Icons.lock_outlined),
+                          suffixIcon: IconButton(
+                            icon: CustomSvgIcon(
+                              path: _obscureConfirmPassword
+                                  ? AppImages.eyeOpenIcon
+                                  : AppImages.eyeCloseIcon,
+                            ),
+                            onPressed: () => setState(
+                              () => _obscureConfirmPassword =
+                                  !_obscureConfirmPassword,
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: UiConstants.spacingMd),
+
+                        /// ROLE SELECTOR
+                        _buildRoleSelector(),
+
+                        const SizedBox(height: UiConstants.spacingMd),
+
+                        /// REGISTER BUTTON
+                        BlocBuilder<AuthBloc, AuthState>(
+                          builder: (context, state) {
+                            return LoadingButton(
+                              onPressed: () => _onRegisterPressed(context),
+                              text: 'Register',
+                              isLoading: state is AuthLoading,
+                            );
+                          },
+                        ),
+
+                        const SizedBox(height: UiConstants.spacingSm),
+
+                        /// LOGIN LINK
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text('Already have an account? '),
+                            TextButton(
+                              onPressed: () =>
+                                  context.push(RouteConstants.login),
+                              child: const Text('Sign In'),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
           );
         },
       ),
@@ -221,22 +309,24 @@ class _RegisterViewState extends State<RegisterView> {
   }
 
   Widget _buildRoleSelector() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Who are you ?',
-          style: Theme.of(
-            context,
-          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
-        ),
-        const SizedBox(height: 12),
-        _buildRoleTile(UserRole.user),
-        _buildRoleTile(UserRole.owner),
-        _buildRoleTile(UserRole.manager),
-        _buildRoleTile(UserRole.worker),
-        // ...UserRole.values.map((role) => _buildRoleTile(role)),
-      ],
+    return RadioGroup<UserRole>(
+      groupValue: _selectedRole,
+      onChanged: (value) {
+        if (value != null) {
+          setState(() => _selectedRole = value);
+        }
+      },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Who are you ?'),
+          const SizedBox(height: 12),
+          _buildRoleTile(UserRole.user),
+          _buildRoleTile(UserRole.owner),
+          _buildRoleTile(UserRole.manager),
+          _buildRoleTile(UserRole.worker),
+        ],
+      ),
     );
   }
 
@@ -272,89 +362,71 @@ class _RegisterViewState extends State<RegisterView> {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 220),
       margin: const EdgeInsets.only(bottom: 10),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(14),
-          onTap: () => setState(() => _selectedRole = role),
-          child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
-            decoration: BoxDecoration(
-              color: backgroundColor,
-              border: Border.all(
-                color: borderColor!,
-                width: isSelected ? 2.2 : 1.2,
+      child: SectionContainer(
+        padding: const EdgeInsets.only(
+          top: UiConstants.spacingMd,
+          left: UiConstants.spacingMd,
+          bottom: UiConstants.spacingMd,
+          right: UiConstants.spacingXs,
+        ),
+        borderRadius: BorderRadius.circular(UiConstants.radiusMd),
+        onTap: () => setState(() => _selectedRole = role),
+        gradientColor: isSelected
+            ? LinearGradient(
+                colors: [?backgroundColor, ?backgroundColor, ?backgroundColor],
+              )
+            : null,
+        shadows: isSelected
+            ? [
+                BoxShadow(
+                  color: shadowColor,
+                  blurRadius: 10,
+                  offset: const Offset(0, 3),
+                  spreadRadius: 0,
+                ),
+              ]
+            : null,
+        child: Row(
+          children: [
+            // Icon with adaptive background
+            Container(
+              padding: const EdgeInsets.all(UiConstants.spacingSm),
+              decoration: BoxDecoration(
+                color: iconBgColor,
+                borderRadius: BorderRadius.circular(UiConstants.radiusSm),
               ),
-              borderRadius: BorderRadius.circular(14),
-              boxShadow: isSelected
-                  ? [
-                      BoxShadow(
-                        color: shadowColor,
-                        blurRadius: 10,
-                        offset: const Offset(0, 3),
-                        spreadRadius: 0,
-                      ),
-                    ]
-                  : null,
+              child: Icon(
+                roleConfig.icon,
+                color: isSelected ? theme.primaryColor : theme.iconTheme.color,
+                size: 28,
+              ),
             ),
-            child: Row(
-              children: [
-                // Icon with adaptive background
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: iconBgColor,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(
-                    roleConfig.icon,
-                    color: isSelected
-                        ? theme.primaryColor
-                        : theme.iconTheme.color,
-                    size: 28,
-                  ),
-                ),
-                const SizedBox(width: 16),
+            const SizedBox(width: 16),
 
-                // Title & Description
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        roleConfig.title,
-                        style: TextStyle(
-                          fontSize: 16.5,
-                          fontWeight: isSelected
-                              ? FontWeight.bold
-                              : FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(height: 3),
-                      Text(
-                        roleConfig.description,
-                        style: const TextStyle(fontSize: 13, height: 1.35),
-                      ),
-                    ],
+            // Title & Description
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(roleConfig.title),
+                  Text(
+                    roleConfig.description,
+                    style: const TextStyle(fontSize: 12),
                   ),
-                ),
-
-                // Radio Button
-                Radio<UserRole>(
-                  value: role,
-                  groupValue: _selectedRole,
-                  activeColor: theme.primaryColor,
-                  fillColor: WidgetStateProperty.resolveWith((states) {
-                    if (states.contains(WidgetState.selected)) {
-                      return theme.primaryColor;
-                    }
-                    return isDark ? Colors.grey[600] : Colors.grey[400];
-                  }),
-                  onChanged: (value) => setState(() => _selectedRole = value!),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
+            Radio<UserRole>(
+              value: role,
+              activeColor: theme.primaryColor,
+              fillColor: WidgetStateProperty.resolveWith((states) {
+                if (states.contains(WidgetState.selected)) {
+                  return theme.primaryColor;
+                }
+                return isDark ? Colors.grey[600] : Colors.grey[400];
+              }),
+            ),
+          ],
         ),
       ),
     );

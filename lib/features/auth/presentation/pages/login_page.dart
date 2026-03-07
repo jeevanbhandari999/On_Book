@@ -82,8 +82,8 @@ class _LoginViewState extends State<LoginView> {
               SliverAppBar(
                 automaticallyImplyLeading: false,
                 expandedHeight: 220,
-                collapsedHeight: 220,
-                pinned: false,
+                collapsedHeight: kToolbarHeight,
+                pinned: true,
                 flexibleSpace: Stack(
                   children: [
                     Positioned.fill(
@@ -125,7 +125,8 @@ class _LoginViewState extends State<LoginView> {
                                   )
                                   .fadeIn(),
                             ),
-                            const SizedBox(height: 10),
+                            const SizedBox(height: UiConstants.spacingSm),
+
                             const Text(
                                   "OnBook",
                                   style: TextStyle(
@@ -172,7 +173,7 @@ class _LoginViewState extends State<LoginView> {
                           style: Theme.of(context).textTheme.headlineLarge,
                           textAlign: TextAlign.center,
                         ),
-                        const SizedBox(height: 24),
+                        const SizedBox(height: UiConstants.spacingLg),
 
                         CustomTextField(
                           label: 'Email',
@@ -235,7 +236,7 @@ class _LoginViewState extends State<LoginView> {
                             const Text("Don't have an account? "),
                             TextButton(
                               onPressed: () =>
-                                  context.go(RouteConstants.register),
+                                  context.push(RouteConstants.register),
                               child: const Text('Sign Up'),
                             ),
                           ],
