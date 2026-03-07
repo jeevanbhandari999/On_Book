@@ -2328,6 +2328,7 @@ import 'package:app/core/widgets/app_bar_popup_menu.dart';
 import 'package:app/core/widgets/common_widgets.dart';
 import 'package:app/features/auth/services/auth_service.dart';
 import 'package:app/features/booking/domain/entities/booking.dart';
+import 'package:app/features/home/domain/usecases/get_organization_detail_by_post_organization_id.dart';
 import 'package:app/features/library/domain/entities/library_filter_enum.dart';
 import 'package:app/features/library/domain/usecases/get_all_booking_by_user_id_use_case.dart';
 import 'package:app/features/library/domain/usecases/get_all_booking_related_to_organization_use_case.dart';
@@ -2375,6 +2376,7 @@ class LibraryPage extends StatelessWidget {
                     DependencyInjection.get<UpdateBookingStatusByIdUseCase>(),
                 getAllSavedPostsUseCase:
                     DependencyInjection.get<GetAllSavedPostsUseCase>(),
+                    getOrganizationDetailUseCase: DependencyInjection.get<GetOrganizationDetailByPostOrganizationIdUseCase>(),
               )..add(
                 LoadUserLibrary(userId: userId, organizationId: organizationId),
               ),
@@ -2399,10 +2401,6 @@ class LibraryView extends StatelessWidget {
           if (state is LibraryLoading) return const LibraryShimmer();
           if (state is LibraryError) return _buildErrorState(state, context);
           if (state is LibraryLoaded) {
-            print(state.activeFilter);
-            print(state.bookingsData.allBookings.length);
-            print(state.bookingsData.myBooking.length);
-            print(state.bookingsData.myBooking.length);
             return Column(
               children: [
                 _LibraryFilterTabs(activeFilter: state.activeFilter),

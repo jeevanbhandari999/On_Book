@@ -1,3 +1,4 @@
+import 'package:app/features/home/domain/usecases/get_organization_detail_by_post_organization_id.dart';
 import 'package:app/features/library/data/datasources/library_local_data_source.dart';
 import 'package:app/features/library/data/datasources/library_remote_data_source.dart';
 import 'package:app/features/library/data/repositories/library_repository_impl.dart';
@@ -59,6 +60,8 @@ class LibraryDependencies {
             getIt<GetAllBookingRelatedToOrganizationUseCase>(),
         updateBookingStatusByIdUseCase: getIt<UpdateBookingStatusByIdUseCase>(),
         getAllSavedPostsUseCase: getIt<GetAllSavedPostsUseCase>(),
+        getOrganizationDetailUseCase:
+            getIt<GetOrganizationDetailByPostOrganizationIdUseCase>(),
       ),
     );
 

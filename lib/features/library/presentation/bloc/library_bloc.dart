@@ -1885,7 +1885,9 @@
 import 'dart:async';
 
 import 'package:app/core/errors/failures.dart';
+import 'package:app/features/auth/domain/entities/organization.dart';
 import 'package:app/features/booking/domain/entities/booking.dart';
+import 'package:app/features/home/domain/usecases/get_organization_detail_by_post_organization_id.dart';
 import 'package:app/features/library/domain/entities/library_filter_enum.dart';
 import 'package:app/features/library/domain/usecases/get_all_booking_by_user_id_use_case.dart';
 import 'package:app/features/library/domain/usecases/get_all_booking_related_to_organization_use_case.dart';
@@ -1945,6 +1947,77 @@ class UpdateBookingStatusFromLibraryPage extends LibraryEvent {
   List<Object> get props => [bookingId, status];
 }
 
+class FetchLibraryOrganizationDetails extends LibraryEvent {
+  final String organizationId;
+  const FetchLibraryOrganizationDetails(this.organizationId);
+
+  @override
+  List<Object?> get props => [organizationId];
+}
+
+class LibraryLoaded extends LibraryState {
+  final LibraryFilter activeFilter;
+  final BookingsData bookingsData;
+  final SavedPostsData savedPostsData;
+  final Map<String, Organization> organizations;
+
+  const LibraryLoaded({
+    required this.activeFilter,
+    required this.bookingsData,
+    required this.savedPostsData,
+    this.organizations = const {},
+  });
+
+  bool get hasContent =>
+      bookingsData.hasBookings || savedPostsData.hasSavedPosts;
+
+  LibraryLoaded copyWith({
+    LibraryFilter? activeFilter,
+    BookingsData? bookingsData,
+    SavedPostsData? savedPostsData,
+    Map<String, Organization>? organizations,
+  }) {
+    return LibraryLoaded(
+      activeFilter: activeFilter ?? this.activeFilter,
+      bookingsData: bookingsData ?? this.bookingsData,
+      savedPostsData: savedPostsData ?? this.savedPostsData,
+      organizations: organizations ?? this.organizations,
+    );
+  }
+
+  @override
+  List<Object?> get props => [
+    activeFilter,
+    bookingsData,
+    savedPostsData,
+    organizations,
+  ];
+}
+
+class LibraryRefreshing extends LibraryLoaded {
+  const LibraryRefreshing({
+    required super.activeFilter,
+    required super.bookingsData,
+    required super.savedPostsData,
+    super.organizations,
+  });
+
+  @override
+  LibraryRefreshing copyWith({
+    LibraryFilter? activeFilter,
+    BookingsData? bookingsData,
+    SavedPostsData? savedPostsData,
+    Map<String, Organization>? organizations,
+  }) {
+    return LibraryRefreshing(
+      activeFilter: activeFilter ?? this.activeFilter,
+      bookingsData: bookingsData ?? this.bookingsData,
+      savedPostsData: savedPostsData ?? this.savedPostsData,
+      organizations: organizations ?? this.organizations,
+    );
+  }
+}
+
 /// STATES
 abstract class LibraryState extends Equatable {
   const LibraryState();
@@ -1959,57 +2032,6 @@ class LibraryInitial extends LibraryState {
 
 class LibraryLoading extends LibraryState {
   const LibraryLoading();
-}
-
-class LibraryRefreshing extends LibraryLoaded {
-  const LibraryRefreshing({
-    required super.activeFilter,
-    required super.bookingsData,
-    required super.savedPostsData,
-  });
-
-  @override
-  LibraryRefreshing copyWith({
-    LibraryFilter? activeFilter,
-    BookingsData? bookingsData,
-    SavedPostsData? savedPostsData,
-  }) {
-    return LibraryRefreshing(
-      activeFilter: activeFilter ?? this.activeFilter,
-      bookingsData: bookingsData ?? this.bookingsData,
-      savedPostsData: savedPostsData ?? this.savedPostsData,
-    );
-  }
-}
-
-class LibraryLoaded extends LibraryState {
-  final LibraryFilter activeFilter;
-  final BookingsData bookingsData;
-  final SavedPostsData savedPostsData;
-
-  const LibraryLoaded({
-    required this.activeFilter,
-    required this.bookingsData,
-    required this.savedPostsData,
-  });
-
-  bool get hasContent =>
-      bookingsData.hasBookings || savedPostsData.hasSavedPosts;
-
-  LibraryLoaded copyWith({
-    LibraryFilter? activeFilter,
-    BookingsData? bookingsData,
-    SavedPostsData? savedPostsData,
-  }) {
-    return LibraryLoaded(
-      activeFilter: activeFilter ?? this.activeFilter,
-      bookingsData: bookingsData ?? this.bookingsData,
-      savedPostsData: savedPostsData ?? this.savedPostsData,
-    );
-  }
-
-  @override
-  List<Object?> get props => [activeFilter, bookingsData, savedPostsData];
 }
 
 class LibraryError extends LibraryState {
@@ -2152,6 +2174,8 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
   _getAllBookingRelatedToOrganizationUseCase;
   final UpdateBookingStatusByIdUseCase _updateBookingStatusByIdUseCase;
   final GetAllSavedPostsUseCase _getAllSavedPostsUseCase;
+  final GetOrganizationDetailByPostOrganizationIdUseCase
+  _getOrganizationDetailUseCase;
 
   LibraryBloc({
     required GetAllBookingsByUserIdUseCase getAllBookingsByUserIdUseCase,
@@ -2159,11 +2183,14 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
     getAllBookingRelatedToOrganizationUseCase,
     required UpdateBookingStatusByIdUseCase updateBookingStatusByIdUseCase,
     required GetAllSavedPostsUseCase getAllSavedPostsUseCase,
+    required GetOrganizationDetailByPostOrganizationIdUseCase
+    getOrganizationDetailUseCase,
   }) : _getAllBookingsByUserIdUseCase = getAllBookingsByUserIdUseCase,
        _getAllBookingRelatedToOrganizationUseCase =
            getAllBookingRelatedToOrganizationUseCase,
        _updateBookingStatusByIdUseCase = updateBookingStatusByIdUseCase,
        _getAllSavedPostsUseCase = getAllSavedPostsUseCase,
+       _getOrganizationDetailUseCase = getOrganizationDetailUseCase,
        super(const LibraryInitial()) {
     on<LoadUserLibrary>(_onLoadUserLibrary);
     on<RefreshUserLibrary>(_onRefreshUserLibrary);
@@ -2171,6 +2198,7 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
     on<UpdateBookingStatusFromLibraryPage>(
       _onUpdateBookingStatusFromLibraryPage,
     );
+    on<FetchLibraryOrganizationDetails>(_onFetchOrganizationDetails);
   }
 
   Future<void> _onLoadUserLibrary(
@@ -2423,6 +2451,34 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
       }
       emit(LibraryError(message: e.toString()));
     }
+  }
+
+  Future<void> _onFetchOrganizationDetails(
+    FetchLibraryOrganizationDetails event,
+    Emitter<LibraryState> emit,
+  ) async {
+    if (state is! LibraryLoaded) return;
+
+    final currentState = state as LibraryLoaded;
+
+    if (currentState.organizations.containsKey(event.organizationId)) return;
+
+    final result = await _getOrganizationDetailUseCase(
+      GetOrganizationDetailByPostOrganizationIdParams(
+        organizationId: event.organizationId,
+      ),
+    );
+
+    result.fold(
+      (failure) {}, 
+      (organization) {
+        final updated = Map<String, Organization>.from(
+          currentState.organizations,
+        );
+        updated[event.organizationId] = organization;
+        emit(currentState.copyWith(organizations: updated));
+      },
+    );
   }
 
   /// Helper method to load bookings data
