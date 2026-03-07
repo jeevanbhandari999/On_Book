@@ -1723,6 +1723,7 @@ import 'package:app/features/booking/domain/usecases/create_booking_use_case.dar
 import 'package:app/features/booking/presentation/bloc/booking_bloc.dart';
 import 'package:app/features/booking/presentation/widgets/booking_form_shimmer_effect.dart';
 import 'package:app/features/booking/presentation/widgets/booking_posst_summary.dart';
+import 'package:app/features/booking/presentation/widgets/payment_result_page.dart';
 import 'package:app/features/post/domain/entities/post.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:esewa_flutter_sdk/esewa_config.dart';
@@ -1802,6 +1803,12 @@ class BookingFormView extends StatelessWidget {
               ),
             ),
           );
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) =>
+                  PaymentResultPage(booking: state.booking, success: true),
+            ),
+          );
         } else if (state is BookingFormError) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -1818,13 +1825,14 @@ class BookingFormView extends StatelessWidget {
           );
         }
       },
+
       builder: (context, state) {
         if (state is BookingFormLoading || state is BookingFormInitial) {
           return const BookingFormShimmerEffect();
         }
-        if (state is BookingFormSuccess) {
-          return _buildSuccessView(context, state, state.wasEdit);
-        }
+        // if (state is BookingFormSuccess) {
+        //   return _buildSuccessView(context, state, state.wasEdit);
+        // }
         if (state is BookingFormReady) {
           return _buildForm(context, state);
         }
@@ -2623,12 +2631,9 @@ class BookingFormView extends StatelessWidget {
                                         ? null
                                         : () {
                                             if (isCash) {
-                                              // ✅ Cash: submit booking directly
                                               context
                                                   .read<BookingFormBloc>()
-                                                  .add(
-                                                    const BookingFormSubmitted(),
-                                                  );
+                                                  .add(BookingFormSubmitted());
                                             } else if (isEsewa) {
                                               // eSewa: close sheet, launch SDK
                                               // Booking is submitted ONLY after payment success inside SDK callback
@@ -2699,15 +2704,22 @@ class BookingFormView extends StatelessWidget {
           secretId: 'BhwIWQQADhIYSxILExMcAgFXFhcOBwAKBgAXEQ==',
         ),
         esewaPayment: EsewaPayment(
-          productId:
-              '${state.postId}_${state.userId}_${state.paymentMethod.data.name}_${DateTime.now().toIso8601String()}',
+          productId: DateTime.now().toIso8601String(),
+          // productId:
+          //     '${state.postId}_${state.userId}_${state.paymentMethod.data.name}_${DateTime.now().toIso8601String()}',
           productName: '${post?.title}',
-          productPrice: '10',
+          productPrice: '12',
           // productPrice: totalAmount.toString(),
           callbackUrl: 'https://example.com',
         ),
         onPaymentSuccess: (EsewaPaymentSuccessResult data) {
           debugPrint(':::SUCCESS::: => $data');
+          bloc.add(
+            BookingFormPaymentIdChanged(
+              paymentId: data.refId,
+              paymentStatus: PaymentStatus.paid,
+            ),
+          );
           bloc.add(const BookingFormSubmitted());
         },
         onPaymentFailure: (data) {
@@ -3086,157 +3098,6 @@ class _PriceBreakdownRow extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-// ── eSewa payment processing page (wire your SDK here) ────────────────────────
-
-class PaymentProcessingPage extends StatelessWidget {
-  final double totalAmount;
-  final PaymentMethod paymentMethod;
-  final void Function(String transactionId) onPaymentSuccess;
-  final VoidCallback onPaymentFailure;
-
-  const PaymentProcessingPage({
-    super.key,
-    required this.totalAmount,
-    required this.paymentMethod,
-    required this.onPaymentSuccess,
-    required this.onPaymentFailure,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocListener<BookingFormBloc, BookingFormState>(
-      // After payment success triggers BookingFormSubmitted,
-      // wait for BookingFormSuccess then navigate to result
-      listener: (context, state) {
-        if (state is BookingFormSuccess) {
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(
-              builder: (_) =>
-                  PaymentResultPage(booking: state.booking, success: true),
-            ),
-          );
-        }
-        if (state is BookingFormError) {
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(
-              builder: (_) =>
-                  const PaymentResultPage(booking: null, success: false),
-            ),
-          );
-        }
-      },
-      child: Scaffold(
-        appBar: AppBar(title: Text('Pay via ${paymentMethod.data.name}')),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // TODO: Initialize eSewa SDK here and call onPaymentSuccess / onPaymentFailure
-              // Example:
-              // ESewaFlutterPlugin.initPayment(
-              //   eSewaConfig: ESewaConfig(...),
-              //   onSuccess: (result) => onPaymentSuccess(result.refId),
-              //   onFailure: (_) => onPaymentFailure(),
-              // )
-
-              // ── Simulate buttons for testing ──────────────────────────
-              ElevatedButton(
-                onPressed: () => onPaymentSuccess('TXN_SIMULATED_123'),
-                child: const Text('Simulate Payment Success'),
-              ),
-              const SizedBox(height: 12),
-              OutlinedButton(
-                onPressed: onPaymentFailure,
-                child: const Text('Simulate Payment Failure'),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// ── Payment result page ───────────────────────────────────────────────────────
-
-class PaymentResultPage extends StatelessWidget {
-  final Booking? booking;
-  final bool success;
-
-  const PaymentResultPage({
-    super.key,
-    required this.booking,
-    required this.success,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: success ? Colors.green.shade50 : Colors.red.shade50,
-      body: SafeArea(
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  success ? Icons.check_circle_rounded : Icons.cancel_rounded,
-                  size: 80,
-                  color: success ? Colors.green : Colors.red,
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  success ? 'Payment Successful!' : 'Payment Failed',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: success
-                        ? Colors.green.shade800
-                        : Colors.red.shade800,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  success && booking != null
-                      ? 'Your booking #${booking!.id.substring(0, 8)} is confirmed.'
-                      : 'Payment was not completed. No booking was created.\nYou can try again or choose a different payment method.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: success
-                        ? Colors.green.shade700
-                        : Colors.red.shade700,
-                  ),
-                ),
-                const SizedBox(height: 32),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: success
-                          ? Colors.green.shade600
-                          : Colors.red.shade600,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                    ),
-                    onPressed: () => Navigator.of(
-                      context,
-                    ).popUntil((route) => route.isFirst),
-                    child: Text(success ? 'Done' : 'Back to Home'),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
     );
   }
 }

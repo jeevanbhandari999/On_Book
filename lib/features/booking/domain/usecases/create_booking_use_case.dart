@@ -238,9 +238,10 @@ class CreateBookingUseCase {
       nights: nights,
       totalAmount: totalAmount,
       status: BookingStatus.pending,
-      paymentStatus: PaymentStatus.pending,
+      paymentStatus: params.paymentStatus,
       paymentMethod: params.paymentMethod ?? PaymentMethod.cash,
       notes: params.notes,
+      paymentId: params.paymentId,
 
       // isHourly: isHourly, // pass this flag so the model/DB knows the type
       createdAt: now,
@@ -258,6 +259,8 @@ class CreateBookingParams extends Equatable {
   final DateTime checkOutDate;
   final String? notes;
   final PaymentMethod? paymentMethod;
+  final String? paymentId;
+  final PaymentStatus paymentStatus;
 
   const CreateBookingParams({
     required this.userId,
@@ -266,6 +269,8 @@ class CreateBookingParams extends Equatable {
     required this.checkOutDate,
     this.notes,
     this.paymentMethod,
+    this.paymentId,
+    this.paymentStatus = PaymentStatus.pending,
   });
 
   @override
@@ -276,6 +281,8 @@ class CreateBookingParams extends Equatable {
     checkOutDate,
     notes,
     paymentMethod,
+    paymentStatus,
+    paymentId,
   ];
 
   CreateBookingParams copyWith({
@@ -285,6 +292,8 @@ class CreateBookingParams extends Equatable {
     DateTime? checkOutDate,
     String? notes,
     PaymentMethod? paymentMethod,
+    PaymentStatus? paymentStatus,
+    String? paymentId,
   }) {
     return CreateBookingParams(
       userId: userId ?? this.userId,
@@ -293,6 +302,8 @@ class CreateBookingParams extends Equatable {
       checkOutDate: checkOutDate ?? this.checkOutDate,
       notes: notes ?? this.notes,
       paymentMethod: paymentMethod ?? this.paymentMethod,
+      paymentStatus: paymentStatus ?? this.paymentStatus,
+      paymentId: paymentId ?? this.paymentId,
     );
   }
 

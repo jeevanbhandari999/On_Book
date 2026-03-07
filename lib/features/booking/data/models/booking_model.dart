@@ -165,6 +165,8 @@ class BookingModel extends Equatable {
       'latitude': latitude,
       'notes': notes,
       'payment_method': paymentMethod.name,
+      'payment_id': paymentId,
+      'payment_status': paymentStatus.name,
       'check_in_date': checkInDate.toIso8601String(),
       'check_out_date': checkOutDate.toIso8601String(),
       'total_amount': totalAmount,

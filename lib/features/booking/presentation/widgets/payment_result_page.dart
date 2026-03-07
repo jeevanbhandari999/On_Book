@@ -1,4 +1,5 @@
 import 'package:app/core/constants/ui_constants.dart';
+import 'package:app/core/widgets/common_widgets.dart';
 import 'package:app/features/booking/domain/entities/booking.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -26,288 +27,202 @@ class PaymentResultPage extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: lightBg,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          child: Column(
-            children: [
-              // ── Hero header ──────────────────────────────────────────────
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(
-                  vertical: 48,
-                  horizontal: 24,
-                ),
-                decoration: BoxDecoration(
-                  color: cardBg,
-                  borderRadius: const BorderRadius.vertical(
-                    bottom: Radius.circular(40),
-                  ),
-                ),
-                child: Column(
-                  children: [
-                    // Pulsing icon
-                    Container(
-                          width: 110,
-                          height: 110,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(
-                                color: iconBg.withAlpha(80),
-                                blurRadius: 30,
-                                spreadRadius: 10,
-                              ),
-                            ],
-                          ),
-                          child: Icon(
-                            success
-                                ? Icons.check_circle_rounded
-                                : Icons.cancel_rounded,
-                            size: 72,
-                            color: iconBg,
-                          ),
-                        )
-                        .animate()
-                        .scale(
-                          begin: const Offset(0, 0),
-                          end: const Offset(1, 1),
-                          duration: 600.ms,
-                          curve: Curves.elasticOut,
-                          delay: 100.ms,
-                        )
-                        .then()
-                        .animate(onPlay: (c) => c.repeat(reverse: true))
-                        .scaleXY(
-                          begin: 1.0,
-                          end: 1.06,
-                          duration: 1200.ms,
-                          curve: Curves.easeInOut,
-                        ),
-
-                    const SizedBox(height: 20),
-
-                    Text(
-                          success ? 'Booking Confirmed!' : 'Payment Failed',
-                          style: TextStyle(
-                            fontSize: 26,
-                            fontWeight: FontWeight.w800,
-                            color: primaryColor,
-                            letterSpacing: -0.5,
-                          ),
-                        )
-                        .animate()
-                        .fadeIn(delay: 500.ms, duration: 400.ms)
-                        .slideY(
-                          begin: 0.3,
-                          end: 0,
-                          duration: 400.ms,
-                          curve: Curves.easeOutCubic,
-                        ),
-
-                    const SizedBox(height: 6),
-
-                    Text(
-                          success
-                              ? 'Your reservation is all set.'
-                              : 'No booking was created. Please try again.',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: primaryColor.withAlpha(180),
-                            fontWeight: FontWeight.w500,
-                          ),
-                          textAlign: TextAlign.center,
-                        )
-                        .animate()
-                        .fadeIn(delay: 650.ms, duration: 400.ms)
-                        .slideY(
-                          begin: 0.3,
-                          end: 0,
-                          duration: 400.ms,
-                          curve: Curves.easeOutCubic,
-                        ),
-                  ],
+      body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        child: Column(
+          children: [
+            // ── Hero header ──────────────────────────────────────────────
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 24),
+              decoration: BoxDecoration(
+                color: cardBg,
+                borderRadius: const BorderRadius.vertical(
+                  bottom: Radius.circular(40),
                 ),
               ),
-
-              // ── Booking details ──────────────────────────────────────────
-              if (success && booking != null) ...[
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                    UiConstants.spacingMd,
-                    UiConstants.spacingMd,
-                    UiConstants.spacingMd,
-                    0,
-                  ),
-                  child: Column(
-                    children: [
-                      if (booking!.primaryImageUrl.isNotEmpty)
-                        _ImageTitleBanner(booking: booking!)
-                            .animate()
-                            .fadeIn(delay: 750.ms, duration: 500.ms)
-                            .slideY(
-                              begin: 0.2,
-                              end: 0,
-                              duration: 400.ms,
-                              curve: Curves.easeOutCubic,
-                            ),
-
-                      const SizedBox(height: UiConstants.spacingMd),
-
-                      _BookingInfoCard(booking: booking!)
-                          .animate()
-                          .fadeIn(delay: 850.ms, duration: 500.ms)
-                          .slideY(
-                            begin: 0.2,
-                            end: 0,
-                            duration: 400.ms,
-                            curve: Curves.easeOutCubic,
-                          ),
-
-                      const SizedBox(height: UiConstants.spacingMd),
-
-                      _PaymentSummaryCard(booking: booking!)
-                          .animate()
-                          .fadeIn(delay: 950.ms, duration: 500.ms)
-                          .slideY(
-                            begin: 0.2,
-                            end: 0,
-                            duration: 400.ms,
-                            curve: Curves.easeOutCubic,
-                          ),
-
-                      const SizedBox(height: UiConstants.spacingMd),
-
-                      _BookingIdChip(bookingId: booking!.id)
-                          .animate()
-                          .fadeIn(delay: 1050.ms, duration: 500.ms)
-                          .slideY(
-                            begin: 0.2,
-                            end: 0,
-                            duration: 400.ms,
-                            curve: Curves.easeOutCubic,
-                          ),
-                    ],
-                  ),
-                ),
-              ],
-
-              // ── Failure hint ─────────────────────────────────────────────
-              if (!success)
-                Padding(
-                      padding: const EdgeInsets.all(UiConstants.spacingMd),
-                      child: Container(
-                        padding: const EdgeInsets.all(UiConstants.spacingMd),
+              child: Column(
+                children: [
+                  // Pulsing icon
+                  Container(
+                        width: 110,
+                        height: 110,
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: const Color(0xFFFECACA)),
-                        ),
-                        child: Column(
-                          children: [
-                            const Icon(
-                              Icons.info_outline_rounded,
-                              color: Color(0xFFDC2626),
-                              size: 28,
-                            ),
-                            const SizedBox(height: 8),
-                            const Text(
-                              'What happened?',
-                              style: TextStyle(
-                                fontWeight: FontWeight.w700,
-                                fontSize: 16,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              'Your payment could not be processed and no booking was created. '
-                              'You can go back and try again with a different payment method.',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: Colors.grey.shade600,
-                                fontSize: 13,
-                                height: 1.5,
-                              ),
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: iconBg.withAlpha(80),
+                              blurRadius: 30,
+                              spreadRadius: 10,
                             ),
                           ],
                         ),
+                        child: Icon(
+                          success
+                              ? Icons.check_circle_rounded
+                              : Icons.cancel_rounded,
+                          size: 72,
+                          color: iconBg,
+                        ),
+                      )
+                      .animate()
+                      .scale(
+                        begin: const Offset(0, 0),
+                        end: const Offset(1, 1),
+                        duration: 600.ms,
+                        curve: Curves.elasticOut,
+                        delay: 100.ms,
+                      )
+                      .then()
+                      .animate(onPlay: (c) => c.repeat(reverse: true))
+                      .scaleXY(
+                        begin: 1.0,
+                        end: 1.06,
+                        duration: 1200.ms,
+                        curve: Curves.easeInOut,
                       ),
-                    )
-                    .animate()
-                    .fadeIn(delay: 750.ms, duration: 500.ms)
-                    .slideY(
-                      begin: 0.2,
-                      end: 0,
-                      duration: 400.ms,
-                      curve: Curves.easeOutCubic,
-                    ),
 
-              // ── Action buttons ───────────────────────────────────────────
+                  const SizedBox(height: 20),
+
+                  Text(
+                        success ? 'Booking Confirmed!' : 'Payment Failed',
+                        style: TextStyle(
+                          fontSize: 26,
+                          fontWeight: FontWeight.w800,
+                          color: primaryColor,
+                          letterSpacing: -0.5,
+                        ),
+                      )
+                      .animate()
+                      .fadeIn(delay: 500.ms, duration: 400.ms)
+                      .slideY(
+                        begin: 0.3,
+                        end: 0,
+                        duration: 400.ms,
+                        curve: Curves.easeOutCubic,
+                      ),
+
+                  const SizedBox(height: 6),
+
+                  Text(
+                        success
+                            ? 'Your reservation is all set.'
+                            : 'No booking was created. Please try again.',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: primaryColor.withAlpha(180),
+                          fontWeight: FontWeight.w500,
+                        ),
+                        textAlign: TextAlign.center,
+                      )
+                      .animate()
+                      .fadeIn(delay: 650.ms, duration: 400.ms)
+                      .slideY(
+                        begin: 0.3,
+                        end: 0,
+                        duration: 400.ms,
+                        curve: Curves.easeOutCubic,
+                      ),
+                ],
+              ),
+            ),
+
+            // ── Booking details ──────────────────────────────────────────
+            if (success && booking != null) ...[
               Padding(
-                    padding: const EdgeInsets.fromLTRB(
-                      UiConstants.spacingMd,
-                      UiConstants.spacingSm,
-                      UiConstants.spacingMd,
-                      UiConstants.spacingMd,
-                    ),
-                    child: Column(
-                      children: [
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: iconBg,
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              elevation: 0,
-                            ),
-                            onPressed: () => Navigator.of(
-                              context,
-                            ).popUntil((r) => r.isFirst),
-                            child: Text(
-                              success ? 'Done' : 'Back to Home',
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w700,
-                              ),
+                padding: const EdgeInsets.fromLTRB(
+                  UiConstants.spacingMd,
+                  UiConstants.spacingMd,
+                  UiConstants.spacingMd,
+                  0,
+                ),
+                child: Column(
+                  children: [
+                    if (booking!.primaryImageUrl.isNotEmpty)
+                      _ImageTitleBanner(booking: booking!)
+                          .animate()
+                          .fadeIn(delay: 750.ms, duration: 500.ms)
+                          .slideY(
+                            begin: 0.2,
+                            end: 0,
+                            duration: 400.ms,
+                            curve: Curves.easeOutCubic,
+                          ),
+
+                    const SizedBox(height: UiConstants.spacingMd),
+
+                    _BookingInfoCard(booking: booking!)
+                        .animate()
+                        .fadeIn(delay: 850.ms, duration: 500.ms)
+                        .slideY(
+                          begin: 0.2,
+                          end: 0,
+                          duration: 400.ms,
+                          curve: Curves.easeOutCubic,
+                        ),
+
+                    const SizedBox(height: UiConstants.spacingMd),
+
+                    _PaymentSummaryCard(booking: booking!)
+                        .animate()
+                        .fadeIn(delay: 950.ms, duration: 500.ms)
+                        .slideY(
+                          begin: 0.2,
+                          end: 0,
+                          duration: 400.ms,
+                          curve: Curves.easeOutCubic,
+                        ),
+
+                    const SizedBox(height: UiConstants.spacingMd),
+                  ],
+                ),
+              ),
+            ],
+
+            // ── Failure hint ─────────────────────────────────────────────
+            if (!success)
+              Padding(
+                    padding: const EdgeInsets.all(UiConstants.spacingMd),
+                    child: Container(
+                      padding: const EdgeInsets.all(UiConstants.spacingMd),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: const Color(0xFFFECACA)),
+                      ),
+                      child: Column(
+                        children: [
+                          const Icon(
+                            Icons.info_outline_rounded,
+                            color: Color(0xFFDC2626),
+                            size: 28,
+                          ),
+                          const SizedBox(height: 8),
+                          const Text(
+                            'What happened?',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 16,
                             ),
                           ),
-                        ),
-                        if (!success) ...[
-                          const SizedBox(height: 10),
-                          SizedBox(
-                            width: double.infinity,
-                            child: OutlinedButton(
-                              style: OutlinedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 16,
-                                ),
-                                side: BorderSide(color: primaryColor),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                              ),
-                              onPressed: () => Navigator.of(context).pop(),
-                              child: Text(
-                                'Try Again',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w700,
-                                  color: primaryColor,
-                                ),
-                              ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'Your payment could not be processed and no booking was created. '
+                            'You can go back and try again with a different payment method.',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Colors.grey.shade600,
+                              fontSize: 13,
+                              height: 1.5,
                             ),
                           ),
                         ],
-                      ],
+                      ),
                     ),
                   )
                   .animate()
-                  .fadeIn(delay: 1100.ms, duration: 400.ms)
+                  .fadeIn(delay: 750.ms, duration: 500.ms)
                   .slideY(
                     begin: 0.2,
                     end: 0,
@@ -315,9 +230,77 @@ class PaymentResultPage extends StatelessWidget {
                     curve: Curves.easeOutCubic,
                   ),
 
-              const SizedBox(height: UiConstants.spacingMd),
-            ],
-          ),
+            // ── Action buttons ───────────────────────────────────────────
+            Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    UiConstants.spacingMd,
+                    UiConstants.spacingSm,
+                    UiConstants.spacingMd,
+                    UiConstants.spacingMd,
+                  ),
+                  child: Column(
+                    children: [
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: iconBg,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            elevation: 0,
+                          ),
+                          onPressed: () =>
+                              Navigator.of(context).popUntil((r) => r.isFirst),
+                          child: Text(
+                            success ? 'Done' : 'Back to Home',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                      ),
+                      if (!success) ...[
+                        const SizedBox(height: 10),
+                        SizedBox(
+                          width: double.infinity,
+                          child: OutlinedButton(
+                            style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              side: BorderSide(color: primaryColor),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                            ),
+                            onPressed: () => Navigator.of(context).pop(),
+                            child: Text(
+                              'Try Again',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                                color: primaryColor,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                )
+                .animate()
+                .fadeIn(delay: 1100.ms, duration: 400.ms)
+                .slideY(
+                  begin: 0.2,
+                  end: 0,
+                  duration: 400.ms,
+                  curve: Curves.easeOutCubic,
+                ),
+
+            const SizedBox(height: UiConstants.spacingMd),
+          ],
         ),
       ),
     );
@@ -336,147 +319,75 @@ class _PaymentSummaryCard extends StatelessWidget {
         ? const Color(0xFF16A34A)
         : const Color(0xFFF59E0B);
 
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withAlpha(12),
-            blurRadius: 16,
-            offset: const Offset(0, 4),
+    return SectionContainer(
+      borderRadius: BorderRadius.circular(UiConstants.radiusMd),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Payment Summary',
+            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+          ),
+          const SizedBox(height: UiConstants.spacingSm),
+          _SummaryRow(
+            label: 'Price / night',
+            value: 'Rs. ${booking.price.toStringAsFixed(0)}',
+          ),
+          _SummaryRow(label: 'Nights', value: '× ${booking.nights}'),
+          const SizedBox(height: UiConstants.spacingMd),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Total Paid',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
+              ),
+              Text(
+                'Rs. ${booking.totalAmount.toStringAsFixed(2)}',
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w900,
+                  color: Color(0xFF16A34A),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: UiConstants.spacingSm),
+          // Payment status pill
+          Align(
+            alignment: Alignment.centerRight,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              decoration: BoxDecoration(
+                color: paymentStatusColor.withAlpha(25),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: paymentStatusColor.withAlpha(80)),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    booking.paymentStatus == PaymentStatus.paid
+                        ? Icons.check_circle_outline_rounded
+                        : Icons.schedule_rounded,
+                    size: 13,
+                    color: paymentStatusColor,
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    booking.paymentStatus.name.toUpperCase(),
+                    style: TextStyle(
+                      color: paymentStatusColor,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 11,
+                      letterSpacing: 0.8,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
         ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(UiConstants.spacingMd),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Payment Summary',
-              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
-            ),
-            const SizedBox(height: UiConstants.spacingSm),
-            _SummaryRow(
-              label: 'Price / night',
-              value: 'Rs. ${booking.price.toStringAsFixed(0)}',
-            ),
-            _SummaryRow(label: 'Nights', value: '× ${booking.nights}'),
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 8),
-              child: Divider(),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'Total Paid',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
-                ),
-                Text(
-                  'Rs. ${booking.totalAmount.toStringAsFixed(2)}',
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w900,
-                    color: Color(0xFF16A34A),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: UiConstants.spacingSm),
-            // Payment status pill
-            Align(
-              alignment: Alignment.centerRight,
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 4,
-                ),
-                decoration: BoxDecoration(
-                  color: paymentStatusColor.withAlpha(25),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: paymentStatusColor.withAlpha(80)),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      booking.paymentStatus == PaymentStatus.paid
-                          ? Icons.check_circle_outline_rounded
-                          : Icons.schedule_rounded,
-                      size: 13,
-                      color: paymentStatusColor,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      booking.paymentStatus.name.toUpperCase(),
-                      style: TextStyle(
-                        color: paymentStatusColor,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 11,
-                        letterSpacing: 0.8,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// ── Booking ID copyable chip ──────────────────────────────────────────────────
-
-class _BookingIdChip extends StatelessWidget {
-  final String bookingId;
-  const _BookingIdChip({required this.bookingId});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        Clipboard.setData(ClipboardData(text: bookingId));
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Booking ID copied!'),
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-            duration: const Duration(seconds: 2),
-          ),
-        );
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.grey.shade200),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.tag_rounded, size: 15, color: Colors.grey.shade500),
-            const SizedBox(width: 6),
-            Text(
-              bookingId.toUpperCase(),
-              style: TextStyle(
-                fontFamily: 'monospace',
-                fontSize: 12,
-                color: Colors.grey.shade600,
-                letterSpacing: 1.2,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(width: 8),
-            Icon(Icons.copy_rounded, size: 14, color: Colors.grey.shade400),
-          ],
-        ),
       ),
     );
   }
@@ -626,18 +537,8 @@ class _BookingInfoCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final statusColor = _statusColor(booking.status);
 
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withAlpha(12),
-            blurRadius: 16,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
+    return SectionContainer(
+      borderRadius: BorderRadius.circular(UiConstants.radiusMd),
       child: Column(
         children: [
           // Status banner at top
@@ -647,7 +548,8 @@ class _BookingInfoCard extends StatelessWidget {
             decoration: BoxDecoration(
               color: statusColor.withAlpha(25),
               borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(20),
+                top: Radius.circular(UiConstants.radiusMd),
+                bottom: Radius.circular(UiConstants.radiusMd),
               ),
             ),
             child: Row(
@@ -663,7 +565,7 @@ class _BookingInfoCard extends StatelessWidget {
                 ),
                 const SizedBox(width: 6),
                 Text(
-                  booking.status.name.toUpperCase(),
+                  booking.paymentStatus.name.toUpperCase(),
                   style: TextStyle(
                     color: statusColor,
                     fontWeight: FontWeight.w800,
@@ -674,35 +576,26 @@ class _BookingInfoCard extends StatelessWidget {
               ],
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(UiConstants.spacingMd),
-            child: Column(
-              children: [
-                _InfoTile(
-                  icon: Icons.confirmation_number_outlined,
-                  iconColor: const Color(0xFF6366F1),
-                  label: 'Booking ID',
-                  value: '#${booking.id.substring(0, 8).toUpperCase()}',
-                ),
+          const SizedBox(height: UiConstants.spacingSm),
+          Column(
+            children: [
+              _InfoTile(
+                icon: Icons.nights_stay_outlined,
+                iconColor: const Color(0xFF0EA5E9),
+                label: 'Duration',
+                value:
+                    '${booking.nights} Night${booking.nights > 1 ? 's' : ''}',
+              ),
+              if (booking.notes != null && booking.notes!.isNotEmpty) ...[
                 const Divider(height: 20),
                 _InfoTile(
-                  icon: Icons.nights_stay_outlined,
-                  iconColor: const Color(0xFF0EA5E9),
-                  label: 'Duration',
-                  value:
-                      '${booking.nights} Night${booking.nights > 1 ? 's' : ''}',
+                  icon: Icons.note_alt_outlined,
+                  iconColor: const Color(0xFFF59E0B),
+                  label: 'Notes',
+                  value: booking.notes!,
                 ),
-                if (booking.notes != null && booking.notes!.isNotEmpty) ...[
-                  const Divider(height: 20),
-                  _InfoTile(
-                    icon: Icons.note_alt_outlined,
-                    iconColor: const Color(0xFFF59E0B),
-                    label: 'Notes',
-                    value: booking.notes!,
-                  ),
-                ],
               ],
-            ),
+            ],
           ),
         ],
       ),

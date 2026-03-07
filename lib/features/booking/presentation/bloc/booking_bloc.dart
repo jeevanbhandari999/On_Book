@@ -78,6 +78,17 @@ class BookingFormPaymentMethodChanged extends BookingFormEvent {
   List<Object> get props => [paymentMethod];
 }
 
+class BookingFormPaymentIdChanged extends BookingFormEvent {
+  final String paymentId;
+  final PaymentStatus paymentStatus;
+  const BookingFormPaymentIdChanged({
+    required this.paymentId,
+    required this.paymentStatus,
+  });
+  @override
+  List<Object> get props => [paymentId, paymentStatus];
+}
+
 class BookingFormSubmitted extends BookingFormEvent {
   const BookingFormSubmitted();
 }
@@ -86,6 +97,7 @@ class BookingFormReset extends BookingFormEvent {
   const BookingFormReset();
 }
 
+// State
 abstract class BookingFormState extends Equatable {
   const BookingFormState();
   @override
@@ -108,6 +120,7 @@ class BookingFormReady extends BookingFormState {
   final String notes;
   final BookingStatus status;
   final PaymentStatus paymentStatus;
+  final String? paymentId;
   final String? adminNotes;
   final Map<String, String> validationErrors;
   final bool isValid;
@@ -126,6 +139,7 @@ class BookingFormReady extends BookingFormState {
     this.notes = '',
     this.status = BookingStatus.pending,
     this.paymentStatus = PaymentStatus.pending,
+    this.paymentId,
     this.adminNotes,
     this.validationErrors = const {},
     this.isValid = false,
@@ -157,6 +171,7 @@ class BookingFormReady extends BookingFormState {
     PaymentMethod? paymentMethod,
     bool? hasUserInteracted,
     bool? isSubmitting,
+    String? paymentId,
   }) {
     return BookingFormReady(
       userId: userId ?? this.userId,
@@ -175,6 +190,7 @@ class BookingFormReady extends BookingFormState {
       paymentMethod: paymentMethod ?? this.paymentMethod,
       hasUserInteracted: hasUserInteracted ?? this.hasUserInteracted,
       isSubmitting: isSubmitting ?? this.isSubmitting,
+      paymentId: paymentId ?? this.paymentId,
     );
   }
 
@@ -196,6 +212,7 @@ class BookingFormReady extends BookingFormState {
     paymentMethod,
     hasUserInteracted,
     isSubmitting,
+    paymentId,
   ];
 }
 
@@ -246,6 +263,7 @@ class BookingFormBloc extends Bloc<BookingFormEvent, BookingFormState> {
     on<BookingFormPaymentStatusChanged>(_onPaymentStatusChanged);
     on<BookingFormAdminNotesChanged>(_onAdminNotesChanged);
     on<BookingFormPaymentMethodChanged>(_onPaymentMethodChanged);
+    on<BookingFormPaymentIdChanged>(_onPaymentIdChanged);
 
     on<BookingFormSubmitted>(_onSubmitted);
     on<BookingFormReset>(_onReset);
@@ -359,6 +377,13 @@ class BookingFormBloc extends Bloc<BookingFormEvent, BookingFormState> {
     }
   }
 
+  void _onPaymentIdChanged(BookingFormPaymentIdChanged e, Emitter emit) {
+    if (state is BookingFormReady) {
+      final s = state as BookingFormReady;
+      emit(s.copyWith(paymentId: e.paymentId, paymentStatus: e.paymentStatus));
+    }
+  }
+
   Future<void> _onSubmitted(
     BookingFormSubmitted event,
     Emitter<BookingFormState> emit,
@@ -404,6 +429,8 @@ class BookingFormBloc extends Bloc<BookingFormEvent, BookingFormState> {
         checkOutDate: current.checkOutDate,
         notes: current.notes.trim().isEmpty ? null : current.notes.trim(),
         paymentMethod: current.paymentMethod,
+        paymentId: current.paymentId,
+        paymentStatus: current.paymentStatus,
       );
 
       final result = await _createBookingUseCase(params);
