@@ -1823,11 +1823,12 @@ class BookingFormView extends StatelessWidget {
           return const BookingFormShimmerEffect();
         }
         if (state is BookingFormSuccess) {
-          return _buildSuccessView(context, state.booking, state.wasEdit);
+          return _buildSuccessView(context, state, state.wasEdit);
         }
         if (state is BookingFormReady) {
           return _buildForm(context, state);
         }
+
         return const Scaffold(body: SizedBox.shrink());
       },
     );
@@ -2723,7 +2724,7 @@ class BookingFormView extends StatelessWidget {
 
   Widget _buildSuccessView(
     BuildContext context,
-    Booking booking,
+    BookingFormSuccess state,
     bool wasEdit,
   ) {
     return Scaffold(
@@ -2776,37 +2777,41 @@ class BookingFormView extends StatelessWidget {
                       padding: EdgeInsets.symmetric(vertical: 24),
                       child: Divider(thickness: 1.5),
                     ),
-                    _buildSuccessInfoRow('Title', booking.title),
-                    _buildSuccessInfoRow('Price/night', 'Rs.${booking.price}'),
-                    _buildSuccessInfoRow('Nights', '${booking.nights}'),
+                    _buildSuccessInfoRow('Title', state.booking.title),
+                    _buildSuccessInfoRow(
+                      'Price/night',
+                      'Rs.${state.booking.price}',
+                    ),
+                    _buildSuccessInfoRow('Nights', '${state.booking.nights}'),
                     const Padding(
                       padding: EdgeInsets.symmetric(vertical: 12),
                       child: Divider(thickness: 1.5),
                     ),
                     _buildSuccessInfoRow(
                       'Total Amount',
-                      'Rs.${booking.totalAmount}',
+                      'Rs.${state.booking.totalAmount}',
                       isTotal: true,
                     ),
                     const SizedBox(height: 16),
                     _buildSuccessInfoRow(
                       'Status',
-                      booking.status.name.toUpperCase(),
+                      state.booking.status.name.toUpperCase(),
                     ),
                     _buildSuccessInfoRow(
                       'Payment',
-                      booking.paymentStatus.name.toUpperCase(),
+                      state.booking.paymentStatus.name.toUpperCase(),
                     ),
-                    if (booking.notes != null && booking.notes!.isNotEmpty) ...[
+                    if (state.booking.notes != null &&
+                        state.booking.notes!.isNotEmpty) ...[
                       const SizedBox(height: 12),
-                      _buildSuccessInfoRow('Notes', booking.notes!),
+                      _buildSuccessInfoRow('Notes', state.booking.notes!),
                     ],
-                    if (booking.primaryImageUrl.isNotEmpty) ...[
+                    if (state.booking.primaryImageUrl.isNotEmpty) ...[
                       const SizedBox(height: 24),
                       ClipRRect(
                         borderRadius: BorderRadius.circular(16),
                         child: CachedNetworkImage(
-                          imageUrl: booking.primaryImageUrl,
+                          imageUrl: state.booking.primaryImageUrl,
                           height: 180,
                           width: double.infinity,
                           fit: BoxFit.cover,
