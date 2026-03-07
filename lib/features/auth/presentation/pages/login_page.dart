@@ -1,8 +1,13 @@
+import 'package:app/core/constants/app_images.dart';
+import 'package:app/core/constants/ui_constants.dart';
 import 'package:app/core/utils/validators/form_validators.dart';
 import 'package:app/core/widgets/common_widgets.dart';
+import 'package:app/core/widgets/custom_svg_icon.dart';
 import 'package:app/core/widgets/loading_widget.dart';
 import 'package:app/features/auth/services/auth_service.dart';
+import 'package:app/features/home/presentation/widgets/animated_app_icon.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:app/app/dependency_injection.dart';
@@ -45,8 +50,6 @@ class _LoginViewState extends State<LoginView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Login'), centerTitle: true),
-
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthAuthenticated) {
@@ -59,7 +62,6 @@ class _LoginViewState extends State<LoginView> {
               extra: state.user,
             );
           } else if (state is AuthNeedsOrganizationSelection) {
-            // print(state.user);
             context.go(
               RouteConstants.selectHotelOrganization,
               extra: state.user,
@@ -74,90 +76,176 @@ class _LoginViewState extends State<LoginView> {
           }
         },
         builder: (context, state) {
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const SizedBox(height: 64),
-                  // Logo/Title
-                  Text(
-                    'Welcome Back',
-                    style: Theme.of(context).textTheme.headlineLarge,
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 24),
+          return CustomScrollView(
+            slivers: [
+              /// HEADER
+              SliverAppBar(
+                automaticallyImplyLeading: false,
+                expandedHeight: 220,
+                collapsedHeight: 220,
+                pinned: false,
+                flexibleSpace: Stack(
+                  children: [
+                    Positioned.fill(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.primary,
 
-                  // Email field
-                  CustomTextField(
-                    label: 'Email',
-                    controller: _emailController,
-                    keyboardType: TextInputType.emailAddress,
-                    validator: FormValidators.email,
-                    prefixIcon: const Icon(Icons.email_outlined),
-                  ),
-                  const SizedBox(height: 16),
+                              borderRadius: const BorderRadius.vertical(
+                                bottom: Radius.circular(UiConstants.radiusXl),
+                              ),
+                            ),
+                          ),
+                        )
+                        .animate()
+                        .slideY(
+                          begin: -2,
+                          duration: UiConstants.animationSlow,
+                          curve: Curves.easeOutCubic,
+                        )
+                        .fadeIn(duration: UiConstants.animationSlow),
+                    FlexibleSpaceBar(
+                      background: Padding(
+                        padding: const EdgeInsets.all(UiConstants.spacingLg),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const SizedBox(height: UiConstants.spacingXl),
 
-                  // Password field
-                  CustomTextField(
-                    label: 'Password',
-                    controller: _passwordController,
-                    obscureText: _obscurePassword,
-                    validator: (value) =>
-                        FormValidators.required(value, fieldName: 'Password'),
-                    prefixIcon: const Icon(Icons.lock_outlined),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _obscurePassword
-                            ? Icons.visibility
-                            : Icons.visibility_off,
+                            SizedBox(
+                              width: 100,
+                              height: 100,
+                              child: const AnimatedAppIcon()
+                                  .animate()
+                                  .scaleXY(
+                                    begin: 0.8,
+                                    end: 1.1,
+                                    duration: UiConstants.animationSlowest,
+                                    curve: Curves.easeOutCubic,
+                                  )
+                                  .fadeIn(),
+                            ),
+                            const SizedBox(height: 10),
+                            const Text(
+                                  "OnBook",
+                                  style: TextStyle(
+                                    fontSize: 30,
+                                    fontWeight: FontWeight.w900,
+                                    letterSpacing: 1.3,
+                                    color: Colors.white,
+                                  ),
+                                )
+                                .animate()
+                                .slideY(
+                                  begin: 1,
+                                  duration: UiConstants.animationSlowest,
+                                  curve: Curves.easeOutCubic,
+                                )
+                                .fadeIn(),
+                            const Text(
+                              "BOOK SMARTER, LIVE BETTER",
+                              style: TextStyle(
+                                fontSize: 14,
+                                letterSpacing: 0.3,
+                                color: Colors.white,
+                              ),
+                              textAlign: TextAlign.center,
+                            ).animate().fadeIn(delay: 300.ms),
+                          ],
+                        ),
                       ),
-                      onPressed: () =>
-                          setState(() => _obscurePassword = !_obscurePassword),
                     ),
-                  ),
-                  const SizedBox(height: 8),
-
-                  // Forgot password
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: TextButton(
-                      onPressed: () =>
-                          context.push(RouteConstants.forgotPassword),
-                      child: const Text('Forgot Password?'),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-
-                  // Login button
-                  BlocBuilder<AuthBloc, AuthState>(
-                    builder: (context, state) {
-                      return LoadingButton(
-                        onPressed: () => _onLoginPressed(context),
-                        text: 'Login',
-                        isLoading: state is AuthLoading,
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Register link
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text("Don't have an account? "),
-                      TextButton(
-                        onPressed: () => context.go(RouteConstants.register),
-                        child: const Text('Sign Up'),
-                      ),
-                    ],
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
+
+              /// FORM SECTION
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.all(UiConstants.spacingLg),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      children: [
+                        Text(
+                          'Welcome Back',
+                          style: Theme.of(context).textTheme.headlineLarge,
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 24),
+
+                        CustomTextField(
+                          label: 'Email',
+                          controller: _emailController,
+                          keyboardType: TextInputType.emailAddress,
+                          validator: FormValidators.email,
+                          prefixIcon: const Icon(Icons.email_outlined),
+                        ),
+                        const SizedBox(height: 16),
+
+                        CustomTextField(
+                          label: 'Password',
+                          controller: _passwordController,
+                          obscureText: _obscurePassword,
+                          validator: (value) => FormValidators.required(
+                            value,
+                            fieldName: 'Password',
+                          ),
+                          prefixIcon: const Icon(Icons.lock_outlined),
+                          suffixIcon: IconButton(
+                            icon: CustomSvgIcon(
+                              path: _obscurePassword
+                                  ? AppImages.eyeOpenIcon
+                                  : AppImages.eyeCloseIcon,
+                            ),
+                            onPressed: () => setState(
+                              () => _obscurePassword = !_obscurePassword,
+                            ),
+                          ),
+                        ),
+
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: TextButton(
+                            onPressed: () =>
+                                context.push(RouteConstants.forgotPassword),
+                            child: const Text('Forgot Password?'),
+                          ),
+                        ),
+
+                        const SizedBox(height: UiConstants.spacingMd),
+
+                        BlocBuilder<AuthBloc, AuthState>(
+                          builder: (context, state) {
+                            return SizedBox(
+                              width: double.infinity,
+                              child: LoadingButton(
+                                onPressed: () => _onLoginPressed(context),
+                                text: 'Login',
+                                isLoading: state is AuthLoading,
+                              ),
+                            );
+                          },
+                        ),
+
+                        const SizedBox(height: UiConstants.spacingSm),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text("Don't have an account? "),
+                            TextButton(
+                              onPressed: () =>
+                                  context.go(RouteConstants.register),
+                              child: const Text('Sign Up'),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
           );
         },
       ),
