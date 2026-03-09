@@ -13,6 +13,7 @@ import 'package:app/features/post/presentation/widgets/header.dart';
 import 'package:app/features/post/presentation/widgets/post_grid_section.dart';
 import 'package:app/features/post/services/post_services.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:go_router/go_router.dart';
@@ -71,62 +72,67 @@ class OwnerView extends StatelessWidget {
             children: [
               Header(user: user, organization: organization),
               Container(
-                height: 50,
-                margin: const EdgeInsets.fromLTRB(
-                  UiConstants.spacingMd,
-                  0,
-                  UiConstants.spacingMd,
-                  16,
-                ),
-                decoration: BoxDecoration(
-                  color: AppColors.primaryLight,
-                  borderRadius: BorderRadius.circular(30),
-                  border: Border.all(color: Theme.of(context).primaryColor),
-                ),
-                child: TabBar(
-                  // indicatorColor: Theme.of(context).primaryColor,
-                  // indicatorSize: TabBarIndicatorSize.tab,
-                  indicator: BoxDecoration(
-                    color: Theme.of(context).primaryColor,
-                    borderRadius: BorderRadius.circular(30),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.primary.withAlpha(75),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
+                    height: 50,
+                    margin: const EdgeInsets.fromLTRB(
+                      UiConstants.spacingMd,
+                      0,
+                      UiConstants.spacingMd,
+                      16,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.primaryLight,
+                      borderRadius: BorderRadius.circular(30),
+                      border: Border.all(color: Theme.of(context).primaryColor),
+                    ),
+                    child: TabBar(
+                      // indicatorColor: Theme.of(context).primaryColor,
+                      // indicatorSize: TabBarIndicatorSize.tab,
+                      indicator: BoxDecoration(
+                        color: Theme.of(context).primaryColor,
+                        borderRadius: BorderRadius.circular(30),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.primary.withAlpha(75),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                  indicatorSize: TabBarIndicatorSize.tab,
-                  labelColor: AppColors.black,
-                  unselectedLabelColor: AppColors.black,
+                      indicatorSize: TabBarIndicatorSize.tab,
+                      labelColor: AppColors.black,
+                      unselectedLabelColor: AppColors.black,
 
-                  dividerColor: Colors.transparent,
-                  tabs: [
-                    _buildTab(
-                      context,
-                      index: 0,
-                      selectedIcon: Icons.grid_view_rounded,
-                      unselectedIcon: Icons.grid_view_outlined,
-                      label: 'All Posts',
+                      dividerColor: Colors.transparent,
+                      tabs: [
+                        _buildTab(
+                          context,
+                          index: 0,
+                          selectedIcon: Icons.grid_view_rounded,
+                          unselectedIcon: Icons.grid_view_outlined,
+                          label: 'All Posts',
+                        ),
+                        _buildTab(
+                          context,
+                          index: 1,
+                          selectedIcon: Icons.movie,
+                          unselectedIcon: Icons.movie_outlined,
+                          label: 'Videos',
+                        ),
+                        _buildTab(
+                          context,
+                          index: 2,
+                          selectedIcon: Icons.photo_library,
+                          unselectedIcon: Icons.photo_library_outlined,
+                          label: 'Images',
+                        ),
+                      ],
                     ),
-                    _buildTab(
-                      context,
-                      index: 1,
-                      selectedIcon: Icons.movie,
-                      unselectedIcon: Icons.movie_outlined,
-                      label: 'Videos',
-                    ),
-                    _buildTab(
-                      context,
-                      index: 2,
-                      selectedIcon: Icons.photo_library,
-                      unselectedIcon: Icons.photo_library_outlined,
-                      label: 'Images',
-                    ),
-                  ],
-                ),
-              ),
+                  )
+                  .animate(delay: UiConstants.animationDelayFaster)
+                  .scale(
+                    duration: UiConstants.animationDelayFast,
+                    curve: Curves.easeOut,
+                  ),
 
               // Divider(
               //   height: 1,
@@ -157,6 +163,28 @@ Widget _buildTab(
   required IconData unselectedIcon,
   required String label,
 }) {
+  // final isSelected = DefaultTabController.of(context).index == index;
+  // return Tab(
+  //   icon: Icon(
+  //     isSelected ? selectedIcon : unselectedIcon,
+  //     size: UiConstants.iconSm,
+  //   ),
+  //   child: FittedBox(
+  //     fit: BoxFit.scaleDown,
+  //     child: Row(
+  //       mainAxisSize: MainAxisSize.min,
+  //       children: [
+  //         Icon(
+  //           isSelected ? selectedIcon : unselectedIcon,
+  //           size: UiConstants.iconSm,
+  //         ),
+  //         const SizedBox(width: UiConstants.spacingSm),
+  //         Text(label),
+  //       ],
+  //     ),
+  //   ),
+  // );
+
   return AnimatedBuilder(
     animation: DefaultTabController.of(context),
     builder: (context, child) {
@@ -164,10 +192,14 @@ Widget _buildTab(
       return Tab(
         child: FittedBox(
           fit: BoxFit.scaleDown,
-          child: Column(
+          child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(isSelected ? selectedIcon : unselectedIcon),
+              Icon(
+                isSelected ? selectedIcon : unselectedIcon,
+                size: UiConstants.iconSm,
+              ),
+              const SizedBox(width: UiConstants.spacingSm),
               Text(label),
             ],
           ),

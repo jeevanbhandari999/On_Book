@@ -80,7 +80,7 @@ class Header extends StatelessWidget {
                               radius: 30,
                               backgroundColor: Theme.of(
                                 context,
-                              ).colorScheme.primaryContainer,
+                              ).colorScheme.secondary.withAlpha(150),
                               child:
                                   (organization.logoUrl != null &&
                                       organization.logoUrl!.isNotEmpty)
@@ -120,7 +120,7 @@ class Header extends StatelessWidget {
                               style: const TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.white,
+                                color: Colors.black,
                               ),
                             )
                             .animate()
@@ -138,7 +138,7 @@ class Header extends StatelessWidget {
                                   .last
                                   .toUpperCase(),
                               style: const TextStyle(
-                                color: Colors.white,
+                                color: Colors.black,
 
                                 fontWeight: FontWeight.w600,
                               ),
@@ -155,7 +155,7 @@ class Header extends StatelessWidget {
                               roleMessage,
                               style: const TextStyle(
                                 fontSize: 13,
-                                color: Colors.white,
+                                color: Colors.black,
                               ),
                             )
                             .animate(delay: UiConstants.animationNormal)

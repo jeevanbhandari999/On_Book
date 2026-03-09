@@ -157,6 +157,8 @@ class AppTheme {
       chipTheme: ChipThemeData(
         backgroundColor: colorScheme.secondaryContainer,
         selectedColor: colorScheme.primaryContainer,
+        // disabledColor: colorScheme.primary.withAlpha(100),
+        // disabledForegroundColor: AppColors.black.withAlpha(165),
         labelStyle: AppTextStyles.labelMedium.copyWith(
           color: colorScheme.onSecondaryContainer,
         ),
