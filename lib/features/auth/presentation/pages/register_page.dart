@@ -96,6 +96,7 @@ class _RegisterViewState extends State<RegisterView> {
                 expandedHeight: 220,
                 collapsedHeight: kToolbarHeight + UiConstants.spacingSm,
                 pinned: true,
+                backgroundColor: Colors.transparent,
                 centerTitle: true,
                 title: ShowOnCollapsedSliverAppBar(
                   child: const Text(
@@ -197,18 +198,23 @@ class _RegisterViewState extends State<RegisterView> {
                         const SizedBox(height: 32),
 
                         Text(
-                          'Join OnBook',
-                          style: Theme.of(context).textTheme.headlineLarge,
-                          textAlign: TextAlign.center,
-                        ),
+                              'Join OnBook',
+                              style: Theme.of(context).textTheme.headlineLarge,
+                              textAlign: TextAlign.center,
+                            )
+                            .animate(delay: UiConstants.animationDelayFast)
+                            .fadeIn()
+                            .moveX(begin: -20, end: 0),
 
                         Text(
-                          'Create your account to get started',
-                          style: Theme.of(
-                            context,
-                          ).textTheme.bodyMedium?.copyWith(color: Colors.black),
-                          textAlign: TextAlign.center,
-                        ),
+                              'Create your account to get started',
+                              style: Theme.of(context).textTheme.bodyMedium
+                                  ?.copyWith(color: Colors.black),
+                              textAlign: TextAlign.center,
+                            )
+                            .animate(delay: UiConstants.animationDelayFirst)
+                            .fadeIn()
+                            .moveX(begin: -20, end: 0),
 
                         const SizedBox(height: UiConstants.spacingLg),
 
@@ -288,10 +294,14 @@ class _RegisterViewState extends State<RegisterView> {
                         BlocBuilder<AuthBloc, AuthState>(
                           builder: (context, state) {
                             return LoadingButton(
-                              onPressed: () => _onRegisterPressed(context),
-                              text: 'Register',
-                              isLoading: state is AuthLoading,
-                            );
+                                  onPressed: () => _onRegisterPressed(context),
+                                  text: 'Register',
+                                  isLoading: state is AuthLoading,
+                                )
+                                .animate(
+                                  delay: UiConstants.animationDelaySlowest,
+                                )
+                                .scale(duration: 200.ms, curve: Curves.easeOut);
                           },
                         ),
 
@@ -308,7 +318,7 @@ class _RegisterViewState extends State<RegisterView> {
                               child: const Text('Sign In'),
                             ),
                           ],
-                        ),
+                        ).animate().fadeIn(delay: 900.ms),
                       ],
                     ),
                   ),
@@ -332,7 +342,10 @@ class _RegisterViewState extends State<RegisterView> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Who are you ?'),
+          const Text('Who are you ?')
+              .animate(delay: UiConstants.animationDelaySecond)
+              .fadeIn()
+              .moveX(begin: -20, end: 0),
           const SizedBox(height: 12),
           _buildRoleTile(UserRole.user),
           _buildRoleTile(UserRole.owner),
@@ -373,76 +386,85 @@ class _RegisterViewState extends State<RegisterView> {
         : Colors.transparent;
 
     return AnimatedContainer(
-      duration: const Duration(milliseconds: 220),
-      margin: const EdgeInsets.only(bottom: 10),
-      child: SectionContainer(
-        padding: const EdgeInsets.only(
-          top: UiConstants.spacingMd,
-          left: UiConstants.spacingMd,
-          bottom: UiConstants.spacingMd,
-          right: UiConstants.spacingXs,
-        ),
-        borderRadius: BorderRadius.circular(UiConstants.radiusMd),
-        onTap: () => setState(() => _selectedRole = role),
-        gradientColor: isSelected
-            ? LinearGradient(
-                colors: [?backgroundColor, ?backgroundColor, ?backgroundColor],
-              )
-            : null,
-        shadows: isSelected
-            ? [
-                BoxShadow(
-                  color: shadowColor,
-                  blurRadius: 10,
-                  offset: const Offset(0, 3),
-                  spreadRadius: 0,
-                ),
-              ]
-            : null,
-        child: Row(
-          children: [
-            // Icon with adaptive background
-            Container(
-              padding: const EdgeInsets.all(UiConstants.spacingSm),
-              decoration: BoxDecoration(
-                color: iconBgColor,
-                borderRadius: BorderRadius.circular(UiConstants.radiusSm),
-              ),
-              child: Icon(
-                roleConfig.icon,
-                color: isSelected ? theme.primaryColor : theme.iconTheme.color,
-                size: 28,
-              ),
+          duration: const Duration(milliseconds: 220),
+          margin: const EdgeInsets.only(bottom: 10),
+          child: SectionContainer(
+            padding: const EdgeInsets.only(
+              top: UiConstants.spacingMd,
+              left: UiConstants.spacingMd,
+              bottom: UiConstants.spacingMd,
+              right: UiConstants.spacingXs,
             ),
-            const SizedBox(width: 16),
-
-            // Title & Description
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(roleConfig.title),
-                  Text(
-                    roleConfig.description,
-                    style: const TextStyle(fontSize: 12),
+            borderRadius: BorderRadius.circular(UiConstants.radiusMd),
+            onTap: () => setState(() => _selectedRole = role),
+            gradientColor: isSelected
+                ? LinearGradient(
+                    colors: [
+                      ?backgroundColor,
+                      ?backgroundColor,
+                      ?backgroundColor,
+                    ],
+                  )
+                : null,
+            shadows: isSelected
+                ? [
+                    BoxShadow(
+                      color: shadowColor,
+                      blurRadius: 10,
+                      offset: const Offset(0, 3),
+                      spreadRadius: 0,
+                    ),
+                  ]
+                : null,
+            child: Row(
+              children: [
+                // Icon with adaptive background
+                Container(
+                  padding: const EdgeInsets.all(UiConstants.spacingSm),
+                  decoration: BoxDecoration(
+                    color: iconBgColor,
+                    borderRadius: BorderRadius.circular(UiConstants.radiusSm),
                   ),
-                ],
-              ),
+                  child: Icon(
+                    roleConfig.icon,
+                    color: isSelected
+                        ? theme.primaryColor
+                        : theme.iconTheme.color,
+                    size: 28,
+                  ),
+                ),
+                const SizedBox(width: 16),
+
+                // Title & Description
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(roleConfig.title),
+                      Text(
+                        roleConfig.description,
+                        style: const TextStyle(fontSize: 12),
+                      ),
+                    ],
+                  ),
+                ),
+                Radio<UserRole>(
+                  value: role,
+                  activeColor: theme.primaryColor,
+                  fillColor: WidgetStateProperty.resolveWith((states) {
+                    if (states.contains(WidgetState.selected)) {
+                      return theme.primaryColor;
+                    }
+                    return isDark ? Colors.grey[600] : Colors.grey[400];
+                  }),
+                ),
+              ],
             ),
-            Radio<UserRole>(
-              value: role,
-              activeColor: theme.primaryColor,
-              fillColor: WidgetStateProperty.resolveWith((states) {
-                if (states.contains(WidgetState.selected)) {
-                  return theme.primaryColor;
-                }
-                return isDark ? Colors.grey[600] : Colors.grey[400];
-              }),
-            ),
-          ],
-        ),
-      ),
-    );
+          ),
+        )
+        .animate(delay: UiConstants.animationDelayThird)
+        .fadeIn(delay: 300.ms)
+        .moveY(begin: 20, end: 0);
   }
 
   void _onRegisterPressed(BuildContext context) {

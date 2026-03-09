@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:app/core/constants/ui_constants.dart';
 import 'package:app/core/utils/extensions/extensions.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 class CustomTextField extends StatelessWidget {
   final String? label;
@@ -66,7 +67,7 @@ class CustomTextField extends StatelessWidget {
           ),
         ),
       ],
-    );
+    ).animate().fadeIn(delay: 300.ms).moveY(begin: 20, end: 0);
   }
 }
 
@@ -108,7 +109,7 @@ class CustomButton extends StatelessWidget {
       );
     }
 
-    return button;
+    return button.animate().scale(duration: 200.ms, curve: Curves.easeOut);
   }
 
   Widget _buildButtonChild() {

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:app/core/constants/app_images.dart';
 import 'package:app/core/constants/ui_constants.dart';
+import 'package:app/core/theme/app_colors.dart';
 import 'package:app/core/widgets/custom_svg_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -61,6 +62,10 @@ class AnimatedAppIconState extends State<AnimatedAppIcon> {
                   ),
                   child: const CustomSvgIcon(
                     path: AppImages.appIconTransparentSvg,
+                    // colorFilter: ColorFilter.mode(
+                    //   AppColors.primary,
+                    //   BlendMode.srcIn,
+                    // ),
                   ),
                 )
                 .animate(onPlay: (c) => c.repeat(reverse: true))

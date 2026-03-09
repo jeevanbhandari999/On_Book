@@ -1,6 +1,7 @@
 import 'package:app/app/dependency_injection.dart';
 import 'package:app/app/router/route_constants.dart';
 import 'package:app/core/constants/ui_constants.dart';
+import 'package:app/core/theme/app_colors.dart';
 import 'package:app/core/widgets/common_widgets.dart';
 import 'package:app/features/auth/data/models/orgnization_model.dart';
 import 'package:app/features/auth/data/models/user_model.dart';
@@ -69,41 +70,69 @@ class OwnerView extends StatelessWidget {
           return Column(
             children: [
               Header(user: user, organization: organization),
-              TabBar(
-                indicatorColor: Theme.of(context).primaryColor,
-                indicatorSize: TabBarIndicatorSize.tab,
-                unselectedLabelStyle: const TextStyle(fontSize: 12),
-                indicator: const BoxDecoration(),
-                tabs: [
-                  _buildTab(
-                    context,
-                    index: 0,
-                    selectedIcon: Icons.grid_view_rounded,
-                    unselectedIcon: Icons.grid_view_outlined,
-                    label: 'All Posts',
+              Container(
+                height: 50,
+                margin: const EdgeInsets.fromLTRB(
+                  UiConstants.spacingMd,
+                  0,
+                  UiConstants.spacingMd,
+                  16,
+                ),
+                decoration: BoxDecoration(
+                  color: AppColors.primaryLight,
+                  borderRadius: BorderRadius.circular(30),
+                  border: Border.all(color: Theme.of(context).primaryColor),
+                ),
+                child: TabBar(
+                  // indicatorColor: Theme.of(context).primaryColor,
+                  // indicatorSize: TabBarIndicatorSize.tab,
+                  indicator: BoxDecoration(
+                    color: Theme.of(context).primaryColor,
+                    borderRadius: BorderRadius.circular(30),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.primary.withAlpha(75),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
                   ),
-                  _buildTab(
-                    context,
-                    index: 1,
-                    selectedIcon: Icons.movie,
-                    unselectedIcon: Icons.movie_outlined,
-                    label: 'Videos',
-                  ),
-                  _buildTab(
-                    context,
-                    index: 2,
-                    selectedIcon: Icons.photo_library,
-                    unselectedIcon: Icons.photo_library_outlined,
-                    label: 'Images',
-                  ),
-                ],
+                  indicatorSize: TabBarIndicatorSize.tab,
+                  labelColor: AppColors.black,
+                  unselectedLabelColor: AppColors.black,
+
+                  dividerColor: Colors.transparent,
+                  tabs: [
+                    _buildTab(
+                      context,
+                      index: 0,
+                      selectedIcon: Icons.grid_view_rounded,
+                      unselectedIcon: Icons.grid_view_outlined,
+                      label: 'All Posts',
+                    ),
+                    _buildTab(
+                      context,
+                      index: 1,
+                      selectedIcon: Icons.movie,
+                      unselectedIcon: Icons.movie_outlined,
+                      label: 'Videos',
+                    ),
+                    _buildTab(
+                      context,
+                      index: 2,
+                      selectedIcon: Icons.photo_library,
+                      unselectedIcon: Icons.photo_library_outlined,
+                      label: 'Images',
+                    ),
+                  ],
+                ),
               ),
 
-              Divider(
-                height: 1,
-                thickness: 1,
-                color: Theme.of(context).colorScheme.primary,
-              ),
+              // Divider(
+              //   height: 1,
+              //   thickness: 1,
+              //   color: Theme.of(context).colorScheme.primary,
+              // ),
               Expanded(
                 child: TabBarView(
                   children: [
@@ -133,12 +162,15 @@ Widget _buildTab(
     builder: (context, child) {
       final isSelected = DefaultTabController.of(context).index == index;
       return Tab(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(isSelected ? selectedIcon : unselectedIcon),
-            Text(label),
-          ],
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(isSelected ? selectedIcon : unselectedIcon),
+              Text(label),
+            ],
+          ),
         ),
       );
     },

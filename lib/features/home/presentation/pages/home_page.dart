@@ -1,7 +1,6 @@
 import 'package:app/app/dependency_injection.dart';
 import 'package:app/app/router/route_constants.dart';
 import 'package:app/core/constants/ui_constants.dart';
-import 'package:app/core/theme/app_colors.dart';
 import 'package:app/core/widgets/auto_marquee_text.dart';
 import 'package:app/features/auth/domain/entities/organization.dart';
 import 'package:app/features/auth/services/auth_service.dart';
@@ -304,21 +303,6 @@ class HomeView extends StatelessWidget {
                               child: Container(
                                 decoration: BoxDecoration(
                                   color: Theme.of(context).colorScheme.primary,
-                                  // gradient: LinearGradient(
-                                  //   colors: [
-                                  //     Theme.of(
-                                  //       context,
-                                  //     ).colorScheme.primary.withAlpha(100),
-                                  //     Theme.of(
-                                  //       context,
-                                  //     ).colorScheme.primary.withAlpha(150),
-                                  //     Theme.of(
-                                  //       context,
-                                  //     ).colorScheme.primary.withAlpha(200),
-                                  //   ],
-                                  //   begin: Alignment.topLeft,
-                                  //   end: Alignment.bottomRight,
-                                  // ),
                                   borderRadius: const BorderRadius.vertical(
                                     bottom: Radius.circular(
                                       UiConstants.radiusXl,

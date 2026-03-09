@@ -1,3 +1,368 @@
+// import 'package:app/app/router/route_constants.dart';
+// import 'package:app/core/navigations/main_tab_navigation_page.dart';
+// import 'package:app/features/auth/data/models/user_model.dart';
+// import 'package:app/features/auth/domain/entities/user.dart';
+// import 'package:app/features/auth/presentation/pages/create_hotel_organization_page.dart';
+// import 'package:app/features/auth/presentation/pages/forgot_password_page.dart';
+// import 'package:app/features/auth/presentation/pages/login_page.dart';
+// import 'package:app/features/auth/presentation/pages/register_page.dart';
+// import 'package:app/features/auth/presentation/pages/select_hotel_organization_page.dart';
+// import 'package:app/features/booking/domain/entities/booking.dart';
+// import 'package:app/features/booking/presentation/pages/booking_deails_page.dart';
+// import 'package:app/features/booking/presentation/pages/booking_page.dart';
+// import 'package:app/features/chat/domain/entities/room.dart';
+// import 'package:app/features/chat/presentation/pages/chat_list_page.dart';
+// import 'package:app/features/chat/presentation/pages/chat_page.dart';
+// import 'package:app/features/chat/presentation/pages/contacts_page.dart';
+// import 'package:app/features/chat/presentation/pages/initial_chat_placeholder_page.dart';
+// import 'package:app/features/customer_review/presentation/pages/customer_review_page.dart';
+// import 'package:app/features/customer_review/presentation/pages/write_a_review_page.dart';
+// import 'package:app/features/home/presentation/pages/another.dart';
+// import 'package:app/features/home/presentation/pages/home_page.dart';
+// import 'package:app/features/library/presentation/pages/library_page.dart';
+// import 'package:app/features/organizations/presentation/pages/organization_details_page_owner_side.dart';
+// import 'package:app/features/organizations/presentation/pages/organization_details_page_user_side.dart';
+// import 'package:app/features/post/domain/entities/post.dart';
+// import 'package:app/features/post/presentation/pages/create_post_page.dart';
+// import 'package:app/features/post/presentation/pages/edit_post_page.dart';
+// import 'package:app/features/post/presentation/pages/post_details_page.dart';
+// import 'package:app/features/post/presentation/pages/post_page.dart';
+// import 'package:app/features/profile/presentation/pages/edit_profile_page.dart';
+// import 'package:app/features/profile/presentation/pages/profile_page.dart';
+// import 'package:app/features/profile/presentation/pages/view_user_profile_page.dart';
+// import 'package:app/features/search/presentation/pages/search_page.dart';
+// import 'package:app/features/splash/presentation/pages/splash_page.dart';
+// import 'package:flutter/material.dart';
+// import 'package:go_router/go_router.dart';
+
+// class AppRouter {
+//   static final GlobalKey<NavigatorState> rootNavigatorKey =
+//       GlobalKey<NavigatorState>(debugLabel: 'root');
+//   static final GlobalKey<NavigatorState> _shellNavigatorKey =
+//       GlobalKey<NavigatorState>(debugLabel: 'shell');
+//   static final GoRouter router = GoRouter(
+//     navigatorKey: rootNavigatorKey,
+//     initialLocation: RouteConstants.splash,
+//     routes: [
+//       // Splash route (no navigation)
+//       GoRoute(
+
+//         path: RouteConstants.splash,
+//         builder: (context, state) => const SplashPage(),
+//       ),
+
+//       GoRoute(
+//         path: RouteConstants.register,
+//         builder: (context, state) => const RegisterPage(),
+//       ),
+
+//       // Login page
+//       GoRoute(
+//         path: RouteConstants.login,
+//         builder: (context, state) => const LoginPage(),
+//       ),
+
+//       // Forgot password page
+//       GoRoute(
+//         path: RouteConstants.forgotPassword,
+//         builder: (context, state) => const ForgotPasswordPage(),
+//       ),
+
+//       // Create hotel/organization page for (role = owner),
+//       GoRoute(
+//         path: RouteConstants.createHotelOrganization,
+//         builder: (context, state) {
+//           final extraData = state.extra as UserModel?;
+//           return CreateHotelOrganizationPage(user: extraData);
+//         },
+//       ),
+
+//       // Selection of hotel/organization page for (manager and staff/worker)
+//       GoRoute(
+//         path: RouteConstants.selectHotelOrganization,
+//         builder: (context, state) {
+//           final extraData = state.extra as UserModel?;
+//           return SelectHotelOrganizationPage(user: extraData);
+//         },
+//       ),
+
+//       // === MAIN SHELL: Only ONE instance ===
+//       StatefulShellRoute.indexedStack(
+//         builder: (context, state, navigationShell) {
+//           return MainTabNavigationPage(
+//             currentRoute: state.uri.toString(),
+//             navigationShell: navigationShell, // Pass the shell
+//           );
+//         },
+//         branches: [
+//           // === Branch 0: Home ===
+//           StatefulShellBranch(
+//             navigatorKey: _shellNavigatorKey,
+//             routes: [
+//               GoRoute(
+//                 path: RouteConstants.home,
+//                 pageBuilder: (context, state) {
+//                   final extraData = state.extra as UserModel?;
+//                   final userId = extraData?.userId;
+//                   return NoTransitionPage(
+//                     child: HomePage(userId: userId ?? ''),
+//                   );
+//                 },
+//               ),
+//             ],
+//           ),
+
+//           // === Branch 1: Search ===
+//           StatefulShellBranch(
+//             routes: [
+//               GoRoute(
+//                 path: RouteConstants.searchPage,
+//                 pageBuilder: (context, state) =>
+//                     const NoTransitionPage(child: SearchPage()),
+//               ),
+//             ],
+//           ),
+
+//           // === Branch 2: Post ===
+//           StatefulShellBranch(
+//             routes: [
+//               GoRoute(
+//                 path: RouteConstants.postPage,
+//                 pageBuilder: (context, state) =>
+//                     const NoTransitionPage(child: PostPage()),
+//               ),
+//             ],
+//           ),
+
+//           // === Branch 3: library ===
+//           StatefulShellBranch(
+//             routes: [
+//               GoRoute(
+//                 path: RouteConstants.libraryPage,
+//                 pageBuilder: (context, state) =>
+//                     const NoTransitionPage(child: LibraryPage()),
+//               ),
+//             ],
+//           ),
+
+//           // === Branch 4: Profile ===
+//           StatefulShellBranch(
+//             routes: [
+//               GoRoute(
+//                 path: RouteConstants.profilePage,
+//                 pageBuilder: (context, state) =>
+//                     const NoTransitionPage(child: ProfilePage()),
+//               ),
+//             ],
+//           ),
+//         ],
+//       ),
+
+//       // Chat related pages
+//       GoRoute(
+//         path: RouteConstants.chatUserListPage,
+//         builder: (context, state) {
+//           final userId = state.extra as String;
+//           return RoomPage(currentUserId: userId);
+//         },
+//       ),
+
+//       GoRoute(
+//         path: RouteConstants.initialChatPlaceholderPage,
+//         builder: (context, state) {
+//           final extra = state.extra as Map<String, dynamic>;
+//           final organizationId = extra['organizationId'] as String?;
+//           final userId = extra['userId'] as String;
+//           final targetUserId = extra['targetUserId'] as String?;
+
+//           return InitialChatPlaceholderPage(
+//             organizationId: organizationId,
+//             userId: userId,
+//             targetUserId: targetUserId,
+//           );
+//         },
+//       ),
+//       GoRoute(
+//         path: RouteConstants.contacts,
+//         builder: (context, state) {
+//           final extra = state.extra as Map<String, dynamic>;
+//           final organizationId = extra['orgId'] as String;
+//           final userId = extra['userId'] as String;
+
+//           return ContactsPage(
+//             organizationId: organizationId,
+//             currentUserId: userId,
+//           );
+//         },
+//       ),
+
+//       GoRoute(
+//         path: RouteConstants.chatPage,
+//         pageBuilder: (context, state) {
+//           final args = state.extra as Map<String, dynamic>;
+//           final room = args['room'] as Room;
+//           final userId = args['userId'] as String;
+
+//           return NoTransitionPage(
+//             child: ChatPage(room: room, currentUserId: userId),
+//           );
+//         },
+//       ),
+
+//       // Check
+//       GoRoute(
+//         path: RouteConstants.anotherPage,
+//         builder: (context, state) => const Another(),
+//       ),
+
+//       // Post related page
+//       GoRoute(
+//         path: RouteConstants.createPostPage,
+//         builder: (context, state) {
+//           final extraData = state.extra as Map<String, dynamic>?;
+//           final userId = extraData?['userId'];
+//           final organizationId = extraData?['organizationId'];
+//           return CreatePostPage(userId: userId, organizationId: organizationId);
+//         },
+//       ),
+
+//       GoRoute(
+//         path: RouteConstants.postDetailsPage,
+//         builder: (context, state) {
+//           final extraData = state.extra as Map<String, dynamic>;
+//           // print(extraData);
+//           final postId = extraData['postId'] as String;
+//           final post = extraData['post'];
+//           final userId = extraData['userId'];
+//           return PostDetailsPage(postId: postId, post: post, userId: userId);
+//         },
+//       ),
+
+//       GoRoute(
+//         path: RouteConstants.editPostPage,
+//         builder: (context, state) {
+//           final extraData = state.extra as Map<String, dynamic>;
+//           // print(extraData);
+//           final postId = extraData['postId'];
+//           final post = extraData['post'];
+//           final userId = extraData['userId'];
+//           return EditPostPage(postId: postId, post: post, userId: userId);
+//         },
+//       ),
+
+//       // Booking routs
+//       GoRoute(
+//         path: RouteConstants.bookingFormPage,
+//         builder: (context, state) {
+//           final extraData = state.extra as Map<String, dynamic>;
+//           // print(extraData);
+//           final postId = extraData['postId'];
+//           final userId = extraData['userId'];
+//           final post = extraData['post'] as Post?;
+//           final editBooking = extraData['editBooking'] as Booking?;
+//           return BookingFormScreen(
+//             postId: postId,
+//             userId: userId,
+//             post: post,
+//             existingBooking: editBooking,
+//           );
+//         },
+//       ),
+
+//       GoRoute(
+//         path: RouteConstants.bookingDetailsPage,
+//         builder: (context, state) {
+//           final extraData = state.extra as Map<String, dynamic>;
+//           print('The extra data is $extraData');
+//           final bookingId = extraData['bookingId'] as String;
+//           final userId = extraData['userId'] as String;
+//           return BookingDetailsPage(bookingId: bookingId, userId: userId);
+//         },
+//       ),
+
+//       // GoRoute(
+//       //   path: RouteConstants.dummyPostPage,
+//       //   pageBuilder: (context, state) =>
+//       //       const NoTransitionPage(child: DummyPostPage()),
+//       // ),
+
+//       // GoRoute(
+//       //   path: RouteConstants.dummyPostPage,
+//       //   builder: (context, state) {
+//       //     final extraData = state.extra as Map<String, dynamic>?;
+//       //     final userId = extraData?['userId'];
+//       //     final organizationId = extraData?['organizationId'];
+//       //     return const DummyPostPage();
+//       //   },
+//       // ),
+
+//       //// Customer review related routes
+//       // Customer review
+//       GoRoute(
+//         path: RouteConstants.customerReviewPage,
+//         builder: (context, state) {
+//           final extraData = state.extra as Map<String, dynamic>;
+//           final post = extraData['post'] as Post;
+//           final postId = post.id;
+//           final userId = extraData['userId'] as String;
+//           return CustomerReviewPage(postId: postId, post: post, userId: userId);
+//         },
+//       ),
+
+//       // Write a review
+//       GoRoute(
+//         path: RouteConstants.writeAReviewPage,
+//         builder: (context, state) {
+//           final extraData = state.extra as Map<String, dynamic>;
+//           final post = extraData['post'] as Post;
+//           final userId = extraData['userId'] as String;
+//           return WriteAReviewPage(post: post, userId: userId);
+//         },
+//       ),
+
+//       // Organization related routes
+//       GoRoute(
+//         path: RouteConstants.organizationDetailsPageUserSide,
+//         builder: (context, state) {
+//           final extraData = state.extra as Map<String, String>;
+//           final userId = extraData['userId'] as String;
+//           final organizationId = extraData['organizationId'] as String;
+//           return OrganizationDetailsPageUserSide(
+//             organizationId: organizationId,
+//             userId: userId,
+//           );
+//         },
+//       ),
+//       GoRoute(
+//         path: RouteConstants.organizationDetailsPageOwnerSide,
+//         builder: (context, state) => const OrganizationDetailsPageOwnerSide(),
+//       ),
+
+//       // Profile related page
+//       GoRoute(
+//         path: RouteConstants.editProfilePage,
+//         builder: (context, state) {
+//           final extraData = state.extra as Map<String, dynamic>;
+//           final user = extraData['user'] as User;
+//           return EditProfilePage(profile: user);
+//         },
+//       ),
+//       GoRoute(
+//         path: RouteConstants.viewUserProfilePage,
+//         builder: (context, state) {
+//           final extraData = state.extra as Map<String, String>;
+//           final userId = extraData['userId'] as String;
+//           final currentUserId = extraData['currentUserId'] as String;
+//           return ViewUserProfilePage(
+//             userId: userId,
+//             currentUserId: currentUserId,
+//           );
+//         },
+//       ),
+//     ],
+//   );
+// }
+
 import 'package:app/app/router/route_constants.dart';
 import 'package:app/core/navigations/main_tab_navigation_page.dart';
 import 'package:app/features/auth/data/models/user_model.dart';
@@ -32,79 +397,94 @@ import 'package:app/features/profile/presentation/pages/profile_page.dart';
 import 'package:app/features/profile/presentation/pages/view_user_profile_page.dart';
 import 'package:app/features/search/presentation/pages/search_page.dart';
 import 'package:app/features/splash/presentation/pages/splash_page.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 class AppRouter {
+  static final GlobalKey<NavigatorState> rootNavigatorKey =
+      GlobalKey<NavigatorState>(debugLabel: 'root');
+
+  static final GlobalKey<NavigatorState> _shellNavigatorKey =
+      GlobalKey<NavigatorState>(debugLabel: 'shell');
+
   static final GoRouter router = GoRouter(
+    navigatorKey: rootNavigatorKey,
     initialLocation: RouteConstants.splash,
     routes: [
-      // Splash route (no navigation)
+      /// Splash
       GoRoute(
         path: RouteConstants.splash,
+        parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) => const SplashPage(),
       ),
 
+      /// Register
       GoRoute(
         path: RouteConstants.register,
+        parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) => const RegisterPage(),
       ),
 
-      // Login page
+      /// Login
       GoRoute(
         path: RouteConstants.login,
+        parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) => const LoginPage(),
       ),
 
-      // Forgot password page
+      /// Forgot Password
       GoRoute(
         path: RouteConstants.forgotPassword,
+        parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) => const ForgotPasswordPage(),
       ),
 
-      // Create hotel/organization page for (role = owner),
+      /// Create Organization
       GoRoute(
         path: RouteConstants.createHotelOrganization,
+        parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) {
-          final extraData = state.extra as UserModel?;
-          return CreateHotelOrganizationPage(user: extraData);
+          final user = state.extra as UserModel?;
+          return CreateHotelOrganizationPage(user: user);
         },
       ),
 
-      // Selection of hotel/organization page for (manager and staff/worker)
+      /// Select Organization
       GoRoute(
         path: RouteConstants.selectHotelOrganization,
+        parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) {
-          final extraData = state.extra as UserModel?;
-          return SelectHotelOrganizationPage(user: extraData);
+          final user = state.extra as UserModel?;
+          return SelectHotelOrganizationPage(user: user);
         },
       ),
 
-      // === MAIN SHELL: Only ONE instance ===
+      /// MAIN SHELL
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {
           return MainTabNavigationPage(
             currentRoute: state.uri.toString(),
-            navigationShell: navigationShell, // Pass the shell
+            navigationShell: navigationShell,
           );
         },
         branches: [
-          // === Branch 0: Home ===
+          /// HOME
           StatefulShellBranch(
+            navigatorKey: _shellNavigatorKey,
             routes: [
               GoRoute(
                 path: RouteConstants.home,
                 pageBuilder: (context, state) {
-                  final extraData = state.extra as UserModel?;
-                  final userId = extraData?.userId;
+                  final user = state.extra as UserModel?;
                   return NoTransitionPage(
-                    child: HomePage(userId: userId ?? ''),
+                    child: HomePage(userId: user?.userId ?? ''),
                   );
                 },
               ),
             ],
           ),
 
-          // === Branch 1: Search ===
+          /// SEARCH
           StatefulShellBranch(
             routes: [
               GoRoute(
@@ -115,7 +495,7 @@ class AppRouter {
             ],
           ),
 
-          // === Branch 2: Post ===
+          /// POST
           StatefulShellBranch(
             routes: [
               GoRoute(
@@ -126,7 +506,7 @@ class AppRouter {
             ],
           ),
 
-          // === Branch 3: library ===
+          /// LIBRARY
           StatefulShellBranch(
             routes: [
               GoRoute(
@@ -137,7 +517,7 @@ class AppRouter {
             ],
           ),
 
-          // === Branch 4: Profile ===
+          /// PROFILE
           StatefulShellBranch(
             routes: [
               GoRoute(
@@ -150,204 +530,195 @@ class AppRouter {
         ],
       ),
 
-      // Chat related pages
+      /// Chat User List
       GoRoute(
         path: RouteConstants.chatUserListPage,
+        parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) {
           final userId = state.extra as String;
           return RoomPage(currentUserId: userId);
         },
       ),
 
+      /// Initial Chat Placeholder
       GoRoute(
         path: RouteConstants.initialChatPlaceholderPage,
+        parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) {
           final extra = state.extra as Map<String, dynamic>;
-          final organizationId = extra['organizationId'] as String?;
-          final userId = extra['userId'] as String;
-          final targetUserId = extra['targetUserId'] as String?;
-
           return InitialChatPlaceholderPage(
-            organizationId: organizationId,
-            userId: userId,
-            targetUserId: targetUserId,
+            organizationId: extra['organizationId'],
+            userId: extra['userId'],
+            targetUserId: extra['targetUserId'],
           );
         },
       ),
+
+      /// Contacts
       GoRoute(
         path: RouteConstants.contacts,
+        parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) {
           final extra = state.extra as Map<String, dynamic>;
-          final organizationId = extra['orgId'] as String;
-          final userId = extra['userId'] as String;
-
           return ContactsPage(
-            organizationId: organizationId,
-            currentUserId: userId,
+            organizationId: extra['orgId'],
+            currentUserId: extra['userId'],
           );
         },
       ),
 
+      /// Chat Page
       GoRoute(
         path: RouteConstants.chatPage,
+        parentNavigatorKey: rootNavigatorKey,
         pageBuilder: (context, state) {
           final args = state.extra as Map<String, dynamic>;
-          final room = args['room'] as Room;
-          final userId = args['userId'] as String;
-
           return NoTransitionPage(
-            child: ChatPage(room: room, currentUserId: userId),
+            child: ChatPage(room: args['room'], currentUserId: args['userId']),
           );
         },
       ),
 
-      // Check
+      /// Another test page
       GoRoute(
         path: RouteConstants.anotherPage,
+        parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) => const Another(),
       ),
 
-      // Post related page
+      /// Create Post
       GoRoute(
         path: RouteConstants.createPostPage,
+        parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) {
-          final extraData = state.extra as Map<String, dynamic>?;
-          final userId = extraData?['userId'];
-          final organizationId = extraData?['organizationId'];
-          return CreatePostPage(userId: userId, organizationId: organizationId);
+          final extra = state.extra as Map<String, dynamic>?;
+          return CreatePostPage(
+            userId: extra?['userId'],
+            organizationId: extra?['organizationId'],
+          );
         },
       ),
 
+      /// Post Details
       GoRoute(
         path: RouteConstants.postDetailsPage,
+        parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) {
-          final extraData = state.extra as Map<String, dynamic>;
-          // print(extraData);
-          final postId = extraData['postId'] as String;
-          final post = extraData['post'];
-          final userId = extraData['userId'];
-          return PostDetailsPage(postId: postId, post: post, userId: userId);
+          final extra = state.extra as Map<String, dynamic>;
+          return PostDetailsPage(
+            postId: extra['postId'],
+            post: extra['post'],
+            userId: extra['userId'],
+          );
         },
       ),
 
+      /// Edit Post
       GoRoute(
         path: RouteConstants.editPostPage,
+        parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) {
-          final extraData = state.extra as Map<String, dynamic>;
-          // print(extraData);
-          final postId = extraData['postId'];
-          final post = extraData['post'];
-          final userId = extraData['userId'];
-          return EditPostPage(postId: postId, post: post, userId: userId);
+          final extra = state.extra as Map<String, dynamic>;
+          return EditPostPage(
+            postId: extra['postId'],
+            post: extra['post'],
+            userId: extra['userId'],
+          );
         },
       ),
 
-      // Booking routs
+      /// Booking Form
       GoRoute(
         path: RouteConstants.bookingFormPage,
+        parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) {
-          final extraData = state.extra as Map<String, dynamic>;
-          // print(extraData);
-          final postId = extraData['postId'];
-          final userId = extraData['userId'];
-          final post = extraData['post'] as Post?;
-          final editBooking = extraData['editBooking'] as Booking?;
+          final extra = state.extra as Map<String, dynamic>;
           return BookingFormScreen(
-            postId: postId,
-            userId: userId,
-            post: post,
-            existingBooking: editBooking,
+            postId: extra['postId'],
+            userId: extra['userId'],
+            post: extra['post'],
+            existingBooking: extra['editBooking'],
           );
         },
       ),
 
+      /// Booking Details
       GoRoute(
         path: RouteConstants.bookingDetailsPage,
+        parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) {
-          final extraData = state.extra as Map<String, dynamic>;
-          print('The extra data is $extraData');
-          final bookingId = extraData['bookingId'] as String;
-          final userId = extraData['userId'] as String;
-          return BookingDetailsPage(bookingId: bookingId, userId: userId);
-        },
-      ),
-
-      // GoRoute(
-      //   path: RouteConstants.dummyPostPage,
-      //   pageBuilder: (context, state) =>
-      //       const NoTransitionPage(child: DummyPostPage()),
-      // ),
-
-      // GoRoute(
-      //   path: RouteConstants.dummyPostPage,
-      //   builder: (context, state) {
-      //     final extraData = state.extra as Map<String, dynamic>?;
-      //     final userId = extraData?['userId'];
-      //     final organizationId = extraData?['organizationId'];
-      //     return const DummyPostPage();
-      //   },
-      // ),
-
-      //// Customer review related routes
-      // Customer review
-      GoRoute(
-        path: RouteConstants.customerReviewPage,
-        builder: (context, state) {
-          final extraData = state.extra as Map<String, dynamic>;
-          final post = extraData['post'] as Post;
-          final postId = post.id;
-          final userId = extraData['userId'] as String;
-          return CustomerReviewPage(postId: postId, post: post, userId: userId);
-        },
-      ),
-
-      // Write a review
-      GoRoute(
-        path: RouteConstants.writeAReviewPage,
-        builder: (context, state) {
-          final extraData = state.extra as Map<String, dynamic>;
-          final post = extraData['post'] as Post;
-          final userId = extraData['userId'] as String;
-          return WriteAReviewPage(post: post, userId: userId);
-        },
-      ),
-
-      // Organization related routes
-      GoRoute(
-        path: RouteConstants.organizationDetailsPageUserSide,
-        builder: (context, state) {
-          final extraData = state.extra as Map<String, String>;
-          final userId = extraData['userId'] as String;
-          final organizationId = extraData['organizationId'] as String;
-          return OrganizationDetailsPageUserSide(
-            organizationId: organizationId,
-            userId: userId,
+          final extra = state.extra as Map<String, dynamic>;
+          return BookingDetailsPage(
+            bookingId: extra['bookingId'],
+            userId: extra['userId'],
           );
         },
       ),
+
+      /// Customer Review
+      GoRoute(
+        path: RouteConstants.customerReviewPage,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>;
+          final post = extra['post'] as Post;
+          return CustomerReviewPage(
+            postId: post.id,
+            post: post,
+            userId: extra['userId'],
+          );
+        },
+      ),
+
+      /// Write Review
+      GoRoute(
+        path: RouteConstants.writeAReviewPage,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>;
+          return WriteAReviewPage(post: extra['post'], userId: extra['userId']);
+        },
+      ),
+
+      /// Organization user side
+      GoRoute(
+        path: RouteConstants.organizationDetailsPageUserSide,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) {
+          final extra = state.extra as Map<String, String>;
+          return OrganizationDetailsPageUserSide(
+            organizationId: extra['organizationId']!,
+            userId: extra['userId']!,
+          );
+        },
+      ),
+
+      /// Organization owner side
       GoRoute(
         path: RouteConstants.organizationDetailsPageOwnerSide,
+        parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) => const OrganizationDetailsPageOwnerSide(),
       ),
 
-      // Profile related page
+      /// Edit profile
       GoRoute(
         path: RouteConstants.editProfilePage,
+        parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) {
-          final extraData = state.extra as Map<String, dynamic>;
-          final user = extraData['user'] as User;
-          return EditProfilePage(profile: user);
+          final extra = state.extra as Map<String, dynamic>;
+          return EditProfilePage(profile: extra['user'] as User);
         },
       ),
+
+      /// View user profile
       GoRoute(
         path: RouteConstants.viewUserProfilePage,
+        parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) {
-          final extraData = state.extra as Map<String, String>;
-          final userId = extraData['userId'] as String;
-          final currentUserId = extraData['currentUserId'] as String;
+          final extra = state.extra as Map<String, String>;
           return ViewUserProfilePage(
-            userId: userId,
-            currentUserId: currentUserId,
+            userId: extra['userId']!,
+            currentUserId: extra['currentUserId']!,
           );
         },
       ),

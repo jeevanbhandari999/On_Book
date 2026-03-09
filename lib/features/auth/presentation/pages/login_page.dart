@@ -85,6 +85,7 @@ class _LoginViewState extends State<LoginView> {
                 expandedHeight: 220,
                 collapsedHeight: kToolbarHeight,
                 pinned: true,
+                backgroundColor: Colors.transparent,
                 centerTitle: true,
                 title: ShowOnCollapsedSliverAppBar(
                   child: const Text(
@@ -185,38 +186,55 @@ class _LoginViewState extends State<LoginView> {
                           'Welcome Back',
                           style: Theme.of(context).textTheme.headlineLarge,
                           textAlign: TextAlign.center,
-                        ),
+                        ).animate().fadeIn().moveX(begin: -20, end: 0),
+
+                        Text(
+                              'Sign in to continue booking',
+                              style: Theme.of(context).textTheme.bodyMedium
+                                  ?.copyWith(color: Colors.black),
+                              textAlign: TextAlign.center,
+                            )
+                            .animate(delay: UiConstants.animationDelayFaster)
+                            .fadeIn()
+                            .moveX(begin: -20, end: 0),
+
                         const SizedBox(height: UiConstants.spacingLg),
 
                         CustomTextField(
-                          label: 'Email',
-                          controller: _emailController,
-                          keyboardType: TextInputType.emailAddress,
-                          validator: FormValidators.email,
-                          prefixIcon: const Icon(Icons.email_outlined),
-                        ),
+                              label: 'Email',
+                              controller: _emailController,
+                              keyboardType: TextInputType.emailAddress,
+                              validator: FormValidators.email,
+                              prefixIcon: const Icon(Icons.email_outlined),
+                            )
+                            .animate()
+                            .fadeIn(delay: 200.ms)
+                            .moveY(begin: 20, end: 0),
                         const SizedBox(height: 16),
 
                         CustomTextField(
-                          label: 'Password',
-                          controller: _passwordController,
-                          obscureText: _obscurePassword,
-                          validator: (value) => FormValidators.required(
-                            value,
-                            fieldName: 'Password',
-                          ),
-                          prefixIcon: const Icon(Icons.lock_outlined),
-                          suffixIcon: IconButton(
-                            icon: CustomSvgIcon(
-                              path: _obscurePassword
-                                  ? AppImages.eyeOpenIcon
-                                  : AppImages.eyeCloseIcon,
-                            ),
-                            onPressed: () => setState(
-                              () => _obscurePassword = !_obscurePassword,
-                            ),
-                          ),
-                        ),
+                              label: 'Password',
+                              controller: _passwordController,
+                              obscureText: _obscurePassword,
+                              validator: (value) => FormValidators.required(
+                                value,
+                                fieldName: 'Password',
+                              ),
+                              prefixIcon: const Icon(Icons.lock_outlined),
+                              suffixIcon: IconButton(
+                                icon: CustomSvgIcon(
+                                  path: _obscurePassword
+                                      ? AppImages.eyeOpenIcon
+                                      : AppImages.eyeCloseIcon,
+                                ),
+                                onPressed: () => setState(
+                                  () => _obscurePassword = !_obscurePassword,
+                                ),
+                              ),
+                            )
+                            .animate()
+                            .fadeIn(delay: 300.ms)
+                            .moveY(begin: 20, end: 0),
 
                         Align(
                           alignment: Alignment.centerRight,
@@ -225,7 +243,7 @@ class _LoginViewState extends State<LoginView> {
                                 context.push(RouteConstants.forgotPassword),
                             child: const Text('Forgot Password?'),
                           ),
-                        ),
+                        ).animate().fadeIn(delay: 400.ms),
 
                         const SizedBox(height: UiConstants.spacingMd),
 
@@ -253,7 +271,7 @@ class _LoginViewState extends State<LoginView> {
                               child: const Text('Sign Up'),
                             ),
                           ],
-                        ),
+                        ).animate().fadeIn(delay: 900.ms),
                       ],
                     ),
                   ),

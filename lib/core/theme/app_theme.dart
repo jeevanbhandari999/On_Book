@@ -6,11 +6,6 @@ import 'package:app/core/constants/ui_constants.dart';
 class AppTheme {
   static ThemeData get lightTheme {
     final ColorScheme colorScheme =
-        // ColorScheme.fromSeed(
-        //   seedColor: AppColors.primary,
-        //   brightness: Brightness.light,
-        // ).copyWith(secondary: AppColors.secondary);
-        // light
         ColorScheme.fromSeed(
           seedColor: AppColors.primary,
           brightness: Brightness.light,

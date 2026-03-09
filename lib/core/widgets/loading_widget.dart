@@ -1,17 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:app/core/constants/ui_constants.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 class LoadingWidget extends StatelessWidget {
   final String? message;
   final double? size;
   final Color? color;
 
-  const LoadingWidget({
-    super.key,
-    this.message,
-    this.size,
-    this.color,
-  });
+  const LoadingWidget({super.key, this.message, this.size, this.color});
 
   @override
   Widget build(BuildContext context) {
@@ -32,11 +28,8 @@ class LoadingWidget extends StatelessWidget {
             Text(
               message!,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(context)
-                        .colorScheme
-                        .onSurface
-                        .withAlpha(180),
-                  ),
+                color: Theme.of(context).colorScheme.onSurface.withAlpha(180),
+              ),
               textAlign: TextAlign.center,
             ),
           ],
@@ -113,6 +106,6 @@ class LoadingButton extends StatelessWidget {
                 Text(text),
               ],
             ),
-    );
+    ).animate().scale(duration: 200.ms, curve: Curves.easeOut);
   }
 }
