@@ -5,6 +5,7 @@ import 'package:app/app/router/route_constants.dart';
 import 'package:app/core/constants/ui_constants.dart';
 import 'package:app/core/theme/app_colors.dart';
 import 'package:app/core/utils/date_formatter.dart';
+import 'package:app/core/widgets/common_widgets.dart';
 import 'package:app/core/widgets/profile_avatar.dart';
 import 'package:app/features/auth/data/models/user_model.dart';
 import 'package:app/features/auth/domain/entities/organization.dart';
@@ -22,6 +23,7 @@ import 'package:app/features/organizations/presentation/pages/organization_image
 import 'package:app/features/organizations/presentation/widgets/organization_detail_shimmer.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shimmer/shimmer.dart';
@@ -138,17 +140,21 @@ class OrganizationDetailsViewUserSide extends StatelessWidget {
     bool canManage,
   ) {
     return SliverAppBar(
+      backgroundColor: Colors.transparent,
       expandedHeight: 220.0,
       centerTitle: false,
       floating: false,
       pinned: true,
       collapsedHeight: kToolbarHeight + UiConstants.spacingSm,
-      foregroundColor: Colors.white,
+      foregroundColor: Colors.black,
       titleSpacing: 0,
       title: ShowOnCollapsedSliverAppBar(
         child: Row(
           children: [
             CircleAvatar(
+              backgroundColor: Theme.of(
+                context,
+              ).colorScheme.secondary.withAlpha(150),
               radius: 24,
               child: ClipOval(
                 child: (org.logoUrl != null && org.logoUrl!.isNotEmpty)
@@ -170,6 +176,7 @@ class OrganizationDetailsViewUserSide extends StatelessWidget {
                         style: const TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
+                          color: Colors.black,
                         ),
                       ),
               ),
@@ -180,7 +187,7 @@ class OrganizationDetailsViewUserSide extends StatelessWidget {
               style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: Colors.white,
+                color: Colors.black,
               ),
             ),
           ],
@@ -212,138 +219,149 @@ class OrganizationDetailsViewUserSide extends StatelessWidget {
             Theme.of(context).colorScheme.primary,
             t,
           );
-          return Container(
-            decoration: BoxDecoration(
-              color: bgColor,
-              borderRadius: const BorderRadius.vertical(
-                bottom: Radius.circular(UiConstants.radiusXl),
-              ),
-            ),
-            child: FlexibleSpaceBar(
-              background: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Theme.of(context).primaryColor.withAlpha(210),
-                      Theme.of(context).primaryColor,
-                    ],
-                  ),
-                  borderRadius: BorderRadius.circular(UiConstants.radiusLg),
-                ),
-                child: canManage
-                    ? Column(
-                        children: [
-                          const SizedBox(height: kToolbarHeight),
-                          GestureDetector(
-                            onTap: () {
-                              if (org.logoUrl != null &&
-                                  org.logoUrl!.isNotEmpty) {
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (context) => OrganizationImagePage(
-                                      organization: org,
-                                    ),
-                                  ),
-                                );
-                              }
-                            },
-                            child: SizedBox(
-                              width: 200,
-                              height: 200,
-                              child:
-                                  BlocListener<
-                                    UpdateOrganizationLogoBloc,
-                                    UpdateOrganizationLogoState
-                                  >(
-                                    listener: (context, state) {
-                                      if (state
-                                          is UpdateOrganizationLogoSuccess) {
-                                        ScaffoldMessenger.of(
-                                          context,
-                                        ).showSnackBar(
-                                          const SnackBar(
-                                            content: Text(
-                                              'organization logo updated',
-                                            ),
-                                            backgroundColor: AppColors.success,
-                                          ),
-                                        );
-                                      }
-                                      if (state
-                                          is UpdateOrganizationLogoError) {
-                                        ScaffoldMessenger.of(
-                                          context,
-                                        ).showSnackBar(
-                                          SnackBar(
-                                            content: Text(state.message),
-                                            backgroundColor: AppColors.error,
-                                          ),
-                                        );
-                                      }
-                                    },
-                                    child: AppImagePicker(
-                                      existingImageUrl: org.logoUrl,
-                                      label: org.name[0].toUpperCase(),
-                                      showFileName: false,
-                                      borderRadius: UiConstants.radiusRound,
-                                      showUploadIcon: true,
-                                      showFirstNameCharacter: true,
-                                      height: 200,
-                                      onImagePicked: (file) {
-                                        context
-                                            .read<UpdateOrganizationLogoBloc>()
-                                            .add(
-                                              UpdateOrganizationLogoRequested(
-                                                organizationId: org.id,
-                                                newLogoFile: File(file.path),
-                                                existingLogoToDelete:
-                                                    org.logoUrl,
-                                              ),
-                                            );
-                                      },
-                                      showDottedBorder: false,
-                                    ),
-                                  ),
-                            ),
-                          ),
-                        ],
-                      )
-                    : GestureDetector(
-                        onTap: () {
-                          if (org.logoUrl != null && org.logoUrl!.isNotEmpty) {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    OrganizationImagePage(organization: org),
-                              ),
-                            );
-                          }
-                        },
-                        child: Center(
-                          child: CircleAvatar(
-                            radius: 80,
-                            backgroundColor: Colors.white,
-                            backgroundImage:
-                                (org.logoUrl != null && org.logoUrl!.isNotEmpty)
-                                ? NetworkImage(org.logoUrl!)
-                                : null,
-                            child: (org.logoUrl == null || org.logoUrl!.isEmpty)
-                                ? Text(
-                                    org.name.substring(0, 1).toUpperCase(),
-                                    style: TextStyle(
-                                      fontSize: 40,
-                                      fontWeight: FontWeight.bold,
-                                      color: Theme.of(context).primaryColor,
-                                    ),
-                                  )
-                                : null,
-                          ),
+          return Stack(
+            children: [
+              Positioned.fill(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.primary,
+                        borderRadius: const BorderRadius.vertical(
+                          bottom: Radius.circular(UiConstants.radiusXl),
                         ),
                       ),
+                    ),
+                  )
+                  .animate()
+                  .slideY(
+                    begin: -2,
+                    duration: UiConstants.animationSlow,
+                    curve: Curves.easeOutCubic,
+                  )
+                  .fadeIn(duration: UiConstants.animationSlow),
+              FlexibleSpaceBar(
+                background: Container(
+                  child: canManage
+                      ? Column(
+                          children: [
+                            const SizedBox(height: kToolbarHeight),
+                            GestureDetector(
+                              onTap: () {
+                                if (org.logoUrl != null &&
+                                    org.logoUrl!.isNotEmpty) {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          OrganizationImagePage(
+                                            organization: org,
+                                          ),
+                                    ),
+                                  );
+                                }
+                              },
+                              child: SizedBox(
+                                width: 200,
+                                height: 200,
+                                child:
+                                    BlocListener<
+                                      UpdateOrganizationLogoBloc,
+                                      UpdateOrganizationLogoState
+                                    >(
+                                      listener: (context, state) {
+                                        if (state
+                                            is UpdateOrganizationLogoSuccess) {
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).showSnackBar(
+                                            const SnackBar(
+                                              content: Text(
+                                                'organization logo updated',
+                                              ),
+                                              backgroundColor:
+                                                  AppColors.success,
+                                            ),
+                                          );
+                                        }
+                                        if (state
+                                            is UpdateOrganizationLogoError) {
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).showSnackBar(
+                                            SnackBar(
+                                              content: Text(state.message),
+                                              backgroundColor: AppColors.error,
+                                            ),
+                                          );
+                                        }
+                                      },
+                                      child: AppImagePicker(
+                                        existingImageUrl: org.logoUrl,
+                                        label: org.name[0].toUpperCase(),
+                                        showFileName: false,
+                                        borderRadius: UiConstants.radiusRound,
+                                        showUploadIcon: true,
+                                        showFirstNameCharacter: true,
+                                        height: 200,
+                                        onImagePicked: (file) {
+                                          context
+                                              .read<
+                                                UpdateOrganizationLogoBloc
+                                              >()
+                                              .add(
+                                                UpdateOrganizationLogoRequested(
+                                                  organizationId: org.id,
+                                                  newLogoFile: File(file.path),
+                                                  existingLogoToDelete:
+                                                      org.logoUrl,
+                                                ),
+                                              );
+                                        },
+                                        showDottedBorder: false,
+                                      ),
+                                    ),
+                              ),
+                            ),
+                          ],
+                        )
+                      : GestureDetector(
+                          onTap: () {
+                            if (org.logoUrl != null &&
+                                org.logoUrl!.isNotEmpty) {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      OrganizationImagePage(organization: org),
+                                ),
+                              );
+                            }
+                          },
+                          child: Center(
+                            child: CircleAvatar(
+                              radius: 80,
+                              backgroundColor: Theme.of(
+                                context,
+                              ).colorScheme.secondary.withAlpha(150),
+                              backgroundImage:
+                                  (org.logoUrl != null &&
+                                      org.logoUrl!.isNotEmpty)
+                                  ? NetworkImage(org.logoUrl!)
+                                  : null,
+                              child:
+                                  (org.logoUrl == null || org.logoUrl!.isEmpty)
+                                  ? Text(
+                                      org.name.substring(0, 1).toUpperCase(),
+                                      style: const TextStyle(
+                                        fontSize: 60,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black,
+                                      ),
+                                    )
+                                  : null,
+                            ),
+                          ),
+                        ),
+                ),
               ),
-            ),
+            ],
           );
         },
       ),
@@ -409,25 +427,9 @@ class OrganizationDetailsViewUserSide extends StatelessWidget {
       children: [
         const Text('Basic Info', style: TextStyle(fontSize: 18)),
         const SizedBox(height: UiConstants.spacingSm),
-        Container(
+        SectionContainer(
           padding: const EdgeInsets.all(UiConstants.spacingMd),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(UiConstants.radiusMd),
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [Colors.white.withAlpha(90), Colors.white.withAlpha(40)],
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withAlpha(22),
-                blurRadius: 20,
-                spreadRadius: 2,
-                offset: const Offset(0, 8),
-              ),
-            ],
-            border: Border.all(color: Colors.black.withAlpha(80), width: 1.2),
-          ),
+          borderRadius: BorderRadius.circular(UiConstants.radiusMd),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -559,25 +561,9 @@ class _SectionCard extends StatelessWidget {
       children: [
         Text(title, style: const TextStyle(fontSize: 18)),
         const SizedBox(height: UiConstants.spacingSm),
-        Container(
+        SectionContainer(
           padding: const EdgeInsets.all(UiConstants.spacingMd),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(UiConstants.radiusMd),
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [Colors.white.withAlpha(90), Colors.white.withAlpha(40)],
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withAlpha(22),
-                blurRadius: 20,
-                spreadRadius: 2,
-                offset: const Offset(0, 8),
-              ),
-            ],
-            border: Border.all(color: Colors.black.withAlpha(80), width: 1.2),
-          ),
+          borderRadius: BorderRadius.circular(UiConstants.radiusMd),
           child: Column(children: [...children]),
         ),
       ],

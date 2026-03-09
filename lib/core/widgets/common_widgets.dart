@@ -411,6 +411,7 @@ class SectionContainer extends StatelessWidget {
   final VoidCallback? onTap;
   final BorderRadius? inkWellBorderRadius;
   final LinearGradient? gradientColor;
+  final BoxDecoration? decoration;
 
   const SectionContainer({
     super.key,
@@ -423,6 +424,7 @@ class SectionContainer extends StatelessWidget {
     this.onTap,
     this.inkWellBorderRadius,
     this.gradientColor,
+    this.decoration,
   });
 
   @override
@@ -452,29 +454,34 @@ class SectionContainer extends StatelessWidget {
       //       ],
       // ),
       padding: padding ?? const EdgeInsets.all(UiConstants.spacingMd),
-      decoration: BoxDecoration(
-        borderRadius:
-            borderRadius ?? BorderRadius.circular(UiConstants.radiusXl),
-        gradient:
-            gradientColor ??
-            LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [Colors.white.withAlpha(90), Colors.white.withAlpha(40)],
-            ),
-        color: backgroundColor,
-        boxShadow:
-            shadows ??
-            [
-              BoxShadow(
-                color: Colors.black.withAlpha(22),
-                blurRadius: 20,
-                spreadRadius: 2,
-                offset: const Offset(0, 8),
-              ),
-            ],
-        border: Border.all(color: Colors.black.withAlpha(80), width: 1.2),
-      ),
+      decoration:
+          decoration ??
+          BoxDecoration(
+            borderRadius:
+                borderRadius ?? BorderRadius.circular(UiConstants.radiusXl),
+            gradient:
+                gradientColor ??
+                LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Colors.white.withAlpha(90),
+                    Colors.white.withAlpha(40),
+                  ],
+                ),
+            color: backgroundColor,
+            boxShadow:
+                shadows ??
+                [
+                  BoxShadow(
+                    color: Colors.black.withAlpha(22),
+                    blurRadius: 20,
+                    spreadRadius: 2,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
+            border: Border.all(color: Colors.black.withAlpha(80), width: 1.2),
+          ),
       child: child,
     );
 
@@ -487,7 +494,7 @@ class SectionContainer extends StatelessWidget {
       );
     }
 
-    return container;
+    return container.animate().fadeIn(delay: 300.ms).moveY(begin: 20, end: 0);
   }
 }
 
@@ -659,21 +666,21 @@ class CustomMultiSelect<T> extends StatelessWidget {
                   : null,
 
               disabledColor: isSelected
-                  ? const Color(0xFF10B981).withAlpha(18)
+                  ? Theme.of(context).primaryColor.withAlpha(18)
                   : const Color(0xFFEF4444).withAlpha(120),
 
               labelStyle: const TextStyle(color: Colors.black),
 
               selectedColor: readOnly
                   ? (const Color(0xFF10B981).withAlpha(158))
-                  : Colors.green.withAlpha(150),
+                  : Theme.of(context).primaryColor.withAlpha(150),
 
               backgroundColor: readOnly
                   ? (isSelected
-                        ? Colors.green.withAlpha(150)
+                        ? Theme.of(context).primaryColor.withAlpha(150)
                         : Colors.red.withAlpha(30))
                   : Colors.grey.shade100,
-              checkmarkColor: Theme.of(context).primaryColor,
+              checkmarkColor: Colors.black,
 
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),

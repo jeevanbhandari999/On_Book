@@ -100,7 +100,7 @@ class CustomerReviewView extends StatelessWidget {
                         backgroundColor: AppColors.primaryLight,
                         pinned: true,
                         expandedHeight: 300,
-                        foregroundColor: Colors.white,
+                        foregroundColor: Colors.black,
                         flexibleSpace: Stack(
                           children: [
                             Positioned.fill(
@@ -157,7 +157,7 @@ class CustomerReviewView extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                            color: Colors.black,
                           ),
                         ),
 
@@ -198,7 +198,7 @@ class CustomerReviewView extends StatelessWidget {
                                       Text(
                                         '${ratings.length} Ratings',
                                         style: const TextStyle(
-                                          color: Colors.white,
+                                          color: Colors.black,
                                         ),
                                       ),
                                       const SizedBox(
@@ -284,7 +284,7 @@ class CustomerReviewView extends StatelessWidget {
         // ),
         const Text(
               'Ratings',
-              style: TextStyle(fontSize: 16, color: Colors.white),
+              style: TextStyle(fontSize: 16, color: Colors.black),
             )
             .animate(delay: UiConstants.animationFast)
             .slideY(
@@ -303,7 +303,7 @@ class CustomerReviewView extends StatelessWidget {
             .fadeIn(duration: UiConstants.animationNormal),
         Text(
               '${ratings.length} Ratings',
-              style: const TextStyle(color: Colors.white),
+              style: const TextStyle(color: Colors.black),
             )
             .animate(delay: UiConstants.animationFast)
             .slideX(
@@ -331,7 +331,7 @@ class CustomerReviewView extends StatelessWidget {
           children: [
             Text(
               '${average.toStringAsFixed(1)} out of 5.0',
-              style: const TextStyle(color: Colors.white),
+              style: const TextStyle(color: Colors.black),
             ),
             const SizedBox(width: 8),
             RatingBarIndicator(
@@ -361,7 +361,7 @@ class CustomerReviewView extends StatelessWidget {
           ),
           child: const Text(
             'White a Review',
-            style: TextStyle(color: Colors.white, fontSize: 16),
+            style: TextStyle(color: Colors.black, fontSize: 16),
           ),
         ),
       ],
@@ -391,12 +391,14 @@ class CustomerReviewView extends StatelessWidget {
             : ((count / totalReviews) * 100).round();
 
         return RatingProgressBar(
-              backgroundColor: Colors.grey,
-              filledColor: Theme.of(context).colorScheme.primaryContainer,
+              backgroundColor: Theme.of(
+                context,
+              ).colorScheme.secondary.withAlpha(150),
+              filledColor: Colors.black,
               ratingRange: star == 1 ? '1 Star' : '$star Stars',
               percent: percent.toDouble(),
               peopleNumber: count,
-              textColor: Colors.white,
+              textColor: Colors.black,
             )
             .animate(delay: (index * 80).ms)
             .slideX(

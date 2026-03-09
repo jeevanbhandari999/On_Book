@@ -463,9 +463,7 @@ class _MainTabNavigationPageState extends State<MainTabNavigationPage>
                     Icon(
                       isSelected ? item.selectedIcon : item.icon,
                       size: 24,
-                      color: isSelected
-                          ? theme.colorScheme.onPrimary
-                          : Colors.white,
+                      color: isSelected ? Colors.black : Colors.white,
                     ),
                     if (isSelected) ...[
                       const SizedBox(width: UiConstants.spacingXs),
@@ -474,8 +472,8 @@ class _MainTabNavigationPageState extends State<MainTabNavigationPage>
                           item.label,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color: theme.colorScheme.onPrimary,
+                          style: const TextStyle(
+                            color: Colors.black,
                             fontWeight: FontWeight.w600,
                             fontSize: 14,
                           ),

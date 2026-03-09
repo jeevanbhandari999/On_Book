@@ -98,6 +98,7 @@ class _SearchViewState extends State<_SearchView> {
             body: CustomScrollView(
               slivers: [
                 SliverAppBar(
+                  backgroundColor: Colors.transparent,
                   expandedHeight: 100 + UiConstants.spacingLg,
                   collapsedHeight: 100 + UiConstants.spacingLg,
                   foregroundColor: Colors.white,
@@ -643,7 +644,7 @@ class _HotelCard extends StatelessWidget {
             children: [
               Expanded(
                 child: Container(
-                  color: Colors.grey.shade400,
+                  color: Theme.of(context).colorScheme.primaryContainer,
                   child: org.logoUrl != null
                       ? Image.network(
                           org.logoUrl!,
@@ -767,7 +768,7 @@ class _HotelGridCard extends StatelessWidget {
           children: [
             Expanded(
               child: Container(
-                color: Colors.grey.shade400,
+                color: Theme.of(context).colorScheme.primaryContainer,
                 child: org.logoUrl != null
                     ? Image.network(
                         org.logoUrl!,

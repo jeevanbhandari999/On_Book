@@ -77,35 +77,14 @@ class ViewUserProfileView extends StatelessWidget {
                           const SizedBox(height: UiConstants.spacingSm),
                           SizedBox(
                             width: double.infinity,
-                            child: Container(
+                            child: SectionContainer(
                               padding: const EdgeInsets.all(
                                 UiConstants.spacingMd,
                               ),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(
-                                  UiConstants.radiusMd,
-                                ),
-                                gradient: LinearGradient(
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                  colors: [
-                                    Colors.white.withAlpha(90),
-                                    Colors.white.withAlpha(40),
-                                  ],
-                                ),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withAlpha(22),
-                                    blurRadius: 20,
-                                    spreadRadius: 2,
-                                    offset: const Offset(0, 8),
-                                  ),
-                                ],
-                                border: Border.all(
-                                  color: Colors.black.withAlpha(80),
-                                  width: 1.2,
-                                ),
+                              borderRadius: BorderRadius.circular(
+                                UiConstants.radiusMd,
                               ),
+
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -183,6 +162,9 @@ class ViewUserProfileView extends StatelessWidget {
         child: Row(
           children: [
             CircleAvatar(
+              backgroundColor: Theme.of(
+                context,
+              ).colorScheme.secondary.withAlpha(150),
               radius: 24,
               child: ClipOval(
                 child: user.imageUrl != null && user.imageUrl!.isNotEmpty
@@ -214,7 +196,7 @@ class ViewUserProfileView extends StatelessWidget {
               style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: Colors.white,
+                color: Colors.black,
               ),
             ),
           ],
@@ -303,25 +285,10 @@ class ViewUserProfileView extends StatelessWidget {
   }
 
   Widget _buildProfileInfoCard(User user) {
-    return Container(
+    return SectionContainer(
       padding: const EdgeInsets.all(UiConstants.spacingMd),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(UiConstants.radiusMd),
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Colors.white.withAlpha(90), Colors.white.withAlpha(40)],
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withAlpha(22),
-            blurRadius: 20,
-            spreadRadius: 2,
-            offset: const Offset(0, 8),
-          ),
-        ],
-        border: Border.all(color: Colors.black.withAlpha(80), width: 1.2),
-      ),
+      borderRadius: BorderRadius.circular(UiConstants.radiusMd),
+
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -381,25 +348,10 @@ class ViewUserProfileView extends StatelessWidget {
   }
 
   Widget _buildInfoSection(BuildContext context, User user) {
-    return Container(
+    return SectionContainer(
       padding: const EdgeInsets.all(UiConstants.spacingMd),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(UiConstants.radiusMd),
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Colors.white.withAlpha(90), Colors.white.withAlpha(40)],
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withAlpha(22),
-            blurRadius: 20,
-            spreadRadius: 2,
-            offset: const Offset(0, 8),
-          ),
-        ],
-        border: Border.all(color: Colors.black.withAlpha(80), width: 1.2),
-      ),
+      borderRadius: BorderRadius.circular(UiConstants.radiusMd),
+
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

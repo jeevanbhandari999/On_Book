@@ -457,7 +457,7 @@ class HomeView extends StatelessWidget {
         Shimmer.fromColors(
           baseColor: Colors.grey.shade300,
           highlightColor: Colors.grey.shade100,
-          child: const CircleAvatar(radius: 28),
+          child: const CircleAvatar(backgroundColor: Colors.white, radius: 28),
         ),
         const SizedBox(height: 6),
         Shimmer.fromColors(
@@ -467,7 +467,7 @@ class HomeView extends StatelessWidget {
             height: 10,
             width: 40,
             decoration: BoxDecoration(
-              color: Colors.black,
+              color: Colors.white,
               borderRadius: BorderRadius.circular(4),
             ),
           ),

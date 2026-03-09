@@ -432,7 +432,7 @@ class _FilterChip extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: UiConstants.spacingMd),
         decoration: BoxDecoration(
           color: isActive
-              ? Theme.of(context).colorScheme.primaryContainer
+              ? Theme.of(context).colorScheme.secondary.withAlpha(150)
               : Colors.transparent,
           borderRadius: BorderRadius.circular(UiConstants.radiusMd),
         ),
@@ -447,7 +447,7 @@ class _FilterChip extends StatelessWidget {
               filter.displayName,
               style: TextStyle(
                 fontSize: isActive ? 16 : 14,
-                color: isActive ? Colors.black87 : Colors.white,
+                color: isActive ? Colors.black : Colors.black87,
               ),
             ),
           ],

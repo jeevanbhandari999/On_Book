@@ -160,7 +160,7 @@ class _RoomPageViewState extends State<RoomPageView> {
                     SliverAppBar(
                       expandedHeight: 120 + UiConstants.spacingMd,
                       collapsedHeight: 120 + UiConstants.spacingMd,
-                      foregroundColor: Colors.white,
+                      foregroundColor: Colors.black,
                       floating: false,
                       pinned: true,
                       title: Row(
@@ -169,7 +169,7 @@ class _RoomPageViewState extends State<RoomPageView> {
                           const Text(
                             'Messages',
                             style: TextStyle(
-                              color: Colors.white,
+                              color: Colors.black,
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
                             ),
@@ -373,7 +373,7 @@ class _RoomTile extends StatelessWidget {
                           child: Text(
                             '${room.members!.length}',
                             style: const TextStyle(
-                              color: Colors.white,
+                              color: Colors.black,
                               fontSize: 10,
                               fontWeight: FontWeight.bold,
                             ),
@@ -398,7 +398,7 @@ class _RoomTile extends StatelessWidget {
                                 fontWeight: hasUnread
                                     ? FontWeight.bold
                                     : FontWeight.w500,
-                                color: Colors.black87,
+                                color: Colors.black,
                               ),
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -409,7 +409,7 @@ class _RoomTile extends StatelessWidget {
                             ),
                             style: const TextStyle(
                               fontSize: 12,
-                              color: Colors.grey,
+                              color: Colors.black54,
                             ),
                           ),
                         ],
@@ -428,7 +428,7 @@ class _RoomTile extends StatelessWidget {
                                     : FontWeight.normal,
                                 color: (shouldShowOnlineIndicator && isOnline)
                                     ? Colors.green
-                                    : Colors.grey[600],
+                                    : Colors.black,
                               ),
                               overflow: TextOverflow.ellipsis,
                             ),

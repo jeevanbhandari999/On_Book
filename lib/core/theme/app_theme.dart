@@ -98,19 +98,19 @@ class AppTheme {
         filled: true,
         fillColor: colorScheme.surface,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(UiConstants.radiusRound),
+          borderRadius: BorderRadius.circular(UiConstants.radiusLg),
           borderSide: BorderSide(color: colorScheme.outlineVariant),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(UiConstants.radiusRound),
+          borderRadius: BorderRadius.circular(UiConstants.radiusLg),
           borderSide: BorderSide(color: colorScheme.outlineVariant),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(UiConstants.radiusRound),
+          borderRadius: BorderRadius.circular(UiConstants.radiusLg),
           borderSide: BorderSide(color: colorScheme.primary, width: 2),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(UiConstants.radiusRound),
+          borderRadius: BorderRadius.circular(UiConstants.radiusLg),
           borderSide: BorderSide(color: colorScheme.error),
         ),
         contentPadding: const EdgeInsets.all(UiConstants.radiusSm),

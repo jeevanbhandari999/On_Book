@@ -3,6 +3,7 @@ import 'package:app/app/dependency_injection.dart';
 import 'package:app/app/router/route_constants.dart';
 import 'package:app/core/constants/ui_constants.dart';
 import 'package:app/core/theme/app_colors.dart';
+import 'package:app/core/widgets/common_widgets.dart';
 import 'package:app/core/widgets/profile_avatar.dart';
 import 'package:app/features/auth/data/models/user_model.dart';
 import 'package:app/features/auth/domain/entities/user.dart';
@@ -118,35 +119,14 @@ class ProfileView extends StatelessWidget {
                                 const SizedBox(height: UiConstants.spacingSm),
                                 SizedBox(
                                   width: double.infinity,
-                                  child: Container(
+                                  child: SectionContainer(
                                     padding: const EdgeInsets.all(
                                       UiConstants.spacingMd,
                                     ),
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(
-                                        UiConstants.radiusMd,
-                                      ),
-                                      gradient: LinearGradient(
-                                        begin: Alignment.topLeft,
-                                        end: Alignment.bottomRight,
-                                        colors: [
-                                          Colors.white.withAlpha(90),
-                                          Colors.white.withAlpha(40),
-                                        ],
-                                      ),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black.withAlpha(22),
-                                          blurRadius: 20,
-                                          spreadRadius: 2,
-                                          offset: const Offset(0, 8),
-                                        ),
-                                      ],
-                                      border: Border.all(
-                                        color: Colors.black.withAlpha(80),
-                                        width: 1.2,
-                                      ),
+                                    borderRadius: BorderRadius.circular(
+                                      UiConstants.radiusMd,
                                     ),
+
                                     child: Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
@@ -203,7 +183,7 @@ class ProfileView extends StatelessWidget {
     );
   }
 
-  Container _buildSettingItem(
+  SectionContainer _buildSettingItem(
     BuildContext context, {
     IconData? icon,
     required String title,
@@ -214,26 +194,27 @@ class ProfileView extends StatelessWidget {
     Color? trailingColor,
     bool showBorder = true,
   }) {
-    return Container(
+    return SectionContainer(
+      padding: EdgeInsets.zero,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(UiConstants.radiusXl),
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Colors.white.withAlpha(30),
-            Colors.white.withAlpha(100),
-            Colors.white.withAlpha(200),
-          ],
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withAlpha(22),
-            blurRadius: 20,
-            spreadRadius: 2,
-            offset: const Offset(0, 8),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(UiConstants.radiusMd),
+        // gradient: LinearGradient(
+        //   begin: Alignment.topLeft,
+        //   end: Alignment.bottomRight,
+        //   colors: [
+        //     Colors.white.withAlpha(30),
+        //     Colors.white.withAlpha(100),
+        //     Colors.white.withAlpha(200),
+        //   ],
+        // ),
+        // boxShadow: [
+        //   BoxShadow(
+        //     color: Colors.black.withAlpha(22),
+        //     blurRadius: 20,
+        //     spreadRadius: 2,
+        //     offset: const Offset(0, 8),
+        //   ),
+        // ],
         border: showBorder
             ? Border.all(
                 color: borderColor ?? Colors.white.withAlpha(80),
@@ -244,12 +225,20 @@ class ProfileView extends StatelessWidget {
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(
           vertical: 0,
-          horizontal: UiConstants.spacingLg,
+          horizontal: UiConstants.spacingMd,
         ),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(UiConstants.radiusMd),
         ),
-        leading: icon != null ? Icon(icon, color: iconColor) : null,
+        // leading: icon != null ? Icon(icon, color: iconColor) : null,
+        leading: Container(
+          padding: const EdgeInsets.all(UiConstants.spacingSm),
+          decoration: BoxDecoration(
+            color: iconColor?.withAlpha(70),
+            borderRadius: BorderRadius.circular(UiConstants.radiusSm),
+          ),
+          child: Icon(icon, color: iconColor, size: 22),
+        ),
         title: Text(
           title,
           maxLines: 1,
@@ -267,7 +256,7 @@ class ProfileView extends StatelessWidget {
       pinned: true,
       stretch: true,
       expandedHeight: MediaQuery.sizeOf(context).height * 0.25,
-      backgroundColor: AppColors.primaryLight,
+      backgroundColor: Colors.transparent,
       collapsedHeight: kToolbarHeight + UiConstants.spacingSm,
       elevation: 0,
       actionsPadding: const EdgeInsets.symmetric(
@@ -281,7 +270,7 @@ class ProfileView extends StatelessWidget {
               borderRadius: BorderRadius.circular(UiConstants.radiusRound),
               color: Theme.of(context).colorScheme.primary,
             ),
-            child: const Icon(Icons.edit_sharp, color: Colors.white),
+            child: const Icon(Icons.edit_sharp, color: Colors.black),
           ),
           onPressed: () {
             context.push(RouteConstants.editProfilePage, extra: {'user': user});
@@ -292,6 +281,9 @@ class ProfileView extends StatelessWidget {
         child: Row(
           children: [
             CircleAvatar(
+              backgroundColor: Theme.of(
+                context,
+              ).colorScheme.secondary.withAlpha(150),
               radius: 24,
               child: ClipOval(
                 child: user.imageUrl != null && user.imageUrl!.isNotEmpty
@@ -323,7 +315,7 @@ class ProfileView extends StatelessWidget {
               style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: Colors.white,
+                color: Colors.black,
               ),
             ),
           ],
@@ -416,25 +408,9 @@ class ProfileView extends StatelessWidget {
   }
 
   Widget _buildProfileInfoCard(User user) {
-    return Container(
+    return SectionContainer(
+      borderRadius: BorderRadius.circular(UiConstants.radiusMd),
       padding: const EdgeInsets.all(UiConstants.spacingMd),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(UiConstants.radiusMd),
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Colors.white.withAlpha(90), Colors.white.withAlpha(40)],
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withAlpha(22),
-            blurRadius: 20,
-            spreadRadius: 2,
-            offset: const Offset(0, 8),
-          ),
-        ],
-        border: Border.all(color: Colors.black.withAlpha(80), width: 1.2),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -494,25 +470,10 @@ class ProfileView extends StatelessWidget {
   }
 
   Widget _buildInfoSection(BuildContext context, User user) {
-    return Container(
+    return SectionContainer(
+      borderRadius: BorderRadius.circular(UiConstants.radiusMd),
       padding: const EdgeInsets.all(UiConstants.spacingMd),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(UiConstants.radiusMd),
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Colors.white.withAlpha(90), Colors.white.withAlpha(40)],
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withAlpha(22),
-            blurRadius: 20,
-            spreadRadius: 2,
-            offset: const Offset(0, 8),
-          ),
-        ],
-        border: Border.all(color: Colors.black.withAlpha(80), width: 1.2),
-      ),
+
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -572,6 +533,8 @@ class ProfileView extends StatelessWidget {
           context,
           icon: Icons.security_sharp,
           title: 'Security And Privacy',
+          iconColor: AppColors.success,
+          textColor: AppColors.black,
           borderColor: AppColors.black,
           onTap: () {},
         ),
@@ -580,6 +543,8 @@ class ProfileView extends StatelessWidget {
           context,
           icon: Icons.notifications_active_rounded,
           title: 'Notofications',
+          iconColor: AppColors.info,
+          textColor: AppColors.black,
           borderColor: AppColors.black,
           onTap: () {},
         ),

@@ -1913,29 +1913,21 @@ class BookingFormView extends StatelessWidget {
           children: [
             Text(
               isEditMode ? 'Booked By' : 'Personal Details',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                color: Theme.of(context).colorScheme.onPrimary,
-              ),
+              style: const TextStyle(fontSize: 20),
             ),
             const SizedBox(height: UiConstants.spacingSm),
             Row(
               children: [
-                _buildAvatar(user),
+                _buildAvatar(context, user),
                 const SizedBox(width: UiConstants.spacingMd),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        user.fullName,
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          color: Theme.of(context).colorScheme.onPrimary,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
+                      Text(user.fullName, style: TextStyle(fontSize: 18)),
                       Text(
                         user.email,
-                        style: const TextStyle(color: Colors.white),
+                        style: const TextStyle(color: Colors.black),
                       ),
                     ],
                   ),
@@ -2866,7 +2858,7 @@ class BookingFormView extends StatelessWidget {
     );
   }
 
-  Widget _buildAvatar(User user) {
+  Widget _buildAvatar(BuildContext context, User user) {
     final hasImage = user.imageUrl != null && user.imageUrl!.isNotEmpty;
     return Container(
       decoration: BoxDecoration(
@@ -2881,7 +2873,7 @@ class BookingFormView extends StatelessWidget {
       ),
       child: CircleAvatar(
         radius: 28,
-        backgroundColor: Colors.blueGrey.shade100,
+        backgroundColor: Theme.of(context).colorScheme.secondary.withAlpha(150),
         child: ClipOval(
           child: hasImage
               ? CachedNetworkImage(
@@ -2908,16 +2900,9 @@ class BookingFormView extends StatelessWidget {
   Widget _buildInfoRow(BuildContext context, IconData icon, String value) {
     return Row(
       children: [
-        Icon(icon, color: Colors.white, size: 20),
+        Icon(icon, color: Colors.black, size: 20),
         const SizedBox(width: 12),
-        Expanded(
-          child: Text(
-            value,
-            style: Theme.of(
-              context,
-            ).textTheme.bodyMedium?.copyWith(color: Colors.white, fontSize: 15),
-          ),
-        ),
+        Expanded(child: Text(value)),
       ],
     );
   }

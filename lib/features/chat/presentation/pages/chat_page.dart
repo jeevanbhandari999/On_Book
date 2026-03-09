@@ -4,6 +4,7 @@ import 'package:app/core/constants/ui_constants.dart';
 import 'package:app/core/theme/app_colors.dart';
 import 'package:app/core/utils/date_formatter.dart';
 import 'package:app/core/widgets/app_bar_popup_menu.dart';
+import 'package:app/core/widgets/auto_marquee_text.dart';
 import 'package:app/features/chat/domain/entities/message.dart';
 import 'package:app/features/chat/domain/entities/room.dart';
 import 'package:app/features/chat/domain/usecases/create_room_use_case.dart';
@@ -203,8 +204,10 @@ class _ChatViewState extends State<ChatView> {
                               kToolbarHeight + UiConstants.spacingSm,
                           elevation: 0,
                           centerTitle: false,
+                          backgroundColor: Colors.transparent,
+                          foregroundColor: Colors.black,
                           titleSpacing: 0,
-                          leading: const BackButton(color: Colors.white),
+                          leading: const BackButton(color: Colors.black),
                           title: Row(
                             mainAxisAlignment: MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.center,
@@ -223,7 +226,7 @@ class _ChatViewState extends State<ChatView> {
                                         widget.currentUserId,
                                       ),
                                       style: const TextStyle(
-                                        color: Colors.white,
+                                        color: Colors.black,
                                         fontSize: 16,
                                         fontWeight: FontWeight.w600,
                                       ),
@@ -239,15 +242,16 @@ class _ChatViewState extends State<ChatView> {
                                         style: TextStyle(
                                           color: isOtherUserOnline
                                               ? Colors.greenAccent
-                                              : Colors.white70,
+                                              : Colors.black,
                                           fontSize: 12,
                                         ),
                                       )
                                     else if (widget.room.organizationId != null)
-                                      Text(
-                                        '${_onlineUsers.length} online • ${widget.room.members?.length ?? 0} participants',
+                                      AutoMarqueeText(
+                                        text:
+                                            '${_onlineUsers.length} online • ${widget.room.members?.length ?? 0} participants',
                                         style: const TextStyle(
-                                          color: AppColors.white,
+                                          color: AppColors.black,
                                           fontSize: 12,
                                         ),
                                       ),
@@ -260,16 +264,16 @@ class _ChatViewState extends State<ChatView> {
                             IconButton(
                               icon: const Icon(
                                 Icons.videocam,
-                                color: Colors.white,
+                                color: Colors.black,
                               ),
                               onPressed: () {},
                             ),
                             IconButton(
-                              icon: const Icon(Icons.call, color: Colors.white),
+                              icon: const Icon(Icons.call, color: Colors.black),
                               onPressed: () {},
                             ),
                             AppPopupMenu(
-                              iconColor: AppColors.white,
+                              iconColor: AppColors.black,
                               items: [
                                 AppPopupMenuItem(
                                   value: 'view_profile',
@@ -394,6 +398,9 @@ class _ChatViewState extends State<ChatView> {
     return Stack(
       children: [
         CircleAvatar(
+          backgroundColor: Theme.of(
+            context,
+          ).colorScheme.secondary.withAlpha(150),
           radius: 24,
           child: ClipOval(
             child:
@@ -547,7 +554,7 @@ class _ChatViewState extends State<ChatView> {
               shape: BoxShape.circle,
             ),
             child: IconButton(
-              icon: const Icon(Icons.add, color: Colors.white),
+              icon: const Icon(Icons.add, color: Colors.black),
               onPressed: () {},
             ),
           ),
@@ -613,7 +620,7 @@ class _ChatViewState extends State<ChatView> {
             child: IconButton(
               icon: Icon(
                 _isTyping ? Icons.send_rounded : Icons.mic,
-                color: Colors.white,
+                color: Colors.black,
                 size: 20,
               ),
               onPressed: _isTyping ? _sendMessage : _recordVoiceMessage,
@@ -673,7 +680,7 @@ class _MessageBubble extends StatelessWidget {
                   Text(
                     message.text ?? '',
                     style: TextStyle(
-                      color: isMe ? Colors.white : Colors.black87,
+                      color: isMe ? Colors.black : Colors.black87,
                       fontSize: 15,
                     ),
                   ),
@@ -684,7 +691,7 @@ class _MessageBubble extends StatelessWidget {
                         _formatTime(message.createdAt),
                         style: TextStyle(
                           color: isMe
-                              ? Colors.white.withAlpha(200)
+                              ? Colors.black.withAlpha(200)
                               : Colors.grey[600],
                           fontSize: 11,
                         ),
@@ -695,7 +702,7 @@ class _MessageBubble extends StatelessWidget {
                           width: 4,
                           height: 4,
                           decoration: BoxDecoration(
-                            color: Colors.white.withAlpha(200),
+                            color: Colors.black.withAlpha(200),
                             shape: BoxShape.circle,
                           ),
                         ),
@@ -703,7 +710,7 @@ class _MessageBubble extends StatelessWidget {
                         Icon(
                           Icons.done_all,
                           size: 14,
-                          color: Colors.white.withAlpha(200),
+                          color: Colors.black.withAlpha(200),
                         ),
                       ],
                     ],
