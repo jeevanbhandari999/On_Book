@@ -99,7 +99,7 @@ class _RegisterViewState extends State<RegisterView> {
                 centerTitle: true,
                 title: ShowOnCollapsedSliverAppBar(
                   child: const Text(
-                    'Register',
+                    'Sign Up',
                     style: TextStyle(
                       fontSize: 20,
                       letterSpacing: 0.3,

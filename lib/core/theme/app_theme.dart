@@ -12,9 +12,16 @@ class AppTheme {
         // ).copyWith(secondary: AppColors.secondary);
         // light
         ColorScheme.fromSeed(
-          seedColor: AppColors.primary, // 0xFF0EA5E9
+          seedColor: AppColors.primary,
           brightness: Brightness.light,
-        ).copyWith(secondary: AppColors.secondary);
+        ).copyWith(
+          primary: AppColors.primary, // ✅ force exact color
+          onPrimary: AppColors.white, // text/icons on top of primary
+          secondary: AppColors.secondary,
+          onSecondary: AppColors.white,
+          primaryContainer: AppColors.primary.withAlpha(30),
+          secondaryContainer: AppColors.secondary.withAlpha(30),
+        );
 
     return ThemeData(
       useMaterial3: true,
@@ -185,7 +192,7 @@ class AppTheme {
         ColorScheme.fromSeed(
           seedColor: AppColors.primary,
           brightness: Brightness.dark,
-        ).copyWith(secondary: AppColors.secondary);
+        );
 
     return ThemeData(
       useMaterial3: true,

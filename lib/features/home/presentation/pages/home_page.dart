@@ -1,6 +1,7 @@
 import 'package:app/app/dependency_injection.dart';
 import 'package:app/app/router/route_constants.dart';
 import 'package:app/core/constants/ui_constants.dart';
+import 'package:app/core/theme/app_colors.dart';
 import 'package:app/core/widgets/auto_marquee_text.dart';
 import 'package:app/features/auth/domain/entities/organization.dart';
 import 'package:app/features/auth/services/auth_service.dart';

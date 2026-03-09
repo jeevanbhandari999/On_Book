@@ -85,9 +85,10 @@ class _LoginViewState extends State<LoginView> {
                 expandedHeight: 220,
                 collapsedHeight: kToolbarHeight,
                 pinned: true,
+                centerTitle: true,
                 title: ShowOnCollapsedSliverAppBar(
                   child: const Text(
-                    'Register',
+                    'Sign In',
                     style: TextStyle(
                       fontSize: 20,
                       letterSpacing: 0.3,
