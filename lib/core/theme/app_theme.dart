@@ -5,10 +5,16 @@ import 'package:app/core/constants/ui_constants.dart';
 
 class AppTheme {
   static ThemeData get lightTheme {
-    final ColorScheme colorScheme = ColorScheme.fromSeed(
-      seedColor: AppColors.primary,
-      brightness: Brightness.light,
-    ).copyWith(secondary: AppColors.secondary);
+    final ColorScheme colorScheme =
+        // ColorScheme.fromSeed(
+        //   seedColor: AppColors.primary,
+        //   brightness: Brightness.light,
+        // ).copyWith(secondary: AppColors.secondary);
+        // light
+        ColorScheme.fromSeed(
+          seedColor: AppColors.primary, // 0xFF0EA5E9
+          brightness: Brightness.light,
+        ).copyWith(secondary: AppColors.secondary);
 
     return ThemeData(
       useMaterial3: true,
@@ -170,10 +176,16 @@ class AppTheme {
   }
 
   static ThemeData get darkTheme {
-    final ColorScheme colorScheme = ColorScheme.fromSeed(
-      seedColor: AppColors.primary,
-      brightness: Brightness.dark,
-    ).copyWith(secondary: AppColors.secondary);
+    final ColorScheme colorScheme =
+        // ColorScheme.fromSeed(
+        //   seedColor: AppColors.primary,
+        //   brightness: Brightness.dark,
+        // ).copyWith(secondary: AppColors.secondary);
+        // dark
+        ColorScheme.fromSeed(
+          seedColor: AppColors.primary,
+          brightness: Brightness.dark,
+        ).copyWith(secondary: AppColors.secondary);
 
     return ThemeData(
       useMaterial3: true,

@@ -1,6 +1,7 @@
 import 'package:app/app/dependency_injection.dart';
 import 'package:app/app/router/route_constants.dart';
 import 'package:app/core/constants/ui_constants.dart';
+import 'package:app/core/theme/app_colors.dart';
 import 'package:app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:app/features/home/presentation/widgets/animated_app_icon.dart';
 import 'package:flutter/material.dart';
@@ -47,6 +48,7 @@ class SplashViewState extends State<SplashView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.primary,
       body: Stack(
         children: [
           BlocListener<AuthBloc, AuthState>(

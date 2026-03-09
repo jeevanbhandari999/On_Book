@@ -6,6 +6,7 @@ import 'package:app/core/widgets/custom_svg_icon.dart';
 import 'package:app/core/widgets/loading_widget.dart';
 import 'package:app/features/auth/services/auth_service.dart';
 import 'package:app/features/home/presentation/widgets/animated_app_icon.dart';
+import 'package:app/features/home/presentation/widgets/show_on_collapsed_sliver_app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -84,6 +85,17 @@ class _LoginViewState extends State<LoginView> {
                 expandedHeight: 220,
                 collapsedHeight: kToolbarHeight,
                 pinned: true,
+                title: ShowOnCollapsedSliverAppBar(
+                  child: const Text(
+                    'Register',
+                    style: TextStyle(
+                      fontSize: 20,
+                      letterSpacing: 0.3,
+                      color: Colors.white,
+                    ),
+                    textAlign: TextAlign.center,
+                  ).animate().fadeIn(delay: 300.ms),
+                ),
                 flexibleSpace: Stack(
                   children: [
                     Positioned.fill(
