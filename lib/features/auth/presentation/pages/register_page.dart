@@ -104,7 +104,7 @@ class _RegisterViewState extends State<RegisterView> {
                     style: TextStyle(
                       fontSize: 20,
                       letterSpacing: 0.3,
-                      color: Colors.white,
+                      color: Colors.black,
                     ),
                     textAlign: TextAlign.center,
                   ).animate().fadeIn(delay: 300.ms),
@@ -158,7 +158,7 @@ class _RegisterViewState extends State<RegisterView> {
                                       fontSize: 30,
                                       fontWeight: FontWeight.w900,
                                       letterSpacing: 1.3,
-                                      color: Colors.white,
+                                      color: Colors.black,
                                     ),
                                   )
                                   .animate()
@@ -173,7 +173,7 @@ class _RegisterViewState extends State<RegisterView> {
                                 style: TextStyle(
                                   fontSize: 14,
                                   letterSpacing: 0.3,
-                                  color: Colors.white70,
+                                  color: Colors.black,
                                 ),
                                 textAlign: TextAlign.center,
                               ).animate().fadeIn(delay: 300.ms),

@@ -78,7 +78,6 @@ class HomeSliverHeader extends StatelessWidget {
                 children: [
                   Container(
                     decoration: BoxDecoration(
-                      // color: Theme.of(context).colorScheme.primary,
                       gradient: LinearGradient(
                         colors: [
                           Theme.of(context).colorScheme.primary.withAlpha(100),
@@ -117,7 +116,7 @@ class HomeSliverHeader extends StatelessWidget {
                                             //     0.06,
                                             fontSize: 22,
                                             fontWeight: FontWeight.bold,
-                                            color: Colors.white,
+                                            color: Colors.black,
                                           ),
                                         )
                                         .animate()
@@ -150,7 +149,7 @@ class HomeSliverHeader extends StatelessWidget {
                                                   //     0.065,
                                                   fontSize: 23,
                                                   fontWeight: FontWeight.bold,
-                                                  color: Colors.white,
+                                                  color: Colors.black,
                                                 ),
                                               )
                                               .animate()
@@ -175,7 +174,7 @@ class HomeSliverHeader extends StatelessWidget {
                                             //     MediaQuery.of(context).size.width *
                                             //     0.05,
                                             fontSize: 16,
-                                            color: Colors.white,
+                                            color: Colors.black,
                                           ),
                                         )
                                         .animate(
@@ -192,38 +191,38 @@ class HomeSliverHeader extends StatelessWidget {
                                   ],
                                 ),
                                 const SizedBox(width: UiConstants.spacingSm),
-                                Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: UiConstants.spacingMd,
-                                        vertical: UiConstants.spacingSm,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(
-                                          UiConstants.radiusMd,
-                                        ),
-                                        color: Theme.of(
-                                          context,
-                                        ).colorScheme.primaryContainer,
-                                      ),
+                                // Container(
+                                //       padding: const EdgeInsets.symmetric(
+                                //         horizontal: UiConstants.spacingMd,
+                                //         vertical: UiConstants.spacingSm,
+                                //       ),
+                                //       decoration: BoxDecoration(
+                                //         borderRadius: BorderRadius.circular(
+                                //           UiConstants.radiusMd,
+                                //         ),
+                                //         color: Theme.of(
+                                //           context,
+                                //         ).colorScheme.secondary.withAlpha(150),
+                                //       ),
 
-                                      child: Text(
-                                        user.role.name.toUpperCase(),
-                                        style: const TextStyle(
-                                          fontSize: 14,
-                                          letterSpacing: 1.1,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    )
-                                    .animate(delay: UiConstants.animationFast)
-                                    .scale(
-                                      begin: const Offset(0.8, 0.8),
-                                      duration: UiConstants.animationNormal,
-                                      curve: Curves.easeOutBack,
-                                    )
-                                    .fadeIn(
-                                      duration: UiConstants.animationNormal,
-                                    ),
+                                //       child: Text(
+                                //         user.role.name.toUpperCase(),
+                                //         style: const TextStyle(
+                                //           fontSize: 14,
+                                //           letterSpacing: 1.1,
+                                //           fontWeight: FontWeight.bold,
+                                //         ),
+                                //       ),
+                                //     )
+                                //     .animate(delay: UiConstants.animationFast)
+                                //     .scale(
+                                //       begin: const Offset(0.8, 0.8),
+                                //       duration: UiConstants.animationNormal,
+                                //       curve: Curves.easeOutBack,
+                                //     )
+                                //     .fadeIn(
+                                //       duration: UiConstants.animationNormal,
+                                //     ),
                               ],
                             ),
                           ],

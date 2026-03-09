@@ -1,6 +1,8 @@
 import 'package:app/app/dependency_injection.dart';
 import 'package:app/app/router/route_constants.dart';
 import 'package:app/core/constants/ui_constants.dart';
+import 'package:app/core/theme/app_colors.dart';
+
 import 'package:app/core/widgets/auto_marquee_text.dart';
 import 'package:app/features/auth/domain/entities/organization.dart';
 import 'package:app/features/auth/services/auth_service.dart';
@@ -136,7 +138,7 @@ class HomeView extends StatelessWidget {
                     //         Container(
                     //               decoration: BoxDecoration(
                     //                 border: Border.all(
-                    //                   color: Colors.white,
+                    //                   color: Colors.black,
                     //                   width: 1.5,
                     //                 ),
                     //                 color: Colors.transparent,
@@ -162,7 +164,7 @@ class HomeView extends StatelessWidget {
                     //             .shimmer(
                     //               delay: 400.ms,
                     //               duration: 1800.ms,
-                    //               color: Colors.white.withOpacity(0.15),
+                    //               color: Colors.black.withOpacity(0.15),
                     //               angle: 0.5,
                     //             ),
                     //   ),
@@ -172,14 +174,14 @@ class HomeView extends StatelessWidget {
                       IconButton(
                         icon: const Icon(
                           Icons.notifications_outlined,
-                          color: Colors.white,
+                          color: Colors.black,
                         ),
                         onPressed: () {},
                       ),
                       IconButton(
                         icon: const Icon(
                           Icons.chat_outlined,
-                          color: Colors.white,
+                          color: Colors.black,
                         ),
                         onPressed: () {
                           context.push(
@@ -220,6 +222,9 @@ class HomeView extends StatelessWidget {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     CircleAvatar(
+                                      backgroundColor: Theme.of(
+                                        context,
+                                      ).colorScheme.secondary.withAlpha(150),
                                       radius: 16,
                                       child: ClipOval(
                                         child:
@@ -237,7 +242,7 @@ class HomeView extends StatelessWidget {
                                                       highlightColor:
                                                           Colors.grey.shade100,
                                                       child: Container(
-                                                        color: Colors.white,
+                                                        color: Colors.black,
                                                       ),
                                                     ),
                                                 errorWidget:
@@ -251,10 +256,11 @@ class HomeView extends StatelessWidget {
                                                     ),
                                               )
                                             : Text(
-                                                user.fullName[0],
+                                                user.fullName[0].toUpperCase(),
                                                 style: const TextStyle(
                                                   fontSize: 16,
                                                   fontWeight: FontWeight.bold,
+                                                  color: Colors.black,
                                                 ),
                                               ),
                                       ),
@@ -273,7 +279,7 @@ class HomeView extends StatelessWidget {
                                           AutoMarqueeText(
                                             text: user.fullName,
                                             style: const TextStyle(
-                                              color: Colors.white,
+                                              color: Colors.black,
                                               fontSize: 16,
                                               fontWeight: FontWeight.bold,
                                             ),
@@ -284,7 +290,7 @@ class HomeView extends StatelessWidget {
                                             AutoMarqueeText(
                                               text: userEmail,
                                               style: const TextStyle(
-                                                color: Colors.white,
+                                                color: Colors.black,
                                               ),
                                             ),
                                         ],
@@ -461,7 +467,7 @@ class HomeView extends StatelessWidget {
             height: 10,
             width: 40,
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: Colors.black,
               borderRadius: BorderRadius.circular(4),
             ),
           ),
@@ -502,7 +508,7 @@ class HomeView extends StatelessWidget {
                       ? Text(
                           _getInitialCharactrOfOrganization(org.name),
                           style: const TextStyle(
-                            color: Colors.white,
+                            color: Colors.black,
                             fontWeight: FontWeight.bold,
                             fontSize: 18,
                           ),

@@ -54,9 +54,9 @@ class AppTheme {
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: colorScheme.primary,
-          foregroundColor: colorScheme.onPrimary,
-          disabledBackgroundColor: colorScheme.primary.withAlpha(80),
-          disabledForegroundColor: colorScheme.onPrimary.withAlpha(165),
+          foregroundColor: AppColors.black,
+          disabledBackgroundColor: colorScheme.primary.withAlpha(100),
+          disabledForegroundColor: AppColors.black.withAlpha(165),
           minimumSize: const Size(64, UiConstants.buttonHeightMd),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(UiConstants.radiusSm),
@@ -67,7 +67,7 @@ class AppTheme {
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
           backgroundColor: colorScheme.primary,
-          foregroundColor: colorScheme.onPrimary,
+          foregroundColor: AppColors.black,
           minimumSize: const Size(64, UiConstants.buttonHeightMd),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(UiConstants.radiusSm),
@@ -98,19 +98,19 @@ class AppTheme {
         filled: true,
         fillColor: colorScheme.surface,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(UiConstants.radiusSm),
+          borderRadius: BorderRadius.circular(UiConstants.radiusRound),
           borderSide: BorderSide(color: colorScheme.outlineVariant),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(UiConstants.radiusSm),
+          borderRadius: BorderRadius.circular(UiConstants.radiusRound),
           borderSide: BorderSide(color: colorScheme.outlineVariant),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(UiConstants.radiusSm),
+          borderRadius: BorderRadius.circular(UiConstants.radiusRound),
           borderSide: BorderSide(color: colorScheme.primary, width: 2),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(UiConstants.radiusSm),
+          borderRadius: BorderRadius.circular(UiConstants.radiusRound),
           borderSide: BorderSide(color: colorScheme.error),
         ),
         contentPadding: const EdgeInsets.all(UiConstants.radiusSm),

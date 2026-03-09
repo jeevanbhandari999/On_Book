@@ -93,7 +93,7 @@ class LoadingButton extends StatelessWidget {
               height: 20,
               child: CircularProgressIndicator(
                 strokeWidth: 2,
-                color: Colors.white,
+                color: Colors.black,
               ),
             )
           : Row(
@@ -103,7 +103,7 @@ class LoadingButton extends StatelessWidget {
                   icon!,
                   const SizedBox(width: UiConstants.spacingSm),
                 ],
-                Text(text),
+                Text(text, style: const TextStyle(color: Colors.black)),
               ],
             ),
     ).animate().scale(duration: 200.ms, curve: Curves.easeOut);

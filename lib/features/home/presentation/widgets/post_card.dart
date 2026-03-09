@@ -191,7 +191,7 @@ class PostView extends StatelessWidget {
                       //       child: const Icon(
                       //         Icons.favorite_border_outlined,
                       //         size: UiConstants.iconSm,
-                      //         color: Colors.white,
+                      //         color: Colors.black,
                       //       ),
                       //     ),
                       //   ),
@@ -378,7 +378,7 @@ class PostView extends StatelessWidget {
                                                       organization.name,
                                                     ),
                                                     style: const TextStyle(
-                                                      color: Colors.white,
+                                                      color: Colors.black,
                                                       fontWeight:
                                                           FontWeight.bold,
                                                     ),

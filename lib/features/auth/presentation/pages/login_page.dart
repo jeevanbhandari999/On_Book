@@ -93,7 +93,7 @@ class _LoginViewState extends State<LoginView> {
                     style: TextStyle(
                       fontSize: 20,
                       letterSpacing: 0.3,
-                      color: Colors.white,
+                      color: Colors.black,
                     ),
                     textAlign: TextAlign.center,
                   ).animate().fadeIn(delay: 300.ms),
@@ -104,7 +104,6 @@ class _LoginViewState extends State<LoginView> {
                           child: Container(
                             decoration: BoxDecoration(
                               color: Theme.of(context).colorScheme.primary,
-
                               borderRadius: const BorderRadius.vertical(
                                 bottom: Radius.circular(UiConstants.radiusXl),
                               ),
@@ -147,7 +146,7 @@ class _LoginViewState extends State<LoginView> {
                                     fontSize: 30,
                                     fontWeight: FontWeight.w900,
                                     letterSpacing: 1.3,
-                                    color: Colors.white,
+                                    color: Colors.black,
                                   ),
                                 )
                                 .animate()
@@ -162,7 +161,7 @@ class _LoginViewState extends State<LoginView> {
                               style: TextStyle(
                                 fontSize: 14,
                                 letterSpacing: 0.3,
-                                color: Colors.white,
+                                color: Colors.black,
                               ),
                               textAlign: TextAlign.center,
                             ).animate().fadeIn(delay: 300.ms),
