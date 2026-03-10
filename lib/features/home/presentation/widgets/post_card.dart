@@ -14,6 +14,7 @@ import 'package:app/features/post/domain/entities/post.dart';
 import 'package:app/features/post/domain/entities/post_enums.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
@@ -173,29 +174,6 @@ class PostView extends StatelessWidget {
                         ),
                       ),
 
-                      // Positioned(
-                      //   top: 8,
-                      //   right: 8,
-                      //   child: InkWell(
-                      //     onTap: () {
-                      //       // Handle favorite / saved
-                      //     },
-                      //     child: Container(
-                      //       padding: const EdgeInsets.all(4),
-                      //       decoration: BoxDecoration(
-                      //         color: Colors.black54,
-                      //         borderRadius: BorderRadius.circular(
-                      //           UiConstants.radiusRound,
-                      //         ),
-                      //       ),
-                      //       child: const Icon(
-                      //         Icons.favorite_border_outlined,
-                      //         size: UiConstants.iconSm,
-                      //         color: Colors.black,
-                      //       ),
-                      //     ),
-                      //   ),
-                      // ),
                       Positioned(
                         top: 8,
                         right: 8,
@@ -230,14 +208,47 @@ class PostView extends StatelessWidget {
                                         UiConstants.radiusRound,
                                       ),
                                     ),
-                                    child: Icon(
-                                      isSaved
-                                          ? Icons.favorite_rounded
-                                          : Icons.favorite_border_outlined,
-                                      size: UiConstants.iconSm,
-                                      color: isSaved
-                                          ? Colors.red
-                                          : Colors.white,
+                                    child: AnimatedSwitcher(
+                                      duration:
+                                          UiConstants.animationDelayFaster,
+                                      transitionBuilder: (child, animation) {
+                                        return ScaleTransition(
+                                          scale:
+                                              // TweenSequence<double>([
+                                              //   TweenSequenceItem(
+                                              //     tween: Tween(
+                                              //       begin: 0.5,
+                                              //       end: 1.3,
+                                              //     ),
+                                              //     weight: 50,
+                                              //   ),
+                                              //   TweenSequenceItem(
+                                              //     tween: Tween(
+                                              //       begin: 0.5,
+                                              //       end: 1.0,
+                                              //     ),
+                                              //     weight: 50,
+                                              //   ),
+                                              // ]).animate(
+                                              //   CurvedAnimation(
+                                              //     parent: animation,
+                                              //     curve: Curves.easeInOut,
+                                              //   ),
+                                              // ),
+                                              animation,
+                                          child: child,
+                                        );
+                                      },
+                                      child: Icon(
+                                        isSaved
+                                            ? Icons.favorite_rounded
+                                            : Icons.favorite_border_outlined,
+                                        size: UiConstants.iconSm,
+                                        key: ValueKey(isSaved),
+                                        color: isSaved
+                                            ? Colors.red
+                                            : Colors.white,
+                                      ),
                                     ),
                                   ),
                                 );

@@ -734,9 +734,13 @@ class CustomMultiSelect<T> extends StatelessWidget {
                         )
                       : null,
 
-                  backgroundColor: Colors.grey.shade100,
-                  selectedColor: Theme.of(context).primaryColor.withAlpha(150),
+                  disabledColor: isSelected
+                      ? Theme.of(context).primaryColor
+                      : const Color(0xFFEF4444).withAlpha(120),
 
+                  backgroundColor: Colors.grey.shade100,
+
+                  selectedColor: Theme.of(context).primaryColor.withAlpha(150),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(UiConstants.radiusLg),
                   ),

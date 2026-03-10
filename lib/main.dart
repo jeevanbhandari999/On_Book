@@ -18,6 +18,14 @@ Future<void> main() async {
     DeviceOrientation.landscapeRight,
   ]);
 
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.dark,
+      statusBarBrightness: Brightness.dark,
+    ),
+  );
+
   try {
     // Initialize app configuration
     await AppConfig.initialize();
