@@ -76,9 +76,34 @@
 
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>This app needs location access to show your current position on the map.</string>
-	
+
 	<key>NSLocationAlwaysUsageDescription</key>
 	<string>This app needs location access to show your current position on the map.</string>
+
+
+	<!-- Camera -->
+    <key>NSCameraUsageDescription</key>
+    <string>This app needs camera access to take photos</string>
+    
+    <!-- Photo Library (Gallery) -->
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>This app needs photo library access to select images</string>
+    
+    <!-- Save to gallery -->
+    <key>NSPhotoLibraryAddUsageDescription</key>
+    <string>This app needs access to save photos</string>
+
+
+	<!-- Add these for notifications -->
+    <key>UIBackgroundModes</key>
+    <array>
+        <string>fetch</string>
+        <string>remote-notification</string>
+    </array>
+    
+    <!-- Optional: Description for notification permission -->
+    <key>NSUserNotificationUsageDescription</key>
+    <string>We need notification permission to alert you of new messages</string>
 
 
 </dict>
