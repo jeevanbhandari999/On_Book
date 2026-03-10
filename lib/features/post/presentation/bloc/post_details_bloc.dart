@@ -414,12 +414,30 @@ class PostDetailsBloc extends Bloc<PostDetailEvent, PostDetailState> {
         (images) => images.map((img) => img.imageUrl).toList(),
       );
 
-      emit(
-        PostDetailLoaded(
-          post: postData,
-          additionalImageUrls: additionalImageUrls,
-        ),
-      );
+      if (_currentUserId != null) {
+        final canManage = await postRepo.canManagePosts(
+          _currentUserId!,
+          postData.organizationId,
+        );
+        canManage.fold(
+          (failure) => emit(
+            PostDetailLoaded(
+              post: postData,
+              canDelete: false,
+              canEdit: false,
+              additionalImageUrls: additionalImageUrls,
+            ),
+          ),
+          (canManage) => emit(
+            PostDetailLoaded(
+              post: postData,
+              canDelete: canManage,
+              canEdit: canManage,
+              additionalImageUrls: additionalImageUrls,
+            ),
+          ),
+        );
+      }
 
       // Check the permission also
       if (event.userId != null) {
@@ -431,41 +449,6 @@ class PostDetailsBloc extends Bloc<PostDetailEvent, PostDetailState> {
           ),
         );
       }
-
-      // result.fold(
-      //   (failure) {
-      //     if (failure.message.contains('not found')) {
-      //       emit(PostDetailNotFound(postId: event.postId));
-      //     } else {
-      //       emit(PostDetailError(message: failure.message));
-      //     }
-      //   },
-      //   (postData) async {
-      //     final postRepo = DependencyInjection.get<PostRepository>();
-
-      //     final imageResult = await postRepo.getPostsWithImagesByOrganizationId(
-      //       postData.organizationId,
-      //     );
-
-      //     // extract the image urls safely
-      //     final additionalImageUrls = imageResult.fold(
-      //       (failure) => <String>[],
-      //       (images) => images.map((img) => img.imageUrl).toList(),
-      //     );
-
-      //     emit(
-      //       PostDetailLoaded(
-      //         post: postData,
-      //         additionalImageUrls: additionalImageUrls,
-      //       ),
-      //     );
-
-      //     // Check the permission also
-      //     if (event.userId != null) {
-      //       add(PostDetailPermissionCheckedRequested(userId: event.userId!));
-      //     }
-      //   },
-      // );
     } catch (e) {
       // To enhance the performance it's a best way to use const constructor
       emit(
@@ -473,13 +456,6 @@ class PostDetailsBloc extends Bloc<PostDetailEvent, PostDetailState> {
           message: 'Unable to load the post detail, please try again',
         ),
       );
-
-      // We can print the error here to see what hapens, like this way.
-      //   emit(
-      //     PostDetailError(
-      //       message: 'Unable to load the post detail, please try again ${e.toString()}',
-      //     ),
-      //   );
     }
   }
 
@@ -519,7 +495,18 @@ class PostDetailsBloc extends Bloc<PostDetailEvent, PostDetailState> {
       return;
     }
     try {
-      // TODO
+      final postRepo = DependencyInjection.get<PostRepository>();
+      final canManage = await postRepo.canManagePosts(
+        event.userId,
+        currentState.post.organizationId,
+      );
+      canManage.fold(
+        (failure) =>
+            emit(const PostDetailError(message: 'Unable to check permission')),
+        (canManage) => emit(
+          currentState.copyWith(canDelete: canManage, canEdit: canManage),
+        ),
+      );
     } catch (e) {
       emit(const PostDetailError(message: 'Unable to check permission'));
     }

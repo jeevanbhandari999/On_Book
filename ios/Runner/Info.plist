@@ -66,5 +66,20 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+
+
+
+
+	<!-- For locatiom access -->
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>This app needs location access to show your current position on the map.</string>
+
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>This app needs location access to show your current position on the map.</string>
+	
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>This app needs location access to show your current position on the map.</string>
+
+
 </dict>
 </plist>

@@ -253,7 +253,7 @@ Widget _buildPostsList(
                 .map(
                   (p) => {
                     'post': p,
-                    'userId': p.createdBy,
+                    'userId': user.userId,
                     'title': p.title,
                     'postId': p.id,
                     'imageUrl': p.primaryImageUrl,
@@ -350,6 +350,7 @@ Widget _buildPostVideos(
                 'posts': false,
                 'videos': true,
                 'images': false,
+                'userId': user.userId,
               };
             })
             .whereType<Map<String, dynamic>>()
@@ -463,6 +464,7 @@ Widget _buildPostImages(
                 'posts': false,
                 'videos': false,
                 'images': true,
+                'userId': user.userId,
               };
             })
             .whereType<Map<String, dynamic>>()

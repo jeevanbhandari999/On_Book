@@ -2,8 +2,10 @@ import 'package:app/app/app_config.dart';
 import 'package:app/app/dependency_injection.dart';
 import 'package:app/app/router/route_constants.dart';
 import 'package:app/core/constants/ui_constants.dart';
+import 'package:app/core/theme/app_colors.dart';
 import 'package:app/core/widgets/app_bar_popup_menu.dart';
 import 'package:app/core/widgets/app_shimmer.dart';
+import 'package:app/core/widgets/auto_marquee_text.dart';
 import 'package:app/core/widgets/common_widgets.dart';
 import 'package:app/features/customer_review/domain/entities/rating.dart';
 import 'package:app/features/customer_review/domain/usecases/get_all_customer_review_related_to_post_use_case.dart';
@@ -93,48 +95,65 @@ class PostDetailsView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        title: Text(
-          post?.title ?? 'Details Page',
-          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        backgroundColor: AppColors.primaryLight,
+        title: BlocBuilder<PostDetailsBloc, PostDetailState>(
+          builder: (context, state) {
+            if (state is PostDetailLoaded) {
+              return Text(
+                state.post.title,
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              );
+            }
+            return const Text(
+              'Details Page',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            );
+          },
         ),
         actions: [
           BlocBuilder<PostDetailsBloc, PostDetailState>(
+            buildWhen: (previous, current) => current is PostDetailLoaded,
             builder: (context, state) {
-              return AppPopupMenu(
-                items: [
-                  AppPopupMenuItem(
-                    value: 'edit',
-                    label: 'Edit',
-                    icon: Icons.edit,
-                    onTap: () {
-                      context.push(
-                        RouteConstants.editPostPage,
-                        extra: {
-                          // pasing the post id and userid to get the post detail through bloc in case the post is unavailabel at that moment
-                          'postId': post?.id,
-                          'post': post,
-                          'userId': post?.createdBy,
-                        },
-                      );
-                    },
-                  ),
-                  AppPopupMenuItem(
-                    value: 'delete',
-                    label: 'Delete',
-                    icon: Icons.delete,
-                    onTap: () {
-                      _showDeleteConfirmDialog(
-                        context,
-                        title: post?.title,
-                        userId: userId ?? '',
-                        state: state,
-                      );
-                    },
-                    isDistructive: true,
-                  ),
-                ],
-              );
+              if (state is PostDetailLoaded && state.canManage) {
+                return AppPopupMenu(
+                  items: [
+                    AppPopupMenuItem(
+                      value: 'edit',
+                      label: 'Edit',
+                      icon: Icons.edit,
+                      onTap: () {
+                        context.push(
+                          RouteConstants.editPostPage,
+                          extra: {
+                            'postId': state.post.id,
+                            'post': state.post,
+                            'userId': state.post.createdBy,
+                          },
+                        );
+                      },
+                    ),
+                    AppPopupMenuItem(
+                      value: 'delete',
+                      label: 'Delete',
+                      icon: Icons.delete,
+                      onTap: () {
+                        _showDeleteConfirmDialog(
+                          context,
+                          title: state.post.title,
+                          userId: state.post.createdBy,
+                          state: state,
+                        );
+                      },
+                      isDistructive: true,
+                    ),
+                  ],
+                );
+              }
+
+              return const SizedBox();
             },
           ),
         ],
@@ -697,15 +716,17 @@ Widget _buildImagePageView(BuildContext context, PostDetailLoaded state) {
               children: List.generate(images.length, (i) {
                 final currentIndex = state.viewingImageIndex ?? 0;
                 return AnimatedContainer(
-                  duration: const Duration(milliseconds: 100),
-                  margin: const EdgeInsets.symmetric(horizontal: 4),
-                  width: currentIndex == i ? 10 : 4,
-                  height: currentIndex == i ? 10 : 4,
+                  duration: const Duration(milliseconds: 250),
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: UiConstants.spacingXs,
+                  ),
+                  width: currentIndex == i ? 15 : 8,
+                  height: 8,
                   decoration: BoxDecoration(
                     color: currentIndex == i
                         ? Theme.of(context).colorScheme.primary
                         : Theme.of(context).colorScheme.onPrimary,
-                    shape: BoxShape.circle,
+                    borderRadius: BorderRadius.circular(20),
                   ),
                 );
               }),
@@ -1032,6 +1053,23 @@ Widget _buildAmeniticsSection(
             items: AmenityType.values,
             selected: amenityType,
             itemLabel: (a) => _amenityLabel(a),
+            itemBuilder: (item, selected) {
+              return Row(
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  Icon(item.icon, size: 16),
+                  const SizedBox(width: 6),
+                   Expanded(
+                        child: Text(
+                          textAlign: TextAlign.center,
+                          item.label,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                ],
+              );
+            },
             readOnly: true,
             onChanged: null,
             fontSize: 18,
@@ -1059,6 +1097,23 @@ Widget _buildTagsSection(
             items: PostTag.values,
             selected: postTag,
             itemLabel: (p) => _tagLabel(p),
+            itemBuilder: (item, selected) {
+              return Row(
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  Icon(item.icon, size: 16),
+                  const SizedBox(width: 6),
+                   Expanded(
+                        child: Text(
+                          textAlign: TextAlign.center,
+                          item.label,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                ],
+              );
+            },
             readOnly: true,
             onChanged: null,
             fontSize: 18,

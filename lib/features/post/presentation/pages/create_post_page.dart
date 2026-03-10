@@ -73,38 +73,4 @@ class CreatePostView extends StatelessWidget {
       ),
     );
   }
-
-  // Widget _buildBottomSubmitBar(BuildContext context, PostFormReady state, dynamic widget) {
-  //  final isSubmitting =
-  //       context.watch<PostFormBloc>().state is PostFormSubmitting;
-
-  //   return Row(
-  //     children: [
-  //       if (onCancel != null)
-  //         Expanded(
-  //           flex: 1,
-  //           child: CustomButton(
-  //             text: 'Cancel',
-  //             onPressed: isSubmitting ? null : widget.onCancel,
-  //             isOutlined: true,
-  //           ),
-  //         ),
-  //       if (widget.onCancel != null)
-  //         const SizedBox(width: UiConstants.spacingMd),
-  //       Expanded(
-  //         flex: 2,
-  //         child: CustomButton(
-  //           text: widget.isEditing ? 'Update Post' : 'Create Post',
-  //           onPressed: state.isValid
-  //               ? () => context.read<PostFormBloc>().add(
-  //                   const PostFormSubmitted(),
-  //                 )
-  //               : null,
-  //           isLoading: isSubmitting,
-  //           icon: const Icon(Icons.send),
-  //         ),
-  //       ),
-  //     ],
-  //   );
-  // }
 }

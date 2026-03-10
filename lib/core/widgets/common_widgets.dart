@@ -571,13 +571,109 @@ class SectionContainer extends StatelessWidget {
 //   }
 // }
 
+// class CustomMultiSelect<T> extends StatelessWidget {
+//   final String label;
+//   final List<T> items;
+//   final List<T> selected;
+//   final String Function(T) itemLabel;
+//   final ValueChanged<List<T>>? onChanged;
+//   final Widget? prefixIcon;
+//   final bool readOnly;
+//   final double fontSize;
+
+//   const CustomMultiSelect({
+//     super.key,
+//     required this.label,
+//     required this.items,
+//     required this.selected,
+//     required this.itemLabel,
+//     this.onChanged,
+//     this.prefixIcon,
+//     this.readOnly = false,
+//     this.fontSize = 16,
+//   });
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Column(
+//       crossAxisAlignment: CrossAxisAlignment.start,
+//       children: [
+//         Text(
+//           label,
+//           style: TextStyle(fontWeight: FontWeight.bold, fontSize: fontSize),
+//         ),
+//         GridView.builder(
+//           padding: EdgeInsets.zero,
+//           shrinkWrap: true,
+//           physics: const NeverScrollableScrollPhysics(),
+//           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+//             crossAxisCount: 2,
+//             mainAxisSpacing: UiConstants.spacingXs,
+//             crossAxisSpacing: UiConstants.spacingMd,
+//             childAspectRatio: 4,
+//           ),
+//           itemCount: items.length,
+//           itemBuilder: (context, index) {
+//             final item = items[index];
+//             final isSelected = selected.contains(item);
+//             final isEven = index.isEven;
+
+//             return FilterChip(
+//                   showCheckmark: false,
+//                   label: Container(
+//                     padding: const EdgeInsets.symmetric(
+//                       horizontal: UiConstants.spacingSm,
+//                       vertical: UiConstants.spacingXs,
+//                     ),
+//                     width: double.infinity,
+//                     child: Text(
+//                       itemLabel(item),
+//                       overflow: TextOverflow.ellipsis,
+//                       maxLines: 1,
+//                       textAlign: TextAlign.center,
+//                       style: const TextStyle(color: Colors.black),
+//                     ),
+//                   ),
+//                   selected: isSelected,
+//                   onSelected: readOnly
+//                       ? null
+//                       : (bool selected) {
+//                           final newSelected = List<T>.from(this.selected);
+//                           if (selected) {
+//                             newSelected.add(item);
+//                           } else {
+//                             newSelected.remove(item);
+//                           }
+//                           onChanged?.call(newSelected);
+//                         },
+
+//                   disabledColor: isSelected
+//                       ? Theme.of(context).primaryColor
+//                       : const Color(0xFFEF4444).withAlpha(120),
+
+//                   backgroundColor: Colors.grey.shade100,
+//                   selectedColor: Theme.of(context).primaryColor,
+//                   shape: RoundedRectangleBorder(
+//                     borderRadius: BorderRadius.circular(UiConstants.radiusLg),
+//                   ),
+//                 )
+//                 .animate(delay: (index * 70).ms)
+//                 .scale(duration: 200.ms)
+//                 .slideY(begin: isEven ? 0.3 : -0.3);
+//           },
+//         ),
+//       ],
+//     );
+//   }
+// }
+
 class CustomMultiSelect<T> extends StatelessWidget {
   final String label;
   final List<T> items;
   final List<T> selected;
   final String Function(T) itemLabel;
+  final Widget Function(T item, bool isSelected)? itemBuilder;
   final ValueChanged<List<T>>? onChanged;
-  final Widget? prefixIcon;
   final bool readOnly;
   final double fontSize;
 
@@ -587,8 +683,8 @@ class CustomMultiSelect<T> extends StatelessWidget {
     required this.items,
     required this.selected,
     required this.itemLabel,
+    this.itemBuilder,
     this.onChanged,
-    this.prefixIcon,
     this.readOnly = false,
     this.fontSize = 16,
   });
@@ -602,84 +698,6 @@ class CustomMultiSelect<T> extends StatelessWidget {
           label,
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: fontSize),
         ),
-
-        // Wrap(
-        //   spacing: 8,
-        //   children: items.asMap().entries.map((entry) {
-        //     final index = entry.key;
-        //     final item = entry.value;
-
-        //     final isSelected = selected.contains(item);
-        //     final isEven = index.isEven;
-
-        //     return FilterChip(
-        //           label: Text(
-        //             itemLabel(item),
-        //             style: const TextStyle(color: Colors.black),
-        //           ),
-        //           labelPadding: const EdgeInsets.symmetric(
-        //             horizontal: 12,
-        //             vertical: 4,
-        //           ),
-        //           selected: isSelected,
-        //           onSelected: readOnly
-        //               ? null
-        //               : (bool selected) {
-        //                   final newSelected = List<T>.from(this.selected);
-        //                   if (selected) {
-        //                     newSelected.add(item);
-        //                   } else {
-        //                     newSelected.remove(item);
-        //                   }
-        //                   onChanged?.call(newSelected);
-        //                 },
-
-        //           avatar: readOnly
-        //               ? Icon(
-        //                   isSelected ? Icons.check : Icons.close,
-        //                   size: 18,
-        //                   color: isSelected ? Colors.green : Colors.red,
-        //                 )
-        //               : null,
-
-        //           disabledColor: isSelected
-        //               ? Theme.of(context).primaryColor.withAlpha(18)
-        //               : const Color(0xFFEF4444).withAlpha(120),
-
-        //           labelStyle: const TextStyle(color: Colors.black),
-
-        //           selectedColor: readOnly
-        //               ? (const Color(0xFF10B981).withAlpha(158))
-        //               : Theme.of(context).primaryColor.withAlpha(150),
-
-        //           backgroundColor: readOnly
-        //               ? (isSelected
-        //                     ? Theme.of(context).primaryColor.withAlpha(150)
-        //                     : Colors.red.withAlpha(30))
-        //               : Colors.grey.shade100,
-
-        //           checkmarkColor: Colors.black,
-
-        //           shape: RoundedRectangleBorder(
-        //             borderRadius: BorderRadius.circular(UiConstants.radiusLg),
-        //             side: BorderSide(
-        //               color: readOnly
-        //                   ? (isSelected ? Colors.green : Colors.red)
-        //                   : (isSelected
-        //                         ? Theme.of(context).primaryColor
-        //                         : Colors.grey.shade300),
-        //             ),
-        //           ),
-        //         )
-        //         .animate(delay: UiConstants.animationDelayFast)
-        //         .scale(duration: 200.ms, curve: Curves.easeOut)
-        //         .slideY(
-        //           begin: isEven ? 0.3 : -0.3,
-        //           duration: 300.ms,
-        //           curve: Curves.easeOut,
-        //         );
-        //   }).toList(),
-        // ),
         GridView.builder(
           padding: EdgeInsets.zero,
           shrinkWrap: true,
@@ -697,22 +715,10 @@ class CustomMultiSelect<T> extends StatelessWidget {
             final isEven = index.isEven;
 
             return FilterChip(
-                  label: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: UiConstants.spacingSm,
-                      vertical: UiConstants.spacingXs,
-                    ),
-                    width: double.infinity,
-
-                    child: Text(
-                      itemLabel(item),
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 1,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(color: Colors.black),
-                    ),
-                  ),
-
+                  showCheckmark: false,
+                  label: itemBuilder != null
+                      ? itemBuilder!(item, isSelected)
+                      : Text(itemLabel(item)),
                   selected: isSelected,
                   onSelected: readOnly
                       ? null
@@ -725,22 +731,8 @@ class CustomMultiSelect<T> extends StatelessWidget {
                           }
                           onChanged?.call(newSelected);
                         },
-
-                  avatar: readOnly
-                      ? Icon(
-                          isSelected ? Icons.check : Icons.close,
-                          size: 18,
-                          color: isSelected ? Colors.green : Colors.red,
-                        )
-                      : null,
-
-                  disabledColor: isSelected
-                      ? Theme.of(context).primaryColor
-                      : const Color(0xFFEF4444).withAlpha(120),
-
                   backgroundColor: Colors.grey.shade100,
-
-                  selectedColor: Theme.of(context).primaryColor.withAlpha(150),
+                  selectedColor: Theme.of(context).primaryColor,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(UiConstants.radiusLg),
                   ),

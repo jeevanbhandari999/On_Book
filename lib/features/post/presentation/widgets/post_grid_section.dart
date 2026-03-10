@@ -160,8 +160,8 @@ Future<void> _showModalBottomSheetForImage(
               ),
             ),
 
-          const SizedBox(height: UiConstants.spacingLg),
-          _buildActionButtons(context),
+          // const SizedBox(height: UiConstants.spacingLg),
+          // _buildActionButtons(context),
           const SizedBox(height: UiConstants.spacingMd),
           SizedBox(
             width: double.infinity,

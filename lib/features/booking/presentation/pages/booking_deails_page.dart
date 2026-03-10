@@ -1572,15 +1572,17 @@ Widget _buildImageCarousel(BuildContext context, BookingDetailsLoaded state) {
               children: List.generate(images.length, (i) {
                 final currentIndex = state.viewingImageIndex ?? 0;
                 return AnimatedContainer(
-                  duration: const Duration(milliseconds: 100),
-                  margin: const EdgeInsets.symmetric(horizontal: 4),
-                  width: currentIndex == i ? 10 : 4,
-                  height: currentIndex == i ? 10 : 4,
+                  duration: const Duration(milliseconds: 250),
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: UiConstants.spacingXs,
+                  ),
+                  width: currentIndex == i ? 15 : 8,
+                  height: 8,
                   decoration: BoxDecoration(
                     color: currentIndex == i
                         ? Theme.of(context).colorScheme.primary
                         : Theme.of(context).colorScheme.onPrimary,
-                    shape: BoxShape.circle,
+                    borderRadius: BorderRadius.circular(20),
                   ),
                 );
               }),

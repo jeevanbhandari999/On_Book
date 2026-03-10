@@ -1,4 +1,5 @@
 import 'package:app/app/app_config.dart';
+import 'package:app/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -104,6 +105,7 @@ class _AnotherState extends State<Another> {
       floatingActionButton: selectedLocation == null
           ? null
           : FloatingActionButton(
+              backgroundColor: AppColors.primary,
               onPressed: () {
                 Navigator.pop(context, selectedLocation);
               },

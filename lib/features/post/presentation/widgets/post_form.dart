@@ -218,13 +218,39 @@ class _PostFormState extends State<PostForm> {
               const SizedBox(height: UiConstants.spacingMd),
 
               // Amenities
+              // CustomMultiSelect<AmenityType>(
+              //   label: 'Amenities',
+              //   items: AmenityType.values,
+              //   fontSize: 14,
+              //   selected: form.amenities,
+              //   itemLabel: (a) => _amenityLabel(a),
+              //   // itemLabel: (a) => a.name,
+              //   onChanged: (selected) => context.read<PostFormBloc>().add(
+              //     PostFormAmenitiesChanged(selected),
+              //   ),
+              // ),
               CustomMultiSelect<AmenityType>(
                 label: 'Amenities',
                 items: AmenityType.values,
-                fontSize: 14,
                 selected: form.amenities,
-                itemLabel: (a) => _amenityLabel(a),
-                // itemLabel: (a) => a.name,
+                itemLabel: (a) => a.label,
+                itemBuilder: (item, selected) {
+                  return Row(
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                      Icon(item.icon, size: 16),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          textAlign: TextAlign.center,
+                          item.label,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  );
+                },
                 onChanged: (selected) => context.read<PostFormBloc>().add(
                   PostFormAmenitiesChanged(selected),
                 ),
@@ -232,13 +258,39 @@ class _PostFormState extends State<PostForm> {
               const SizedBox(height: UiConstants.spacingMd),
 
               // Tags
+              // CustomMultiSelect<PostTag>(
+              //   label: 'Tags',
+              //   items: PostTag.values,
+              //   fontSize: 14,
+              //   selected: form.tags,
+              //   itemLabel: (t) => _tagLabel(t),
+              //   // itemLabel: (t) => '#${t.name}',
+              //   onChanged: (selected) => context.read<PostFormBloc>().add(
+              //     PostFormTagsChanged(selected),
+              //   ),
+              // ),
               CustomMultiSelect<PostTag>(
                 label: 'Tags',
                 items: PostTag.values,
-                fontSize: 14,
                 selected: form.tags,
-                itemLabel: (t) => _tagLabel(t),
-                // itemLabel: (t) => '#${t.name}',
+                itemLabel: (t) => t.label,
+                itemBuilder: (item, selected) {
+                  return Row(
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                      Icon(item.icon, size: 16),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          textAlign: TextAlign.center,
+                          item.label,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  );
+                },
                 onChanged: (selected) => context.read<PostFormBloc>().add(
                   PostFormTagsChanged(selected),
                 ),
@@ -259,8 +311,8 @@ class _PostFormState extends State<PostForm> {
               const SizedBox(height: UiConstants.spacingMd),
               // Media Picker
               PostMediaPicker(
-                errorMessage: form.validationErrors['primary_image'],
-                existingAdditionalImage: form.existingAdditionalImages,
+                primaryImageError: form.validationErrors['primary_image'],
+                existingAdditionalImages: form.existingAdditionalImages,
                 existingPrimaryImageUrl: form.editPost?.primaryImageUrl,
                 primaryImageFile: form.primaryImageFile,
                 additionalImages: form.additionalImages,
@@ -389,11 +441,8 @@ class _LocationSection extends StatelessWidget {
       children: [
         Text(
           'Location (optional)',
-          style: Theme.of(
-            context,
-          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+          style: Theme.of(context).textTheme.labelMedium,
         ),
-        const SizedBox(height: 12),
         if (latitude != null && longitude != null)
           Row(
             children: [

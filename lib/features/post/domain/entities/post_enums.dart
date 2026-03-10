@@ -1,4 +1,6 @@
 // enums roomtype
+import 'package:flutter/material.dart';
+
 enum RoomType { single, double, twin, suite, deluxe, family, apartment }
 
 extension RoomTypeExtension on RoomType {
@@ -43,6 +45,25 @@ extension PostStatusExtension on PostStatus {
 
 enum AmenityType { wifi, parking, airConditioning, tv, kitchen, swimmingPool }
 
+// extension AmenityTypeExtension on AmenityType {
+//   String get label {
+//     switch (this) {
+//       case AmenityType.wifi:
+//         return 'Free Wi-Fi';
+//       case AmenityType.parking:
+//         return 'Parking';
+//       case AmenityType.airConditioning:
+//         return 'Air Conditioning';
+//       case AmenityType.tv:
+//         return 'Television';
+//       case AmenityType.kitchen:
+//         return 'Kitchen';
+//       case AmenityType.swimmingPool:
+//         return 'Swimming Pool';
+//     }
+//   }
+// }
+
 extension AmenityTypeExtension on AmenityType {
   String get label {
     switch (this) {
@@ -60,6 +81,23 @@ extension AmenityTypeExtension on AmenityType {
         return 'Swimming Pool';
     }
   }
+
+  IconData get icon {
+    switch (this) {
+      case AmenityType.wifi:
+        return Icons.wifi;
+      case AmenityType.parking:
+        return Icons.local_parking;
+      case AmenityType.airConditioning:
+        return Icons.ac_unit;
+      case AmenityType.tv:
+        return Icons.tv;
+      case AmenityType.kitchen:
+        return Icons.kitchen;
+      case AmenityType.swimmingPool:
+        return Icons.pool;
+    }
+  }
 }
 
 enum PostTag {
@@ -70,6 +108,25 @@ enum PostTag {
   luxury,
   familyFriendly,
 }
+
+// extension PostTagExtension on PostTag {
+//   String get label {
+//     switch (this) {
+//       case PostTag.nearBeach:
+//         return 'Near Beach';
+//       case PostTag.cityCenter:
+//         return 'City Center';
+//       case PostTag.mountainView:
+//         return 'Mountain View';
+//       case PostTag.budgetFriendly:
+//         return 'Budget Friendly';
+//       case PostTag.luxury:
+//         return 'Luxury';
+//       case PostTag.familyFriendly:
+//         return 'Family Friendly';
+//     }
+//   }
+// }
 
 extension PostTagExtension on PostTag {
   String get label {
@@ -86,6 +143,23 @@ extension PostTagExtension on PostTag {
         return 'Luxury';
       case PostTag.familyFriendly:
         return 'Family Friendly';
+    }
+  }
+
+  IconData get icon {
+    switch (this) {
+      case PostTag.nearBeach:
+        return Icons.beach_access;
+      case PostTag.cityCenter:
+        return Icons.location_city;
+      case PostTag.mountainView:
+        return Icons.terrain;
+      case PostTag.budgetFriendly:
+        return Icons.attach_money;
+      case PostTag.luxury:
+        return Icons.star;
+      case PostTag.familyFriendly:
+        return Icons.family_restroom;
     }
   }
 }
