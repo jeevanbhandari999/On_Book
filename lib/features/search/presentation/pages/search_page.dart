@@ -1,6 +1,7 @@
 import 'package:app/app/dependency_injection.dart';
 import 'package:app/app/router/route_constants.dart';
 import 'package:app/core/constants/ui_constants.dart';
+import 'package:app/core/theme/app_colors.dart';
 import 'package:app/core/widgets/auto_marquee_text.dart';
 import 'package:app/core/widgets/loading_widget.dart';
 import 'package:app/features/auth/domain/entities/organization.dart';
@@ -98,7 +99,7 @@ class _SearchViewState extends State<_SearchView> {
             body: CustomScrollView(
               slivers: [
                 SliverAppBar(
-                  backgroundColor: Colors.transparent,
+                  backgroundColor: AppColors.primaryLight,
                   expandedHeight: 100 + UiConstants.spacingLg,
                   collapsedHeight: 100 + UiConstants.spacingLg,
                   foregroundColor: Colors.white,

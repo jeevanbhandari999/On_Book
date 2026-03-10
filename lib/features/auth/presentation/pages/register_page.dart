@@ -1,6 +1,7 @@
 import 'package:app/app/router/route_constants.dart';
 import 'package:app/core/constants/app_images.dart';
 import 'package:app/core/constants/ui_constants.dart';
+import 'package:app/core/theme/app_colors.dart';
 import 'package:app/core/utils/validators/form_validators.dart';
 import 'package:app/core/widgets/common_widgets.dart';
 import 'package:app/core/widgets/custom_svg_icon.dart';
@@ -96,7 +97,7 @@ class _RegisterViewState extends State<RegisterView> {
                 expandedHeight: 220,
                 collapsedHeight: kToolbarHeight + UiConstants.spacingSm,
                 pinned: true,
-                backgroundColor: Colors.transparent,
+               backgroundColor: AppColors.primaryLight,
                 centerTitle: true,
                 title: ShowOnCollapsedSliverAppBar(
                   child: const Text(

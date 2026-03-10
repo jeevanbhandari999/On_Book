@@ -204,7 +204,7 @@ class _ChatViewState extends State<ChatView> {
                               kToolbarHeight + UiConstants.spacingSm,
                           elevation: 0,
                           centerTitle: false,
-                          backgroundColor: Colors.transparent,
+                          backgroundColor: AppColors.primaryLight,
                           foregroundColor: Colors.black,
                           titleSpacing: 0,
                           leading: const BackButton(color: Colors.black),

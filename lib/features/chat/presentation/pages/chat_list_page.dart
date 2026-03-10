@@ -161,6 +161,7 @@ class _RoomPageViewState extends State<RoomPageView> {
                       expandedHeight: 120 + UiConstants.spacingMd,
                       collapsedHeight: 120 + UiConstants.spacingMd,
                       foregroundColor: Colors.black,
+                      backgroundColor: AppColors.primaryLight,
                       floating: false,
                       pinned: true,
                       title: Row(

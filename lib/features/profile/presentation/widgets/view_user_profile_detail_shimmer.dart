@@ -1,4 +1,5 @@
 import 'package:app/core/constants/ui_constants.dart';
+import 'package:app/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -19,7 +20,7 @@ class ViewUserProfileShimmer extends StatelessWidget {
           SliverAppBar(
             expandedHeight: MediaQuery.sizeOf(context).height * 0.25,
             pinned: true,
-            backgroundColor: Colors.transparent,
+            backgroundColor: AppColors.primaryLight,
             flexibleSpace: FlexibleSpaceBar(
               background: Column(
                 mainAxisAlignment: MainAxisAlignment.center,

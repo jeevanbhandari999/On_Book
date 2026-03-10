@@ -311,6 +311,7 @@ import 'dart:async';
 
 import 'package:app/app/dependency_injection.dart';
 import 'package:app/core/constants/ui_constants.dart';
+import 'package:app/core/theme/app_colors.dart';
 import 'package:app/core/widgets/common_widgets.dart';
 import 'package:app/features/auth/domain/entities/organization.dart';
 import 'package:app/features/auth/domain/entities/user.dart';
@@ -457,6 +458,7 @@ class _EditProfileViewState extends State<EditProfileView> {
                 SliverAppBar(
                   pinned: true,
                   stretch: true,
+                  backgroundColor: AppColors.primaryLight,
                   leading: const BackButton(color: Colors.black),
                   collapsedHeight: kToolbarHeight + UiConstants.spacingSm,
                   elevation: 0,

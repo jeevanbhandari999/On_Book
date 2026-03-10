@@ -256,7 +256,7 @@ class ProfileView extends StatelessWidget {
       pinned: true,
       stretch: true,
       expandedHeight: MediaQuery.sizeOf(context).height * 0.25,
-      backgroundColor: Colors.transparent,
+      backgroundColor: AppColors.primaryLight,
       collapsedHeight: kToolbarHeight + UiConstants.spacingSm,
       elevation: 0,
       actionsPadding: const EdgeInsets.symmetric(

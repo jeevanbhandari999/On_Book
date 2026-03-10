@@ -1,4 +1,5 @@
 import 'package:app/core/constants/ui_constants.dart';
+import 'package:app/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -24,7 +25,7 @@ class OrganizationDetailsShimmer extends StatelessWidget {
               expandedHeight: 220.0,
               floating: false,
               pinned: true,
-              backgroundColor: Colors.transparent,
+             backgroundColor: AppColors.primaryLight,
               flexibleSpace: FlexibleSpaceBar(
                 background: Stack(
                   children: [

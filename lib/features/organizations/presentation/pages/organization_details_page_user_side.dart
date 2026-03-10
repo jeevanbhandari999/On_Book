@@ -140,7 +140,7 @@ class OrganizationDetailsViewUserSide extends StatelessWidget {
     bool canManage,
   ) {
     return SliverAppBar(
-      backgroundColor: Colors.transparent,
+      backgroundColor: AppColors.primaryLight,
       expandedHeight: 220.0,
       centerTitle: false,
       floating: false,
