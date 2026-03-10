@@ -63,11 +63,11 @@ class OwnerView extends StatelessWidget {
             }
           });
 
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (tabController.index == 0) {
-              _onTabChanged(context, 0, organization.id);
-            }
-          });
+          // WidgetsBinding.instance.addPostFrameCallback((_) {
+          //   if (tabController.index == 0) {
+          //     _onTabChanged(context, 0, organization.id);
+          //   }
+          // });
           return Column(
             children: [
               Header(user: user, organization: organization),
@@ -85,8 +85,6 @@ class OwnerView extends StatelessWidget {
                       border: Border.all(color: Theme.of(context).primaryColor),
                     ),
                     child: TabBar(
-                      // indicatorColor: Theme.of(context).primaryColor,
-                      // indicatorSize: TabBarIndicatorSize.tab,
                       indicator: BoxDecoration(
                         color: Theme.of(context).primaryColor,
                         borderRadius: BorderRadius.circular(30),
@@ -100,8 +98,7 @@ class OwnerView extends StatelessWidget {
                       ),
                       indicatorSize: TabBarIndicatorSize.tab,
                       labelColor: AppColors.black,
-                      unselectedLabelColor: AppColors.black,
-
+                      unselectedLabelColor: Colors.black,
                       dividerColor: Colors.transparent,
                       tabs: [
                         _buildTab(
@@ -134,11 +131,6 @@ class OwnerView extends StatelessWidget {
                     curve: Curves.easeOut,
                   ),
 
-              // Divider(
-              //   height: 1,
-              //   thickness: 1,
-              //   color: Theme.of(context).colorScheme.primary,
-              // ),
               Expanded(
                 child: TabBarView(
                   children: [

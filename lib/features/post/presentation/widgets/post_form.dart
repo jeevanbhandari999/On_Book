@@ -100,7 +100,7 @@ class _PostFormState extends State<PostForm> {
         _youtubeController.text = form.youtubeUrl;
 
         return SingleChildScrollView(
-          padding: const EdgeInsets.all(UiConstants.spacingSm),
+          padding: const EdgeInsets.all(UiConstants.spacingMd),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -221,8 +221,10 @@ class _PostFormState extends State<PostForm> {
               CustomMultiSelect<AmenityType>(
                 label: 'Amenities',
                 items: AmenityType.values,
+                fontSize: 14,
                 selected: form.amenities,
-                itemLabel: (a) => a.name,
+                itemLabel: (a) => _amenityLabel(a),
+                // itemLabel: (a) => a.name,
                 onChanged: (selected) => context.read<PostFormBloc>().add(
                   PostFormAmenitiesChanged(selected),
                 ),
@@ -233,8 +235,10 @@ class _PostFormState extends State<PostForm> {
               CustomMultiSelect<PostTag>(
                 label: 'Tags',
                 items: PostTag.values,
+                fontSize: 14,
                 selected: form.tags,
-                itemLabel: (t) => '#${t.name}',
+                itemLabel: (t) => _tagLabel(t),
+                // itemLabel: (t) => '#${t.name}',
                 onChanged: (selected) => context.read<PostFormBloc>().add(
                   PostFormTagsChanged(selected),
                 ),
@@ -460,4 +464,11 @@ class _LocationSection extends StatelessWidget {
       ],
     );
   }
+}
+
+String _amenityLabel(AmenityType a) => a.name.replaceAll('_', ' ').capitalize();
+String _tagLabel(PostTag p) => p.name.replaceAll('_', ' ').capitalize();
+
+extension StringExt on String {
+  String capitalize() => this[0].toUpperCase() + substring(1);
 }

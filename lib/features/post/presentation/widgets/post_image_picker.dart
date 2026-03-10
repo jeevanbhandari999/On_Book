@@ -43,17 +43,28 @@ class PostMediaPicker extends StatelessWidget {
     this.maxAdditionalImages = 5,
   });
 
-  int get totalImages {
-    if (existingAdditionalImage != null) {
-      return additionalImages.length +
-          existingAdditionalImage!.length +
-          (primaryImageFile != null ? 1 : 0);
-    } else {
-      return additionalImages.length + (primaryImageFile != null ? 1 : 0);
-    }
+  // int get totalImages {
+  //   if (existingAdditionalImage != null) {
+  //     return additionalImages.length +
+  //         existingAdditionalImage!.length +
+  //         (primaryImageFile != null ? 1 : 0);
+  //   } else {
+  //     return additionalImages.length + (primaryImageFile != null ? 1 : 0);
+  //   }
+  // }
+
+  // bool get canAddImage => totalImages < maxAdditionalImages && enabled;
+
+  int get totalAdditionalImages {
+    return
+    // (primaryImageFile != null || existingPrimaryImageUrl != null
+    //         ? 1
+    //         : 0) +
+    additionalImages.length + (existingAdditionalImage?.length ?? 0);
   }
 
-  bool get canAddImage => totalImages < maxAdditionalImages && enabled;
+  bool get canAddImage =>
+      totalAdditionalImages < maxAdditionalImages && enabled;
 
   @override
   Widget build(BuildContext context) {
@@ -207,7 +218,7 @@ class PostMediaPicker extends StatelessWidget {
   }) async {
     if (isPrimary) return; // Should never happen
 
-    final remainingSlots = maxAdditionalImages - totalImages;
+    final remainingSlots = maxAdditionalImages - totalAdditionalImages;
     if (remainingSlots <= 0) {
       _showError(context, 'Maximum additional images reached');
       return;

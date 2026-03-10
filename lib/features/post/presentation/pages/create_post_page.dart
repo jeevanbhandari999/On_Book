@@ -1,4 +1,7 @@
 import 'package:app/app/dependency_injection.dart';
+import 'package:app/core/constants/ui_constants.dart';
+import 'package:app/core/widgets/common_widgets.dart';
+import 'package:app/core/widgets/loading_widget.dart';
 import 'package:app/features/post/domain/repositories/post_repository.dart';
 import 'package:app/features/post/domain/usecases/create_post_use_case.dart';
 import 'package:app/features/post/domain/usecases/update_post_use_case.dart';
@@ -70,4 +73,38 @@ class CreatePostView extends StatelessWidget {
       ),
     );
   }
+
+  // Widget _buildBottomSubmitBar(BuildContext context, PostFormReady state, dynamic widget) {
+  //  final isSubmitting =
+  //       context.watch<PostFormBloc>().state is PostFormSubmitting;
+
+  //   return Row(
+  //     children: [
+  //       if (onCancel != null)
+  //         Expanded(
+  //           flex: 1,
+  //           child: CustomButton(
+  //             text: 'Cancel',
+  //             onPressed: isSubmitting ? null : widget.onCancel,
+  //             isOutlined: true,
+  //           ),
+  //         ),
+  //       if (widget.onCancel != null)
+  //         const SizedBox(width: UiConstants.spacingMd),
+  //       Expanded(
+  //         flex: 2,
+  //         child: CustomButton(
+  //           text: widget.isEditing ? 'Update Post' : 'Create Post',
+  //           onPressed: state.isValid
+  //               ? () => context.read<PostFormBloc>().add(
+  //                   const PostFormSubmitted(),
+  //                 )
+  //               : null,
+  //           isLoading: isSubmitting,
+  //           icon: const Icon(Icons.send),
+  //         ),
+  //       ),
+  //     ],
+  //   );
+  // }
 }

@@ -1,3 +1,4 @@
+import 'package:app/core/widgets/auto_marquee_text.dart';
 import 'package:flutter/material.dart';
 import 'package:app/core/constants/ui_constants.dart';
 import 'package:app/core/utils/extensions/extensions.dart';
@@ -601,182 +602,149 @@ class CustomMultiSelect<T> extends StatelessWidget {
           label,
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: fontSize),
         ),
-        Wrap(
-          spacing: 8,
-          children: items.map((item) {
+
+        // Wrap(
+        //   spacing: 8,
+        //   children: items.asMap().entries.map((entry) {
+        //     final index = entry.key;
+        //     final item = entry.value;
+
+        //     final isSelected = selected.contains(item);
+        //     final isEven = index.isEven;
+
+        //     return FilterChip(
+        //           label: Text(
+        //             itemLabel(item),
+        //             style: const TextStyle(color: Colors.black),
+        //           ),
+        //           labelPadding: const EdgeInsets.symmetric(
+        //             horizontal: 12,
+        //             vertical: 4,
+        //           ),
+        //           selected: isSelected,
+        //           onSelected: readOnly
+        //               ? null
+        //               : (bool selected) {
+        //                   final newSelected = List<T>.from(this.selected);
+        //                   if (selected) {
+        //                     newSelected.add(item);
+        //                   } else {
+        //                     newSelected.remove(item);
+        //                   }
+        //                   onChanged?.call(newSelected);
+        //                 },
+
+        //           avatar: readOnly
+        //               ? Icon(
+        //                   isSelected ? Icons.check : Icons.close,
+        //                   size: 18,
+        //                   color: isSelected ? Colors.green : Colors.red,
+        //                 )
+        //               : null,
+
+        //           disabledColor: isSelected
+        //               ? Theme.of(context).primaryColor.withAlpha(18)
+        //               : const Color(0xFFEF4444).withAlpha(120),
+
+        //           labelStyle: const TextStyle(color: Colors.black),
+
+        //           selectedColor: readOnly
+        //               ? (const Color(0xFF10B981).withAlpha(158))
+        //               : Theme.of(context).primaryColor.withAlpha(150),
+
+        //           backgroundColor: readOnly
+        //               ? (isSelected
+        //                     ? Theme.of(context).primaryColor.withAlpha(150)
+        //                     : Colors.red.withAlpha(30))
+        //               : Colors.grey.shade100,
+
+        //           checkmarkColor: Colors.black,
+
+        //           shape: RoundedRectangleBorder(
+        //             borderRadius: BorderRadius.circular(UiConstants.radiusLg),
+        //             side: BorderSide(
+        //               color: readOnly
+        //                   ? (isSelected ? Colors.green : Colors.red)
+        //                   : (isSelected
+        //                         ? Theme.of(context).primaryColor
+        //                         : Colors.grey.shade300),
+        //             ),
+        //           ),
+        //         )
+        //         .animate(delay: UiConstants.animationDelayFast)
+        //         .scale(duration: 200.ms, curve: Curves.easeOut)
+        //         .slideY(
+        //           begin: isEven ? 0.3 : -0.3,
+        //           duration: 300.ms,
+        //           curve: Curves.easeOut,
+        //         );
+        //   }).toList(),
+        // ),
+        GridView.builder(
+          padding: EdgeInsets.zero,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            mainAxisSpacing: UiConstants.spacingXs,
+            crossAxisSpacing: UiConstants.spacingMd,
+            childAspectRatio: 4,
+          ),
+          itemCount: items.length,
+          itemBuilder: (context, index) {
+            final item = items[index];
             final isSelected = selected.contains(item);
-            // return FilterChip(
-            //   label: Text(itemLabel(item)),
-            //   labelPadding: const EdgeInsets.symmetric(
-            //     horizontal: 12,
-            //     vertical: 4,
-            //   ),
-            //   selected: isSelected,
-            //   onSelected: readOnly
-            //       ? null
-            //       : (bool selected) {
-            //           final newSelected = List<T>.from(this.selected);
-            //           if (selected) {
-            //             newSelected.add(item);
-            //           } else {
-            //             newSelected.remove(item);
-            //           }
-            //           onChanged?.call(newSelected);
-            //         },
-            //   selectedColor: Theme.of(context).primaryColor.withAlpha(50),
-            //   checkmarkColor: Theme.of(context).primaryColor,
-            //   backgroundColor: Colors.grey.shade100,
-            //   shape: RoundedRectangleBorder(
-            //     borderRadius: BorderRadius.circular(8),
-            //     side: BorderSide(
-            //       color: isSelected
-            //           ? Theme.of(context).primaryColor
-            //           : Colors.grey.shade300,
-            //     ),
-            //   ),
-            // );
+            final isEven = index.isEven;
+
             return FilterChip(
-              label: Text(
-                itemLabel(item),
-                style: const TextStyle(color: Colors.black),
-              ),
-              labelPadding: const EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 4,
-              ),
-              selected: isSelected,
-              onSelected: readOnly
-                  ? null
-                  : (bool selected) {
-                      final newSelected = List<T>.from(this.selected);
-                      if (selected) {
-                        newSelected.add(item);
-                      } else {
-                        newSelected.remove(item);
-                      }
-                      onChanged?.call(newSelected);
-                    },
+                  label: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: UiConstants.spacingSm,
+                      vertical: UiConstants.spacingXs,
+                    ),
+                    width: double.infinity,
 
-              avatar: readOnly
-                  ? Icon(
-                      isSelected ? Icons.check : Icons.close,
-                      size: 18,
-                      color: isSelected ? Colors.green : Colors.red,
-                    )
-                  : null,
+                    child: Text(
+                      itemLabel(item),
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(color: Colors.black),
+                    ),
+                  ),
 
-              disabledColor: isSelected
-                  ? Theme.of(context).primaryColor.withAlpha(18)
-                  : const Color(0xFFEF4444).withAlpha(120),
+                  selected: isSelected,
+                  onSelected: readOnly
+                      ? null
+                      : (bool selected) {
+                          final newSelected = List<T>.from(this.selected);
+                          if (selected) {
+                            newSelected.add(item);
+                          } else {
+                            newSelected.remove(item);
+                          }
+                          onChanged?.call(newSelected);
+                        },
 
-              labelStyle: const TextStyle(color: Colors.black),
+                  avatar: readOnly
+                      ? Icon(
+                          isSelected ? Icons.check : Icons.close,
+                          size: 18,
+                          color: isSelected ? Colors.green : Colors.red,
+                        )
+                      : null,
 
-              selectedColor: readOnly
-                  ? (const Color(0xFF10B981).withAlpha(158))
-                  : Theme.of(context).primaryColor.withAlpha(150),
+                  backgroundColor: Colors.grey.shade100,
+                  selectedColor: Theme.of(context).primaryColor.withAlpha(150),
 
-              backgroundColor: readOnly
-                  ? (isSelected
-                        ? Theme.of(context).primaryColor.withAlpha(150)
-                        : Colors.red.withAlpha(30))
-                  : Colors.grey.shade100,
-              checkmarkColor: Colors.black,
-
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-                side: BorderSide(
-                  color: readOnly
-                      ? (isSelected ? Colors.green : Colors.red)
-                      : (isSelected
-                            ? Theme.of(context).primaryColor
-                            : Colors.grey.shade300),
-                ),
-              ),
-            );
-
-            // return Theme(
-            //   data: Theme.of(context).copyWith(
-            //     chipTheme: Theme.of(context).chipTheme.copyWith(
-            //       disabledColor: isSelected
-            //           ? Colors.green.withAlpha(150)
-            //           : Colors.red.withAlpha(100),
-            //       labelStyle: TextStyle(
-            //         color: readOnly
-            //             ? (isSelected ? Colors.black : Colors.black)
-            //             : Colors.black,
-            //       ),
-            //     ),
-            //   ),
-            //   child: FilterChip(
-            //     label: Text(
-            //       itemLabel(item),
-            //       style: TextStyle(
-            //         color: readOnly
-            //             ? (isSelected ? Colors.black : Colors.black)
-            //             : Colors.black,
-            //         fontWeight: isSelected
-            //             ? FontWeight.w600
-            //             : FontWeight.normal,
-            //       ),
-            //     ),
-            //     labelPadding: const EdgeInsets.symmetric(
-            //       horizontal: 12,
-            //       vertical: 4,
-            //     ),
-            //     selected: isSelected,
-            //     onSelected: readOnly
-            //         ? null
-            //         : (bool selected) {
-            //             final newSelected = List<T>.from(this.selected);
-            //             if (selected) {
-            //               newSelected.add(item);
-            //             } else {
-            //               newSelected.remove(item);
-            //             }
-            //             onChanged?.call(newSelected);
-            //           },
-            //     avatar: readOnly
-            //         ? Icon(
-            //             isSelected ? Icons.check : Icons.close,
-            //             size: 18,
-            //             color: isSelected ? Colors.green : Colors.red,
-            //           )
-            //         : null,
-            //     disabledColor: isSelected
-            //         ? Colors.green.withAlpha(150)
-            //         : Colors.red.withAlpha(100),
-
-            //     // ✅ This overrides disabled label color at the theme level for this chip
-            //     labelStyle: TextStyle(
-            //       color: readOnly
-            //           ? (isSelected
-            //                 ? Colors.green.shade800
-            //                 : Colors.red.shade800)
-            //           : Colors.black,
-            //       fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-            //     ),
-            //     selectedColor: readOnly
-            //         ? Colors.green.withAlpha(170)
-            //         : Colors.green.withAlpha(150),
-            //     backgroundColor: readOnly
-            //         ? (isSelected
-            //               ? Colors.green.withAlpha(150)
-            //               : Colors.red.withAlpha(30))
-            //         : Colors.grey.shade100,
-            //     checkmarkColor: Theme.of(context).primaryColor,
-            //     shape: RoundedRectangleBorder(
-            //       borderRadius: BorderRadius.circular(8),
-            //       side: BorderSide(
-            //         color: readOnly
-            //             ? (isSelected ? Colors.green : Colors.red)
-            //             : (isSelected
-            //                   ? Theme.of(context).primaryColor
-            //                   : Colors.grey.shade300),
-            //       ),
-            //     ),
-            //   ),
-            // );
-          }).toList(),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(UiConstants.radiusLg),
+                  ),
+                )
+                .animate(delay: (index * 70).ms)
+                .scale(duration: 200.ms)
+                .slideY(begin: isEven ? 0.3 : -0.3);
+          },
         ),
       ],
     );

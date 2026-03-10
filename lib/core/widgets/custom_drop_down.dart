@@ -1,6 +1,8 @@
 import 'package:app/core/constants/app_images.dart';
+import 'package:app/core/constants/ui_constants.dart';
 import 'package:app/core/widgets/custom_svg_icon.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 class CustomDropdown<T> extends StatefulWidget {
   final String? title;
@@ -61,78 +63,79 @@ class _CustomDropdownState<T> extends State<CustomDropdown<T>> {
   @override
   Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Title (optional)
-        if (widget.title != null && widget.title!.isNotEmpty) ...[
-          Text(
-            widget.title!,
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: Colors.black87,
-            ),
-          ),
-          const SizedBox(height: 8),
-        ],
-
-        // Dropdown button (outlined style)
-        GestureDetector(
-          onTap: () => _showPopupMenu(context),
-          child: Container(
-            key: _buttonKey,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(
-              border: Border.all(
-                color: widget.errorText != null
-                    ? Colors.red
-                    : widget.borderColor ?? Colors.grey.shade400,
-                width: 1.2,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Title (optional)
+            if (widget.title != null && widget.title!.isNotEmpty) ...[
+              Text(
+                widget.title!,
+                style: const TextStyle(fontSize: 14, color: Colors.black87),
               ),
-              borderRadius: BorderRadius.circular(12),
-              color: widget.tileColor ?? Colors.white,
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: _selectedValue == null
-                      ? Text(
-                          widget.hint ?? 'Select an option',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: widget.errorText != null
-                                ? Colors.red
-                                : Colors.grey.shade600,
-                          ),
-                        )
-                      : (widget.selectedItem ??
-                            Text(
-                              _getDisplayText(_selectedValue),
-                              style: const TextStyle(fontSize: 16),
-                            )),
-                ),
-                CustomSvgIcon(
-                  path: AppImages.arrowDown,
-                  color: widget.errorText != null
-                      ? Colors.red
-                      : Colors.grey.shade700,
-                ),
-              ],
-            ),
-          ),
-        ),
+              const SizedBox(height: 8),
+            ],
 
-        // Error text
-        if (widget.errorText != null)
-          Padding(
-            padding: const EdgeInsets.only(top: 6, left: 12),
-            child: Text(
-              widget.errorText!,
-              style: const TextStyle(color: Colors.red, fontSize: 12),
+            // Dropdown button (outlined style)
+            GestureDetector(
+              onTap: () => _showPopupMenu(context),
+              child: Container(
+                key: _buttonKey,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: widget.errorText != null
+                        ? Colors.red
+                        : widget.borderColor ?? Colors.grey.shade400,
+                    width: 1.2,
+                  ),
+                  borderRadius: BorderRadius.circular(12),
+                  color: widget.tileColor ?? Colors.white,
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: _selectedValue == null
+                          ? Text(
+                              widget.hint ?? 'Select an option',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: widget.errorText != null
+                                    ? Colors.red
+                                    : Colors.grey.shade600,
+                              ),
+                            )
+                          : (widget.selectedItem ??
+                                Text(
+                                  _getDisplayText(_selectedValue),
+                                  style: const TextStyle(fontSize: 16),
+                                )),
+                    ),
+                    CustomSvgIcon(
+                      path: AppImages.arrowDown,
+                      color: widget.errorText != null
+                          ? Colors.red
+                          : Colors.grey.shade700,
+                    ),
+                  ],
+                ),
+              ),
             ),
-          ),
-      ],
-    );
+            // Error text
+            if (widget.errorText != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 6, left: 12),
+                child: Text(
+                  widget.errorText!,
+                  style: const TextStyle(color: Colors.red, fontSize: 12),
+                ),
+              ),
+          ],
+        )
+        .animate()
+        .fadeIn(delay: UiConstants.animationDelayFirst)
+        .moveY(begin: 20, end: 0);
   }
 
   String _getDisplayText(T? value) {
@@ -220,8 +223,7 @@ class _CustomDropdownState<T> extends State<CustomDropdown<T>> {
                     ],
                   ),
                 ),
-                if (widget.shouldDivideItems)
-                  const Divider(height: 1, color: Color(0xFFE0E0E0)),
+                if (widget.shouldDivideItems) const Divider(height: 1),
               ],
             ),
           );

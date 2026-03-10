@@ -363,7 +363,7 @@ class _PostsMasonrySliver extends StatelessWidget {
     final orgMap = {for (final org in organizations) org.id: org};
 
     return SliverPadding(
-      padding: const EdgeInsets.symmetric(horizontal: UiConstants.spacingMd),
+      padding: const EdgeInsets.all(UiConstants.spacingMd),
       sliver: SliverMasonryGrid.count(
         crossAxisCount: 2,
         mainAxisSpacing: UiConstants.spacingSm,

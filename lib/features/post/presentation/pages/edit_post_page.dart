@@ -55,4 +55,5 @@ class EditPostView extends StatelessWidget {
       ),
     );
   }
+
 }

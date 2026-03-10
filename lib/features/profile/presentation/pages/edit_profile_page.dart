@@ -457,7 +457,7 @@ class _EditProfileViewState extends State<EditProfileView> {
                 SliverAppBar(
                   pinned: true,
                   stretch: true,
-                  leading: const BackButton(color: Colors.white),
+                  leading: const BackButton(color: Colors.black),
                   collapsedHeight: kToolbarHeight + UiConstants.spacingSm,
                   elevation: 0,
                   title: Text(
@@ -465,7 +465,11 @@ class _EditProfileViewState extends State<EditProfileView> {
                     _fullNameController.text.isNotEmpty
                         ? _fullNameController.text
                         : widget.profile.fullName,
-                    style: const TextStyle(color: Colors.white),
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
                   ),
                   flexibleSpace: FlexibleSpaceBar(
                     background: Container(
@@ -538,27 +542,27 @@ class _EditProfileViewState extends State<EditProfileView> {
                           //   onTap: () {},
                           // ),
                           // const SizedBox(height: 32),
-                          BlocBuilder<
-                            EditUserProfileBloc,
-                            EditUserProfileState
-                          >(
-                            builder: (context, btnState) {
-                              return SizedBox(
-                                width: double.infinity,
-                                child: CustomButton(
-                                  text: "Save Changes",
-                                  isLoading: btnState is ProfileDetailUpdating,
-                                  onPressed: () {
-                                    if (_formKey.currentState!.validate()) {
-                                      context.read<EditUserProfileBloc>().add(
-                                        const ProfileDetailUpdateRequested(),
-                                      );
-                                    }
-                                  },
-                                ),
-                              );
-                            },
-                          ),
+                          // BlocBuilder<
+                          //   EditUserProfileBloc,
+                          //   EditUserProfileState
+                          // >(
+                          //   builder: (context, btnState) {
+                          //     return SizedBox(
+                          //       width: double.infinity,
+                          //       child: CustomButton(
+                          //         text: "Save Changes",
+                          //         isLoading: btnState is ProfileDetailUpdating,
+                          //         onPressed: () {
+                          //           if (_formKey.currentState!.validate()) {
+                          //             context.read<EditUserProfileBloc>().add(
+                          //               const ProfileDetailUpdateRequested(),
+                          //             );
+                          //           }
+                          //         },
+                          //       ),
+                          //     );
+                          //   },
+                          // ),
                         ],
                       ),
                     ),
@@ -569,6 +573,41 @@ class _EditProfileViewState extends State<EditProfileView> {
           );
         },
       ),
+      bottomNavigationBar:
+          BlocBuilder<EditUserProfileBloc, EditUserProfileState>(
+            builder: (context, btnState) {
+              return Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  UiConstants.spacingMd,
+                  UiConstants.spacingMd,
+                  UiConstants.spacingMd,
+                  UiConstants.spacingMd,
+                ),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: CustomButton(
+                    text: "Save Changes",
+                    isLoading: btnState is ProfileDetailUpdating,
+                    style: ElevatedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(
+                          UiConstants.radiusXl,
+                        ),
+                      ),
+                      elevation: 0,
+                    ),
+                    onPressed: () {
+                      if (_formKey.currentState!.validate()) {
+                        context.read<EditUserProfileBloc>().add(
+                          const ProfileDetailUpdateRequested(),
+                        );
+                      }
+                    },
+                  ),
+                ),
+              );
+            },
+          ),
     );
   }
 
