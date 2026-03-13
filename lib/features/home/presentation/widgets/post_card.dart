@@ -310,11 +310,11 @@ class PostView extends StatelessWidget {
                                                     is PostRatingSummaryLoaded) {
                                                   // Show nothing if no reviews yet — keeps card clean
                                                   if (state.reviewCount == 0) {
-                                                    return Text(
+                                                    return const Text(
                                                       'No reviews yet',
                                                       style: TextStyle(
                                                         fontSize: 10,
-                                                        color: Colors.grey[400],
+                                                        color: Colors.black54,
                                                       ),
                                                     );
                                                   }

@@ -131,44 +131,7 @@ class HomeView extends StatelessWidget {
                     expandedHeight: 200,
                     centerTitle: true,
                     collapsedHeight: kToolbarHeight + UiConstants.spacingSm,
-                    // leading: Padding(
-                    //   padding: const EdgeInsets.all(UiConstants.spacingSm),
-                    //   child: ClipOval(
-                    //     child:
-                    //         Container(
-                    //               decoration: BoxDecoration(
-                    //                 border: Border.all(
-                    //                   color: Colors.black,
-                    //                   width: 1.5,
-                    //                 ),
-                    //                 color: Colors.transparent,
-                    //                 boxShadow: [
-                    //                   BoxShadow(
-                    //                     color: Colors.black.withAlpha(80),
-                    //                     blurRadius: 4,
-                    //                     offset: const Offset(0, 2),
-                    //                   ),
-                    //                 ],
-                    //               ),
-                    //               child: const CustomSvgIcon(
-                    //                 path: AppImages.appIconTransparentSvg,
-                    //               ),
-                    //             )
-                    //             .animate(onPlay: (c) => c.repeat(reverse: true))
-                    //             .scaleXY(
-                    //               begin: 1.0,
-                    //               end: 1.06,
-                    //               duration: 1800.ms,
-                    //               curve: Curves.easeInOut,
-                    //             )
-                    //             .shimmer(
-                    //               delay: 400.ms,
-                    //               duration: 1800.ms,
-                    //               color: Colors.black.withOpacity(0.15),
-                    //               angle: 0.5,
-                    //             ),
-                    //   ),
-                    // ),
+
                     leading: const AnimatedAppIcon(),
                     actions: [
                       IconButton(
@@ -176,7 +139,9 @@ class HomeView extends StatelessWidget {
                           Icons.notifications_outlined,
                           color: Colors.black,
                         ),
-                        onPressed: () {},
+                        onPressed: () {
+                          context.push(RouteConstants.notificationsPage);
+                        },
                       ),
                       IconButton(
                         icon: const Icon(

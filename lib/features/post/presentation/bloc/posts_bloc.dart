@@ -435,13 +435,13 @@ class OrganizationPostsBloc
           post.price.toString().contains(event.query) ||
           (post.tags != null &&
               post.tags!
-                  .map((tag) => enumToString(tag))
+                  .map((tag) => tag.label)
                   .join(',')
                   .toLowerCase()
                   .contains(event.query.toLowerCase())) ||
           (post.amenities != null &&
               post.amenities!
-                  .map((amenity) => enumToString(amenity))
+                  .map((amenity) => amenity.label)
                   .join(',')
                   .toLowerCase()
                   .contains(event.query.toLowerCase()));

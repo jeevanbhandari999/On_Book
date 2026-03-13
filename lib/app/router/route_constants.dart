@@ -51,4 +51,7 @@ class RouteConstants {
       '/organizationDetailsPageUserSide';
   static const String organizationDetailsPageOwnerSide =
       '/organizationDetailsPageOwnerSide';
+
+  // Notification routes
+  static const String notificationsPage = '/notificationsPage';
 }

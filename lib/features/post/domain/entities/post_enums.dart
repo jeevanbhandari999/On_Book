@@ -45,25 +45,6 @@ extension PostStatusExtension on PostStatus {
 
 enum AmenityType { wifi, parking, airConditioning, tv, kitchen, swimmingPool }
 
-// extension AmenityTypeExtension on AmenityType {
-//   String get label {
-//     switch (this) {
-//       case AmenityType.wifi:
-//         return 'Free Wi-Fi';
-//       case AmenityType.parking:
-//         return 'Parking';
-//       case AmenityType.airConditioning:
-//         return 'Air Conditioning';
-//       case AmenityType.tv:
-//         return 'Television';
-//       case AmenityType.kitchen:
-//         return 'Kitchen';
-//       case AmenityType.swimmingPool:
-//         return 'Swimming Pool';
-//     }
-//   }
-// }
-
 extension AmenityTypeExtension on AmenityType {
   String get label {
     switch (this) {
@@ -108,25 +89,6 @@ enum PostTag {
   luxury,
   familyFriendly,
 }
-
-// extension PostTagExtension on PostTag {
-//   String get label {
-//     switch (this) {
-//       case PostTag.nearBeach:
-//         return 'Near Beach';
-//       case PostTag.cityCenter:
-//         return 'City Center';
-//       case PostTag.mountainView:
-//         return 'Mountain View';
-//       case PostTag.budgetFriendly:
-//         return 'Budget Friendly';
-//       case PostTag.luxury:
-//         return 'Luxury';
-//       case PostTag.familyFriendly:
-//         return 'Family Friendly';
-//     }
-//   }
-// }
 
 extension PostTagExtension on PostTag {
   String get label {
