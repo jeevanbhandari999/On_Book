@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:app/features/auth/data/models/orgnization_model.dart';
 import 'package:app/features/auth/data/models/user_model.dart';
 import 'package:app/features/post/domain/entities/post.dart';
+import 'package:app/features/post/domain/entities/post_enums.dart';
 import 'package:app/features/post/domain/entities/post_image.dart';
 import 'package:app/features/post/domain/entities/post_video.dart';
 import 'package:app/features/post/domain/usecases/get_all_posts_by_organization_id_use_case.dart';
@@ -73,6 +74,15 @@ class ChecKUserRoleAndOrganizationDetailStatus extends OrganizationPostsEvent {
 
   @override
   List<Object?> get props => [userId, organizationId, role];
+}
+
+class SearchOrganizationPosts extends OrganizationPostsEvent {
+  final String query;
+
+  const SearchOrganizationPosts({required this.query});
+
+  @override
+  List<Object?> get props => [query];
 }
 
 // States
@@ -218,6 +228,8 @@ class OrganizationPostsBloc
   getAllPostsWithVideosByOrganizationId;
   final PostServices postServices;
 
+  List<Post> _allPosts = [];
+
   OrganizationPostsBloc({
     required this.getAllPostsByOrganizationId,
     required this.getAllPostsWithImagesByOrganizationId,
@@ -230,6 +242,7 @@ class OrganizationPostsBloc
     on<ChecKUserRoleAndOrganizationDetailStatus>(
       _onCheckUserRoleAndOrganizationDetailStatus,
     );
+    on<SearchOrganizationPosts>(_onSearchOrganizationPosts);
   }
 
   Future<void> _onFetchOrganizationPosts(
@@ -243,10 +256,13 @@ class OrganizationPostsBloc
         organizationId: event.organizationId,
       ),
     );
-    result.fold(
-      (failure) => emit(OrganizationPostsError(failure.message)),
-      (posts) => emit(OrganizationPostsLoaded(posts)),
-    );
+    result.fold((failure) => emit(OrganizationPostsError(failure.message)), (
+      posts,
+    ) {
+      _allPosts = posts;
+
+      emit(OrganizationPostsLoaded(posts));
+    });
   }
 
   Future<void> _onFetchOrganizationPostsImages(
@@ -346,15 +362,6 @@ class OrganizationPostsBloc
       final userOrganizationDetails = await postServices
           .getCurrentUserOrganization();
 
-      // This block of coede is not needed, because manager/staff or even admin may not have created or joined any organizations
-      // if (userOrganizationDetails == null) {
-      //   emit(
-      //     const OrganizationPostsError(
-      //       'Failed to get organization data: please join the organization:',
-      //     ),
-      //   );
-      // }
-
       // for admin (no restriction)
       if (user.role == UserRole.admin) {
         emit(AdminLoggedIn(user: user));
@@ -402,16 +409,44 @@ class OrganizationPostsBloc
         );
         return;
       }
-      // No need for this block too
-      // if (user.role == UserRole.user) {
-      //   emit(GeneralUserLoggedIn(user: user));
-      //   return;
-      // }
+
       emit(GeneralUserLoggedIn(user: user));
     } catch (e) {
       emit(
         OrganizationPostsError('Failed to check user status: ${e.toString()}'),
       );
     }
+  }
+
+  Future<void> _onSearchOrganizationPosts(
+    SearchOrganizationPosts event,
+    Emitter<OrganizationPostsState> emit,
+  ) async {
+    if (event.query.isEmpty) {
+      emit(OrganizationPostsLoaded(_allPosts));
+      return;
+    }
+
+    final filteredPosts = _allPosts.where((post) {
+      return post.title.toLowerCase().contains(event.query.toLowerCase()) ||
+          (post.description ?? '').toLowerCase().contains(
+            event.query.toLowerCase(),
+          ) ||
+          post.price.toString().contains(event.query) ||
+          (post.tags != null &&
+              post.tags!
+                  .map((tag) => enumToString(tag))
+                  .join(',')
+                  .toLowerCase()
+                  .contains(event.query.toLowerCase())) ||
+          (post.amenities != null &&
+              post.amenities!
+                  .map((amenity) => enumToString(amenity))
+                  .join(',')
+                  .toLowerCase()
+                  .contains(event.query.toLowerCase()));
+    }).toList();
+
+    emit(OrganizationPostsLoaded(filteredPosts));
   }
 }

@@ -63,11 +63,6 @@ class OwnerView extends StatelessWidget {
             }
           });
 
-          // WidgetsBinding.instance.addPostFrameCallback((_) {
-          //   if (tabController.index == 0) {
-          //     _onTabChanged(context, 0, organization.id);
-          //   }
-          // });
           return Column(
             children: [
               Header(user: user, organization: organization),

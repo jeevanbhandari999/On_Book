@@ -1,14 +1,33 @@
+import 'dart:async';
+
 import 'package:app/core/constants/ui_constants.dart';
 import 'package:app/core/widgets/common_widgets.dart';
 import 'package:app/features/auth/data/models/orgnization_model.dart';
 import 'package:app/features/auth/data/models/user_model.dart';
+import 'package:app/features/post/presentation/bloc/posts_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-class Header extends StatelessWidget {
+class Header extends StatefulWidget {
   final UserModel user;
   final OrganizationModel organization;
   const Header({super.key, required this.user, required this.organization});
+
+  @override
+  State<Header> createState() => _HeaderState();
+}
+
+class _HeaderState extends State<Header> {
+  final TextEditingController searchController = TextEditingController();
+  Timer? _debounce;
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -16,16 +35,16 @@ class Header extends StatelessWidget {
     String manageOrgMessage = 'Manage Organization';
     String managePostMessage = 'Manage Posts';
 
-    if (user.role == UserRole.admin) {
+    if (widget.user.role == UserRole.admin) {
       roleMessage =
           'As an admin you can manage all posts related to this application';
-    } else if (user.role == UserRole.owner) {
+    } else if (widget.user.role == UserRole.owner) {
       roleMessage =
           'As an owner you can create and manage all posts related to this organization';
-    } else if (user.role == UserRole.manager) {
+    } else if (widget.user.role == UserRole.manager) {
       roleMessage =
           'As a manager, you can create, update, and manage posts related to this organization';
-    } else if (user.role == UserRole.worker) {
+    } else if (widget.user.role == UserRole.worker) {
       roleMessage =
           'As a staff, you can view and assist in post-related tasks.';
       manageOrgMessage = 'View Organization';
@@ -82,18 +101,18 @@ class Header extends StatelessWidget {
                                 context,
                               ).colorScheme.secondary.withAlpha(150),
                               child:
-                                  (organization.logoUrl != null &&
-                                      organization.logoUrl!.isNotEmpty)
+                                  (widget.organization.logoUrl != null &&
+                                      widget.organization.logoUrl!.isNotEmpty)
                                   ? Image.network(
                                       width: double.infinity,
                                       height: double.infinity,
-                                      organization.logoUrl!,
+                                      widget.organization.logoUrl!,
                                       fit: BoxFit.cover,
                                     )
                                   : Center(
                                       child: Text(
                                         _getInitialCharactrOfOrganization(
-                                          organization.name,
+                                          widget.organization.name,
                                         ),
                                         style: const TextStyle(
                                           fontSize: 22,
@@ -114,7 +133,7 @@ class Header extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                              organization.name,
+                              widget.organization.name,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
@@ -132,7 +151,7 @@ class Header extends StatelessWidget {
                             .fadeIn(duration: UiConstants.animationSlow),
                         const SizedBox(height: 4),
                         Text(
-                              user.role
+                              widget.user.role
                                   .toString()
                                   .split('.')
                                   .last
@@ -227,11 +246,20 @@ class Header extends StatelessWidget {
         ),
 
         /// SEARCH
-        const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 12),
+        Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
               child: CustomTextField(
                 hint: 'Search posts...',
-                prefixIcon: Icon(Icons.search),
+                prefixIcon: const Icon(Icons.search),
+                onChanged: (value) {
+                  if (_debounce?.isActive ?? false) _debounce!.cancel();
+
+                  _debounce = Timer(const Duration(milliseconds: 400), () {
+                    context.read<OrganizationPostsBloc>().add(
+                      SearchOrganizationPosts(query: value),
+                    );
+                  });
+                },
               ),
             )
             .animate(delay: UiConstants.animationNormal)
@@ -243,12 +271,6 @@ class Header extends StatelessWidget {
             ),
 
         const SizedBox(height: 12),
-
-        // Divider(
-        //   height: 1,
-        //   thickness: 1,
-        //   color: Theme.of(context).colorScheme.primary,
-        // ),
       ],
     );
   }
