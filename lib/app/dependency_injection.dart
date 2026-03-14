@@ -5,6 +5,7 @@ import 'package:app/features/chat/chat_dependencies.dart';
 import 'package:app/features/customer_review/customer_review_dependencies.dart';
 import 'package:app/features/home/home_dependencies.dart';
 import 'package:app/features/library/library_dependencies.dart';
+import 'package:app/features/notifications/notifications_dependencies.dart';
 import 'package:app/features/organizations/organization_dependencies.dart';
 import 'package:app/features/post/post_dependencies.dart';
 import 'package:app/features/profile/profile_dependencies.dart';
@@ -83,6 +84,9 @@ abstract class DependencyInjection {
 
     // Search feature dependencies
     await _registerSearchDependencies();
+
+    // Notification feature dependencies
+    await registerNotificationDependencies();
   }
 
   // Register auth dependencies
@@ -133,6 +137,11 @@ abstract class DependencyInjection {
   // Register search dependencies
   static Future<void> _registerSearchDependencies() async {
     await SearchDependencies.register(instance);
+  }
+
+  // Regisyer notification dependencies
+  static Future<void> registerNotificationDependencies() async {
+    await NotificationDependencies.register(instance);
   }
 
   static void reset() {

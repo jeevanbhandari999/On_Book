@@ -140,7 +140,10 @@ class HomeView extends StatelessWidget {
                           color: Colors.black,
                         ),
                         onPressed: () {
-                          context.push(RouteConstants.notificationsPage);
+                          context.push(
+                            RouteConstants.notificationsPage,
+                            extra: userId,
+                          );
                         },
                       ),
                       IconButton(

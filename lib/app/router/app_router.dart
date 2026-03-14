@@ -361,7 +361,10 @@ class AppRouter {
       GoRoute(
         path: RouteConstants.notificationsPage,
         parentNavigatorKey: rootNavigatorKey,
-        builder: (context, state) => const NotificationsPage(),
+        builder: (context, state) {
+          final userId = state.extra as String;
+          return NotificationPage(userId: userId);
+        },
       ),
     ],
   );
