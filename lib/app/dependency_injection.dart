@@ -13,6 +13,9 @@ import 'package:app/features/search/search_dependencies.dart';
 import 'package:get_it/get_it.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+
+
+
 abstract class DependencyInjection {
   static GetIt get instance => GetIt.instance;
 
