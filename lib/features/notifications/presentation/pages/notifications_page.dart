@@ -72,7 +72,12 @@ class _NotificationView extends StatelessWidget {
 
         if (state is NotificationError) {
           return Scaffold(
-            appBar: AppBar(title: const Text('Notifications')),
+            appBar: AppBar(
+              title: const Text(
+                'Notifications',
+                style: TextStyle(color: Colors.black),
+              ),
+            ),
             body: _ErrorView(
               message: state.message,
               onRetry: () => context.read<NotificationBloc>().add(
@@ -160,28 +165,36 @@ class _LoadedView extends StatelessWidget {
             // ── Sliver AppBar ───────────────────────────────────────────────
             SliverAppBar(
               pinned: true,
-              expandedHeight: 100,
+              floating: true,
+              collapsedHeight: kToolbarHeight + UiConstants.spacingSm,
+              elevation: 0,
+              centerTitle: false,
               backgroundColor: AppColors.primaryLight,
-              actionsPadding: EdgeInsets.zero,
+              foregroundColor: Colors.black,
+              titleSpacing: 0,
+              leading: const BackButton(color: Colors.black),
               flexibleSpace: FlexibleSpaceBar(
                 background: Container(
-                  decoration: const BoxDecoration(
-                    color: AppColors.primaryLight,
-                    borderRadius: BorderRadius.vertical(
-                      bottom: Radius.circular(UiConstants.radiusXl),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).primaryColor,
+                    borderRadius: const BorderRadius.only(
+                      bottomLeft: Radius.circular(UiConstants.radiusXl),
+                      bottomRight: Radius.circular(UiConstants.radiusXl),
                     ),
                   ),
                 ),
               ),
               title: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Expanded(
                     child: const Text(
                       'Notifications',
                       style: TextStyle(
-                        fontSize: 22,
+                        color: Colors.black,
+                        fontSize: 20,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white,
                       ),
                     ).animate().slide(duration: 400.ms).fade(duration: 400.ms),
                   ),
@@ -192,7 +205,7 @@ class _LoadedView extends StatelessWidget {
                         vertical: 5,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: Colors.black,
                         borderRadius: BorderRadius.circular(
                           UiConstants.radiusRound,
                         ),
@@ -219,7 +232,7 @@ class _LoadedView extends StatelessWidget {
                   ).animate().fade(duration: 300.ms),
 
                 AppPopupMenu(
-                  iconColor: Colors.white,
+                  iconColor: Colors.black,
                   items: [
                     AppPopupMenuItem(
                       value: 'all',
@@ -333,7 +346,7 @@ class _TypeFilterChips extends StatelessWidget {
                       Icon(
                         f.icon,
                         size: 15,
-                        color: isSelected ? Colors.white : Colors.black87,
+                        color: isSelected ? Colors.black87 : Colors.black87,
                       ),
                       const SizedBox(width: 5),
                       Text(
@@ -343,7 +356,7 @@ class _TypeFilterChips extends StatelessWidget {
                           fontWeight: isSelected
                               ? FontWeight.bold
                               : FontWeight.normal,
-                          color: isSelected ? Colors.white : Colors.black87,
+                          color: isSelected ? Colors.black87 : Colors.black87,
                         ),
                       ),
                     ],
@@ -351,7 +364,7 @@ class _TypeFilterChips extends StatelessWidget {
                   selected: isSelected,
                   onSelected: (_) => onSelected(f.label),
                   backgroundColor: Colors.white,
-                  selectedColor: AppColors.primaryLight,
+                  selectedColor: AppColors.primary,
                   showCheckmark: false,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(
