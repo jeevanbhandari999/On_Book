@@ -2,6 +2,7 @@ import 'package:app/app/app_config.dart';
 import 'package:app/app/dependency_injection.dart';
 import 'package:app/app/router/app_router.dart';
 import 'package:app/core/theme/app_theme.dart';
+import 'package:app/features/notifications/presentation/services/notification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -47,6 +48,9 @@ Future<void> main() async {
 
     // Initialize dependency injection
     await DependencyInjection.init();
+
+    // Initialize notification service (local notifications plugin)
+    await NotificationService.instance.init();
 
     // Run the app
     runApp(const MyApp());
