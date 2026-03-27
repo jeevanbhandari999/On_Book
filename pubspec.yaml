@@ -117,6 +117,9 @@ dependencies:
   esewa_flutter_sdk:
     path: ./esewa_flutter_sdk
 
+  # For showing notifications
+  flutter_local_notifications: ^21.0.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
