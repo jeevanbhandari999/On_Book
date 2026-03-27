@@ -1,4 +1,8 @@
 import 'dart:async';
+import 'package:app/features/chat/data/models/room_member_model.dart';
+import 'package:app/features/notifications/domain/entities/notification_entity.dart';
+import 'package:app/features/notifications/presentation/services/notification_creator_service.dart';
+import 'package:app/features/notifications/presentation/services/notification_service.dart';
 import 'package:dartz/dartz.dart';
 
 import '../../../../core/errors/exceptions.dart';
@@ -98,13 +102,52 @@ class ChatRepositoryImpl implements ChatRepository {
   // ===========================================================================
   // MESSAGES
   // ===========================================================================
-
   @override
   Future<Either<Failure, Message>> sendMessage(Message message) async {
     try {
       final messageModel = MessageModel.fromEntity(message);
 
+      // 1. Send the message
       final result = await remoteDataSource.sendMessage(messageModel);
+
+      // 2. Fetch members
+      final members = await remoteDataSource.getRoomMembers(
+        messageModel.roomId,
+      );
+
+      RoomMemberModel? sender;
+
+      try {
+        sender = members.firstWhere((m) => m.userId == messageModel.senderId);
+      } catch (_) {
+        sender = null;
+      }
+
+      final senderName = sender?.user?.fullName ?? 'Someone';
+      // 4. Notify others
+      for (final member in members) {
+        if (member.userId == messageModel.senderId) continue;
+
+        await NotificationCreatorService.instance.chatMessage(
+          recipientId: member.userId,
+          senderId: messageModel.senderId,
+          roomId: messageModel.roomId,
+          senderName: senderName,
+          messagePreview: messageModel.text ?? '📎 Attachment',
+        );
+      }
+
+      await NotificationService.instance.showFromEntity(
+        NotificationEntity(
+          id: 'temp',
+          recipientId: 'recipient-id',
+          title: 'Manual Test',
+          body: 'Works?',
+          status: NotificationStatus.unread,
+          createdAt: DateTime.now(),
+          type: NotificationType.chatMessage,
+        ),
+      );
 
       return Right(result.toEntity());
     } on ServerException catch (e) {

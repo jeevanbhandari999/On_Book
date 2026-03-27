@@ -2,19 +2,6 @@ import 'package:app/features/notifications/domain/entities/notification_entity.d
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
-// ─────────────────────────────────────────────────────────────────────────────
-// NotificationService
-//
-// Responsibilities:
-//   1. Initialise flutter_local_notifications once at app startup.
-//   2. Show a heads-up (in-app) banner whenever a new NotificationEntity
-//      arrives from the Supabase realtime stream.
-//   3. Provide channel constants so the rest of the app can reference them.
-//
-// This service does NOT insert rows into Supabase – that is done by
-// NotificationCreatorService (see below).  It only presents local UI banners.
-// ─────────────────────────────────────────────────────────────────────────────
-
 class NotificationService {
   NotificationService._();
   static final NotificationService instance = NotificationService._();
@@ -54,6 +41,22 @@ class NotificationService {
       settings: initSettings,
       onDidReceiveNotificationResponse: _onNotificationTapped,
     );
+
+    // ✅ Request Android 13+ permission
+    final androidPlugin = _plugin
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >();
+
+    await androidPlugin?.requestNotificationsPermission();
+
+    // ✅ Request iOS permission explicitly
+    final iosPlugin = _plugin
+        .resolvePlatformSpecificImplementation<
+          IOSFlutterLocalNotificationsPlugin
+        >();
+
+    await iosPlugin?.requestPermissions(alert: true, badge: true, sound: true);
 
     // Create Android notification channels
     await _createChannels();
@@ -109,14 +112,11 @@ class NotificationService {
 
   // ── Show banner ───────────────────────────────────────────────────────────
 
-  /// Call this whenever a new [NotificationEntity] is received from the
-  /// realtime stream.  It shows a heads-up banner appropriate to the type.
   Future<void> showFromEntity(NotificationEntity notification) async {
     if (!_initialised) await init();
 
     final channelId = _channelIdForType(notification.type);
     final color = _colorForType(notification.type);
-    final icon = _iconForType(notification.type);
 
     final androidDetails = AndroidNotificationDetails(
       channelId,
@@ -124,8 +124,10 @@ class NotificationService {
       importance: Importance.high,
       priority: Priority.high,
       color: color,
-      icon: icon,
-      // Heads-up banner behaviour
+
+      // ✅ FIX: ensure valid icon (critical)
+      icon: '@mipmap/ic_launcher',
+
       fullScreenIntent: false,
       styleInformation: BigTextStyleInformation(notification.body),
     );
@@ -142,12 +144,13 @@ class NotificationService {
     );
 
     await _plugin.show(
-      // Use a stable int ID derived from the UUID so duplicates are replaced
-      id: notification.id.hashCode.abs() % 100000,
+      // ✅ FIX: avoid collisions
+      id: DateTime.now().millisecondsSinceEpoch ~/ 1000,
+
       title: notification.title,
       body: notification.body,
       notificationDetails: details,
-      // Pass referenceId + referenceType as payload for tap navigation
+
       payload:
           '${notification.referenceType ?? ''}|${notification.referenceId ?? ''}',
     );
@@ -166,7 +169,6 @@ class NotificationService {
   // ── Tap handler ───────────────────────────────────────────────────────────
 
   void _onNotificationTapped(NotificationResponse response) {
-    // Payload format: 'referenceType|referenceId'
     final payload = response.payload;
     if (payload == null || payload.isEmpty) return;
 
@@ -177,17 +179,9 @@ class NotificationService {
     if (referenceType == null || referenceId == null) return;
     if (referenceType.isEmpty || referenceId.isEmpty) return;
 
-    // Delegate to the tap callback if set by the app shell
     onNotificationTapped?.call(referenceType, referenceId);
   }
 
-  /// Set this from your app's root widget / router so taps can trigger
-  /// navigation even when the notification arrives while the app is backgrounded.
-  ///
-  /// Example in main.dart:
-  ///   NotificationService.instance.onNotificationTapped = (type, id) {
-  ///     router.push(...);
-  ///   };
   void Function(String referenceType, String referenceId)? onNotificationTapped;
 
   // ── Helpers ───────────────────────────────────────────────────────────────
@@ -232,8 +226,5 @@ class NotificationService {
     };
   }
 
-  // Android drawable name – keep @drawable/ic_notif_* assets in your project
-  // or fall back to the default app icon.
-  String? _iconForType(NotificationType type) =>
-      null; // use default launcher icon
+  String? _iconForType(NotificationType type) => null;
 }
