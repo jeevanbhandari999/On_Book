@@ -17,6 +17,7 @@ import 'package:app/features/home/presentation/widgets/home_shimmer.dart';
 import 'package:app/features/home/presentation/widgets/home_sliver_header.dart';
 import 'package:app/features/home/presentation/widgets/post_card.dart';
 import 'package:app/features/home/presentation/widgets/show_on_collapsed_sliver_app_bar.dart';
+import 'package:app/features/notifications/presentation/bloc/notification_cubit.dart';
 import 'package:app/features/profile/domain/usecases/get_current_user_profile_use_case.dart';
 import 'package:app/features/profile/presentation/bloc/get_current_user_profile_details_bloc.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -134,15 +135,57 @@ class HomeView extends StatelessWidget {
 
                     leading: const AnimatedAppIcon(),
                     actions: [
-                      IconButton(
-                        icon: const Icon(
-                          Icons.notifications_outlined,
-                          color: Colors.black,
-                        ),
-                        onPressed: () {
-                          context.push(
-                            RouteConstants.notificationsPage,
-                            extra: userId,
+                      BlocBuilder<NotificationCubit, NotificationCubitState>(
+                        builder: (context, state) {
+                          final unreadCount = state is NotificationCubitLoaded
+                              ? state.notifications
+                                    .where((n) => n.isUnread)
+                                    .length
+                              : 0;
+                          return IconButton(
+                            icon: Stack(
+                              clipBehavior: Clip.none,
+                              children: [
+                                const Icon(
+                                  Icons.notifications_outlined,
+                                  color: Colors.black,
+                                ),
+                                if (unreadCount > 0)
+                                  Positioned(
+                                    top: -4,
+                                    right: -4,
+                                    child: Container(
+                                      padding: const EdgeInsets.all(2),
+                                      constraints: const BoxConstraints(
+                                        minWidth: 16,
+                                        minHeight: 16,
+                                      ),
+                                      decoration: const BoxDecoration(
+                                        color: Colors.red,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Text(
+                                        unreadCount > 99
+                                            ? '99+'
+                                            : '$unreadCount',
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 9,
+                                          fontWeight: FontWeight.bold,
+                                          height: 1,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                            onPressed: () {
+                              context.push(
+                                RouteConstants.notificationsPage,
+                                extra: userId,
+                              );
+                            },
                           );
                         },
                       ),

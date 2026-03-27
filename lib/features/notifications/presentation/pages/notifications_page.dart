@@ -172,6 +172,7 @@ class _LoadedView extends StatelessWidget {
               backgroundColor: AppColors.primaryLight,
               foregroundColor: Colors.black,
               titleSpacing: 0,
+              actionsPadding: EdgeInsets.zero,
               leading: const BackButton(color: Colors.black),
               flexibleSpace: FlexibleSpaceBar(
                 background: Container(
@@ -205,7 +206,7 @@ class _LoadedView extends StatelessWidget {
                         vertical: 5,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.black,
+                        color: Colors.black.withAlpha(120),
                         borderRadius: BorderRadius.circular(
                           UiConstants.radiusRound,
                         ),
@@ -224,7 +225,7 @@ class _LoadedView extends StatelessWidget {
               actions: [
                 if (state.unreadCount > 0)
                   IconButton(
-                    icon: const Icon(Icons.done_all, color: Colors.white),
+                    icon: const Icon(Icons.done_all, color: Colors.black),
                     tooltip: 'Mark all as read',
                     onPressed: () => context.read<NotificationBloc>().add(
                       const NotificationMarkAllAsReadRequested(),
@@ -261,6 +262,17 @@ class _LoadedView extends StatelessWidget {
                       onTap: () => context.read<NotificationBloc>().add(
                         const NotificationReadFilterChanged(
                           filter: NotificationReadFilter.read,
+                        ),
+                      ),
+                    ),
+                    AppPopupMenuItem(
+                      value: 'archived',
+                      label: 'Archived',
+                      icon: Icons.archive_outlined,
+                      isDistructive: true,
+                      onTap: () => context.read<NotificationBloc>().add(
+                        const NotificationReadFilterChanged(
+                          filter: NotificationReadFilter.archived,
                         ),
                       ),
                     ),

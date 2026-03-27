@@ -47,22 +47,38 @@ class NotificationCubit extends Cubit<NotificationCubitState> {
        super(NotificationCubitInitial());
 
   /// Call this once the user is authenticated.
+  bool _isFirstEmission = true;
+
   void start(String userId) {
     _subscription?.cancel();
     _shownIds.clear();
+    _isFirstEmission = true; // ✅ reset on every start
     emit(NotificationCubitLoading());
 
     _subscription = _streamNotifications(userId).listen((result) {
       result.fold(
         (failure) => emit(NotificationCubitError(message: failure.message)),
         (notifications) {
+          if (_isFirstEmission) {
+            // Seed read + archived — these never get a banner
+            final alreadyRead = notifications
+                .where((n) => n.isRead || n.isArchived)
+                .map((n) => n.id)
+                .toSet();
+            _shownIds.addAll(alreadyRead);
+            _isFirstEmission = false; // ✅ never runs this block again
+          }
+
+          // Banner only for unread notifications we haven't seen yet
           final brandNew = notifications
-              .where((n) => !_shownIds.contains(n.id))
+              .where((n) => n.isUnread && !_shownIds.contains(n.id))
               .toList();
+
           for (final n in brandNew) {
             _shownIds.add(n.id);
             _notificationService.showFromEntity(n);
           }
+
           emit(NotificationCubitLoaded(notifications: notifications));
         },
       );
@@ -73,6 +89,7 @@ class NotificationCubit extends Cubit<NotificationCubitState> {
   void stop() {
     _subscription?.cancel();
     _shownIds.clear();
+    _isFirstEmission = true;
     emit(NotificationCubitInitial());
   }
 
