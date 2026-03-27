@@ -11,6 +11,7 @@ import 'package:app/features/auth/data/models/user_model.dart';
 // import 'package:app/features/auth/domain/usecases/reset_password_use_case.dart';
 import 'package:app/features/auth/services/auth_service.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 // Events
@@ -385,27 +386,28 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         }
       } else {
         // Check cached session data as fallback when Supabase session is not available
-        try {
-          final sessionManager = DependencyInjection.get<SessionManager>();
-          if (sessionManager.isLoggedIn == true &&
-              sessionManager.user != null) {
-            final cachedUser = sessionManager.user!;
-            final organization = await _authService.getUserOrganization();
+        // try {
+        //   final sessionManager = DependencyInjection.get<SessionManager>();
+        //   if (sessionManager.isLoggedIn == true &&
+        //       sessionManager.user != null) {
+        //     final cachedUser = sessionManager.user!;
+        //     final organization = await _authService.getUserOrganization();
 
-            // Check if cached user needs to complete profile or create organization
-            if (cachedUser.role == UserRole.manager &&
-                cachedUser.organizationId == null) {
-              emit(AuthNeedsOrganizationCreation(user: cachedUser));
-            } else {
-              emit(
-                AuthAuthenticated(user: cachedUser, organization: organization),
-              );
-            }
-            return;
-          }
-        } catch (e) {
-          throw CacheException('Failed to check cache session $e');
-        }
+        //     // Check if cached user needs to complete profile or create organization
+        //     if (cachedUser.role == UserRole.manager &&
+        //         cachedUser.organizationId == null) {
+        //       emit(AuthNeedsOrganizationCreation(user: cachedUser));
+        //     } else {
+        //       print('From here');
+        //       emit(
+        //         AuthAuthenticated(user: cachedUser, organization: organization),
+        //       );
+        //     }
+        //     return;
+        //   }
+        // } catch (e) {
+        //   throw CacheException('Failed to check cache session $e');
+        // }
 
         emit(const AuthUnauthenticated());
       }

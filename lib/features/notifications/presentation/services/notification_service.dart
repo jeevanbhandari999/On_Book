@@ -18,14 +18,15 @@ class NotificationService {
   static const _channelIdPayment = 'payment_channel';
 
   // ── Init ──────────────────────────────────────────────────────────────────
-
   Future<void> init() async {
     if (_initialised) return;
 
+    // Android initialization
     const androidSettings = AndroidInitializationSettings(
       '@mipmap/ic_launcher',
     );
 
+    // iOS initialization with full presentation options
     const iosSettings = DarwinInitializationSettings(
       requestAlertPermission: true,
       requestBadgePermission: true,
@@ -40,28 +41,29 @@ class NotificationService {
     await _plugin.initialize(
       settings: initSettings,
       onDidReceiveNotificationResponse: _onNotificationTapped,
+      // optional: add background handler if needed
+      // onDidReceiveBackgroundNotificationResponse: _onBackgroundTapped,
     );
 
-    // ✅ Request Android 13+ permission
+    // Request Android 13+ notification permission
     final androidPlugin = _plugin
         .resolvePlatformSpecificImplementation<
           AndroidFlutterLocalNotificationsPlugin
         >();
-
     await androidPlugin?.requestNotificationsPermission();
 
-    // ✅ Request iOS permission explicitly
+    // Request iOS permission explicitly
     final iosPlugin = _plugin
         .resolvePlatformSpecificImplementation<
           IOSFlutterLocalNotificationsPlugin
         >();
-
     await iosPlugin?.requestPermissions(alert: true, badge: true, sound: true);
 
     // Create Android notification channels
     await _createChannels();
 
     _initialised = true;
+    debugPrint('✅ NotificationService initialized');
   }
 
   Future<void> _createChannels() async {
@@ -69,7 +71,6 @@ class NotificationService {
         .resolvePlatformSpecificImplementation<
           AndroidFlutterLocalNotificationsPlugin
         >();
-
     if (androidPlugin == null) return;
 
     await androidPlugin.createNotificationChannel(
@@ -80,7 +81,6 @@ class NotificationService {
         importance: Importance.high,
       ),
     );
-
     await androidPlugin.createNotificationChannel(
       const AndroidNotificationChannel(
         _channelIdChat,
@@ -90,7 +90,6 @@ class NotificationService {
         playSound: true,
       ),
     );
-
     await androidPlugin.createNotificationChannel(
       const AndroidNotificationChannel(
         _channelIdBooking,
@@ -99,7 +98,6 @@ class NotificationService {
         importance: Importance.high,
       ),
     );
-
     await androidPlugin.createNotificationChannel(
       const AndroidNotificationChannel(
         _channelIdPayment,
@@ -111,7 +109,6 @@ class NotificationService {
   }
 
   // ── Show banner ───────────────────────────────────────────────────────────
-
   Future<void> showFromEntity(NotificationEntity notification) async {
     if (!_initialised) await init();
 
@@ -124,18 +121,18 @@ class NotificationService {
       importance: Importance.high,
       priority: Priority.high,
       color: color,
-
-      // ✅ FIX: ensure valid icon (critical)
       icon: '@mipmap/ic_launcher',
-
       fullScreenIntent: false,
       styleInformation: BigTextStyleInformation(notification.body),
     );
 
-    const iosDetails = DarwinNotificationDetails(
+    final iosDetails = const DarwinNotificationDetails(
       presentAlert: true,
       presentBadge: true,
       presentSound: true,
+      presentBanner: true, // MUST for iOS 14+
+      presentList: true, // MUST for iOS 16+
+      sound: 'default',
     );
 
     final details = NotificationDetails(
@@ -144,20 +141,18 @@ class NotificationService {
     );
 
     await _plugin.show(
-      // ✅ FIX: avoid collisions
       id: DateTime.now().millisecondsSinceEpoch ~/ 1000,
-
       title: notification.title,
       body: notification.body,
       notificationDetails: details,
-
       payload:
           '${notification.referenceType ?? ''}|${notification.referenceId ?? ''}',
     );
+
+    debugPrint('🔔 Notification shown: ${notification.title}');
   }
 
   // ── Cancel ────────────────────────────────────────────────────────────────
-
   Future<void> cancel(String notificationId) async {
     await _plugin.cancel(id: notificationId.hashCode.abs() % 100000);
   }
@@ -167,7 +162,6 @@ class NotificationService {
   }
 
   // ── Tap handler ───────────────────────────────────────────────────────────
-
   void _onNotificationTapped(NotificationResponse response) {
     final payload = response.payload;
     if (payload == null || payload.isEmpty) return;
@@ -185,7 +179,6 @@ class NotificationService {
   void Function(String referenceType, String referenceId)? onNotificationTapped;
 
   // ── Helpers ───────────────────────────────────────────────────────────────
-
   String _channelIdForType(NotificationType type) {
     return switch (type) {
       NotificationType.chatMessage => _channelIdChat,

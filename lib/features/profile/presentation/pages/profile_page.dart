@@ -33,7 +33,16 @@ class ProfilePage extends StatelessWidget {
     final userId = authService.getCurrentUserId();
 
     if (userId == null) {
-      return const Scaffold(body: Center(child: Text('Please sign in')));
+      return Scaffold(
+        body: Center(
+          child: TextButton(
+            onPressed: () {
+              context.push(RouteConstants.login);
+            },
+            child: Text('Please sign in'),
+          ),
+        ),
+      );
     }
 
     return MultiBlocProvider(

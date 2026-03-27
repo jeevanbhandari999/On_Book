@@ -765,6 +765,7 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
     Emitter<NotificationState> emit,
   ) async {
     if (state case NotificationLoaded loaded) {
+      print('object: $event');
       // Only show banners for IDs we have never seen before.
       final brandNew = event.notifications
           .where((n) => !_shownIds.contains(n.id))
