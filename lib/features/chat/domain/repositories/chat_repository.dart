@@ -30,6 +30,9 @@ abstract class ChatRepository {
     String? organizationId,
   );
 
+  // Get the room through the room Id
+  Future<Either<Failure, Room>> getChatRoomById(String roomId);
+
   // MESSAGE
 
   /// Send a message

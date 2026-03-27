@@ -33,6 +33,9 @@ abstract class ChatRemoteDataSource {
     String? organizationId,
   );
 
+  // Get the specific room related to the user, organization
+  Future<RoomModel?> getChatRoomById(String roomId);
+
   /// Get members of a specific room (to show avatars, names, etc.)
   Future<List<RoomMemberModel>> getRoomMembers(String roomId);
 
@@ -113,6 +116,81 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
   //   }
   // }
 
+  // @override
+  // Future<RoomModel> createRoom(
+  //   RoomModel room,
+  //   String userId,
+  //   String? otherUserId,
+  // ) async {
+  //   try {
+  //     Map<String, dynamic> roomData = {
+  //       'type': room.type.name,
+  //       'organization_id': room.organizationId,
+  //     };
+
+  //     // Handle DM room
+  //     if (room.type == RoomType.dm && otherUserId != null) {
+  //       final sortedIds = [userId, otherUserId]..sort();
+  //       final dmKey = '${sortedIds[0]}_${sortedIds[1]}';
+
+  //       roomData['dm_key'] = dmKey;
+  //     }
+
+  //     // Upsert instead of insert
+  //     final res = await client
+  //         .from('rooms')
+  //         .upsert(roomData, onConflict: 'dm_key')
+  //         .select('''
+  //           id,
+  //           organization_id,
+  //           type,
+  //           created_at,
+  //           dm_key,
+  //           room_members (
+  //             id,
+  //             room_id,
+  //             user_id,
+  //             joined_at,
+  //             last_read_at,
+  //             users (
+  //               id,
+  //               user_id,
+  //               full_name,
+  //               image_url,
+  //               role
+  //             )
+  //           )
+  //           ''')
+  //         .single();
+
+  //     final roomId = res['id'];
+
+  //     // Add members only if not already added
+  //     if (room.type == RoomType.organization && room.organizationId != null) {
+  //       final response = await client
+  //           .from('users')
+  //           .select('user_id')
+  //           .eq('organization_id', room.organizationId!);
+
+  //       final userIds = (response as List)
+  //           .map((user) => user['user_id'] as String)
+  //           .toList();
+  //       if (!userIds.contains(userId)) {
+  //         // add the current user also
+  //         userIds.add(userId);
+  //       }
+
+  //       await addMembers(roomId: roomId, userIds: userIds);
+  //     } else if (room.type == RoomType.dm && otherUserId != null) {
+  //       await addMembers(roomId: roomId, userIds: [userId, otherUserId]);
+  //     }
+
+  //     return RoomModel.fromJson(res);
+  //   } catch (e) {
+  //     throw ServerException('Failed to create room: ${e.toString()}');
+  //   }
+  // }
+
   @override
   Future<RoomModel> createRoom(
     RoomModel room,
@@ -120,49 +198,89 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     String? otherUserId,
   ) async {
     try {
+      // 🚨 Guard for DM
+      if (room.type == RoomType.dm && otherUserId == null) {
+        throw ServerException('otherUserId is required for DM room');
+      }
+
       Map<String, dynamic> roomData = {
         'type': room.type.name,
         'organization_id': room.organizationId,
       };
 
-      // Handle DM room
+      // ✅ Handle DM room
       if (room.type == RoomType.dm && otherUserId != null) {
         final sortedIds = [userId, otherUserId]..sort();
         final dmKey = '${sortedIds[0]}_${sortedIds[1]}';
-
         roomData['dm_key'] = dmKey;
       }
 
-      // Upsert instead of insert
+      // ✅ UPSERT (safe response)
       final res = await client
           .from('rooms')
           .upsert(roomData, onConflict: 'dm_key')
           .select()
-          .single();
+          .maybeSingle();
+
+      if (res == null) {
+        throw ServerException('Room creation failed (no data returned)');
+      }
 
       final roomId = res['id'];
 
-      // Add members only if not already added
-      if (room.type == RoomType.organization && room.organizationId != null) {
-        final response = await client
-            .from('users')
-            .select('user_id')
-            .eq('organization_id', room.organizationId!);
+      // ✅ Add members safely (DON’T break flow if this fails)
+      try {
+        if (room.type == RoomType.organization && room.organizationId != null) {
+          final response = await client
+              .from('users')
+              .select('user_id')
+              .eq('organization_id', room.organizationId!);
 
-        final userIds = (response as List)
-            .map((user) => user['user_id'] as String)
-            .toList();
-        if (!userIds.contains(userId)) {
-          // add the current user also
-          userIds.add(userId);
+          final userIds = (response as List)
+              .map((user) => user['user_id'] as String)
+              .toList();
+
+          if (!userIds.contains(userId)) {
+            userIds.add(userId);
+          }
+
+          await addMembers(roomId: roomId, userIds: userIds);
+        } else if (room.type == RoomType.dm && otherUserId != null) {
+          await addMembers(roomId: roomId, userIds: [userId, otherUserId]);
         }
-
-        await addMembers(roomId: roomId, userIds: userIds);
-      } else if (room.type == RoomType.dm && otherUserId != null) {
-        await addMembers(roomId: roomId, userIds: [userId, otherUserId]);
+      } catch (e) {
+        // 🔥 Important: don’t fail room creation because of this
+        print('⚠️ addMembers failed: $e');
       }
 
-      return RoomModel.fromJson(res);
+      // ✅ ALWAYS refetch full room (ensures relations are present)
+      final finalRoom = await client
+          .from('rooms')
+          .select('''
+          id,
+          organization_id,
+          type,
+          created_at,
+          dm_key, 
+          room_members (
+            id,
+            room_id,
+            user_id,
+            joined_at,
+            last_read_at,
+            users (
+              id,
+              user_id,
+              full_name,
+              image_url,
+              role
+            )
+          )
+        ''')
+          .eq('id', roomId)
+          .single();
+
+      return RoomModel.fromJson(finalRoom);
     } catch (e) {
       throw ServerException('Failed to create room: ${e.toString()}');
     }
@@ -497,13 +615,6 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
   ) async {
     try {
       if (organizationId != null) {
-        // final response = await client
-        //     .from('rooms')
-        //     .select('organizations(id, name, logo_url, address, phone)')
-        //     .eq('organization_id', organizationId)
-        //     .eq('type', 'organization')
-        //     .maybeSingle();
-
         final response = await client
             .from('rooms')
             .select('''
@@ -527,7 +638,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
         }
         return null;
       }
-      if (targetUserId != null) {
+      if (organizationId == null && targetUserId != null) {
         print('here coming');
         final memberRooms = await client
             .from('room_members')
@@ -535,8 +646,13 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
             .eq('user_id', userId);
 
         if (memberRooms.isEmpty) return null;
+        print(memberRooms);
 
         final roomIds = memberRooms.map((e) => e['room_id']).toList();
+        print(roomIds);
+
+        final sortedIds = [userId, targetUserId]..sort();
+        final dmKey = '${sortedIds[0]}_${sortedIds[1]}';
 
         final room = await client
             .from('rooms')
@@ -563,6 +679,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
             ''')
             .inFilter('id', roomIds)
             .eq('type', 'dm')
+            .eq('dm_key', dmKey)
             .maybeSingle();
         if (room != null) {
           return RoomModel.fromJson(room);
@@ -572,6 +689,53 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
       } else {
         return null;
       }
+    } catch (e) {
+      throw ServerException(
+        'Failed to get the specific room related to the user or organizations: ${e.toString()}',
+      );
+    }
+  }
+
+  @override
+  Future<RoomModel?> getChatRoomById(String roomId) async {
+    try {
+      final response = await client
+          .from('rooms')
+          .select('''
+            id,
+            organization_id,
+            type,
+            created_at,
+            dm_key, 
+            room_members (
+              id,
+              room_id,
+              user_id,
+              joined_at,
+              last_read_at,
+              users (
+                id,
+                user_id,
+                full_name,
+                image_url,
+                role
+              )
+            ),
+            organizations (
+              id,
+              name,
+              logo_url,
+              address,
+              phone
+            )
+          ''')
+          .eq('id', roomId)
+          .maybeSingle();
+
+      if (response != null) {
+        return RoomModel.fromJson(response);
+      }
+      return null;
     } catch (e) {
       throw ServerException(
         'Failed to get the specific room related to the user or organizations: ${e.toString()}',

@@ -233,4 +233,19 @@ class ChatRepositoryImpl implements ChatRepository {
       return Left(ServerFailure(e.toString()));
     }
   }
+
+  @override
+  Future<Either<Failure, Room>> getChatRoomById(String roomId) async {
+    try {
+      final result = await remoteDataSource.getChatRoomById(roomId);
+      if (result == null) {
+        return const Left(ServerFailure('Room not found'));
+      }
+      return Right(result.toEntity());
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure(e.toString()));
+    }
+  }
 }

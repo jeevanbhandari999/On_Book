@@ -4,6 +4,7 @@ import 'package:app/core/constants/ui_constants.dart';
 import 'package:app/core/theme/app_colors.dart';
 import 'package:app/core/widgets/app_bar_popup_menu.dart';
 import 'package:app/core/widgets/common_widgets.dart';
+import 'package:app/features/chat/domain/repositories/chat_repository.dart';
 import 'package:app/features/notifications/domain/entities/notification_entity.dart';
 import 'package:app/features/notifications/domain/usecases/archievt_notification_use_case.dart';
 import 'package:app/features/notifications/domain/usecases/get_notifications_use_case.dart';
@@ -39,7 +40,7 @@ class NotificationPage extends StatelessWidget {
             DependencyInjection.get<MarkAllNotificationsAsReadUseCase>(),
         archive: DependencyInjection.get<ArchiveNotificationUseCase>(),
       )..add(NotificationStarted(userId: userId)),
-      child: const _NotificationView(),
+      child: _NotificationView(userId: userId),
     );
   }
 }
@@ -49,7 +50,9 @@ class NotificationPage extends StatelessWidget {
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _NotificationView extends StatelessWidget {
-  const _NotificationView();
+  final String userId;
+
+  const _NotificationView({required this.userId});
 
   @override
   Widget build(BuildContext context) {
@@ -99,7 +102,10 @@ class _NotificationView extends StatelessWidget {
   void _handleNavigation(
     BuildContext context,
     NotificationEntity notification,
-  ) {
+  ) async {
+    debugPrint(
+      'Handling navigation for notification: ${notification.referenceType}',
+    );
     switch (notification.referenceType) {
       case 'booking':
         if (notification.referenceId != null) {
@@ -109,19 +115,32 @@ class _NotificationView extends StatelessWidget {
           );
         }
       case 'payment':
-      // if (notification.referenceId != null) {
-      //   context.push(
-      //     RouteConstants.paymentDetailsPage,
-      //     extra: {'paymentId': notification.referenceId},
-      //   );
-      // }
+        // if (notification.referenceId != null) {
+        //   context.push(
+        //     RouteConstants.paymentDetailsPage,
+        //     extra: {'paymentId': notification.referenceId},
+        //   );
+        // }
+        break;
       case 'chat':
-      // if (notification.referenceId != null) {
-      //   context.push(
-      //     RouteConstants.chatRoomPage,
-      //     extra: {'roomId': notification.referenceId},
-      //   );
-      // }
+        if (notification.referenceId != null) {
+          final room = await DependencyInjection.get<ChatRepository>()
+              .getChatRoomById(notification.referenceId!);
+
+          room.fold(
+            (failure) => ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Failed to load chat room'),
+                backgroundColor: Colors.red,
+              ),
+            ),
+            (room) => context.push(
+              RouteConstants.chatPage,
+              extra: {'room': room, 'userId': userId},
+            ),
+          );
+        }
+        break;
       case 'post':
         if (notification.referenceId != null) {
           context.push(
@@ -129,6 +148,7 @@ class _NotificationView extends StatelessWidget {
             extra: {'postId': notification.referenceId},
           );
         }
+        break;
     }
   }
 }
