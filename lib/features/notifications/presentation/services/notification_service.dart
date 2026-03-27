@@ -11,26 +11,28 @@ class NotificationService {
 
   bool _initialised = false;
 
-  // ── Channel IDs ───────────────────────────────────────────────────────────
   static const _channelIdGeneral = 'general_channel';
   static const _channelIdChat = 'chat_channel';
   static const _channelIdBooking = 'booking_channel';
   static const _channelIdPayment = 'payment_channel';
 
-  // ── Init ──────────────────────────────────────────────────────────────────
   Future<void> init() async {
     if (_initialised) return;
 
-    // Android initialization
     const androidSettings = AndroidInitializationSettings(
       '@mipmap/ic_launcher',
     );
 
-    // iOS initialization with full presentation options
+    // ✅ Added default presentation options for foreground iOS notifications
     const iosSettings = DarwinInitializationSettings(
       requestAlertPermission: true,
       requestBadgePermission: true,
       requestSoundPermission: true,
+      defaultPresentAlert: true,
+      defaultPresentBadge: true,
+      defaultPresentSound: true,
+      defaultPresentBanner: true,
+      defaultPresentList: true,
     );
 
     const initSettings = InitializationSettings(
@@ -41,25 +43,20 @@ class NotificationService {
     await _plugin.initialize(
       settings: initSettings,
       onDidReceiveNotificationResponse: _onNotificationTapped,
-      // optional: add background handler if needed
-      // onDidReceiveBackgroundNotificationResponse: _onBackgroundTapped,
     );
 
-    // Request Android 13+ notification permission
     final androidPlugin = _plugin
         .resolvePlatformSpecificImplementation<
           AndroidFlutterLocalNotificationsPlugin
         >();
     await androidPlugin?.requestNotificationsPermission();
 
-    // Request iOS permission explicitly
     final iosPlugin = _plugin
         .resolvePlatformSpecificImplementation<
           IOSFlutterLocalNotificationsPlugin
         >();
     await iosPlugin?.requestPermissions(alert: true, badge: true, sound: true);
 
-    // Create Android notification channels
     await _createChannels();
 
     _initialised = true;
@@ -108,9 +105,15 @@ class NotificationService {
     );
   }
 
-  // ── Show banner ───────────────────────────────────────────────────────────
   Future<void> showFromEntity(NotificationEntity notification) async {
     if (!_initialised) await init();
+
+    // ✅ Guard against suppressed iOS permission
+    final granted = await _isPermissionGranted();
+    if (!granted) {
+      debugPrint('⚠️ Notification permission not granted');
+      return;
+    }
 
     final channelId = _channelIdForType(notification.type);
     final color = _colorForType(notification.type);
@@ -126,12 +129,13 @@ class NotificationService {
       styleInformation: BigTextStyleInformation(notification.body),
     );
 
-    final iosDetails = const DarwinNotificationDetails(
+    // ✅ presentBanner + presentList are critical for iOS 14+/16+
+    const iosDetails = DarwinNotificationDetails(
       presentAlert: true,
       presentBadge: true,
       presentSound: true,
-      presentBanner: true, // MUST for iOS 14+
-      presentList: true, // MUST for iOS 16+
+      presentBanner: true,
+      presentList: true,
       sound: 'default',
     );
 
@@ -141,7 +145,8 @@ class NotificationService {
     );
 
     await _plugin.show(
-      id: DateTime.now().millisecondsSinceEpoch ~/ 1000,
+      // ✅ Stable unique id per notification — avoids collisions
+      id: notification.id.hashCode.abs() % 100000,
       title: notification.title,
       body: notification.body,
       notificationDetails: details,
@@ -149,10 +154,22 @@ class NotificationService {
           '${notification.referenceType ?? ''}|${notification.referenceId ?? ''}',
     );
 
-    debugPrint('🔔 Notification shown: ${notification.title}');
+    debugPrint('🔔 Notification shown: ${notification.body}');
   }
 
-  // ── Cancel ────────────────────────────────────────────────────────────────
+  Future<bool> _isPermissionGranted() async {
+    final iosPlugin = _plugin
+        .resolvePlatformSpecificImplementation<
+          IOSFlutterLocalNotificationsPlugin
+        >();
+    if (iosPlugin != null) {
+      final permissions = await iosPlugin.checkPermissions();
+      return permissions?.isAlertEnabled ?? false;
+    }
+    // Android: assume granted if we got this far
+    return true;
+  }
+
   Future<void> cancel(String notificationId) async {
     await _plugin.cancel(id: notificationId.hashCode.abs() % 100000);
   }
@@ -161,7 +178,6 @@ class NotificationService {
     await _plugin.cancelAll();
   }
 
-  // ── Tap handler ───────────────────────────────────────────────────────────
   void _onNotificationTapped(NotificationResponse response) {
     final payload = response.payload;
     if (payload == null || payload.isEmpty) return;
@@ -178,7 +194,6 @@ class NotificationService {
 
   void Function(String referenceType, String referenceId)? onNotificationTapped;
 
-  // ── Helpers ───────────────────────────────────────────────────────────────
   String _channelIdForType(NotificationType type) {
     return switch (type) {
       NotificationType.chatMessage => _channelIdChat,
@@ -218,6 +233,4 @@ class NotificationService {
       NotificationType.system => const Color(0xFF546E7A),
     };
   }
-
-  String? _iconForType(NotificationType type) => null;
 }
