@@ -9,6 +9,7 @@ import 'package:app/features/notifications/domain/entities/notification_entity.d
 import 'package:app/features/notifications/domain/usecases/archievt_notification_use_case.dart';
 import 'package:app/features/notifications/domain/usecases/get_notifications_use_case.dart';
 import 'package:app/features/notifications/domain/usecases/mark_all_notifiations_as_read_use_case.dart';
+import 'package:app/features/notifications/domain/usecases/mark_all_notification_as_viewed_use_case.dart';
 import 'package:app/features/notifications/domain/usecases/mark_notification_as_read_use_case.dart';
 import 'package:app/features/notifications/domain/usecases/stream_notifications_use_case.dart';
 
@@ -31,15 +32,24 @@ class NotificationPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => NotificationBloc(
-        getNotifications: DependencyInjection.get<GetNotificationsUseCase>(),
-        streamNotifications:
-            DependencyInjection.get<StreamNotificationsUseCase>(),
-        markAsRead: DependencyInjection.get<MarkNotificationAsReadUseCase>(),
-        markAllAsRead:
-            DependencyInjection.get<MarkAllNotificationsAsReadUseCase>(),
-        archive: DependencyInjection.get<ArchiveNotificationUseCase>(),
-      )..add(NotificationStarted(userId: userId)),
+      create: (_) =>
+          NotificationBloc(
+              getNotifications:
+                  DependencyInjection.get<GetNotificationsUseCase>(),
+              streamNotifications:
+                  DependencyInjection.get<StreamNotificationsUseCase>(),
+              markAsRead:
+                  DependencyInjection.get<MarkNotificationAsReadUseCase>(),
+              markAllAsRead:
+                  DependencyInjection.get<MarkAllNotificationsAsReadUseCase>(),
+              markAllAsViewed:
+                  DependencyInjection.get<
+                    MarkAllNotificationsAsViewedUseCase
+                  >(),
+              archive: DependencyInjection.get<ArchiveNotificationUseCase>(),
+            )
+            ..add(NotificationStarted(userId: userId))
+            ..add(const NotificationMarkAllAsViewedRequested()),
       child: _NotificationView(userId: userId),
     );
   }
@@ -219,7 +229,7 @@ class _LoadedView extends StatelessWidget {
                       ),
                     ).animate().slide(duration: 400.ms).fade(duration: 400.ms),
                   ),
-                  if (state.unreadCount > 0)
+                  if (state.viewedCount > 0)
                     Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 12,
@@ -232,7 +242,7 @@ class _LoadedView extends StatelessWidget {
                         ),
                       ),
                       child: Text(
-                        '${state.unreadCount} new',
+                        '${state.viewedCount} new',
                         style: const TextStyle(
                           color: AppColors.primaryLight,
                           fontWeight: FontWeight.bold,
@@ -243,7 +253,7 @@ class _LoadedView extends StatelessWidget {
                 ],
               ),
               actions: [
-                if (state.unreadCount > 0)
+                if (state.viewedCount > 0)
                   IconButton(
                     icon: const Icon(Icons.done_all, color: Colors.black),
                     tooltip: 'Mark all as read',
@@ -532,7 +542,7 @@ class _NotificationCard extends StatelessWidget {
         ),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(UiConstants.radiusMd),
-          gradient: notification.isUnread
+          gradient: notification.isViewed
               ? LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,

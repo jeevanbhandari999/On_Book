@@ -26,6 +26,10 @@ abstract class NotificationRepository {
   /// Mark all unread notifications for the signed-in user as read.
   Future<Either<Failure, void>> markAllAsRead();
 
+
+  /// Mark all new notifications as viewed when the user opens the notifications screen.
+  Future<Either<Failure, void>> markAllAsViewed();
+
   /// Soft-archive a notification (hidden from default list, kept in DB).
   Future<Either<Failure, void>> archiveNotification({
     required String notificationId,

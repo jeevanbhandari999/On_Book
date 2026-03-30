@@ -17,7 +17,7 @@ enum NotificationType {
 }
 
 // Notification status to track read/unread/archived state
-enum NotificationStatus { unread, read, archived }
+enum NotificationStatus { unread, read, archived, viewed }
 
 // The main notification entity used across the app
 class NotificationEntity extends Equatable {
@@ -54,6 +54,7 @@ class NotificationEntity extends Equatable {
   bool get isUnread => status == NotificationStatus.unread;
   bool get isRead => status == NotificationStatus.read;
   bool get isArchived => status == NotificationStatus.archived;
+  bool get isViewed => status == NotificationStatus.viewed;
 
   // Method to create a copy of the notification with updated fields
   NotificationEntity copyWith({

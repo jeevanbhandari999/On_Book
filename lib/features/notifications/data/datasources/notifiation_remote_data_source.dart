@@ -28,6 +28,9 @@ abstract class NotificationRemoteDataSource {
   /// Mark every unread notification for the signed-in user as read.
   Future<void> markAllAsRead();
 
+  /// Mark every new notification as viewed when the user opens the notifications screen.
+  Future<void> markAllAsViewed();
+
   /// Soft-archive a notification — hidden from the default list, kept in DB.
   Future<void> archiveNotification({required String notificationId});
 }
@@ -143,6 +146,17 @@ class NotificationRemoteDataSourceImpl implements NotificationRemoteDataSource {
           .eq('recipient_id', userId);
     } catch (e) {
       throw ServerException('Failed to archive notification: ${e.toString()}');
+    }
+  }
+
+  @override
+  Future<void> markAllAsViewed() async {
+    try {
+      await client.rpc('mark_all_notifications_viewed');
+    } catch (e) {
+      throw ServerException(
+        'Failed to mark all notifications as viewed: ${e.toString()}',
+      );
     }
   }
 }

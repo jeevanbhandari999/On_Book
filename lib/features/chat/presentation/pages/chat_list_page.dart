@@ -235,11 +235,19 @@ class _RoomPageViewState extends State<RoomPageView> {
                           final room = filteredRooms[index];
                           final isOnline = _isUserOnline(room);
 
-                          return _RoomTile(
-                            room: room,
-                            currentUserId: widget.currentUserId,
-                            isOnline: isOnline,
-                            presenceService: _presenceService,
+                          return Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              _RoomTile(
+                                room: room,
+                                currentUserId: widget.currentUserId,
+                                isOnline: isOnline,
+                                presenceService: _presenceService,
+                              ),
+                              if (filteredRooms.length > 1 &&
+                                  index != filteredRooms.length - 1)
+                                const Divider(),
+                            ],
                           );
                         }, childCount: filteredRooms.length),
                       ),
@@ -462,7 +470,6 @@ class _RoomTile extends StatelessWidget {
             ),
           ),
         ),
-        const Divider(),
       ],
     );
   }

@@ -4,6 +4,7 @@ import 'package:app/features/notifications/domain/entities/notification_entity.d
 import 'package:app/features/notifications/domain/usecases/archievt_notification_use_case.dart';
 import 'package:app/features/notifications/domain/usecases/get_notifications_use_case.dart';
 import 'package:app/features/notifications/domain/usecases/mark_all_notifiations_as_read_use_case.dart';
+import 'package:app/features/notifications/domain/usecases/mark_all_notification_as_viewed_use_case.dart';
 import 'package:app/features/notifications/domain/usecases/mark_notification_as_read_use_case.dart';
 import 'package:app/features/notifications/domain/usecases/stream_notifications_use_case.dart';
 import 'package:app/features/notifications/presentation/services/notification_service.dart';
@@ -60,6 +61,10 @@ final class NotificationMarkAsReadRequested extends NotificationEvent {
 
 final class NotificationMarkAllAsReadRequested extends NotificationEvent {
   const NotificationMarkAllAsReadRequested();
+}
+
+final class NotificationMarkAllAsViewedRequested extends NotificationEvent {
+  const NotificationMarkAllAsViewedRequested();
 }
 
 final class NotificationArchiveRequested extends NotificationEvent {
@@ -127,6 +132,7 @@ final class NotificationLoaded extends NotificationState {
   // ── Derived ───────────────────────────────────────────────────────────────
 
   int get unreadCount => allNotifications.where((n) => n.isUnread).length;
+  int get viewedCount => allNotifications.where((n) => n.isViewed).length;
 
   List<NotificationEntity> get filtered {
     final byType = switch (typeFilter) {
@@ -161,7 +167,7 @@ final class NotificationLoaded extends NotificationState {
     };
 
     return switch (readFilter) {
-      NotificationReadFilter.unread => byType.where((n) => n.isUnread).toList(),
+      NotificationReadFilter.unread => byType.where((n) => n.isViewed).toList(),
       NotificationReadFilter.read => byType.where((n) => n.isRead).toList(),
       NotificationReadFilter.archived =>
         byType.where((n) => n.isArchived).toList(),
@@ -234,6 +240,7 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
   final MarkNotificationAsReadUseCase _markAsRead;
   final MarkAllNotificationsAsReadUseCase _markAllAsRead;
   final ArchiveNotificationUseCase _archive;
+  final MarkAllNotificationsAsViewedUseCase _markAllAsViewed;
   final NotificationService _notificationService;
 
   String? _currentUserId;
@@ -249,12 +256,14 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
     required MarkNotificationAsReadUseCase markAsRead,
     required MarkAllNotificationsAsReadUseCase markAllAsRead,
     required ArchiveNotificationUseCase archive,
+    required MarkAllNotificationsAsViewedUseCase markAllAsViewed,
     NotificationService? notificationService,
   }) : _getNotifications = getNotifications,
        _streamNotifications = streamNotifications,
        _markAsRead = markAsRead,
        _markAllAsRead = markAllAsRead,
        _archive = archive,
+       _markAllAsViewed = markAllAsViewed,
        _notificationService =
            notificationService ?? NotificationService.instance,
        super(const NotificationInitial()) {
@@ -267,6 +276,7 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
     on<NotificationArchiveRequested>(_onArchive);
     on<NotificationTypeFilterChanged>(_onTypeFilterChanged);
     on<NotificationReadFilterChanged>(_onReadFilterChanged);
+    on<NotificationMarkAllAsViewedRequested>(_onMarkAllAsViewed);
   }
 
   // ── Handlers ──────────────────────────────────────────────────────────────
@@ -343,7 +353,7 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
     NotificationTapped event,
     Emitter<NotificationState> emit,
   ) async {
-    if (event.notification.isUnread) {
+    if (event.notification.isViewed) {
       _applyLocalRead(event.notification.id, emit);
       _markAsRead(event.notification.id);
     }
@@ -373,6 +383,19 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
       emit(loaded.copyWith(allNotifications: updated));
     }
     await _markAllAsRead();
+  }
+
+  Future<void> _onMarkAllAsViewed(
+    NotificationMarkAllAsViewedRequested event,
+    Emitter<NotificationState> emit,
+  ) async {
+    if (state case NotificationLoaded loaded) {
+      final updated = loaded.allNotifications.map((n) {
+        return n.isUnread ? n.copyWith(status: NotificationStatus.viewed) : n;
+      }).toList();
+      emit(loaded.copyWith(allNotifications: updated));
+    }
+    await _markAllAsViewed();
   }
 
   Future<void> _onArchive(
@@ -411,7 +434,7 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
   void _applyLocalRead(String notificationId, Emitter<NotificationState> emit) {
     if (state case NotificationLoaded loaded) {
       final updated = loaded.allNotifications.map((n) {
-        return n.id == notificationId && n.isUnread
+        return n.id == notificationId && (n.isViewed)
             ? n.copyWith(status: NotificationStatus.read)
             : n;
       }).toList();

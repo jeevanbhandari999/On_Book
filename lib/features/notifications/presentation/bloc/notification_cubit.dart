@@ -62,7 +62,7 @@ class NotificationCubit extends Cubit<NotificationCubitState> {
           if (_isFirstEmission) {
             // Seed read + archived — these never get a banner
             final alreadyRead = notifications
-                .where((n) => n.isRead || n.isArchived)
+                .where((n) => n.isRead || n.isArchived || n.isViewed)
                 .map((n) => n.id)
                 .toSet();
             _shownIds.addAll(alreadyRead);

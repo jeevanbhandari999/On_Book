@@ -5,6 +5,7 @@ import 'package:app/features/notifications/domain/usecases/archievt_notification
 import 'package:app/features/notifications/domain/usecases/get_notifications_use_case.dart';
 import 'package:app/features/notifications/domain/usecases/get_unread_count_use_case.dart';
 import 'package:app/features/notifications/domain/usecases/mark_all_notifiations_as_read_use_case.dart';
+import 'package:app/features/notifications/domain/usecases/mark_all_notification_as_viewed_use_case.dart';
 import 'package:app/features/notifications/domain/usecases/mark_notification_as_read_use_case.dart';
 import 'package:app/features/notifications/domain/usecases/stream_notifications_use_case.dart';
 import 'package:app/features/notifications/presentation/bloc/notification_bloc.dart';
@@ -46,6 +47,11 @@ class NotificationDependencies {
       () => MarkAllNotificationsAsReadUseCase(getIt<NotificationRepository>()),
     );
 
+    getIt.registerLazySingleton<MarkAllNotificationsAsViewedUseCase>(
+      () =>
+          MarkAllNotificationsAsViewedUseCase(getIt<NotificationRepository>()),
+    );
+
     getIt.registerLazySingleton<ArchiveNotificationUseCase>(
       () => ArchiveNotificationUseCase(getIt<NotificationRepository>()),
     );
@@ -63,6 +69,9 @@ class NotificationDependencies {
           getIt<NotificationRepository>(),
         ),
         markAllAsRead: MarkAllNotificationsAsReadUseCase(
+          getIt<NotificationRepository>(),
+        ),
+        markAllAsViewed: MarkAllNotificationsAsViewedUseCase(
           getIt<NotificationRepository>(),
         ),
         archive: ArchiveNotificationUseCase(getIt<NotificationRepository>()),
