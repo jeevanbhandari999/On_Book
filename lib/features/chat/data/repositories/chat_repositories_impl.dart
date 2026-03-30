@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'package:app/app/dependency_injection.dart';
 import 'package:app/features/chat/data/models/room_member_model.dart';
 import 'package:app/features/notifications/domain/entities/notification_entity.dart';
 import 'package:app/features/notifications/presentation/services/notification_creator_service.dart';
 import 'package:app/features/notifications/presentation/services/notification_service.dart';
+import 'package:app/features/profile/domain/repositories/profile_repository.dart';
 import 'package:dartz/dartz.dart';
 
 import '../../../../core/errors/exceptions.dart';
@@ -123,10 +125,20 @@ class ChatRepositoryImpl implements ChatRepository {
         sender = null;
       }
 
-      final senderName = sender?.user?.fullName ?? 'Someone';
-      // // 4. Notify others
+      final profileRepo = await DependencyInjection.get<ProfileRepository>();
+      if (sender == null) {
+        // If sender is not found in the room members, we can still proceed with a generic name
+        print('Warning: Sender not found in room members for notification.');
+      }
+      final senderProfile = await profileRepo.getUserProfileDetailById(
+        sender?.userId ?? messageModel.senderId,
+      );
 
-    
+      final senderName = senderProfile.fold(
+        (_) => 'Someone',
+        (profile) => profile.fullName,
+      );
+
       for (final member in members) {
         if (member.userId == messageModel.senderId) continue;
         await NotificationCreatorService.instance.chatMessage(
@@ -134,7 +146,7 @@ class ChatRepositoryImpl implements ChatRepository {
           senderId: messageModel.senderId,
           roomId: messageModel.roomId,
           senderName: senderName,
-          messagePreview: messageModel.text ?? '📎 Attachment',
+          messagePreview: messageModel.text ?? 'Attachment',
         );
       }
 
