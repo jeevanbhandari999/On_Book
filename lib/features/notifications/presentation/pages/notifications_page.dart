@@ -637,7 +637,7 @@ class _NotificationCard extends StatelessWidget {
                 ),
               ),
             ),
-            if (notification.isUnread)
+            if (notification.isUnread || notification.isViewed)
               Positioned(
                 top: 8,
                 right: 8,

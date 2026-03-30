@@ -125,9 +125,10 @@ class ChatRepositoryImpl implements ChatRepository {
 
       final senderName = sender?.user?.fullName ?? 'Someone';
       // // 4. Notify others
+
+    
       for (final member in members) {
         if (member.userId == messageModel.senderId) continue;
-
         await NotificationCreatorService.instance.chatMessage(
           recipientId: member.userId,
           senderId: messageModel.senderId,
@@ -136,18 +137,6 @@ class ChatRepositoryImpl implements ChatRepository {
           messagePreview: messageModel.text ?? '📎 Attachment',
         );
       }
-
-      // await NotificationService.instance.showFromEntity(
-      //   NotificationEntity(
-      //     id: 'temp',
-      //     recipientId: 'recipient-id',
-      //     title: 'Manual Test',
-      //     body: 'Works?',
-      //     status: NotificationStatus.unread,
-      //     createdAt: DateTime.now(),
-      //     type: NotificationType.chatMessage,
-      //   ),
-      // );
 
       return Right(result.toEntity());
     } on ServerException catch (e) {

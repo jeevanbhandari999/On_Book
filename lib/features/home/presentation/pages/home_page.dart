@@ -17,6 +17,7 @@ import 'package:app/features/home/presentation/widgets/home_shimmer.dart';
 import 'package:app/features/home/presentation/widgets/home_sliver_header.dart';
 import 'package:app/features/home/presentation/widgets/post_card.dart';
 import 'package:app/features/home/presentation/widgets/show_on_collapsed_sliver_app_bar.dart';
+import 'package:app/features/notifications/domain/entities/notification_entity.dart';
 import 'package:app/features/notifications/presentation/bloc/notification_cubit.dart';
 import 'package:app/features/profile/domain/usecases/get_current_user_profile_use_case.dart';
 import 'package:app/features/profile/presentation/bloc/get_current_user_profile_details_bloc.dart';
@@ -142,6 +143,7 @@ class HomeView extends StatelessWidget {
                                     .where((n) => n.isUnread)
                                     .length
                               : 0;
+
                           return IconButton(
                             icon: Stack(
                               clipBehavior: Clip.none,
@@ -200,15 +202,78 @@ class HomeView extends StatelessWidget {
                           );
                         },
                       ),
-                      IconButton(
-                        icon: const Icon(
-                          Icons.chat_outlined,
-                          color: Colors.black,
-                        ),
-                        onPressed: () {
-                          context.push(
-                            RouteConstants.chatUserListPage,
-                            extra: userId,
+                      BlocBuilder<NotificationCubit, NotificationCubitState>(
+                        builder: (context, state) {
+                          final unReadChatCount =
+                              state is NotificationCubitLoaded
+                              ? state.notifications
+                                    .where(
+                                      (n) =>
+                                          n.type ==
+                                                  NotificationType
+                                                      .chatMessage &&
+                                              n.isUnread ||
+                                          n.isViewed,
+                                    )
+                                    .map((n) => n.referenceId)
+                                    .toSet()
+                                    .length
+                              : 0;
+                          return IconButton(
+                            icon: Stack(
+                              clipBehavior: Clip.none,
+                              children: [
+                                const Icon(
+                                  Icons.chat_outlined,
+                                  color: Colors.black,
+                                ),
+                                if (unReadChatCount > 0)
+                                  Positioned(
+                                    top: -4,
+                                    right: -4,
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 5,
+                                        vertical: 2,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: Colors.red,
+                                        borderRadius: BorderRadius.circular(10),
+                                        border: Border.all(
+                                          color: Theme.of(
+                                            context,
+                                          ).scaffoldBackgroundColor,
+                                          width: 1.5,
+                                        ),
+                                      ),
+                                      constraints: const BoxConstraints(
+                                        minWidth: 18,
+                                        minHeight: 18,
+                                      ),
+                                      child: Center(
+                                        child: Text(
+                                          unReadChatCount > 99
+                                              ? '99+'
+                                              : '$unReadChatCount',
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold,
+                                            height: 1.1,
+                                          ),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                            onPressed: () {
+                              context.push(
+                                RouteConstants.chatUserListPage,
+                                extra: userId,
+                              );
+                            },
                           );
                         },
                       ),
