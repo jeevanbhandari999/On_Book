@@ -16,6 +16,9 @@ import 'package:app/features/chat/domain/usecases/stream_user_rooms_use_case.dar
 import 'package:app/features/chat/presentation/bloc/chat_bloc.dart';
 import 'package:app/features/chat/presentation/widgets/chat_detail_shimmer_page.dart';
 import 'package:app/features/chat/service/presence_service.dart';
+import 'package:app/features/notifications/domain/entities/notification_entity.dart';
+import 'package:app/features/notifications/domain/usecases/mark_as_read_multiple_notifications_use_case.dart';
+import 'package:app/features/notifications/presentation/bloc/notification_cubit.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -38,7 +41,7 @@ class ChatPage extends StatelessWidget {
         sendMessageUseCase: DependencyInjection.get<SendMessageUseCase>(),
         streamMessagesUseCase: DependencyInjection.get<StreamMessagesUseCase>(),
         markRoomAsReadUseCase: DependencyInjection.get<MarkRoomAsReadUseCase>(),
-         streamUserRoomsUseCase:
+        streamUserRoomsUseCase:
             DependencyInjection.get<StreamUserRoomsUseCase>(),
       )..add(StreamMessagesRequested(roomId: room.id)),
       child: ChatView(room: room, currentUserId: currentUserId),
@@ -72,6 +75,7 @@ class _ChatViewState extends State<ChatView> {
   void initState() {
     super.initState();
     _initializePresence();
+    _markChatNotificationsAsRead();
   }
 
   // Add this method
@@ -92,6 +96,37 @@ class _ChatViewState extends State<ChatView> {
           });
     } catch (e) {
       debugPrint('Error initializing presence: $e');
+    }
+  }
+
+  Future<void> _markChatNotificationsAsRead() async {
+    try {
+      final notificationCubit = context.read<NotificationCubit>();
+      final state = notificationCubit.state;
+      if (state is NotificationCubitLoaded) {
+        // Filter only unread notifications for this specific room
+        final roomNotifIds = state.notifications
+            .where(
+              (n) =>
+                  n.type == NotificationType.chatMessage &&
+                  n.referenceId == widget.room.id &&
+                  (n.isUnread || n.isViewed),
+            )
+            .map((n) => n.id)
+            .toList();
+
+        print('The notifications ids are : $roomNotifIds');
+
+        if (roomNotifIds.isEmpty) return;
+
+        final useCase =
+            DependencyInjection.get<MarkAsReadMultipleNotificationsUseCase>();
+        await useCase(roomNotifIds);
+
+        // Refresh notifications in cubit so the badge clears in RoomPage
+      }
+    } catch (e) {
+      debugPrint('Failed to mark notifications as read: $e');
     }
   }
 

@@ -6,9 +6,12 @@ import 'package:app/features/notifications/domain/usecases/get_notifications_use
 import 'package:app/features/notifications/domain/usecases/get_unread_count_use_case.dart';
 import 'package:app/features/notifications/domain/usecases/mark_all_notifiations_as_read_use_case.dart';
 import 'package:app/features/notifications/domain/usecases/mark_all_notification_as_viewed_use_case.dart';
+import 'package:app/features/notifications/domain/usecases/mark_as_read_multiple_notifications_use_case.dart';
 import 'package:app/features/notifications/domain/usecases/mark_notification_as_read_use_case.dart';
 import 'package:app/features/notifications/domain/usecases/stream_notifications_use_case.dart';
 import 'package:app/features/notifications/presentation/bloc/notification_bloc.dart';
+import 'package:app/features/notifications/presentation/bloc/notification_cubit.dart';
+import 'package:app/features/notifications/presentation/services/notification_service.dart';
 import 'package:get_it/get_it.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -55,6 +58,11 @@ class NotificationDependencies {
     getIt.registerLazySingleton<ArchiveNotificationUseCase>(
       () => ArchiveNotificationUseCase(getIt<NotificationRepository>()),
     );
+    getIt.registerLazySingleton<MarkAsReadMultipleNotificationsUseCase>(
+      () => MarkAsReadMultipleNotificationsUseCase(
+        getIt<NotificationRepository>(),
+      ),
+    );
 
     // ── BLoC ──────────────────────────────────────────────────────────────────
     getIt.registerFactory<NotificationBloc>(
@@ -75,6 +83,13 @@ class NotificationDependencies {
           getIt<NotificationRepository>(),
         ),
         archive: ArchiveNotificationUseCase(getIt<NotificationRepository>()),
+      ),
+    );
+
+    getIt.registerFactory<NotificationCubit>(
+      () => NotificationCubit(
+        notificationService: NotificationService.instance,
+        streamNotifications: getIt<StreamNotificationsUseCase>(),
       ),
     );
   }
