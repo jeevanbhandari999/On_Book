@@ -585,7 +585,6 @@ class PostDetailsBloc extends Bloc<PostDetailEvent, PostDetailState> {
     Emitter<PostDetailState> emit,
   ) async {
     final currentState = state;
-    print('the current state is this : $currentState');
     if (currentState is! PostDetailLoaded) {
       return;
     }
@@ -608,7 +607,6 @@ class PostDetailsBloc extends Bloc<PostDetailEvent, PostDetailState> {
         postId: currentState.post.id,
         userId: event.userId,
       );
-      print('The params is $params');
       final result = await _deletePostUseCase(params);
 
       result.fold(

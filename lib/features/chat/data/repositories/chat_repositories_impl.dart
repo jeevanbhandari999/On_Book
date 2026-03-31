@@ -1,9 +1,7 @@
 import 'dart:async';
 import 'package:app/app/dependency_injection.dart';
 import 'package:app/features/chat/data/models/room_member_model.dart';
-import 'package:app/features/notifications/domain/entities/notification_entity.dart';
 import 'package:app/features/notifications/presentation/services/notification_creator_service.dart';
-import 'package:app/features/notifications/presentation/services/notification_service.dart';
 import 'package:app/features/profile/domain/repositories/profile_repository.dart';
 import 'package:dartz/dartz.dart';
 
@@ -22,9 +20,6 @@ class ChatRepositoryImpl implements ChatRepository {
 
   ChatRepositoryImpl({required this.remoteDataSource});
 
-  // ===========================================================================
-  // ROOMS
-  // ===========================================================================
 
   @override
   Future<Either<Failure, Room>> createRoom(
@@ -125,10 +120,10 @@ class ChatRepositoryImpl implements ChatRepository {
         sender = null;
       }
 
-      final profileRepo = await DependencyInjection.get<ProfileRepository>();
+      final profileRepo = DependencyInjection.get<ProfileRepository>();
       if (sender == null) {
         // If sender is not found in the room members, we can still proceed with a generic name
-        print('Warning: Sender not found in room members for notification.');
+        // print('Warning: Sender not found in room members for notification.');
       }
       final senderProfile = await profileRepo.getUserProfileDetailById(
         sender?.userId ?? messageModel.senderId,

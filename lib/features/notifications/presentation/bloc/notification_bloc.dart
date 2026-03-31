@@ -333,7 +333,6 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
     Emitter<NotificationState> emit,
   ) async {
     if (state case NotificationLoaded loaded) {
-      print('object: $event');
       // Only show banners for IDs we have never seen before.
       final brandNew = event.notifications
           .where((n) => n.isUnread && !_shownIds.contains(n.id))
@@ -378,7 +377,7 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
   ) async {
     if (state case NotificationLoaded loaded) {
       final updated = loaded.allNotifications.map((n) {
-        return n.isUnread ? n.copyWith(status: NotificationStatus.read) : n;
+        return n.isViewed ? n.copyWith(status: NotificationStatus.read) : n;
       }).toList();
       emit(loaded.copyWith(allNotifications: updated));
     }

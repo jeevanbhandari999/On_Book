@@ -98,35 +98,6 @@ class _AdaptiveNavigationState extends State<AdaptiveNavigation>
         );
     }
   }
-
-  /// Animates the transition when navigation type changes
-  // void _animateNavigationTypeChange() {
-  //   _transitionController.reset();
-  //   _transitionController.forward();
-  // }
-
-  // Builds the appropriate navigation components according to the navigation type
-  _buildNavigationForType(BuildContext context, NavigationType navigationType) {
-    switch (navigationType) {
-      case NavigationType.mobileBottomNav:
-        return MobileBottomNavigation(
-          currentRoute: widget.currentRoute,
-          child: widget.child,
-        );
-      case NavigationType.tabletSideNav:
-        return AdaptiveSideNavigation(
-          currentRoute: widget.currentRoute,
-          navigationType: NavigationType.tabletSideNav,
-          child: widget.child,
-        );
-      case NavigationType.desktopSideNav:
-        return AdaptiveSideNavigation(
-          currentRoute: widget.currentRoute,
-          navigationType: NavigationType.desktopSideNav,
-          child: widget.child,
-        );
-    }
-  }
 }
 
 // Enhanced navigation Items Data with accessibility support

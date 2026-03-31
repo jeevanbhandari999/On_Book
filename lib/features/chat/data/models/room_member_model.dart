@@ -1,6 +1,5 @@
 import 'package:app/features/chat/data/models/chat_user_model.dart';
 import 'package:app/features/chat/data/models/message_model.dart';
-import 'package:app/features/chat/data/models/room_model.dart';
 import 'package:app/features/chat/domain/entities/room_member.dart';
 import 'package:equatable/equatable.dart';
 

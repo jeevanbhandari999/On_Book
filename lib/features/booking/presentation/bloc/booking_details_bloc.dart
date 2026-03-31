@@ -137,7 +137,6 @@ class BookingDetailsBloc
             .isOwnerLogin(event.userId, booking.id);
 
         final canManage = permissionResult.fold((_) => false, (value) => value);
-        print('In use bloc $canManage');
         emit(BookingDetailsLoaded(booking: booking, canManage: canManage));
       },
     );

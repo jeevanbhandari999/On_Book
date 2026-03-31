@@ -200,7 +200,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     try {
       // 🚨 Guard for DM
       if (room.type == RoomType.dm && otherUserId == null) {
-        throw ServerException('otherUserId is required for DM room');
+        throw const ServerException('otherUserId is required for DM room');
       }
 
       Map<String, dynamic> roomData = {
@@ -223,7 +223,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
           .maybeSingle();
 
       if (res == null) {
-        throw ServerException('Room creation failed (no data returned)');
+        throw const ServerException('Room creation failed (no data returned)');
       }
 
       final roomId = res['id'];
@@ -250,7 +250,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
         }
       } catch (e) {
         // 🔥 Important: don’t fail room creation because of this
-        print('⚠️ addMembers failed: $e');
+        // print('⚠️ addMembers failed: $e');
       }
 
       // ✅ ALWAYS refetch full room (ensures relations are present)
@@ -639,17 +639,14 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
         return null;
       }
       if (organizationId == null && targetUserId != null) {
-        print('here coming');
         final memberRooms = await client
             .from('room_members')
             .select('room_id')
             .eq('user_id', userId);
 
         if (memberRooms.isEmpty) return null;
-        print(memberRooms);
 
         final roomIds = memberRooms.map((e) => e['room_id']).toList();
-        print(roomIds);
 
         final sortedIds = [userId, targetUserId]..sort();
         final dmKey = '${sortedIds[0]}_${sortedIds[1]}';

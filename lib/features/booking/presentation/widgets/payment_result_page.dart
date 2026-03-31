@@ -396,7 +396,7 @@ class _PaymentSummaryCard extends StatelessWidget {
                   const SizedBox(width: 4),
                   Text(
                     booking.paymentStatus.name.toUpperCase(),
-                    style: TextStyle(fontSize: 12, letterSpacing: 1.2),
+                    style: const TextStyle(fontSize: 12, letterSpacing: 1.2),
                   ),
                 ],
               ),
@@ -439,7 +439,7 @@ class _InfoTile extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(label, style: TextStyle(fontSize: 13)),
+              Text(label, style: const TextStyle(fontSize: 13)),
               Text(
                 value,
                 style: const TextStyle(

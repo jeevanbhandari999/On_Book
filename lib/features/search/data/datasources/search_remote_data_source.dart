@@ -24,7 +24,7 @@ import 'package:app/features/post/data/models/post_model.dart';
 import 'package:app/features/post/domain/entities/post.dart';
 import 'package:app/features/post/domain/entities/post_enums.dart';
 import 'package:app/features/search/domain/entities/search_result.dart';
-import 'package:supabase_flutter/supabase_flutter.dart' as _supabase;
+import 'package:supabase_flutter/supabase_flutter.dart' as supabase_import;
 
 // ── Column selector constants ─────────────────────────────────────
 
@@ -125,7 +125,7 @@ abstract class SearchRemoteDataSource {
 // ─────────────────────────────────────────────────────────────────
 
 class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
-  final _supabase.SupabaseClient supabase;
+  final supabase_import.SupabaseClient supabase;
 
   SearchRemoteDataSourceImpl({required this.supabase});
 
@@ -364,7 +364,7 @@ class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
   //         .toList();
 
   //     return SearchResult(posts: posts, users: users, organizations: orgs);
-  //   } on _supabase.PostgrestException catch (e) {
+  //   } on supabase_import.PostgrestException catch (e) {
   //     throw ServerException(e.message);
   //   } catch (e) {
   //     throw ServerException(e.toString());
@@ -519,7 +519,7 @@ class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
         users: users,
         organizations: organizations,
       );
-    } on _supabase.PostgrestException catch (e) {
+    } on supabase_import.PostgrestException catch (e) {
       throw ServerException(e.message);
     } catch (e) {
       throw ServerException(e.toString());
@@ -558,7 +558,7 @@ class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
         users: results[1] as List<User>,
         organizations: results[2] as List<Organization>,
       );
-    } on _supabase.PostgrestException catch (e) {
+    } on supabase_import.PostgrestException catch (e) {
       throw ServerException(e.message);
     } catch (e) {
       throw ServerException(e.toString());
@@ -590,7 +590,7 @@ class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
       // print(rows.first);
 
       return rows.map((r) => _postFromRow(r)).toList();
-    } on _supabase.PostgrestException catch (e) {
+    } on supabase_import.PostgrestException catch (e) {
       throw ServerException(e.message);
     } catch (e) {
       throw ServerException(e.toString());
@@ -620,7 +620,7 @@ class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
           .range(offset, offset + limit - 1);
 
       return rows.map((r) => _userFromRow(r)).toList();
-    } on _supabase.PostgrestException catch (e) {
+    } on supabase_import.PostgrestException catch (e) {
       throw ServerException(e.message);
     } catch (e) {
       throw ServerException(e.toString());
@@ -647,7 +647,7 @@ class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
           .range(offset, offset + limit - 1);
 
       return rows.map((r) => _orgFromRow(r)).toList();
-    } on _supabase.PostgrestException catch (e) {
+    } on supabase_import.PostgrestException catch (e) {
       throw ServerException(e.message);
     } catch (e) {
       throw ServerException(e.toString());

@@ -29,9 +29,9 @@ class GetBookingByIdUseCase {
           booking.id,
         );
 
-        final canManage = permissionResult.fold((_) => false, (_) => true);
+        // final canManage = permissionResult.fold((_) => false, (_) => true);
 
-        print('In use case $canManage');
+        // print('In use case $canManage');
 
         if (permissionResult.isLeft()) {
           // log the message if needed but not crash the project

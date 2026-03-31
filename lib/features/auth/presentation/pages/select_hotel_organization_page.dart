@@ -211,7 +211,6 @@ class _SelectHotelOrganizationViewState
   }
 
   Widget _buildOrganizationsList(AuthState state) {
-    // print(_selectedOrganizationId);
     if (state is AuthLoading) {
       return const Center(child: LoadingWidget());
     }
@@ -234,57 +233,109 @@ class _SelectHotelOrganizationViewState
         return const Center(child: Text('No organizations found'));
       }
 
-      return ListView.builder(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        itemCount: displayOrgs.length,
-        itemBuilder: (context, index) {
-          final org = displayOrgs[index];
-          final isSelected = _selectedOrganizationId == org.id;
+      // return ListView.builder(
+      //   padding: const EdgeInsets.symmetric(horizontal: 16),
+      //   itemCount: displayOrgs.length,
+      //   itemBuilder: (context, index) {
+      //     final org = displayOrgs[index];
+      //     final isSelected = _selectedOrganizationId == org.id;
 
-          return Card(
-            elevation: isSelected ? 4 : 1,
-            margin: const EdgeInsets.only(bottom: 10),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(14),
-              side: BorderSide(
-                color: isSelected
-                    ? Theme.of(context).primaryColor
-                    : Colors.transparent,
-                width: 2,
-              ),
-            ),
-            child: ListTile(
-              leading: Radio<String>(
-                value: org.id,
-                groupValue: _selectedOrganizationId,
-                onChanged: (val) =>
-                    setState(() => _selectedOrganizationId = val),
-              ),
-              title: Text(
-                org.name,
-                style: TextStyle(
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+      //     return Card(
+      //       elevation: isSelected ? 4 : 1,
+      //       margin: const EdgeInsets.only(bottom: 10),
+      //       shape: RoundedRectangleBorder(
+      //         borderRadius: BorderRadius.circular(14),
+      //         side: BorderSide(
+      //           color: isSelected
+      //               ? Theme.of(context).primaryColor
+      //               : Colors.transparent,
+      //           width: 2,
+      //         ),
+      //       ),
+      //       child: ListTile(
+      //         leading: Radio<String>(
+      //           value: org.id,
+      //           groupValue: _selectedOrganizationId,
+      //           onChanged: (val) =>
+      //               setState(() => _selectedOrganizationId = val),
+      //         ),
+      //         title: Text(
+      //           org.name,
+      //           style: TextStyle(
+      //             fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+      //           ),
+      //         ),
+      //         subtitle: Column(
+      //           crossAxisAlignment: CrossAxisAlignment.start,
+      //           children: [
+      //             if (org.address != null)
+      //               Text(org.address!, style: const TextStyle(fontSize: 13)),
+      //             if (org.phone != null)
+      //               Text(org.phone!, style: const TextStyle(fontSize: 13)),
+      //           ],
+      //         ),
+      //         trailing: Icon(
+      //           Icons.business,
+      //           color: isSelected
+      //               ? Theme.of(context).primaryColor
+      //               : Colors.grey,
+      //         ),
+      //         onTap: () => setState(() => _selectedOrganizationId = org.id),
+      //       ),
+      //     );
+      //   },
+      // );
+
+      return RadioGroup<String>(
+        groupValue: _selectedOrganizationId,
+        onChanged: (val) => setState(() => _selectedOrganizationId = val),
+        child: ListView.builder(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          itemCount: displayOrgs.length,
+          itemBuilder: (context, index) {
+            final org = displayOrgs[index];
+            final isSelected = _selectedOrganizationId == org.id;
+
+            return Card(
+              elevation: isSelected ? 4 : 1,
+              margin: const EdgeInsets.only(bottom: 10),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+                side: BorderSide(
+                  color: isSelected
+                      ? Theme.of(context).primaryColor
+                      : Colors.transparent,
+                  width: 2,
                 ),
               ),
-              subtitle: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (org.address != null)
-                    Text(org.address!, style: const TextStyle(fontSize: 13)),
-                  if (org.phone != null)
-                    Text(org.phone!, style: const TextStyle(fontSize: 13)),
-                ],
+              child: ListTile(
+                leading: Radio<String>(value: org.id),
+                title: Text(
+                  org.name,
+                  style: TextStyle(
+                    fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                  ),
+                ),
+                subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (org.address != null)
+                      Text(org.address!, style: const TextStyle(fontSize: 13)),
+                    if (org.phone != null)
+                      Text(org.phone!, style: const TextStyle(fontSize: 13)),
+                  ],
+                ),
+                trailing: Icon(
+                  Icons.business,
+                  color: isSelected
+                      ? Theme.of(context).primaryColor
+                      : Colors.grey,
+                ),
+                onTap: () => setState(() => _selectedOrganizationId = org.id),
               ),
-              trailing: Icon(
-                Icons.business,
-                color: isSelected
-                    ? Theme.of(context).primaryColor
-                    : Colors.grey,
-              ),
-              onTap: () => setState(() => _selectedOrganizationId = org.id),
-            ),
-          );
-        },
+            );
+          },
+        ),
       );
     }
 
@@ -293,8 +344,6 @@ class _SelectHotelOrganizationViewState
 
   void _onJoinOrganizationPressed(BuildContext context) {
     if (_selectedOrganizationId != null) {
-      // In a real app, this would call a service to join the organization
-      // For now, we'll simulate completing the profile with the organization ID
       context.read<AuthBloc>().add(
         AuthJoinExistingOrganizationRequested(
           organizationId: _selectedOrganizationId!,

@@ -1,9 +1,7 @@
-import 'package:app/features/auth/domain/entities/organization.dart';
-import 'package:app/features/auth/domain/entities/user.dart';
+
 import 'package:app/features/chat/data/models/chat_organization_model.dart';
 import 'package:app/features/chat/data/models/message_model.dart';
 import 'package:app/features/chat/data/models/room_member_model.dart';
-import 'package:app/features/chat/domain/entities/room_member.dart';
 
 import '../../domain/entities/room.dart';
 import 'package:equatable/equatable.dart';

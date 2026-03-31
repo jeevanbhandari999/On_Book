@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:app/core/constants/app_images.dart';
 import 'package:app/core/constants/ui_constants.dart';
-import 'package:app/core/theme/app_colors.dart';
 import 'package:app/core/widgets/custom_svg_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -46,14 +45,14 @@ class AnimatedAppIconState extends State<AnimatedAppIcon> {
                     shape: BoxShape.circle,
                     border: Border.all(
                       color: _toggled
-                          ? Colors.white.withOpacity(0.4)
+                          ? Colors.white.withAlpha(102)
                           : Colors.white,
                       width: _toggled ? 1.0 : 1.5,
                     ),
                     boxShadow: [
                       BoxShadow(
                         color: _toggled
-                            ? Colors.white.withOpacity(0.25)
+                            ? Colors.white.withAlpha(50)
                             : Colors.black.withAlpha(80),
                         blurRadius: _toggled ? 8 : 4,
                         offset: const Offset(0, 2),
@@ -78,7 +77,7 @@ class AnimatedAppIconState extends State<AnimatedAppIcon> {
                 .shimmer(
                   delay: 400.ms,
                   duration: 1800.ms,
-                  color: Colors.white.withOpacity(0.15),
+                  color: Colors.white.withAlpha(100),
                   angle: 0.5,
                 ),
       ),

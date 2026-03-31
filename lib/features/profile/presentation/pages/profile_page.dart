@@ -39,7 +39,7 @@ class ProfilePage extends StatelessWidget {
             onPressed: () {
               context.push(RouteConstants.login);
             },
-            child: Text('Please sign in'),
+            child: const Text('Please sign in'),
           ),
         ),
       );
@@ -126,32 +126,42 @@ class ProfileView extends StatelessWidget {
                                   style: TextStyle(fontSize: 18),
                                 ),
                                 const SizedBox(height: UiConstants.spacingSm),
-                                SizedBox(
-                                  width: double.infinity,
-                                  child: SectionContainer(
-                                    padding: const EdgeInsets.all(
-                                      UiConstants.spacingMd,
-                                    ),
-                                    borderRadius: BorderRadius.circular(
-                                      UiConstants.radiusMd,
-                                    ),
+                                GestureDetector(
+                                  // onTap: () {
+                                  //   context.push(
+                                  //     RouteConstants.selectHotelOrganization,
+                                  //     extra: UserModel.fromEntity(user),
+                                  //   );
+                                  // },
+                                  child: SizedBox(
+                                    width: double.infinity,
+                                    child: SectionContainer(
+                                      padding: const EdgeInsets.all(
+                                        UiConstants.spacingMd,
+                                      ),
+                                      borderRadius: BorderRadius.circular(
+                                        UiConstants.radiusMd,
+                                      ),
 
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          user.fullName.trim(),
-                                          style: const TextStyle(
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.bold,
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            user.fullName.trim(),
+                                            style: const TextStyle(
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.bold,
+                                            ),
                                           ),
-                                        ),
-                                        Text(
-                                          _getRoleDisplayName(user.role),
-                                          style: const TextStyle(fontSize: 17),
-                                        ),
-                                      ],
+                                          Text(
+                                            _getRoleDisplayName(user.role),
+                                            style: const TextStyle(
+                                              fontSize: 17,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ),

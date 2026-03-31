@@ -1,17 +1,8 @@
 import 'dart:async';
-import 'package:app/app/dependency_injection.dart';
-import 'package:app/core/errors/exceptions.dart';
-import 'package:app/core/services/session_manager.dart';
 import 'package:app/features/auth/data/models/orgnization_model.dart';
 import 'package:app/features/auth/data/models/user_model.dart';
-// import 'package:app/features/auth/domain/entities/user.dart';
-// import 'package:app/features/auth/domain/usecases/forgot_password_use_case.dart';
-// import 'package:app/features/auth/domain/usecases/login_use_case.dart';
-// import 'package:app/features/auth/domain/usecases/register_use_case.dart';
-// import 'package:app/features/auth/domain/usecases/reset_password_use_case.dart';
 import 'package:app/features/auth/services/auth_service.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 // Events
@@ -355,8 +346,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
               createdAt: DateTime.now(),
               updatedAt: DateTime.now(),
             );
-            print('object');
-
             emit(AuthNeedsProfileCompletion(user: user));
             return;
           }

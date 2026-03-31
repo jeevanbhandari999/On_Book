@@ -344,7 +344,6 @@ class PostRemoteDataSourceImpl implements PostRemoteDataSource {
   Future<PostModel> getPostById(String postId) async {
     final postService = DependencyInjection.get<PostServices>();
     try {
-      print('Hello');
 
       final response = await supabaseClient
           .from('posts')
@@ -819,12 +818,8 @@ class PostRemoteDataSourceImpl implements PostRemoteDataSource {
         extract(post['amenities']);
       }
 
-      // ✅ Fix 5: Log so you can see what's being built
-      print('[InterestMap] Built for $userId: $freq');
       return freq;
     } catch (e) {
-      // ✅ Fix 6: Don't swallow — at least print
-      print('[InterestMap] Error: $e');
       return {};
     }
   }

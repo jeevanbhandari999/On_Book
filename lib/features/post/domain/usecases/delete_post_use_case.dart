@@ -23,7 +23,6 @@ class DeletePostUseCase {
       params.userId,
       params.postId,
     );
-    print(permissionResult);
 
     if (permissionResult.isLeft()) {
       return permissionResult.fold(

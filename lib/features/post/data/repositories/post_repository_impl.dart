@@ -303,7 +303,7 @@ class PostRepositoryImpl implements PostRepository {
   Future<Either<Failure, Post>> getPostById(String postId) async {
     try {
       //Try to get cached post first
-      print('object');
+      // print('object');
       // final cachedPost = await localDataSource.getCachedPost(postId);
       // if (cachedPost != null) {
       //   print('Cached');

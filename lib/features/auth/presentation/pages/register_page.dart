@@ -370,12 +370,6 @@ class _RegisterViewState extends State<RegisterView> {
         ? theme.primaryColor.withAlpha(25)
         : Colors.grey[50];
 
-    final borderColor = isSelected
-        ? theme.primaryColor
-        : isDark
-        ? Colors.grey[700]
-        : Colors.grey[300];
-
     final iconBgColor = isSelected
         ? theme.primaryColor.withAlpha(isDark ? 75 : 50)
         : isDark

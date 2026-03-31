@@ -68,11 +68,11 @@ class CustomerReviewRemoteDataSourceImpl
           .select()
           .single();
 
-      print(
-        'calling througn the $userId, ${post['organization_id']}, and the rating value ${rating.ratingValue}',
-      );
+      // print(
+      //   'calling througn the $userId, ${post['organization_id']}, and the rating value ${rating.ratingValue}',
+      // );
 
-      final trigger = await supabaseClient.rpc(
+      await supabaseClient.rpc(
         'rpc_update_rating_score',
         params: {
           'p_user_id': userId,
@@ -80,8 +80,6 @@ class CustomerReviewRemoteDataSourceImpl
           'p_rating': rating.ratingValue,
         },
       );
-
-      print(trigger);
 
       return RatingModel.fromJson(response);
     } on PostgrestException catch (e) {
@@ -100,7 +98,6 @@ class CustomerReviewRemoteDataSourceImpl
           );
         }
       } else if (e.code == '23503') {
-        print('Invalid reference (user or post not found). $e');
         throw core_exceptions.ServerException(
           'Invalid reference (user or post not found). $e',
         );
@@ -283,9 +280,7 @@ class CustomerReviewRemoteDataSourceImpl
           'p_action': action,
         },
       );
-      print('Review reaction score updated for rating $ratingId');
     } catch (e) {
-      print('Failed to update review reaction score: $e');
       throw core_exceptions.ServerException(
         'Could not update review reaction score: $e',
       );

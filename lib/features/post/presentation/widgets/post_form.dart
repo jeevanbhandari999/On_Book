@@ -515,9 +515,6 @@ class _LocationSection extends StatelessWidget {
   }
 }
 
-String _amenityLabel(AmenityType a) => a.name.replaceAll('_', ' ').capitalize();
-String _tagLabel(PostTag p) => p.name.replaceAll('_', ' ').capitalize();
-
 extension StringExt on String {
   String capitalize() => this[0].toUpperCase() + substring(1);
 }

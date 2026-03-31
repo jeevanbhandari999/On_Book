@@ -204,7 +204,7 @@ class CreatePostParams extends Equatable {
       title: title ?? this.title,
       description: description ?? this.description,
       primaryImageUrl: primaryImageUrl ?? this.primaryImageUrl,
-      primaryImageFile: primaryImageFile ?? this.primaryImageFile,
+      primaryImageFile: primaryImageFile ?? primaryImageFile,
       additionalImages: additionalImages ?? this.additionalImages,
       youtubeUrl: youtubeUrl ?? this.youtubeUrl,
       longitude: longitude ?? this.longitude,

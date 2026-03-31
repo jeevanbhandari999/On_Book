@@ -708,45 +708,6 @@ class _BookingCard extends StatelessWidget {
   }
 }
 
-class _BookingTypeBadge extends StatelessWidget {
-  final bool isHourly;
-  const _BookingTypeBadge({required this.isHourly});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-      decoration: BoxDecoration(
-        color: isHourly ? const Color(0xFFFFF7ED) : const Color(0xFFEFF6FF),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: isHourly ? const Color(0xFFFED7AA) : const Color(0xFFBFDBFE),
-        ),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            isHourly ? Icons.bolt_rounded : Icons.nights_stay_rounded,
-            size: 11,
-            color: isHourly ? const Color(0xFFEA580C) : const Color(0xFF2563EB),
-          ),
-          const SizedBox(width: 3),
-          Text(
-            isHourly ? 'Hourly' : 'Nightly',
-            style: TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.w700,
-              color: isHourly
-                  ? const Color(0xFFEA580C)
-                  : const Color(0xFF2563EB),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 class _StatusChip extends StatelessWidget {
   final String label;

@@ -1,7 +1,4 @@
 import 'package:app/app/dependency_injection.dart';
-import 'package:app/core/constants/ui_constants.dart';
-import 'package:app/core/widgets/common_widgets.dart';
-import 'package:app/core/widgets/loading_widget.dart';
 import 'package:app/features/post/domain/repositories/post_repository.dart';
 import 'package:app/features/post/domain/usecases/create_post_use_case.dart';
 import 'package:app/features/post/domain/usecases/update_post_use_case.dart';

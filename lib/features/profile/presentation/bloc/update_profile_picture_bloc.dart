@@ -159,7 +159,6 @@ class UpdateProfilePictureBloc
         },
       );
     } catch (e) {
-      print('$e from bloc');
       emit(
         UpdateProfilePictureError(
           message: 'Failed to delete the profile image: ${e.toString()}',

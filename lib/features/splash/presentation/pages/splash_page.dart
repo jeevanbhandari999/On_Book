@@ -53,7 +53,6 @@ class SplashViewState extends State<SplashView> {
         children: [
           BlocListener<AuthBloc, AuthState>(
             listener: (context, state) {
-              print(state);
               if (state is AuthLoading) {
                 _authDone = false;
               }

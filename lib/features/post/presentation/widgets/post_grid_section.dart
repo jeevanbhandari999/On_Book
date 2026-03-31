@@ -187,30 +187,3 @@ Future<void> _showModalBottomSheetForImage(
   );
 }
 
-Widget _buildActionButtons(BuildContext context) {
-  return Padding(
-    padding: const EdgeInsets.symmetric(horizontal: UiConstants.spacingSm),
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Expanded(
-          child: CustomButton(
-            text: 'Add to Library',
-            icon: const Icon(Icons.bookmark_outline),
-            onPressed: () {},
-            isOutlined: true,
-          ),
-        ),
-        const SizedBox(width: UiConstants.spacingSm),
-        Expanded(
-          child: CustomButton(
-            text: 'Book Now',
-            onPressed: () {},
-            icon: const Icon(Icons.event_available),
-          ),
-        ),
-      ],
-    ),
-  );
-}

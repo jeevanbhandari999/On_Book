@@ -40,7 +40,6 @@ class LibraryRemoteDataSourceImpl implements LibraryRemoteDataSource {
 
       final List<dynamic> data = response;
 
-      print('The user response is : ${response.length}');
 
       return data
           .map((json) => BookingModel.fromJson(json as Map<String, dynamic>))
@@ -95,7 +94,6 @@ class LibraryRemoteDataSourceImpl implements LibraryRemoteDataSource {
               BookingStatus.cancelled) ||
           (enumFromString(BookingStatus.values, status) ==
               BookingStatus.rejected)) {
-        print('Cancling');
         // Update the post status , back to the available
         final postDependency = DependencyInjection.get<PostRepository>();
         await postDependency.updatePostStatus(

@@ -1,4 +1,3 @@
-import 'package:app/core/widgets/auto_marquee_text.dart';
 import 'package:flutter/material.dart';
 import 'package:app/core/constants/ui_constants.dart';
 import 'package:app/core/utils/extensions/extensions.dart';
@@ -430,30 +429,9 @@ class SectionContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final container = Container(
       margin: margin,
-      //  ??
-      // const EdgeInsets.symmetric(
-      //   horizontal: UiConstants.spacingMd,
-      //   vertical: UiConstants.spacingSm,
-      // ),
-      // padding: padding ?? const EdgeInsets.all(UiConstants.spacingMd),
-      // decoration: BoxDecoration(
-      //   color: backgroundColor ?? colorScheme.surface,
-      //   borderRadius:
-      //       borderRadius ?? BorderRadius.circular(UiConstants.radiusLg),
-      //   boxShadow:
-      //       shadows ??
-      //       [
-      //         BoxShadow(
-      //           color: const Color(0xFF363535).withAlpha(40),
-      //           spreadRadius: 0,
-      //           blurRadius: 16,
-      //           offset: const Offset(0, 0),
-      //         ),
-      //       ],
-      // ),
+
       padding: padding ?? const EdgeInsets.all(UiConstants.spacingMd),
       decoration:
           decoration ??
@@ -498,174 +476,6 @@ class SectionContainer extends StatelessWidget {
     return container.animate().fadeIn(delay: 300.ms).moveY(begin: 20, end: 0);
   }
 }
-
-// class CustomDropdown<T> extends StatelessWidget {
-//   final String label;
-//   final String? hint;
-//   final T? value;
-//   final List<DropdownMenuItem<T>> items;
-//   final ValueChanged<T?>? onChanged;
-//   final String? errorText;
-//   final Widget? prefixIcon;
-
-//   const CustomDropdown({
-//     super.key,
-//     required this.label,
-//     this.hint,
-//     this.value,
-//     required this.items,
-//     this.onChanged,
-//     this.errorText,
-//     this.prefixIcon,
-//   });
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Column(
-//       crossAxisAlignment: CrossAxisAlignment.start,
-//       children: [
-//         Text(
-//           label,
-//           style: Theme.of(
-//             context,
-//           ).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w500),
-//         ),
-//         const SizedBox(height: 6),
-//         DropdownButtonFormField<T>(
-//           initialValue: value,
-//           hint: hint != null
-//               ? Text(hint!, style: const TextStyle(color: Colors.grey))
-//               : null,
-//           items: items,
-//           onChanged: onChanged,
-//           decoration: InputDecoration(
-//             errorText: errorText,
-//             prefixIcon: prefixIcon,
-//             contentPadding: const EdgeInsets.symmetric(
-//               horizontal: 12,
-//               vertical: 4,
-//             ),
-//             border: OutlineInputBorder(
-//               borderRadius: BorderRadius.circular(12),
-//               borderSide: BorderSide(color: Colors.grey.shade400),
-//             ),
-//             enabledBorder: OutlineInputBorder(
-//               borderRadius: BorderRadius.circular(12),
-//               borderSide: BorderSide(color: Colors.grey.shade400),
-//             ),
-//             focusedBorder: OutlineInputBorder(
-//               borderRadius: BorderRadius.circular(12),
-//               borderSide: BorderSide(
-//                 color: Theme.of(context).primaryColor,
-//                 width: 2,
-//               ),
-//             ),
-//             filled: true,
-//             fillColor: Colors.grey.shade50,
-//           ),
-//           dropdownColor: Colors.white,
-//           icon: const Icon(Icons.keyboard_arrow_down_rounded),
-//         ),
-//       ],
-//     );
-//   }
-// }
-
-// class CustomMultiSelect<T> extends StatelessWidget {
-//   final String label;
-//   final List<T> items;
-//   final List<T> selected;
-//   final String Function(T) itemLabel;
-//   final ValueChanged<List<T>>? onChanged;
-//   final Widget? prefixIcon;
-//   final bool readOnly;
-//   final double fontSize;
-
-//   const CustomMultiSelect({
-//     super.key,
-//     required this.label,
-//     required this.items,
-//     required this.selected,
-//     required this.itemLabel,
-//     this.onChanged,
-//     this.prefixIcon,
-//     this.readOnly = false,
-//     this.fontSize = 16,
-//   });
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Column(
-//       crossAxisAlignment: CrossAxisAlignment.start,
-//       children: [
-//         Text(
-//           label,
-//           style: TextStyle(fontWeight: FontWeight.bold, fontSize: fontSize),
-//         ),
-//         GridView.builder(
-//           padding: EdgeInsets.zero,
-//           shrinkWrap: true,
-//           physics: const NeverScrollableScrollPhysics(),
-//           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-//             crossAxisCount: 2,
-//             mainAxisSpacing: UiConstants.spacingXs,
-//             crossAxisSpacing: UiConstants.spacingMd,
-//             childAspectRatio: 4,
-//           ),
-//           itemCount: items.length,
-//           itemBuilder: (context, index) {
-//             final item = items[index];
-//             final isSelected = selected.contains(item);
-//             final isEven = index.isEven;
-
-//             return FilterChip(
-//                   showCheckmark: false,
-//                   label: Container(
-//                     padding: const EdgeInsets.symmetric(
-//                       horizontal: UiConstants.spacingSm,
-//                       vertical: UiConstants.spacingXs,
-//                     ),
-//                     width: double.infinity,
-//                     child: Text(
-//                       itemLabel(item),
-//                       overflow: TextOverflow.ellipsis,
-//                       maxLines: 1,
-//                       textAlign: TextAlign.center,
-//                       style: const TextStyle(color: Colors.black),
-//                     ),
-//                   ),
-//                   selected: isSelected,
-//                   onSelected: readOnly
-//                       ? null
-//                       : (bool selected) {
-//                           final newSelected = List<T>.from(this.selected);
-//                           if (selected) {
-//                             newSelected.add(item);
-//                           } else {
-//                             newSelected.remove(item);
-//                           }
-//                           onChanged?.call(newSelected);
-//                         },
-
-//                   disabledColor: isSelected
-//                       ? Theme.of(context).primaryColor
-//                       : const Color(0xFFEF4444).withAlpha(120),
-
-//                   backgroundColor: Colors.grey.shade100,
-//                   selectedColor: Theme.of(context).primaryColor,
-//                   shape: RoundedRectangleBorder(
-//                     borderRadius: BorderRadius.circular(UiConstants.radiusLg),
-//                   ),
-//                 )
-//                 .animate(delay: (index * 70).ms)
-//                 .scale(duration: 200.ms)
-//                 .slideY(begin: isEven ? 0.3 : -0.3);
-//           },
-//         ),
-//       ],
-//     );
-//   }
-// }
 
 class CustomMultiSelect<T> extends StatelessWidget {
   final String label;
@@ -721,7 +531,9 @@ class CustomMultiSelect<T> extends StatelessWidget {
                       : Text(itemLabel(item)),
                   selected: isSelected,
                   onSelected: readOnly
-                      ? null
+                      ? (bool selected) {
+                          // Do nothing when readOnly, but still allow visual feedback
+                        }
                       : (bool selected) {
                           final newSelected = List<T>.from(this.selected);
                           if (selected) {

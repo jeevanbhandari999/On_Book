@@ -235,8 +235,6 @@ class GetAndCreateRoomBloc
             getRoomParams,
           );
 
-      print(response);
-
       // Handle the response properly without nested async callbacks
       await response.fold(
         (failure) async {

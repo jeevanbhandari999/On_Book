@@ -76,8 +76,6 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
 
           final response = await lessThan.limit(limit + 1);
 
-          print(response);
-
           final List<PostModel> posts = (response as List)
               .map((json) => PostModel.fromJson(json))
               .toList();
@@ -92,7 +90,6 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
         }
 
         final response = await query.limit(limit + 1);
-        print('From here $response');
 
         final List<PostModel> posts = (response as List)
             .map((json) => PostModel.fromJson(json))
@@ -368,7 +365,6 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
         // print(response);
       }
     } catch (e) {
-      print(e);
       throw core_exceptions.ServerException(
         'Failed to toggle post save or unsave: $e',
       );
@@ -384,7 +380,6 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
           .eq('user_id', userId)
           .map((rows) => rows.map(SavedPostModel.fromJson).toList());
     } catch (e) {
-      print(e);
       throw core_exceptions.ServerException(
         'Failed to stream post save or unsave: $e',
       );

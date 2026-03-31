@@ -207,7 +207,7 @@ class PresenceService with ChangeNotifier {
       });
 
     // Subscribe and track once subscribed
-    await channel.subscribe((status, [error]) async {
+    channel.subscribe((status, [error]) async {
       debugPrint('📡 Channel status for $roomId: $status');
 
       if (status == RealtimeSubscribeStatus.subscribed) {
