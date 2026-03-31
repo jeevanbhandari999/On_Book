@@ -7,6 +7,7 @@ import 'package:app/features/chat/domain/usecases/get_user_rooms_use_case.dart';
 import 'package:app/features/chat/domain/usecases/send_message_use_case.dart';
 import 'package:app/features/chat/domain/usecases/stream_messages_use_case.dart';
 import 'package:app/features/chat/domain/usecases/mark_room_as_read_use_case.dart';
+import 'package:app/features/chat/domain/usecases/stream_user_rooms_use_case.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:dartz/dartz.dart';
@@ -31,6 +32,10 @@ class CreateRoomRequested extends ChatEvent {
 
   @override
   List<Object?> get props => [room, userId, otherUserId];
+}
+
+class StreamUserRoomsRequested extends ChatEvent {
+  const StreamUserRoomsRequested();
 }
 
 class GetUserRoomsRequested extends ChatEvent {
@@ -106,6 +111,11 @@ class UserRoomsLoaded extends ChatState {
   List<Object?> get props => [rooms];
 }
 
+class UserRoomsStreamUpdated extends ChatState {
+  final List<Room> rooms;
+  const UserRoomsStreamUpdated(this.rooms);
+}
+
 class MessageSent extends ChatState {
   final Message message;
   const MessageSent({required this.message});
@@ -134,7 +144,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   final SendMessageUseCase sendMessageUseCase;
   final StreamMessagesUseCase streamMessagesUseCase;
   final MarkRoomAsReadUseCase markRoomAsReadUseCase;
-  
+  final StreamUserRoomsUseCase streamUserRoomsUseCase;
 
   StreamSubscription<Either<Failure, List<Message>>>? _messageStreamSub;
 
@@ -144,12 +154,14 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     required this.sendMessageUseCase,
     required this.streamMessagesUseCase,
     required this.markRoomAsReadUseCase,
+    required this.streamUserRoomsUseCase,
   }) : super(const ChatInitial()) {
     on<CreateRoomRequested>(_onCreateRoomRequested);
     on<GetUserRoomsRequested>(_onGetUserRoomsRequested);
     on<SendMessageRequested>(_onSendMessageRequested);
     on<StreamMessagesRequested>(_onStreamMessagesRequested);
     on<MarkRoomAsReadRequested>(_onMarkRoomAsReadRequested);
+    on<StreamUserRoomsRequested>(_onStreamUserRoomsRequested);
   }
 
   Future<void> _onCreateRoomRequested(
@@ -237,6 +249,20 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     } catch (e) {
       emit(ChatError(message: e.toString()));
     }
+  }
+
+  Future<void> _onStreamUserRoomsRequested(
+    StreamUserRoomsRequested event,
+    Emitter<ChatState> emit,
+  ) async {
+    await emit.forEach(
+      streamUserRoomsUseCase(),
+      onData: (either) => either.fold(
+        (failure) => ChatError(message: failure.message),
+        (rooms) => UserRoomsStreamUpdated(rooms),
+      ),
+      onError: (error, _) => ChatError(message: error.toString()),
+    );
   }
 
   @override

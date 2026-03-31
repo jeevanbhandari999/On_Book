@@ -9,6 +9,7 @@ import 'package:app/features/chat/domain/usecases/get_user_rooms_use_case.dart';
 import 'package:app/features/chat/domain/usecases/mark_room_as_read_use_case.dart';
 import 'package:app/features/chat/domain/usecases/send_message_use_case.dart';
 import 'package:app/features/chat/domain/usecases/stream_messages_use_case.dart';
+import 'package:app/features/chat/domain/usecases/stream_user_rooms_use_case.dart';
 import 'package:app/features/chat/presentation/bloc/chat_bloc.dart';
 import 'package:app/features/chat/presentation/bloc/get_and_create_room_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -61,6 +62,9 @@ class ChatDependencies {
         getIt<ChatRepository>(),
       ),
     );
+    getIt.registerLazySingleton<StreamUserRoomsUseCase>(
+      () => StreamUserRoomsUseCase(getIt<ChatRepository>()),
+    );
 
     // BLoCs
     getIt.registerFactory<ChatBloc>(
@@ -70,6 +74,7 @@ class ChatDependencies {
         sendMessageUseCase: getIt<SendMessageUseCase>(),
         streamMessagesUseCase: getIt<StreamMessagesUseCase>(),
         markRoomAsReadUseCase: getIt<MarkRoomAsReadUseCase>(),
+        streamUserRoomsUseCase: getIt<StreamUserRoomsUseCase>(),
       ),
     );
     getIt.registerFactory<GetAndCreateRoomBloc>(

@@ -62,8 +62,49 @@ class Room extends Equatable {
   String getLastMessagePreview(String currentUserId) {
     if (lastMessage == null) return 'No messages yet';
 
-    final prefix = lastMessage!.senderId == currentUserId ? 'You: ' : '';
+    final prefix = lastMessage!.senderId == currentUserId
+        ? 'You: '
+        : type == RoomType.organization
+        ? '${getLastMessageSenderName(currentUserId)}: '
+        : '';
     return '$prefix${lastMessage!.text ?? (lastMessage!.mediaUrl != null ? '📷 Media' : '')}';
+  }
+
+  // String getDisplayNameOfLastChat(String currentUserId) {
+  //   if (type == RoomType.organization) {
+  //     if (members == null) return 'Someone';
+  //     final otherUser = members!.firstWhere(
+  //       (m) => m.userId != currentUserId,
+  //       orElse: () => members!.first,
+  //     );
+  //     return otherUser.user?.fullName ?? 'Unknown';
+  //   }
+
+  //   if (members == null) return 'Unknown';
+
+  //   final otherUser = members!.firstWhere(
+  //     (m) => m.userId != currentUserId,
+  //     orElse: () => members!.first,
+  //   );
+
+  //   print(otherUser.user?.fullName); // Debug print
+
+  //   return otherUser.user?.fullName ?? 'Unknown';
+  // }
+
+  String getLastMessageSenderName(String currentUserId) {
+    if (lastMessage == null) return 'Unknown';
+
+    if (lastMessage!.senderId == currentUserId) {
+      return 'You';
+    }
+
+    final sender = members?.firstWhere(
+      (m) => m.userId == lastMessage!.senderId,
+      orElse: () => members!.first,
+    );
+
+    return sender?.user?.fullName ?? 'Unknown';
   }
 
   String getDisplayName(String currentUserId) {

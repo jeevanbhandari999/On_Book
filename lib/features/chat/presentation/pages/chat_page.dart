@@ -12,6 +12,7 @@ import 'package:app/features/chat/domain/usecases/get_user_rooms_use_case.dart';
 import 'package:app/features/chat/domain/usecases/mark_room_as_read_use_case.dart';
 import 'package:app/features/chat/domain/usecases/send_message_use_case.dart';
 import 'package:app/features/chat/domain/usecases/stream_messages_use_case.dart';
+import 'package:app/features/chat/domain/usecases/stream_user_rooms_use_case.dart';
 import 'package:app/features/chat/presentation/bloc/chat_bloc.dart';
 import 'package:app/features/chat/presentation/widgets/chat_detail_shimmer_page.dart';
 import 'package:app/features/chat/service/presence_service.dart';
@@ -37,6 +38,8 @@ class ChatPage extends StatelessWidget {
         sendMessageUseCase: DependencyInjection.get<SendMessageUseCase>(),
         streamMessagesUseCase: DependencyInjection.get<StreamMessagesUseCase>(),
         markRoomAsReadUseCase: DependencyInjection.get<MarkRoomAsReadUseCase>(),
+         streamUserRoomsUseCase:
+            DependencyInjection.get<StreamUserRoomsUseCase>(),
       )..add(StreamMessagesRequested(roomId: room.id)),
       child: ChatView(room: room, currentUserId: currentUserId),
     );

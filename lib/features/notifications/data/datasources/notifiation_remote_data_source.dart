@@ -25,6 +25,11 @@ abstract class NotificationRemoteDataSource {
   /// Mark a single notification as read (calls DB RPC for atomicity).
   Future<void> markAsRead({required String notificationId});
 
+  /// Mark a multiple notification as read(calls DB RPC for automatically)
+  Future<void> markAsReadMultipleNotification({
+    required List<String> notificationIds,
+  });
+
   /// Mark every unread notification for the signed-in user as read.
   Future<void> markAllAsRead();
 
@@ -156,6 +161,22 @@ class NotificationRemoteDataSourceImpl implements NotificationRemoteDataSource {
     } catch (e) {
       throw ServerException(
         'Failed to mark all notifications as viewed: ${e.toString()}',
+      );
+    }
+  }
+
+  @override
+  Future<void> markAsReadMultipleNotification({
+    required List<String> notificationIds,
+  }) async {
+    try {
+      await client.rpc(
+        'mark_multiple_notifications_read',
+        params: {'p_notification_ids': notificationIds},
+      );
+    } catch (e) {
+      throw ServerException(
+        'Failed to mark all notifications as read: ${e.toString()}',
       );
     }
   }

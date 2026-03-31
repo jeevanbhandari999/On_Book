@@ -23,9 +23,13 @@ abstract class NotificationRepository {
   /// Mark a single notification as read.
   Future<Either<Failure, void>> markAsRead({required String notificationId});
 
+  /// Mark a multiple notification as read(calls DB RPC for automatically)
+  Future<Either<Failure, void>> markAsReadMultipleNotification({
+    required List<String> notificationIds,
+  });
+
   /// Mark all unread notifications for the signed-in user as read.
   Future<Either<Failure, void>> markAllAsRead();
-
 
   /// Mark all new notifications as viewed when the user opens the notifications screen.
   Future<Either<Failure, void>> markAllAsViewed();

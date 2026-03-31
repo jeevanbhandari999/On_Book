@@ -54,4 +54,9 @@ abstract class ChatRepository {
 
   /// Get members of a room
   Future<Either<Failure, List<RoomMember>>> getRoomMembers(String roomId);
+
+
+  Stream<Either<Failure, List<Room>>> streamUserRooms();
+
+
 }

@@ -1,19 +1,3 @@
-// import 'package:intl/intl.dart';
-
-// class DateFormatter {
-//   static String format(DateTime date) {
-//     return DateFormat('dd MMM yyyy').format(date);
-//   }
-
-//   static String formatWithDay(DateTime date) {
-//     return DateFormat('EEE, dd MMM yyyy').format(date);
-//   }
-
-//   static String range(DateTime start, DateTime end) {
-//     return '${format(start)} → ${format(end)}';
-//   }
-// }
-
 
 import 'package:intl/intl.dart';
 
@@ -31,6 +15,18 @@ class DateFormatter {
   /// Format date with time: Jan 15, 2024 at 3:30 PM
   static String formatWithTime(DateTime date) {
     return DateFormat('MMM d, yyyy \'at\' h:mm a').format(date);
+  }
+
+   static String toChatListPreview(DateTime dateTime) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final target = DateTime(dateTime.year, dateTime.month, dateTime.day);
+    final diff = today.difference(target).inDays;
+
+    if (diff == 0) return DateFormat('h:mm a').format(dateTime);
+    if (diff == 1) return 'Yesterday';
+    if (diff < 7) return DateFormat('EEE').format(dateTime); // 'Mon'
+    return DateFormat('dd/MM/yy').format(dateTime);
   }
 
   /// Format date range: Jan 15 - Jan 20, 2024

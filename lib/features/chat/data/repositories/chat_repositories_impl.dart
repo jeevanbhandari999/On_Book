@@ -20,7 +20,6 @@ class ChatRepositoryImpl implements ChatRepository {
 
   ChatRepositoryImpl({required this.remoteDataSource});
 
-
   @override
   Future<Either<Failure, Room>> createRoom(
     Room room,
@@ -242,6 +241,19 @@ class ChatRepositoryImpl implements ChatRepository {
       return Left(ServerFailure(e.message));
     } catch (e) {
       return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Stream<Either<Failure, List<Room>>> streamUserRooms() async* {
+    try {
+      yield* remoteDataSource.streamMyRooms().map(
+        (models) => Right<Failure, List<Room>>(
+          models.map((m) => m.toEntity()).toList(),
+        ),
+      );
+    } catch (e) {
+      yield Left(ServerFailure(e.toString()));
     }
   }
 }

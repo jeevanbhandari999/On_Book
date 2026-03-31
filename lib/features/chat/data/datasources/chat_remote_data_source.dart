@@ -56,6 +56,8 @@ abstract class ChatRemoteDataSource {
 
   /// Real-time stream
   Stream<List<MessageModel>> streamMessages(String roomId);
+
+  Stream<List<RoomModel>> streamMyRooms();
 }
 
 class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
@@ -738,5 +740,15 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
         'Failed to get the specific room related to the user or organizations: ${e.toString()}',
       );
     }
+  }
+
+  @override
+  Stream<List<RoomModel>> streamMyRooms() {
+    return client
+        .from('messages')
+        .stream(primaryKey: ['id'])
+        .order('created_at', ascending: false)
+        // .map((rows) => rows.map((e) => RoomModel.fromJson(e)).toList());
+        .asyncMap((_) => getMyRooms());
   }
 }

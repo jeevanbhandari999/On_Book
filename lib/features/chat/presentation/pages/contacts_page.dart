@@ -56,6 +56,7 @@ class ContactsPage extends StatelessWidget {
             sendMessageUseCase: DependencyInjection.get(),
             streamMessagesUseCase: DependencyInjection.get(),
             markRoomAsReadUseCase: DependencyInjection.get(),
+            streamUserRoomsUseCase: DependencyInjection.get(),
           ),
         ),
         BlocProvider(
