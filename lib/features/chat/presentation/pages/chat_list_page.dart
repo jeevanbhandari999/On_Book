@@ -5,46 +5,18 @@ import 'package:app/core/theme/app_colors.dart';
 import 'package:app/core/utils/date_formatter.dart';
 import 'package:app/core/widgets/common_widgets.dart';
 import 'package:app/features/chat/domain/entities/room.dart';
-import 'package:app/features/chat/domain/usecases/create_room_use_case.dart';
-import 'package:app/features/chat/domain/usecases/get_user_rooms_use_case.dart';
-import 'package:app/features/chat/domain/usecases/mark_room_as_read_use_case.dart';
-import 'package:app/features/chat/domain/usecases/send_message_use_case.dart';
-import 'package:app/features/chat/domain/usecases/stream_messages_use_case.dart';
 import 'package:app/features/chat/domain/usecases/stream_user_rooms_use_case.dart';
-import 'package:app/features/chat/presentation/bloc/chat_bloc.dart';
 import 'package:app/features/chat/presentation/bloc/room_cubit.dart';
 import 'package:app/features/chat/presentation/widgets/chat_list_shimmer.dart';
-import 'package:app/features/chat/service/presence_service.dart';
 import 'package:app/features/notifications/domain/entities/notification_entity.dart';
 import 'package:app/features/notifications/presentation/bloc/notification_cubit.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shimmer/shimmer.dart';
 import 'dart:async';
-
-// class RoomPage extends StatelessWidget {
-//   final String currentUserId;
-
-//   const RoomPage({super.key, required this.currentUserId});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return BlocProvider(
-//       create: (context) => ChatBloc(
-//         createRoomUseCase: DependencyInjection.get<CreateRoomUseCase>(),
-//         getUserRoomsUseCase: DependencyInjection.get<GetUserRoomsUseCase>(),
-//         sendMessageUseCase: DependencyInjection.get<SendMessageUseCase>(),
-//         streamMessagesUseCase: DependencyInjection.get<StreamMessagesUseCase>(),
-//         markRoomAsReadUseCase: DependencyInjection.get<MarkRoomAsReadUseCase>(),
-//         streamUserRoomsUseCase:
-//             DependencyInjection.get<StreamUserRoomsUseCase>(),
-//       )..add(const StreamUserRoomsRequested()),
-//       child: RoomPageView(currentUserId: currentUserId),
-//     );
-//   }
-// }
 
 class RoomPage extends StatelessWidget {
   final String currentUserId;
@@ -73,75 +45,13 @@ class RoomPageView extends StatefulWidget {
 
 class _RoomPageViewState extends State<RoomPageView> {
   String searchQuery = '';
-  final PresenceService _presenceService = PresenceService();
   bool _hasInitializedPresence = false;
-
-  // Stream subscription for presence updates
-  final Map<String, StreamSubscription<Set<String>>> _presenceSubscriptions =
-      {};
-  Set<String> _allOnlineUsers = {};
-
-  @override
-  void dispose() {
-    // Cancel all presence subscriptions
-    for (final subscription in _presenceSubscriptions.values) {
-      subscription.cancel();
-    }
-    _presenceSubscriptions.clear();
-    super.dispose();
-  }
 
   Future<void> _initializePresenceForAllRooms(List<Room> rooms) async {
     if (_hasInitializedPresence) return;
 
-    debugPrint('🌐 Initializing presence for ${rooms.length} rooms');
+    debugPrint('Initializing presence for ${rooms.length} rooms');
     _hasInitializedPresence = true;
-
-    final roomIds = rooms.map((room) => room.id).toList();
-    await _presenceService.joinAllUserRooms(roomIds, widget.currentUserId);
-
-    // Subscribe to online users for each room
-    for (final room in rooms) {
-      _presenceSubscriptions[room.id]?.cancel();
-      _presenceSubscriptions[room.id] = _presenceService
-          .onlineUsersStream(room.id)
-          .listen((onlineUsers) {
-            if (mounted) {
-              setState(() {
-                // Aggregate all online users
-                _updateAllOnlineUsers(rooms);
-              });
-            }
-          });
-    }
-  }
-
-  void _updateAllOnlineUsers(List<Room> rooms) {
-    final allOnline = <String>{};
-    for (final room in rooms) {
-      allOnline.addAll(_presenceService.getOnlineUsers(room.id));
-    }
-    _allOnlineUsers = allOnline;
-  }
-
-  String? _getOtherUserId(Room room) {
-    if (room.type != RoomType.dm) return null;
-
-    final members = room.members;
-    if (members == null || members.isEmpty) return null;
-
-    for (final member in members) {
-      if (member.userId != widget.currentUserId) {
-        return member.userId;
-      }
-    }
-    return null;
-  }
-
-  bool _isUserOnline(Room room) {
-    final otherUserId = _getOtherUserId(room);
-    if (otherUserId == null) return false;
-    return _presenceService.isUserOnline(room.id, otherUserId);
   }
 
   @override
@@ -193,12 +103,13 @@ class _RoomPageViewState extends State<RoomPageView> {
                     child: CustomScrollView(
                       slivers: [
                         SliverAppBar(
-                          expandedHeight: 120 + UiConstants.spacingSm,
-                          collapsedHeight: 120 + UiConstants.spacingSm,
+                          expandedHeight: 120 + UiConstants.spacingXs,
+                          collapsedHeight: 120 + UiConstants.spacingXs,
                           foregroundColor: Colors.black,
                           backgroundColor: AppColors.primaryLight,
                           floating: false,
                           pinned: true,
+                          titleSpacing: 0,
                           title: const Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -217,7 +128,6 @@ class _RoomPageViewState extends State<RoomPageView> {
                               padding: const EdgeInsets.only(
                                 right: UiConstants.spacingMd,
                                 left: UiConstants.spacingMd,
-                                bottom: UiConstants.spacingMd,
                               ),
                               decoration: BoxDecoration(
                                 color: Theme.of(context).colorScheme.primary,
@@ -259,7 +169,6 @@ class _RoomPageViewState extends State<RoomPageView> {
                               index,
                             ) {
                               final room = filteredRooms[index];
-                              final isOnline = _isUserOnline(room);
 
                               return Column(
                                 mainAxisSize: MainAxisSize.min,
@@ -268,8 +177,6 @@ class _RoomPageViewState extends State<RoomPageView> {
                                     roomNotifications: roomNotifications,
                                     room: room,
                                     currentUserId: widget.currentUserId,
-                                    isOnline: isOnline,
-                                    presenceService: _presenceService,
                                   ),
                                   if (filteredRooms.length > 1 &&
                                       index != filteredRooms.length - 1)
@@ -285,169 +192,10 @@ class _RoomPageViewState extends State<RoomPageView> {
               );
             }
 
-            return const Center(child: Text('Something went wrong'));
+            return _ErrorState();
           },
         ),
       ),
-      // BlocListener<ChatBloc, ChatState>(
-      //   listener: (context, state) {
-      //     if (state is ChatError) {
-      //       ScaffoldMessenger.of(
-      //         context,
-      //       ).showSnackBar(SnackBar(content: Text(state.message)));
-      //     }
-
-      //     if (state is UserRoomsStreamUpdated && !_hasInitializedPresence) {
-      //       _initializePresenceForAllRooms(state.rooms);
-      //     }
-      //   },
-      //   child: BlocBuilder<ChatBloc, ChatState>(
-      //     builder: (context, state) {
-      //       if (state is ChatLoading || state is ChatInitial) {
-      //         return const ChatListShimmerPage();
-      //       }
-
-      //       if (state is UserRoomsStreamUpdated) {
-      //         final filteredRooms = _getFilteredRooms(
-      //           state.rooms,
-      //           widget.currentUserId,
-      //         );
-
-      //         return BlocBuilder<NotificationCubit, NotificationCubitState>(
-      //           builder: (context, notificationState) {
-      //             Map<String, List<NotificationEntity>> roomNotifications = {};
-
-      //             if (notificationState is NotificationCubitLoaded) {
-      //               for (final n in notificationState.notifications) {
-      //                 if (n.type == NotificationType.chatMessage) {
-      //                   if (n.referenceId != null) {
-      //                     roomNotifications
-      //                         .putIfAbsent(n.referenceId!, () => [])
-      //                         .add(n);
-      //                   }
-      //                 }
-      //               }
-      //             }
-
-      //             return RefreshIndicator(
-      //               onRefresh: () async {
-      //                 context.read<ChatBloc>().add(
-      //                   const StreamUserRoomsRequested(),
-      //                 );
-      //               },
-      //               child: CustomScrollView(
-      //                 slivers: [
-      //                   SliverAppBar(
-      //                     expandedHeight: 120 + UiConstants.spacingMd,
-      //                     collapsedHeight: 120 + UiConstants.spacingMd,
-      //                     foregroundColor: Colors.black,
-      //                     backgroundColor: AppColors.primaryLight,
-      //                     floating: false,
-      //                     pinned: true,
-      //                     title: const Row(
-      //                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      //                       children: [
-      //                         Text(
-      //                           'Messages',
-      //                           style: TextStyle(
-      //                             color: Colors.black,
-      //                             fontSize: 20,
-      //                             fontWeight: FontWeight.bold,
-      //                           ),
-      //                         ),
-      //                         // if (unreadCount > 0)
-      //                         //   Container(
-      //                         //     padding: const EdgeInsets.symmetric(
-      //                         //       horizontal: 12,
-      //                         //       vertical: 6,
-      //                         //     ),
-      //                         //     decoration: BoxDecoration(
-      //                         //       color: AppColors.white,
-      //                         //       borderRadius: BorderRadius.circular(
-      //                         //         UiConstants.radiusRound,
-      //                         //       ),
-      //                         //     ),
-      //                         //     child: Text('$unreadCount'),
-      //                         //   ),
-      //                       ],
-      //                     ),
-      //                     flexibleSpace: FlexibleSpaceBar(
-      //                       background: Container(
-      //                         padding: const EdgeInsets.only(
-      //                           right: UiConstants.spacingMd,
-      //                           left: UiConstants.spacingMd,
-      //                           bottom: UiConstants.spacingMd,
-      //                         ),
-      //                         decoration: BoxDecoration(
-      //                           color: Theme.of(context).colorScheme.primary,
-      //                           borderRadius: const BorderRadius.only(
-      //                             bottomLeft: Radius.circular(
-      //                               UiConstants.radiusXl,
-      //                             ),
-      //                             bottomRight: Radius.circular(
-      //                               UiConstants.radiusXl,
-      //                             ),
-      //                           ),
-      //                         ),
-      //                         child: SafeArea(
-      //                           child: Column(
-      //                             children: [
-      //                               const SizedBox(height: kToolbarHeight),
-      //                               CustomTextField(
-      //                                 onChanged: (value) {
-      //                                   setState(() {
-      //                                     searchQuery = value;
-      //                                   });
-      //                                 },
-      //                                 hint: 'Search conversations...',
-      //                                 prefixIcon: const Icon(Icons.search),
-      //                               ),
-      //                             ],
-      //                           ),
-      //                         ),
-      //                       ),
-      //                     ),
-      //                   ),
-
-      //                   if (filteredRooms.isEmpty)
-      //                     const SliverFillRemaining(child: _EmptyRoomsView())
-      //                   else
-      //                     SliverList(
-      //                       delegate: SliverChildBuilderDelegate((
-      //                         context,
-      //                         index,
-      //                       ) {
-      //                         final room = filteredRooms[index];
-      //                         final isOnline = _isUserOnline(room);
-
-      //                         return Column(
-      //                           mainAxisSize: MainAxisSize.min,
-      //                           children: [
-      //                             _RoomTile(
-      //                               roomNotifications: roomNotifications,
-      //                               room: room,
-      //                               currentUserId: widget.currentUserId,
-      //                               isOnline: isOnline,
-      //                               presenceService: _presenceService,
-      //                             ),
-      //                             if (filteredRooms.length > 1 &&
-      //                                 index != filteredRooms.length - 1)
-      //                               const Divider(),
-      //                           ],
-      //                         );
-      //                       }, childCount: filteredRooms.length),
-      //                     ),
-      //                 ],
-      //               ),
-      //             );
-      //           },
-      //         );
-      //       }
-
-      //       return const Center(child: Text('Something went wrong'));
-      //     },
-      //   ),
-      // ),
     );
   }
 
@@ -466,15 +214,11 @@ class _RoomPageViewState extends State<RoomPageView> {
 class _RoomTile extends StatelessWidget {
   final Room room;
   final String currentUserId;
-  final bool isOnline;
-  final PresenceService presenceService;
   final Map<String, List<NotificationEntity>> roomNotifications;
 
   const _RoomTile({
     required this.room,
     required this.currentUserId,
-    required this.isOnline,
-    required this.presenceService,
     this.roomNotifications = const {},
   });
 
@@ -486,13 +230,6 @@ class _RoomTile extends StatelessWidget {
         .where((n) => n.isViewed || n.isUnread)
         .length;
     final hasUnread = unreadCount > 0;
-    final shouldShowOnlineIndicator = room.type == RoomType.dm;
-
-    // Get online count for organization rooms
-    final onlineCount = room.type == RoomType.organization
-        ? presenceService.getOnlineUsers(room.id).length
-        : 0;
-
     NotificationEntity? lastNotif;
 
     if (roomNotifs.isNotEmpty) {
@@ -554,22 +291,6 @@ class _RoomTile extends StatelessWidget {
                               ),
                       ),
                     ),
-
-                    // Online indicator for DM rooms
-                    if (shouldShowOnlineIndicator && isOnline)
-                      Positioned(
-                        right: 0,
-                        bottom: 0,
-                        child: Container(
-                          width: 14,
-                          height: 14,
-                          decoration: BoxDecoration(
-                            color: Colors.green,
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white, width: 2),
-                          ),
-                        ),
-                      ),
 
                     // Member count for organization rooms
                     if (room.organizationId != null &&
@@ -634,37 +355,18 @@ class _RoomTile extends StatelessWidget {
                         children: [
                           Expanded(
                             child: Text(
-                              _getSubtitleText(
-                                room,
-                                isOnline,
-                                onlineCount,
-                                lastMessageText,
-                              ),
+                              _getSubtitleText(room, lastMessageText),
                               maxLines: 1,
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: hasUnread
                                     ? FontWeight.w600
                                     : FontWeight.normal,
-                                color: (shouldShowOnlineIndicator && isOnline)
-                                    ? Colors.green
-                                    : Colors.black,
+
+                                color: Colors.black,
                               ),
                               overflow: TextOverflow.ellipsis,
                             ),
-                            // Text(
-                            //   lastMessageText,
-                            //   maxLines: 1,
-                            //   style: TextStyle(
-                            //     fontSize: 14,
-                            //     fontWeight: isLastMessageUnread
-                            //         ? FontWeight.bold
-                            //         : FontWeight.normal,
-                            //     color: isLastMessageUnread
-                            //         ? Colors.black
-                            //         : Colors.black,
-                            //   ),
-                            // ),
                           ),
                           if (hasUnread)
                             Container(
@@ -698,29 +400,7 @@ class _RoomTile extends StatelessWidget {
     );
   }
 
-  String _getSubtitleText(
-    Room room,
-    bool isOnline,
-    int onlineCount,
-    String lastMessageText,
-  ) {
-    // For DM rooms, show online status or last message
-    // if (room.type == RoomType.dm) {
-    //   if (isOnline) {
-    //     return 'Online';
-    //   }
-    //   return room.getLastMessagePreview(currentUserId);
-    // }
-
-    // // For organization rooms, show online count
-    // if (room.type == RoomType.organization) {
-    //   final totalMembers = room.members?.length ?? 0;
-    //   if (onlineCount > 0) {
-    //     return '$onlineCount online • $totalMembers members';
-    //   }
-    //   return room.getLastMessagePreview(currentUserId);
-    // }
-
+  String _getSubtitleText(Room room, String lastMessageText) {
     return room.getLastMessagePreview(currentUserId);
   }
 }
@@ -735,33 +415,94 @@ class _EmptyRoomsView extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            width: 80,
-            height: 80,
-            decoration: BoxDecoration(
-              color: Theme.of(context).primaryColor.withAlpha(25),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              Icons.chat_bubble_outline,
-              size: 40,
-              color: Theme.of(context).primaryColor.withAlpha(130),
-            ),
-          ),
+                width: 80,
+                height: 80,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).primaryColor.withAlpha(25),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.chat_bubble_outline,
+                  size: 40,
+                  color: Theme.of(context).primaryColor.withAlpha(130),
+                ),
+              )
+              .animate()
+              .scale(duration: 600.ms, curve: Curves.easeOutBack)
+              .fadeIn(duration: 600.ms),
           const SizedBox(height: 16),
           const Text(
-            'No conversations yet',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-              color: Colors.black87,
-            ),
-          ),
+                'No conversations yet',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
+                ),
+              )
+              .animate()
+              .fadeIn(delay: 200.ms, duration: 600.ms)
+              .moveY(begin: 20, end: 0),
           const SizedBox(height: 8),
           Text(
-            'Start chatting with your organization members',
-            style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-            textAlign: TextAlign.center,
-          ),
+                'Start chatting with your organization members',
+                style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                textAlign: TextAlign.center,
+              )
+              .animate()
+              .fadeIn(delay: 400.ms, duration: 600.ms)
+              .moveY(begin: 20, end: 0),
+        ],
+      ),
+    );
+  }
+}
+
+class _ErrorState extends StatelessWidget {
+  const _ErrorState();
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+                width: 80,
+                height: 80,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.error.withAlpha(25),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.error_outline,
+                  size: 40,
+                  color: Theme.of(context).colorScheme.error.withAlpha(130),
+                ),
+              )
+              .animate()
+              .scale(duration: 600.ms, curve: Curves.easeOutBack)
+              .fadeIn(duration: 600.ms),
+          const SizedBox(height: 16),
+          const Text(
+                'Error',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
+                ),
+              )
+              .animate()
+              .fadeIn(delay: 200.ms, duration: 600.ms)
+              .moveY(begin: 20, end: 0),
+          const SizedBox(height: 8),
+          Text(
+                'Something wen\'t wrong please try again , or restart the app!',
+                style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                textAlign: TextAlign.center,
+              )
+              .animate()
+              .fadeIn(delay: 400.ms, duration: 600.ms)
+              .moveY(begin: 20, end: 0),
         ],
       ),
     );

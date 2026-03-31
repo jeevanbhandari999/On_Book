@@ -15,7 +15,6 @@ import 'package:app/features/chat/domain/usecases/stream_messages_use_case.dart'
 import 'package:app/features/chat/domain/usecases/stream_user_rooms_use_case.dart';
 import 'package:app/features/chat/presentation/bloc/chat_bloc.dart';
 import 'package:app/features/chat/presentation/widgets/chat_detail_shimmer_page.dart';
-import 'package:app/features/chat/service/presence_service.dart';
 import 'package:app/features/notifications/domain/entities/notification_entity.dart';
 import 'package:app/features/notifications/domain/usecases/mark_as_read_multiple_notifications_use_case.dart';
 import 'package:app/features/notifications/presentation/bloc/notification_cubit.dart';
@@ -62,41 +61,14 @@ class ChatView extends StatefulWidget {
 class _ChatViewState extends State<ChatView> {
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-  final PresenceService _presenceService = PresenceService(); // Add this
 
   bool _isTyping = false;
   bool _hasLoadedOnce = false;
 
-  // Add these for presence tracking
-  Set<String> _onlineUsers = {};
-  StreamSubscription<Set<String>>? _onlineUsersSubscription;
-
   @override
   void initState() {
     super.initState();
-    _initializePresence();
     _markChatNotificationsAsRead();
-  }
-
-  // Add this method
-  Future<void> _initializePresence() async {
-    try {
-      // Join the room presence
-      await _presenceService.joinRoom(widget.room.id, widget.currentUserId);
-
-      // Listen to online users changes
-      _onlineUsersSubscription = _presenceService
-          .onlineUsersStream(widget.room.id)
-          .listen((onlineUsers) {
-            if (mounted) {
-              setState(() {
-                _onlineUsers = onlineUsers;
-              });
-            }
-          });
-    } catch (e) {
-      debugPrint('Error initializing presence: $e');
-    }
   }
 
   Future<void> _markChatNotificationsAsRead() async {
@@ -115,15 +87,13 @@ class _ChatViewState extends State<ChatView> {
             .map((n) => n.id)
             .toList();
 
-        print('The notifications ids are : $roomNotifIds');
+        // print('The notifications ids are : $roomNotifIds');
 
         if (roomNotifIds.isEmpty) return;
 
         final useCase =
             DependencyInjection.get<MarkAsReadMultipleNotificationsUseCase>();
         await useCase(roomNotifIds);
-
-        // Refresh notifications in cubit so the badge clears in RoomPage
       }
     } catch (e) {
       debugPrint('Failed to mark notifications as read: $e');
@@ -146,19 +116,10 @@ class _ChatViewState extends State<ChatView> {
     return null;
   }
 
-  // Add this method to check if other user is online
-  bool _isOtherUserOnline() {
-    final otherUserId = _getOtherUserId();
-    if (otherUserId == null) return false;
-    return _presenceService.isUserOnline(widget.room.id, otherUserId);
-  }
-
   @override
   void dispose() {
     _messageController.dispose();
     _scrollController.dispose();
-    _onlineUsersSubscription?.cancel(); // Add this
-    _presenceService.leaveRoom(widget.room.id); // Add this
     super.dispose();
   }
 
@@ -220,7 +181,7 @@ class _ChatViewState extends State<ChatView> {
 
           if (state is MessagesStreamUpdated) {
             final messages = state.messages;
-            final isOtherUserOnline = _isOtherUserOnline(); // Add this
+            // final isOtherUserOnline = _isOtherUserOnline(); // Add this
 
             return Column(
               children: [
@@ -252,7 +213,7 @@ class _ChatViewState extends State<ChatView> {
                             children: [
                               _buildAppBarAvatar(
                                 widget.room,
-                                isOtherUserOnline, // Pass online status
+                                // isOtherUserOnline, // Pass online status
                               ),
                               const SizedBox(width: UiConstants.spacingSm),
                               Expanded(
@@ -271,23 +232,11 @@ class _ChatViewState extends State<ChatView> {
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                     ),
-                                    // Show online status or participant count
-                                    if (widget.room.type == RoomType.dm)
-                                      Text(
-                                        isOtherUserOnline
-                                            ? 'Online'
-                                            : 'Offline',
-                                        style: TextStyle(
-                                          color: isOtherUserOnline
-                                              ? Colors.greenAccent
-                                              : Colors.black,
-                                          fontSize: 12,
-                                        ),
-                                      )
-                                    else if (widget.room.organizationId != null)
+
+                                    if (widget.room.organizationId != null)
                                       AutoMarqueeText(
                                         text:
-                                            '${_onlineUsers.length} online • ${widget.room.members?.length ?? 0} participants',
+                                            '${widget.room.members?.length ?? 0} Participants',
                                         style: const TextStyle(
                                           color: AppColors.black,
                                           fontSize: 12,
@@ -429,10 +378,7 @@ class _ChatViewState extends State<ChatView> {
     );
   }
 
-  Widget _buildAppBarAvatar(Room room, bool isOnline) {
-    // Only show online indicator for DM rooms
-    final shouldShowOnlineIndicator = room.type == RoomType.dm;
-
+  Widget _buildAppBarAvatar(Room room) {
     return Stack(
       children: [
         CircleAvatar(
@@ -466,24 +412,6 @@ class _ChatViewState extends State<ChatView> {
                   ),
           ),
         ),
-        // Online indicator - only show for DM rooms when user is online
-        if (shouldShowOnlineIndicator && isOnline)
-          Positioned(
-            right: 0,
-            bottom: 0,
-            child: Container(
-              width: 12,
-              height: 12,
-              decoration: BoxDecoration(
-                color: Colors.green,
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: Theme.of(context).primaryColor,
-                  width: 2,
-                ),
-              ),
-            ),
-          ),
       ],
     );
   }

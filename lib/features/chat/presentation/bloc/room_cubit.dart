@@ -12,13 +12,16 @@ abstract class RoomState extends Equatable {
 }
 
 class RoomInitial extends RoomState {}
+
 class RoomLoading extends RoomState {}
+
 class RoomStreamUpdated extends RoomState {
   final List<Room> rooms;
   const RoomStreamUpdated(this.rooms);
   @override
   List<Object?> get props => [rooms];
 }
+
 class RoomError extends RoomState {
   final String message;
   const RoomError(this.message);
@@ -35,16 +38,13 @@ class RoomCubit extends Cubit<RoomState> {
   }
 
   void _startStreaming() {
-    emit(RoomLoading());
-    _sub = streamUserRoomsUseCase().listen(
-      (either) {
-        either.fold(
-          (failure) => emit(RoomError(failure.message)),
-          (rooms) => emit(RoomStreamUpdated(rooms)),
-        );
-      },
-      onError: (e) => emit(RoomError(e.toString())),
-    );
+    // emit(RoomLoading());
+    _sub = streamUserRoomsUseCase().listen((either) {
+      either.fold(
+        (failure) => emit(RoomError(failure.message)),
+        (rooms) => emit(RoomStreamUpdated(rooms)),
+      );
+    }, onError: (e) => emit(RoomError(e.toString())));
   }
 
   void refresh() {

@@ -28,11 +28,11 @@ class HomeSliverHeader extends StatelessWidget {
     final roleMessages = {
       'admin': ['Ready to run the show?', 'All systems are yours.'],
       'owner': ['Your listings are waiting.', 'Time to grow your business.'],
-      'user': ['Let’s find something great.', 'What’s new today?'],
+      'user': ['Let\'s find something great.', 'What\'s new today?'],
     };
 
     final generic = [
-      'Let’s make today count.',
+      'Let\'s make today count.',
       'Something good awaits you.',
       'Glad to see you here.',
     ];
@@ -41,7 +41,7 @@ class HomeSliverHeader extends StatelessWidget {
 
     return GreetingData(
       headline: headline,
-      nameLine: '$firstName 👋',
+      nameLine: firstName,
       subtitle: extras[Random().nextInt(extras.length)],
     );
   }
@@ -136,21 +136,24 @@ class HomeSliverHeader extends StatelessWidget {
                                         milliseconds: 300,
                                       ),
                                       child:
-                                          Text(
-                                                greetingData.nameLine,
-                                                key: ValueKey(
-                                                  greetingData.nameLine,
-                                                ),
-                                                style: const TextStyle(
-                                                  // fontSize:
-                                                  //     MediaQuery.of(
-                                                  //       context,
-                                                  //     ).size.width *
-                                                  //     0.065,
-                                                  fontSize: 23,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Colors.black,
-                                                ),
+                                          Row(
+                                                children: [
+                                                  Text(
+                                                    greetingData.nameLine,
+                                                    style: const TextStyle(
+                                                      fontSize: 23,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color: Colors.black,
+                                                    ),
+                                                  ),
+                                                  const SizedBox(width: 6),
+                                                  const Icon(
+                                                    Icons.waving_hand,
+                                                    size: 22,
+                                                    color: Colors.black,
+                                                  ),
+                                                ],
                                               )
                                               .animate()
                                               .slideX(
@@ -170,9 +173,6 @@ class HomeSliverHeader extends StatelessWidget {
                                     Text(
                                           greetingData.subtitle,
                                           style: const TextStyle(
-                                            // fontSize:
-                                            //     MediaQuery.of(context).size.width *
-                                            //     0.05,
                                             fontSize: 16,
                                             color: Colors.black,
                                           ),
@@ -191,38 +191,6 @@ class HomeSliverHeader extends StatelessWidget {
                                   ],
                                 ),
                                 const SizedBox(width: UiConstants.spacingSm),
-                                // Container(
-                                //       padding: const EdgeInsets.symmetric(
-                                //         horizontal: UiConstants.spacingMd,
-                                //         vertical: UiConstants.spacingSm,
-                                //       ),
-                                //       decoration: BoxDecoration(
-                                //         borderRadius: BorderRadius.circular(
-                                //           UiConstants.radiusMd,
-                                //         ),
-                                //         color: Theme.of(
-                                //           context,
-                                //         ).colorScheme.secondary.withAlpha(150),
-                                //       ),
-
-                                //       child: Text(
-                                //         user.role.name.toUpperCase(),
-                                //         style: const TextStyle(
-                                //           fontSize: 14,
-                                //           letterSpacing: 1.1,
-                                //           fontWeight: FontWeight.bold,
-                                //         ),
-                                //       ),
-                                //     )
-                                //     .animate(delay: UiConstants.animationFast)
-                                //     .scale(
-                                //       begin: const Offset(0.8, 0.8),
-                                //       duration: UiConstants.animationNormal,
-                                //       curve: Curves.easeOutBack,
-                                //     )
-                                //     .fadeIn(
-                                //       duration: UiConstants.animationNormal,
-                                //     ),
                               ],
                             ),
                           ],
