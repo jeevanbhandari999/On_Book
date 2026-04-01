@@ -15,7 +15,6 @@ class AppTypographySystem {
 
   // Typography Scale
   static const TextStyle displayLarge = TextStyle(
-    fontFamily: displayFontFamily,
     fontSize: 32,
     fontWeight: FontWeight.bold,
     letterSpacing: -0.25,
@@ -23,7 +22,6 @@ class AppTypographySystem {
   );
 
   static const TextStyle displayMedium = TextStyle(
-    fontFamily: displayFontFamily,
     fontSize: 24,
     fontWeight: FontWeight.bold,
     letterSpacing: 0,
@@ -31,7 +29,6 @@ class AppTypographySystem {
   );
 
   static const TextStyle displaySmall = TextStyle(
-    fontFamily: displayFontFamily,
     fontSize: 20,
     fontWeight: FontWeight.bold,
     letterSpacing: 0.15,

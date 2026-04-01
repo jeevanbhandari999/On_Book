@@ -172,7 +172,7 @@ class CustomTextField extends StatelessWidget {
 // }
 
 class CustomButton extends StatelessWidget {
-  final String text;
+  final String? text;
   final VoidCallback? onPressed;
   final bool isLoading;
   final ButtonStyle? style;
@@ -182,14 +182,17 @@ class CustomButton extends StatelessWidget {
 
   const CustomButton({
     super.key,
-    required this.text,
+    this.text,
     this.onPressed,
     this.isLoading = false,
     this.style,
     this.icon,
     this.isOutlined = false,
     this.textColor,
-  });
+  }) : assert(
+         text != null || icon != null,
+         'Either text or icon must be provided',
+       );
 
   @override
   Widget build(BuildContext context) {
@@ -212,6 +215,34 @@ class CustomButton extends StatelessWidget {
     return button.animate().scale(duration: 200.ms, curve: Curves.easeOut);
   }
 
+  // Widget _buildButtonChild() {
+  //   if (isLoading) {
+  //     return const SizedBox(
+  //       width: 20,
+  //       height: 20,
+  //       child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black),
+  //     );
+  //   }
+
+  //   if (icon != null) {
+  //     return Row(
+  //       mainAxisSize: MainAxisSize.min,
+  //       children: [
+  //         icon!,
+  //         const SizedBox(width: UiConstants.spacingSm),
+  //         Flexible(
+  //           child: Text(
+  //             text,
+  //             style: TextStyle(color: textColor ?? Colors.black),
+  //             overflow: TextOverflow.ellipsis,
+  //           ),
+  //         ),
+  //       ],
+  //     );
+  //   }
+
+  //   return Text(text, overflow: TextOverflow.ellipsis);
+  // }
   Widget _buildButtonChild() {
     if (isLoading) {
       return const SizedBox(
@@ -221,7 +252,7 @@ class CustomButton extends StatelessWidget {
       );
     }
 
-    if (icon != null) {
+    if (icon != null && text != null) {
       return Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -229,7 +260,7 @@ class CustomButton extends StatelessWidget {
           const SizedBox(width: UiConstants.spacingSm),
           Flexible(
             child: Text(
-              text,
+              text!,
               style: TextStyle(color: textColor ?? Colors.black),
               overflow: TextOverflow.ellipsis,
             ),
@@ -238,7 +269,16 @@ class CustomButton extends StatelessWidget {
       );
     }
 
-    return Text(text, overflow: TextOverflow.ellipsis);
+    if (icon != null) return icon!;
+    if (text != null) {
+      return Text(
+        text!,
+        overflow: TextOverflow.ellipsis,
+        style: TextStyle(color: textColor ?? Colors.black),
+      );
+    }
+
+    return const SizedBox.shrink();
   }
 }
 
@@ -346,7 +386,7 @@ class CustomBottomSheet extends StatelessWidget {
             const Divider(),
           ],
           Flexible(child: child),
-          SizedBox(height: context.bottomPadding + UiConstants.spacingMd),
+          // SizedBox(height: context.bottomPadding + UiConstants.spacingMd),
         ],
       ),
     );

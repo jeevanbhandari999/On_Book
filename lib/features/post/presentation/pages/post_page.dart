@@ -52,8 +52,7 @@ class PostView extends StatelessWidget {
           // print(state);
           if (state is UserRoleAndOrganizationDetailStatusChecking) {
             return const PostDetailShimmerEffectPage();
-          } 
-          else if (state is OrganizationOwnerLoggedIn) {
+          } else if (state is OrganizationOwnerLoggedIn) {
             final user = state.user;
             final organization = state.organization;
             return OwnerPage(user: user, organization: organization);

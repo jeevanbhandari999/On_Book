@@ -166,6 +166,7 @@ class BookingPostSummary extends StatelessWidget {
                       ),
                       const SizedBox(height: UiConstants.spacingSm),
                       _buildTagsSection(context, postTag: post.tags),
+                      const SizedBox(height: UiConstants.spacingSm),
                       // Key features (minimal)
                       Wrap(
                         spacing: 12,
@@ -210,20 +211,36 @@ Widget _buildAmeniticsSection(
   required List<AmenityType>? amenityType,
 }) {
   if (amenityType == null) return const SizedBox.shrink();
-  return Padding(
-    padding: const EdgeInsets.all(UiConstants.spacingSm),
-    child: Column(
-      children: [
-        CustomMultiSelect<AmenityType>(
-          label: 'Amenities',
-          items: AmenityType.values,
-          selected: amenityType,
-          itemLabel: (a) => _amenityLabel(a),
-          readOnly: true,
-          onChanged: null,
-        ),
-      ],
-    ),
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      CustomMultiSelect<AmenityType>(
+        label: 'Amenities',
+        items: AmenityType.values,
+        selected: amenityType,
+        itemLabel: (a) => _amenityLabel(a),
+        itemBuilder: (item, selected) {
+          return Row(
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              Icon(item.icon, size: 16),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  textAlign: TextAlign.center,
+                  item.label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          );
+        },
+        readOnly: true,
+        onChanged: null,
+        fontSize: 18,
+      ),
+    ],
   );
 }
 
@@ -232,20 +249,35 @@ Widget _buildTagsSection(
   required List<PostTag>? postTag,
 }) {
   if (postTag == null) return const SizedBox.shrink();
-  return Padding(
-    padding: const EdgeInsets.all(UiConstants.spacingSm),
-    child: Column(
-      children: [
-        CustomMultiSelect<PostTag>(
-          label: 'Tags',
-          items: PostTag.values,
-          selected: postTag,
-          itemLabel: (p) => _tagLabel(p),
-          readOnly: true,
-          onChanged: null,
-        ),
-      ],
-    ),
+  return Column(
+    children: [
+      CustomMultiSelect<PostTag>(
+        label: 'Tags',
+        items: PostTag.values,
+        selected: postTag,
+        itemLabel: (p) => _tagLabel(p),
+        itemBuilder: (item, selected) {
+          return Row(
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              Icon(item.icon, size: 16),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  textAlign: TextAlign.center,
+                  item.label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          );
+        },
+        readOnly: true,
+        onChanged: null,
+        fontSize: 18,
+      ),
+    ],
   );
 }
 
