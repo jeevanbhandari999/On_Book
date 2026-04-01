@@ -15,6 +15,7 @@ import 'package:app/features/chat/domain/usecases/stream_messages_use_case.dart'
 import 'package:app/features/chat/domain/usecases/stream_user_rooms_use_case.dart';
 import 'package:app/features/chat/presentation/bloc/chat_bloc.dart';
 import 'package:app/features/chat/presentation/widgets/chat_detail_shimmer_page.dart';
+import 'package:app/features/chat/service/presence_service.dart';
 import 'package:app/features/notifications/domain/entities/notification_entity.dart';
 import 'package:app/features/notifications/domain/usecases/mark_as_read_multiple_notifications_use_case.dart';
 import 'package:app/features/notifications/presentation/bloc/notification_cubit.dart';
@@ -23,7 +24,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shimmer/shimmer.dart';
-import 'dart:async'; // Add this import
 
 class ChatPage extends StatelessWidget {
   final Room room;
@@ -61,6 +61,7 @@ class ChatView extends StatefulWidget {
 class _ChatViewState extends State<ChatView> {
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+  final PresenceService _presenceService = PresenceService();
 
   bool _isTyping = false;
   bool _hasLoadedOnce = false;
@@ -68,6 +69,7 @@ class _ChatViewState extends State<ChatView> {
   @override
   void initState() {
     super.initState();
+    _presenceService.joinRoom(widget.room.id, widget.currentUserId);
     _markChatNotificationsAsRead();
   }
 
@@ -76,7 +78,6 @@ class _ChatViewState extends State<ChatView> {
       final notificationCubit = context.read<NotificationCubit>();
       final state = notificationCubit.state;
       if (state is NotificationCubitLoaded) {
-        // Filter only unread notifications for this specific room
         final roomNotifIds = state.notifications
             .where(
               (n) =>
@@ -86,8 +87,6 @@ class _ChatViewState extends State<ChatView> {
             )
             .map((n) => n.id)
             .toList();
-
-        // print('The notifications ids are : $roomNotifIds');
 
         if (roomNotifIds.isEmpty) return;
 
@@ -100,14 +99,13 @@ class _ChatViewState extends State<ChatView> {
     }
   }
 
-  // Add this method to get other user ID for DM rooms
+  // Used by the View Profile menu item
   String? _getOtherUserId() {
     if (widget.room.type != RoomType.dm) return null;
 
     final members = widget.room.members;
     if (members == null || members.isEmpty) return null;
 
-    // Find the user that's not the current user
     for (final member in members) {
       if (member.userId != widget.currentUserId) {
         return member.userId;
@@ -120,6 +118,7 @@ class _ChatViewState extends State<ChatView> {
   void dispose() {
     _messageController.dispose();
     _scrollController.dispose();
+    _presenceService.leaveRoom(widget.room.id);
     super.dispose();
   }
 
@@ -142,7 +141,6 @@ class _ChatViewState extends State<ChatView> {
       _isTyping = false;
     });
 
-    // Auto scroll to bottom
     Future.delayed(const Duration(milliseconds: 100), () {
       if (_scrollController.hasClients) {
         _scrollController.animateTo(
@@ -181,7 +179,6 @@ class _ChatViewState extends State<ChatView> {
 
           if (state is MessagesStreamUpdated) {
             final messages = state.messages;
-            // final isOtherUserOnline = _isOtherUserOnline(); // Add this
 
             return Column(
               children: [
@@ -195,7 +192,6 @@ class _ChatViewState extends State<ChatView> {
                     child: CustomScrollView(
                       controller: _scrollController,
                       slivers: [
-                        // Custom App Bar
                         SliverAppBar(
                           pinned: true,
                           floating: true,
@@ -211,10 +207,7 @@ class _ChatViewState extends State<ChatView> {
                             mainAxisAlignment: MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              _buildAppBarAvatar(
-                                widget.room,
-                                // isOtherUserOnline, // Pass online status
-                              ),
+                              _buildAppBarAvatar(widget.room),
                               const SizedBox(width: UiConstants.spacingSm),
                               Expanded(
                                 child: Column(
@@ -232,7 +225,6 @@ class _ChatViewState extends State<ChatView> {
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                     ),
-
                                     if (widget.room.organizationId != null)
                                       AutoMarqueeText(
                                         text:
@@ -324,7 +316,6 @@ class _ChatViewState extends State<ChatView> {
                           ),
                         ),
 
-                        // Messages Area
                         SliverFillRemaining(
                           hasScrollBody: true,
                           child: messages.isEmpty
@@ -379,40 +370,34 @@ class _ChatViewState extends State<ChatView> {
   }
 
   Widget _buildAppBarAvatar(Room room) {
-    return Stack(
-      children: [
-        CircleAvatar(
-          backgroundColor: Theme.of(
-            context,
-          ).colorScheme.secondary.withAlpha(150),
-          radius: 24,
-          child: ClipOval(
-            child:
-                room.getDisplayImage(widget.currentUserId) != null &&
-                    room.getDisplayImage(widget.currentUserId)!.isNotEmpty
-                ? CachedNetworkImage(
-                    imageUrl: room.getDisplayImage(widget.currentUserId)!,
-                    fit: BoxFit.cover,
-                    width: double.infinity,
-                    height: double.infinity,
-                    placeholder: (context, url) => Shimmer.fromColors(
-                      baseColor: Colors.grey.shade300,
-                      highlightColor: Colors.grey.shade100,
-                      child: Container(color: Colors.white),
-                    ),
-                    errorWidget: (context, error, stackTrace) =>
-                        const Icon(Icons.person),
-                  )
-                : Text(
-                    room.getDisplayName(widget.currentUserId)[0].toUpperCase(),
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-          ),
-        ),
-      ],
+    return CircleAvatar(
+      backgroundColor: Theme.of(context).colorScheme.secondary.withAlpha(150),
+      radius: 24,
+      child: ClipOval(
+        child:
+            room.getDisplayImage(widget.currentUserId) != null &&
+                room.getDisplayImage(widget.currentUserId)!.isNotEmpty
+            ? CachedNetworkImage(
+                imageUrl: room.getDisplayImage(widget.currentUserId)!,
+                fit: BoxFit.cover,
+                width: double.infinity,
+                height: double.infinity,
+                placeholder: (context, url) => Shimmer.fromColors(
+                  baseColor: Colors.grey.shade300,
+                  highlightColor: Colors.grey.shade100,
+                  child: Container(color: Colors.white),
+                ),
+                errorWidget: (context, error, stackTrace) =>
+                    const Icon(Icons.person),
+              )
+            : Text(
+                room.getDisplayName(widget.currentUserId)[0].toUpperCase(),
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+      ),
     );
   }
 

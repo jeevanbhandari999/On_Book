@@ -16,7 +16,6 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shimmer/shimmer.dart';
-import 'dart:async';
 
 class RoomPage extends StatelessWidget {
   final String currentUserId;
@@ -45,14 +44,6 @@ class RoomPageView extends StatefulWidget {
 
 class _RoomPageViewState extends State<RoomPageView> {
   String searchQuery = '';
-  bool _hasInitializedPresence = false;
-
-  Future<void> _initializePresenceForAllRooms(List<Room> rooms) async {
-    if (_hasInitializedPresence) return;
-
-    debugPrint('Initializing presence for ${rooms.length} rooms');
-    _hasInitializedPresence = true;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,9 +54,6 @@ class _RoomPageViewState extends State<RoomPageView> {
             ScaffoldMessenger.of(
               context,
             ).showSnackBar(SnackBar(content: Text(state.message)));
-          }
-          if (state is RoomStreamUpdated && !_hasInitializedPresence) {
-            _initializePresenceForAllRooms(state.rooms);
           }
         },
         child: BlocBuilder<RoomCubit, RoomState>(
@@ -98,18 +86,17 @@ class _RoomPageViewState extends State<RoomPageView> {
 
                   return RefreshIndicator(
                     onRefresh: () async {
-                      context.read<RoomCubit>().refresh(); // was ChatBloc event
+                      context.read<RoomCubit>().refresh();
                     },
                     child: CustomScrollView(
                       slivers: [
                         SliverAppBar(
-                          expandedHeight: 120 + UiConstants.spacingXs,
-                          collapsedHeight: 120 + UiConstants.spacingXs,
+                          expandedHeight: 120 + UiConstants.spacingSm,
+                          collapsedHeight: 120 + UiConstants.spacingSm,
                           foregroundColor: Colors.black,
                           backgroundColor: AppColors.primaryLight,
                           floating: false,
                           pinned: true,
-                          titleSpacing: 0,
                           title: const Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -128,6 +115,7 @@ class _RoomPageViewState extends State<RoomPageView> {
                               padding: const EdgeInsets.only(
                                 right: UiConstants.spacingMd,
                                 left: UiConstants.spacingMd,
+                                bottom: UiConstants.spacingMd,
                               ),
                               decoration: BoxDecoration(
                                 color: Theme.of(context).colorScheme.primary,
@@ -192,7 +180,7 @@ class _RoomPageViewState extends State<RoomPageView> {
               );
             }
 
-            return _ErrorState();
+            return const _ErrorState();
           },
         ),
       ),
@@ -230,6 +218,7 @@ class _RoomTile extends StatelessWidget {
         .where((n) => n.isViewed || n.isUnread)
         .length;
     final hasUnread = unreadCount > 0;
+
     NotificationEntity? lastNotif;
 
     if (roomNotifs.isNotEmpty) {
@@ -355,14 +344,13 @@ class _RoomTile extends StatelessWidget {
                         children: [
                           Expanded(
                             child: Text(
-                              _getSubtitleText(room, lastMessageText),
+                              _getSubtitleText(lastMessageText),
                               maxLines: 1,
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: hasUnread
                                     ? FontWeight.w600
                                     : FontWeight.normal,
-
                                 color: Colors.black,
                               ),
                               overflow: TextOverflow.ellipsis,
@@ -400,7 +388,7 @@ class _RoomTile extends StatelessWidget {
     );
   }
 
-  String _getSubtitleText(Room room, String lastMessageText) {
+  String _getSubtitleText(String lastMessageText) {
     return room.getLastMessagePreview(currentUserId);
   }
 }
@@ -470,7 +458,7 @@ class _ErrorState extends StatelessWidget {
                 width: 80,
                 height: 80,
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.error.withAlpha(25),
+                  color: Theme.of(context).primaryColor.withAlpha(25),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
@@ -496,7 +484,7 @@ class _ErrorState extends StatelessWidget {
               .moveY(begin: 20, end: 0),
           const SizedBox(height: 8),
           Text(
-                'Something wen\'t wrong please try again , or restart the app!',
+                'Something went wrong, please try again or restart the app.',
                 style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                 textAlign: TextAlign.center,
               )
