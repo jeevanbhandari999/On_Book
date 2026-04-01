@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:app/core/constants/ui_constants.dart';
-import 'package:app/core/utils/extensions/extensions.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 class CustomTextField extends StatelessWidget {
@@ -71,106 +70,6 @@ class CustomTextField extends StatelessWidget {
   }
 }
 
-// class CustomTextField extends StatelessWidget {
-//   final String? label;
-//   final String? hint;
-//   final TextEditingController? controller;
-//   final String? Function(String?)? validator;
-//   final void Function(String)? onChanged;
-//   final void Function(String)? onSubmitted;
-//   final VoidCallback? onTap;
-//   final TextInputType? keyboardType;
-//   final bool obscureText;
-//   final Widget? prefixIcon;
-//   final Widget? suffixIcon;
-//   final int? maxLines;
-//   final bool enabled;
-//   final bool readOnly;
-//   final String? errorText;
-//   final Color? iconColor;
-//   final Color? fillColor;
-//   final FocusNode? focusNode;
-//   final String? initialValue;
-//   final TextStyle? style;
-//   const CustomTextField({
-//     super.key,
-//     this.label,
-//     this.hint,
-//     this.controller,
-//     this.validator,
-//     this.onChanged,
-//     this.onSubmitted,
-//     this.onTap,
-//     this.keyboardType,
-//     this.obscureText = false,
-//     this.prefixIcon,
-//     this.suffixIcon,
-//     this.maxLines = 1,
-//     this.enabled = true,
-//     this.readOnly = false,
-//     this.errorText,
-//     this.iconColor,
-//     this.fillColor,
-//     this.focusNode,
-//     this.initialValue,
-//     this.style,
-//   });
-
-//   @override
-//   Widget build(BuildContext context) {
-//     // final bool showFixedLabel = maxLines != null && maxLines! > 1;
-//     return Column(
-//       crossAxisAlignment: CrossAxisAlignment.start,
-//       children: [
-//         if (label != null) ...[
-//           Text(label!),
-//           const SizedBox(height: UiConstants.spacingSm),
-//         ],
-//         TextFormField(
-//           initialValue: initialValue,
-//           controller: controller,
-//           validator: validator,
-//           onChanged: onChanged,
-//           onFieldSubmitted: onSubmitted,
-//           keyboardType: keyboardType,
-//           obscureText: obscureText,
-//           maxLines: maxLines,
-//           enabled: enabled,
-//           readOnly: readOnly,
-//           onTap: onTap,
-//           style: style ?? TextStyle(),
-//           decoration: InputDecoration(
-//             labelStyle: TextStyle(),
-//             hintStyle: TextStyle(),
-//             labelText: label ?? hint,
-//             // floatingLabelBehavior: FloatingLabelBehavior.always,
-//             prefixIcon: prefixIcon != null
-//                 ? IconTheme(
-//                     data: IconThemeData(color: iconColor),
-//                     child: prefixIcon!,
-//                   )
-//                 : null,
-//             suffixIcon: suffixIcon != null
-//                 ? IconTheme(
-//                     data: IconThemeData(color: iconColor),
-//                     child: suffixIcon!,
-//                   )
-//                 : null,
-//             hintText: hint,
-//             filled: fillColor != null,
-//             fillColor: fillColor,
-//             errorText: errorText,
-//             border: OutlineInputBorder(
-//               borderRadius: BorderRadius.circular(UiConstants.radiusXl),
-//             ),
-//           ),
-//           focusNode: focusNode,
-//         ),
-//       ],
-//     );
-//   }
-// }
-
 class CustomButton extends StatelessWidget {
   final String? text;
   final VoidCallback? onPressed;
@@ -215,34 +114,6 @@ class CustomButton extends StatelessWidget {
     return button.animate().scale(duration: 200.ms, curve: Curves.easeOut);
   }
 
-  // Widget _buildButtonChild() {
-  //   if (isLoading) {
-  //     return const SizedBox(
-  //       width: 20,
-  //       height: 20,
-  //       child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black),
-  //     );
-  //   }
-
-  //   if (icon != null) {
-  //     return Row(
-  //       mainAxisSize: MainAxisSize.min,
-  //       children: [
-  //         icon!,
-  //         const SizedBox(width: UiConstants.spacingSm),
-  //         Flexible(
-  //           child: Text(
-  //             text,
-  //             style: TextStyle(color: textColor ?? Colors.black),
-  //             overflow: TextOverflow.ellipsis,
-  //           ),
-  //         ),
-  //       ],
-  //     );
-  //   }
-
-  //   return Text(text, overflow: TextOverflow.ellipsis);
-  // }
   Widget _buildButtonChild() {
     if (isLoading) {
       return const SizedBox(
@@ -415,32 +286,6 @@ class CustomBottomSheet extends StatelessWidget {
   }
 }
 
-/// A reusable container for app sections with consistent styling.
-///
-/// Applies surface background, rounded corners, subtle shadow,
-/// and sensible default padding and margin.
-///
-/// Usage examples:
-/// ```dart
-/// // Basic usage
-/// SectionContainer(
-///   child: Text('Content'),
-/// )
-///
-/// // With tap functionality
-/// SectionContainer(
-///   onTap: () => print('Tapped'),
-///   child: Text('Tappable content'),
-/// )
-///
-/// // Custom styling
-/// SectionContainer(
-///   padding: EdgeInsets.all(16),
-///   margin: EdgeInsets.symmetric(horizontal: 8),
-///   backgroundColor: Colors.blue,
-///   child: Text('Custom styled content'),
-/// )
-/// ```
 class SectionContainer extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry? padding;
