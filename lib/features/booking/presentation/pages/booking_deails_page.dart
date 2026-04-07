@@ -366,8 +366,26 @@ Widget _buildAmeniticsSection(
             items: AmenityType.values,
             selected: amenityType,
             itemLabel: (a) => _amenityLabel(a),
+            itemBuilder: (item, selected) {
+              return Row(
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  Icon(item.icon, size: 16),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                      textAlign: TextAlign.center,
+                      item.label,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              );
+            },
             readOnly: true,
             onChanged: null,
+            fontSize: 18,
           ),
         ],
       ),
@@ -392,8 +410,26 @@ Widget _buildTagsSection(
             items: PostTag.values,
             selected: postTag,
             itemLabel: (p) => _tagLabel(p),
+            itemBuilder: (item, selected) {
+              return Row(
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  Icon(item.icon, size: 16),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                      textAlign: TextAlign.center,
+                      item.label,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              );
+            },
             readOnly: true,
             onChanged: null,
+            fontSize: 18,
           ),
         ],
       ),

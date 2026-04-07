@@ -2892,7 +2892,7 @@ void _showDeleteConfirmDialog(
       return AlertDialog(
         title: const Text('Delete post Confirm'),
         content: Text(
-          'Are you aure want to delete this post ($title), This action can\'t be undone once you delete , you will lose all related data about this post',
+          'Are you sure want to delete this post ($title), This action can\'t be undone once you delete , you will lose all related data about this post',
         ),
         actions: [
           CustomButton(

@@ -254,10 +254,9 @@ class PostView extends StatelessWidget {
                                               post.title,
                                               maxLines: 2,
                                               overflow: TextOverflow.ellipsis,
-                                              style: const TextStyle(
-                                                fontSize: 13,
-                                                fontWeight: FontWeight.w600,
-                                              ),
+                                              style: Theme.of(
+                                                context,
+                                              ).textTheme.bodyMedium,
                                             ),
 
                                             BlocBuilder<
@@ -314,7 +313,6 @@ class PostView extends StatelessWidget {
                                                     ],
                                                   );
                                                 }
-
                                                 // Error or initial — show nothing, don't break layout
                                                 return const SizedBox.shrink();
                                               },
@@ -369,8 +367,6 @@ class PostView extends StatelessWidget {
                                       ),
                                     ],
                                   ),
-
-                                  const SizedBox(height: 4),
                                   Row(
                                     children: [
                                       Expanded(
