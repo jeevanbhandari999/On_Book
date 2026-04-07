@@ -3,7 +3,6 @@ import 'dart:ui';
 import 'package:app/app/dependency_injection.dart';
 import 'package:app/app/router/route_constants.dart';
 import 'package:app/core/constants/ui_constants.dart';
-import 'package:app/core/widgets/common_widgets.dart';
 import 'package:app/features/auth/domain/entities/organization.dart';
 import 'package:app/features/customer_review/domain/usecases/get_all_customer_review_related_to_post_use_case.dart';
 import 'package:app/features/home/domain/usecases/stream_saved_post_use_case.dart';
@@ -102,13 +101,6 @@ class PostView extends StatelessWidget {
         decoration: BoxDecoration(
           color: theme.cardColor,
           borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withAlpha(18),
-              blurRadius: 8,
-              offset: const Offset(0, 4),
-            ),
-          ],
         ),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
@@ -212,29 +204,7 @@ class PostView extends StatelessWidget {
                                           UiConstants.animationDelayFaster,
                                       transitionBuilder: (child, animation) {
                                         return ScaleTransition(
-                                          scale:
-                                              // TweenSequence<double>([
-                                              //   TweenSequenceItem(
-                                              //     tween: Tween(
-                                              //       begin: 0.5,
-                                              //       end: 1.3,
-                                              //     ),
-                                              //     weight: 50,
-                                              //   ),
-                                              //   TweenSequenceItem(
-                                              //     tween: Tween(
-                                              //       begin: 0.5,
-                                              //       end: 1.0,
-                                              //     ),
-                                              //     weight: 50,
-                                              //   ),
-                                              // ]).animate(
-                                              //   CurvedAnimation(
-                                              //     parent: animation,
-                                              //     curve: Curves.easeInOut,
-                                              //   ),
-                                              // ),
-                                              animation,
+                                          scale: animation,
                                           child: child,
                                         );
                                       },
@@ -261,7 +231,7 @@ class PostView extends StatelessWidget {
                         right: 0,
                         child: ClipRect(
                           child: BackdropFilter(
-                            filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
+                            filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
                             child: Container(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 12,
@@ -365,7 +335,7 @@ class PostView extends StatelessWidget {
                                           );
                                         },
                                         child: CircleAvatar(
-                                          radius: 18,
+                                          radius: 12,
                                           backgroundColor:
                                               theme.colorScheme.primary,
                                           child:
@@ -389,6 +359,7 @@ class PostView extends StatelessWidget {
                                                     ),
                                                     style: const TextStyle(
                                                       color: Colors.black,
+                                                      fontSize: 12,
                                                       fontWeight:
                                                           FontWeight.bold,
                                                     ),
@@ -400,13 +371,60 @@ class PostView extends StatelessWidget {
                                   ),
 
                                   const SizedBox(height: 4),
-                                  Text(
-                                    'Rs. ${post.price!.toStringAsFixed(2)}',
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 14,
-                                    ),
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          'Rs. ${post.price!.toStringAsFixed(2)}',
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 14,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                      ),
+                                      GestureDetector(
+                                        onTap: isAvailable
+                                            ? () {
+                                                context.push(
+                                                  RouteConstants
+                                                      .bookingFormPage,
+                                                  extra: {
+                                                    'userId': userId,
+                                                    'postId': post.id,
+                                                    'post': post,
+                                                  },
+                                                );
+                                              }
+                                            : null,
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 12,
+                                            vertical: 6,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: isAvailable
+                                                ? Theme.of(context).primaryColor
+                                                : Theme.of(
+                                                    context,
+                                                  ).disabledColor,
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                          ),
+                                          child: Text(
+                                            isAvailable ? 'Book' : 'Booked',
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
+                                  const SizedBox(height: 4),
                                 ],
                               ),
                             ),
@@ -414,28 +432,6 @@ class PostView extends StatelessWidget {
                         ),
                       ),
                     ],
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: SizedBox(
-                  width: double.infinity,
-                  height: UiConstants.buttonHeightSm,
-                  child: CustomButton(
-                    text: isAvailable ? 'Book Now' : 'Booked',
-                    onPressed: isAvailable
-                        ? () {
-                            context.push(
-                              RouteConstants.bookingFormPage,
-                              extra: {
-                                'userId': userId,
-                                'postId': post.id,
-                                'post': post,
-                              },
-                            );
-                          }
-                        : null,
                   ),
                 ),
               ),

@@ -112,8 +112,28 @@ class OrganizationDetailsViewUserSide extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           _buildHeaderSection(context, org),
-                          const SizedBox(height: 24),
+                          const SizedBox(height: 16),
                           // _buildActionButtons(context, org),
+                          SizedBox(
+                            width: double.infinity,
+                            child: CustomButton(
+                              icon: const Icon(Icons.chat_bubble_outline),
+                              text: 'Chat with ${org.name}',
+                              onPressed: () {
+                                context.push(
+                                  RouteConstants.initialChatPlaceholderPage,
+                                  extra: {
+                                    'organizationId': org.id,
+                                    'userId': userId,
+                                    'targetUserId':
+                                        null, // no need to provide because this is related to the organization related chat
+                                  },
+                                );
+                              },
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+
                           _buildContactSection(context, org),
                           const SizedBox(height: 24),
                           _buildMembersSection(context, state.members, userId),

@@ -892,19 +892,34 @@ class _EmptySliver extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.search_off_outlined, size: 64, color: Colors.grey[400]),
+          Container(
+                padding: const EdgeInsets.all(UiConstants.spacingMd),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.search_off_outlined,
+                  size: 60,
+                  color: Theme.of(context).primaryColor,
+                ),
+              )
+              .animate()
+              .scale(duration: 600.ms, curve: Curves.easeOutBack)
+              .fadeIn(duration: 600.ms),
           const SizedBox(height: UiConstants.spacingMd),
           Text(
             query != null ? 'No results for "$query"' : 'Nothing to show yet',
             style: Theme.of(
               context,
-            ).textTheme.titleMedium?.copyWith(color: Colors.grey[600]),
-          ),
+            ).textTheme.headlineSmall?.copyWith(color: Colors.grey[600]),
+          ).animate().fadeIn(duration: 300.ms),
           const SizedBox(height: UiConstants.spacingSm),
           Text(
             'Try a different keyword or filter',
-            style: TextStyle(color: Colors.grey[500], fontSize: 13),
-          ),
+            style: Theme.of(context).textTheme.titleSmall,
+            textAlign: TextAlign.center,
+          ).animate().fadeIn().moveY(begin: 20, end: 0),
         ],
       ),
     );

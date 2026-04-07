@@ -9,6 +9,14 @@ import 'package:app/features/auth/data/models/user_model.dart';
 import 'package:app/features/auth/domain/entities/user.dart';
 import 'package:app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:app/features/auth/services/auth_service.dart';
+import 'package:app/features/notifications/domain/usecases/archievt_notification_use_case.dart';
+import 'package:app/features/notifications/domain/usecases/get_notifications_use_case.dart';
+import 'package:app/features/notifications/domain/usecases/mark_all_notifiations_as_read_use_case.dart';
+import 'package:app/features/notifications/domain/usecases/mark_all_notification_as_viewed_use_case.dart';
+import 'package:app/features/notifications/domain/usecases/mark_notification_as_read_use_case.dart';
+import 'package:app/features/notifications/domain/usecases/stream_notifications_use_case.dart';
+import 'package:app/features/notifications/presentation/bloc/notification_bloc.dart';
+import 'package:app/features/notifications/presentation/bloc/notification_cubit.dart';
 import 'package:app/features/profile/domain/repositories/profile_repository.dart';
 import 'package:app/features/profile/domain/usecases/delete_profile_picture_use_case.dart';
 import 'package:app/features/profile/domain/usecases/update_profile_picture_use_case.dart';
@@ -62,6 +70,21 @@ class ProfilePage extends StatelessWidget {
             repository: DependencyInjection.get<ProfileRepository>(),
           ),
         ),
+        // BlocProvider(
+        //   create: (context) => NotificationBloc(
+        //     getNotifications:
+        //         DependencyInjection.get<GetNotificationsUseCase>(),
+        //     streamNotifications:
+        //         DependencyInjection.get<StreamNotificationsUseCase>(),
+        //     markAsRead:
+        //         DependencyInjection.get<MarkNotificationAsReadUseCase>(),
+        //     markAllAsRead:
+        //         DependencyInjection.get<MarkAllNotificationsAsReadUseCase>(),
+        //     markAllAsViewed:
+        //         DependencyInjection.get<MarkAllNotificationsAsViewedUseCase>(),
+        //     archive: DependencyInjection.get<ArchiveNotificationUseCase>(),
+        //   ),
+        // ),
       ],
       child: ProfileView(userId: userId),
     );
@@ -212,28 +235,13 @@ class ProfileView extends StatelessWidget {
     Color? borderColor,
     Color? trailingColor,
     bool showBorder = true,
+    int unreadCount = 0,
   }) {
     return SectionContainer(
       padding: EdgeInsets.zero,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(UiConstants.radiusMd),
-        // gradient: LinearGradient(
-        //   begin: Alignment.topLeft,
-        //   end: Alignment.bottomRight,
-        //   colors: [
-        //     Colors.white.withAlpha(30),
-        //     Colors.white.withAlpha(100),
-        //     Colors.white.withAlpha(200),
-        //   ],
-        // ),
-        // boxShadow: [
-        //   BoxShadow(
-        //     color: Colors.black.withAlpha(22),
-        //     blurRadius: 20,
-        //     spreadRadius: 2,
-        //     offset: const Offset(0, 8),
-        //   ),
-        // ],
+
         border: showBorder
             ? Border.all(
                 color: borderColor ?? Colors.white.withAlpha(80),
@@ -264,7 +272,36 @@ class ProfileView extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
           style: TextStyle(color: textColor),
         ),
-        trailing: Icon(Icons.chevron_right, color: trailingColor),
+        trailing: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (unreadCount > 0)
+              Container(
+                padding: const EdgeInsets.all(UiConstants.spacingSm),
+                decoration: BoxDecoration(
+                  color: Colors.red,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: Theme.of(context).scaffoldBackgroundColor,
+                    width: 1.5,
+                  ),
+                ),
+                constraints: const BoxConstraints(minWidth: 18, minHeight: 18),
+                child: Text(
+                  unreadCount > 99 ? '99+' : '$unreadCount',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                    height: 1.1,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            Icon(Icons.chevron_right, color: trailingColor),
+          ],
+        ),
         onTap: onTap,
       ),
     );
@@ -558,15 +595,27 @@ class ProfileView extends StatelessWidget {
           onTap: () {},
         ),
         const SizedBox(height: UiConstants.spacingSm),
-        _buildSettingItem(
-          context,
-          icon: Icons.notifications_active_rounded,
-          title: 'Notofications',
-          iconColor: AppColors.info,
-          textColor: AppColors.black,
-          borderColor: AppColors.black,
-          onTap: () {},
+        BlocBuilder<NotificationCubit, NotificationCubitState>(
+          builder: (context, state) {
+            final unreadCount = state is NotificationCubitLoaded
+                ? state.notifications.where((n) => n.isUnread).length
+                : 0;
+
+            return _buildSettingItem(
+              context,
+              icon: Icons.notifications_active_rounded,
+              title: 'Notofications',
+              iconColor: AppColors.info,
+              textColor: AppColors.black,
+              borderColor: AppColors.black,
+              unreadCount: unreadCount,
+              onTap: () {
+                context.push(RouteConstants.notificationsPage, extra: userId);
+              },
+            );
+          },
         ),
+
         const SizedBox(height: UiConstants.spacingSm),
         _buildSettingItem(
           context,

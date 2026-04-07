@@ -150,28 +150,6 @@ Widget _buildTab(
   required IconData unselectedIcon,
   required String label,
 }) {
-  // final isSelected = DefaultTabController.of(context).index == index;
-  // return Tab(
-  //   icon: Icon(
-  //     isSelected ? selectedIcon : unselectedIcon,
-  //     size: UiConstants.iconSm,
-  //   ),
-  //   child: FittedBox(
-  //     fit: BoxFit.scaleDown,
-  //     child: Row(
-  //       mainAxisSize: MainAxisSize.min,
-  //       children: [
-  //         Icon(
-  //           isSelected ? selectedIcon : unselectedIcon,
-  //           size: UiConstants.iconSm,
-  //         ),
-  //         const SizedBox(width: UiConstants.spacingSm),
-  //         Text(label),
-  //       ],
-  //     ),
-  //   ),
-  // );
-
   return AnimatedBuilder(
     animation: DefaultTabController.of(context),
     builder: (context, child) {
@@ -640,50 +618,70 @@ Widget _buildEmptyState(
   String? userId,
   String? organizationId,
 }) {
-  return Semantics(
-    label: title,
-    child: Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Semantics(
-            image: true,
-            label: 'No post icon',
-            child: Icon(
-              Icons.hourglass_empty,
-              size: 40,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
+  return Padding(
+    padding: const EdgeInsets.all(UiConstants.spacingLg),
+    child: Semantics(
+      label: title,
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Semantics(
+              image: true,
+              label: 'No post icon',
+              child:
+                  Container(
+                        width: 80,
+                        height: 80,
+                        decoration: BoxDecoration(
+                          color: Theme.of(
+                            context,
+                          ).primaryColor.withValues(alpha: 0.1),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.hourglass_empty,
+                          size: 40,
+                          color: Theme.of(context).primaryColor,
+                        ),
+                      )
+                      .animate()
+                      .scale(duration: 600.ms, curve: Curves.easeOutBack)
+                      .fadeIn(duration: 600.ms),
             ),
-          ),
-          const SizedBox(height: UiConstants.spacingMd),
-          Text(title, style: Theme.of(context).textTheme.headlineSmall),
-          const SizedBox(height: UiConstants.spacingSm),
-          Text(
-            content,
-            style: Theme.of(context).textTheme.bodyMedium,
-            textAlign: TextAlign.center,
-          ),
-          if (description != null)
+            const SizedBox(height: UiConstants.spacingSm),
             Text(
-              description,
+              title,
+              style: Theme.of(context).textTheme.headlineSmall,
+            ).animate().fadeIn(duration: 300.ms),
+            const SizedBox(height: UiConstants.spacingSm),
+            Text(
+              content,
               style: Theme.of(context).textTheme.bodyMedium,
               textAlign: TextAlign.center,
-            ),
-          if (canManageOrganization) ...[
-            const SizedBox(height: UiConstants.spacingLg),
-            CustomButton(
-              text: 'Create Post',
-              onPressed: () {
-                context.push(
-                  RouteConstants.createPostPage,
-                  extra: {'userId': userId, 'organizationId': organizationId},
-                );
-              },
-              icon: const Icon(Icons.add),
-            ),
+            ).animate().fadeIn().moveY(begin: 20, end: 0),
+            if (description != null)
+              Text(
+                description,
+                style: Theme.of(context).textTheme.titleSmall,
+                textAlign: TextAlign.center,
+              ).animate().fadeIn().moveY(begin: 20, end: 0),
+            if (canManageOrganization) ...[
+              const SizedBox(height: UiConstants.spacingLg),
+              CustomButton(
+                text: 'Create Post',
+                onPressed: () {
+                  context.push(
+                    RouteConstants.createPostPage,
+                    extra: {'userId': userId, 'organizationId': organizationId},
+                  );
+                },
+                icon: const Icon(Icons.add),
+              ),
+            ],
           ],
-        ],
+        ),
       ),
     ),
   );
