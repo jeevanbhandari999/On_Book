@@ -81,8 +81,8 @@ class _PostFormState extends State<PostForm> {
       builder: (context, state) {
         if (state is! PostFormReady) {
           return const Padding(
-            padding: EdgeInsets.only(top: 100),
-            child: CircularProgressIndicator(),
+            padding: EdgeInsets.only(top: 200),
+            child: Center(child: CircularProgressIndicator()),
           );
         }
 
@@ -397,111 +397,6 @@ class _PostFormState extends State<PostForm> {
     );
   }
 }
-
-// Reuse your existing _LocationSection (just move it here or keep separate)
-// class _LocationSection extends StatelessWidget {
-//   final double? latitude;
-//   final double? longitude;
-//   final Function(double?, double?) onChanged;
-
-//   const _LocationSection({
-//     required this.latitude,
-//     required this.longitude,
-//     required this.onChanged,
-//   });
-
-//   @override
-//   Widget build(BuildContext context) {
-//     // Create controllers that reflect current values
-//     final latController = TextEditingController(
-//       text: latitude != null ? latitude!.toStringAsFixed(6) : '',
-//     );
-//     final lngController = TextEditingController(
-//       text: longitude != null ? longitude!.toStringAsFixed(6) : '',
-//     );
-
-//     // Keep controllers in sync if value changes externally (e.g. from map)
-//     latController.text = latitude?.toStringAsFixed(6) ?? '';
-//     lngController.text = longitude?.toStringAsFixed(6) ?? '';
-
-//     return Column(
-//       crossAxisAlignment: CrossAxisAlignment.start,
-//       children: [
-//         Text(
-//           'Location (optional)',
-//           style: Theme.of(context).textTheme.labelMedium,
-//         ),
-//         if (latitude != null && longitude != null)
-//           Row(
-//             children: [
-//               Expanded(
-//                 child: CustomTextField(
-//                   controller: latController,
-//                   label: 'Latitude',
-//                   hint: 'e.g. 27.7172',
-//                   keyboardType: const TextInputType.numberWithOptions(
-//                     decimal: true,
-//                   ),
-//                   onChanged: (v) {
-//                     final val = double.tryParse(v);
-//                     onChanged(val, longitude);
-//                   },
-//                   prefixIcon: const Icon(Icons.location_on, size: 20),
-//                 ),
-//               ),
-//               const SizedBox(width: 12),
-//               Expanded(
-//                 child: CustomTextField(
-//                   controller: lngController,
-//                   label: 'Longitude',
-//                   hint: 'e.g. 85.3240',
-//                   keyboardType: const TextInputType.numberWithOptions(
-//                     decimal: true,
-//                   ),
-//                   onChanged: (v) {
-//                     final val = double.tryParse(v);
-//                     onChanged(latitude, val);
-//                   },
-//                   prefixIcon: const Icon(Icons.explore, size: 20),
-//                 ),
-//               ),
-//             ],
-//           ),
-//         const SizedBox(height: 12),
-
-//         // Pick from Map Button
-//         SizedBox(
-//           width: double.infinity,
-//           child: CustomButton(
-//             text: 'Pick Location from Map',
-//             icon: const Icon(Icons.map_outlined),
-//             onPressed: () async {
-//               final result = await context.push(
-//                 RouteConstants.pickLocation,
-//               ); // your Another page
-
-//               if (result is LatLng && context.mounted) {
-//                 onChanged(result.latitude, result.longitude);
-//               }
-//             },
-//           ),
-//         ),
-
-//         const SizedBox(height: 8),
-
-//         // Optional: Clear button
-//         if (latitude != null || longitude != null)
-//           Align(
-//             alignment: Alignment.centerRight,
-//             child: TextButton(
-//               onPressed: () => onChanged(null, null),
-//               child: const Text('Clear Location'),
-//             ),
-//           ),
-//       ],
-//     );
-//   }
-// }
 
 class _LocationSection extends StatefulWidget {
   final double? latitude;

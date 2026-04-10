@@ -68,113 +68,6 @@ class _WriteAReviewViewState extends State<WriteAReviewView> {
           );
         }
       },
-
-      // child: Scaffold(
-      //   appBar: AppBar(
-      //     backgroundColor: Colors.transparent,
-      //     title: const Text(
-      //       'Write A Review',
-      //       style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-      //     ),
-      //   ),
-      //   body: Padding(
-      //     padding: const EdgeInsets.all(16.0),
-      //     child: Column(
-      //       crossAxisAlignment: CrossAxisAlignment.start,
-      //       children: [
-      //         const Align(
-      //           alignment: Alignment.center,
-      //           child: Text(
-      //             'How was your experience?',
-      //             textAlign: TextAlign.center,
-      //             style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-      //           ),
-      //         ),
-      //         const SizedBox(height: UiConstants.spacingXl),
-
-      //         Container(
-      //           width: double.infinity,
-      //           padding: const EdgeInsets.all(16),
-      //           decoration: BoxDecoration(
-      //             color: Colors.blue[300]!.withAlpha(70),
-      //             borderRadius: BorderRadius.circular(8),
-      //           ),
-      //           child: Column(
-      //             crossAxisAlignment: CrossAxisAlignment.start,
-      //             children: [
-      //               const Text(
-      //                 'What do you think of the product overall?',
-      //                 style: TextStyle(fontWeight: FontWeight.bold),
-      //               ),
-      //               const SizedBox(height: 4),
-      //               const Text('Tell us everything!'),
-      //               const SizedBox(height: 12),
-      //               Center(
-      //                 child: RatingBar.builder(
-      //                   initialRating: 0,
-      //                   minRating: 0,
-      //                   direction: Axis.horizontal,
-      //                   allowHalfRating: false,
-      //                   itemCount: 5,
-      //                   itemSize: 42,
-      //                   unratedColor: Colors.grey,
-      //                   itemPadding: const EdgeInsets.symmetric(
-      //                     horizontal: 4.0,
-      //                   ),
-      //                   itemBuilder: (context, _) =>
-      //                       const Icon(Icons.star, color: Colors.amber),
-      //                   onRatingUpdate: (rating) {
-      //                     setState(() {
-      //                       ratingValue = rating;
-      //                     });
-      //                   },
-      //                 ),
-      //               ),
-      //             ],
-      //           ),
-      //         ),
-
-      //         const SizedBox(height: UiConstants.spacingLg),
-
-      //         const Text('Write a comment', style: TextStyle(fontSize: 16)),
-      //         const SizedBox(height: 8),
-
-      //         CustomTextField(
-      //           hint: 'Tell us more about your experience...',
-      //           maxLines: 4,
-      //           controller: _commentCtrl,
-      //         ),
-
-      //         const SizedBox(height: UiConstants.spacingLg),
-      //         SizedBox(
-      //           width: double.infinity,
-      //           child:
-      //               BlocBuilder<
-      //                 CreateCustomerReviewBloc,
-      //                 CreateCustomerReviewState
-      //               >(
-      //                 builder: (context, state) {
-      //                   return LoadingButton(
-      //                     text: 'Done',
-      //                     isLoading: state is CreateCustomerReviewLoading,
-      //                     onPressed: () {
-      //                       context.read<CreateCustomerReviewBloc>().add(
-      //                         CreateReviewRequested(
-      //                           postId: widget.post.id,
-      //                           userId: widget.userId,
-      //                           ratingValue: ratingValue.toInt(),
-      //                           comment: _commentCtrl.text,
-      //                         ),
-      //                       );
-      //                     },
-      //                   );
-      //                 },
-      //               ),
-      //         ),
-      //       ],
-      //     ),
-      //   ),
-      // ),
       child: Scaffold(
         bottomNavigationBar: SafeArea(
           minimum: const EdgeInsets.all(16),
@@ -302,3 +195,6 @@ class _WriteAReviewViewState extends State<WriteAReviewView> {
     );
   }
 }
+
+
+

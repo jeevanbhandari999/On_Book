@@ -7,7 +7,9 @@ import 'package:app/core/widgets/app_bar_popup_menu.dart';
 import 'package:app/core/widgets/app_shimmer.dart';
 import 'package:app/core/widgets/common_widgets.dart';
 import 'package:app/features/customer_review/domain/entities/rating.dart';
+import 'package:app/features/customer_review/domain/usecases/create_customer_review_for_specific_post_use_case.dart';
 import 'package:app/features/customer_review/domain/usecases/get_all_customer_review_related_to_post_use_case.dart';
+import 'package:app/features/customer_review/presentation/bloc/create_customer_review_bloc.dart';
 import 'package:app/features/customer_review/presentation/bloc/get_all_customer_review_related_to_the_post_bloc.dart';
 import 'package:app/features/customer_review/presentation/widgets/rating_progress_bar_widget.dart';
 import 'package:app/features/home/domain/usecases/get_organization_detail_by_post_organization_id.dart';
@@ -25,6 +27,7 @@ import 'package:app/features/post/presentation/widgets/detail_info_tile.dart';
 import 'package:app/features/post/presentation/widgets/post_detail_shimmer.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
@@ -527,10 +530,25 @@ Widget _buildCustomerReviewSection(
                                 ],
                               ),
                               InkWell(
-                                onTap: () => context.push(
-                                  RouteConstants.writeAReviewPage,
-                                  extra: {'post': post, 'userId': userId},
-                                ),
+                                // onTap: () => context.push(
+                                //   RouteConstants.writeAReviewPage,
+                                //   extra: {'post': post, 'userId': userId},
+                                // ),
+                                onTap: () async {
+                                  await _showReviewBottomSheet(
+                                    context,
+                                    post,
+                                    userId,
+                                  );
+                                  // bottom sheet closed — reload your data
+                                  // context.read<PostDetailsBloc>().add(
+                                  //   PostDetailLoadRequested(
+                                  //     postId: post.id,
+                                  //     userId: userId,
+                                  //   ),
+                                  // );
+                                },
+
                                 child: const Text(
                                   'Write a Review',
                                   style: TextStyle(color: Colors.blue),
@@ -547,28 +565,61 @@ Widget _buildCustomerReviewSection(
                                   width: 80,
                                   child: LinearProgressIndicator(),
                                 )
-                              else
+                              else if (reviewCount > 0) ...[
                                 Text(
                                   '$reviewCount Review${reviewCount == 1 ? '' : 's'}:',
                                 ),
-                              const SizedBox(width: 8),
-                              InkWell(
-                                onTap: () => context.push(
-                                  RouteConstants.customerReviewPage,
-                                  extra: {'post': post, 'userId': userId},
+                                const SizedBox(width: 8),
+                                InkWell(
+                                  onTap: () => context.push(
+                                    RouteConstants.customerReviewPage,
+                                    extra: {'post': post, 'userId': userId},
+                                  ),
+                                  child: const Text(
+                                    'See all',
+                                    style: TextStyle(color: Colors.blue),
+                                  ),
                                 ),
-                                child: const Text(
-                                  'See all',
-                                  style: TextStyle(color: Colors.blue),
-                                ),
-                              ),
+                              ],
                             ],
                           ),
                           const SizedBox(height: UiConstants.spacingMd),
                           if (ratings.isEmpty)
-                            const Text(
-                              'No reviews yet. Be the first to review!',
-                              style: TextStyle(fontSize: 13),
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Container(
+                                      padding: const EdgeInsets.all(
+                                        UiConstants.spacingMd,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: Theme.of(
+                                          context,
+                                        ).primaryColor.withValues(alpha: 0.1),
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Icon(
+                                        Icons.hourglass_empty,
+                                        size: 48,
+                                        color: Theme.of(context).primaryColor,
+                                      ),
+                                    )
+                                    .animate()
+                                    .scale(
+                                      duration: 600.ms,
+                                      curve: Curves.easeOutBack,
+                                    )
+                                    .fadeIn(duration: 600.ms),
+                                const SizedBox(height: UiConstants.spacingMd),
+                                Text(
+                                  'No reviews yet. Be the first to review!',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headlineSmall
+                                      ?.copyWith(color: Colors.grey[600]),
+                                ).animate().fadeIn(duration: 300.ms),
+                                const SizedBox(height: UiConstants.spacingSm),
+                              ],
                             )
                           else
                             ...List.generate(5, (i) {
@@ -593,6 +644,27 @@ Widget _buildCustomerReviewSection(
             );
           },
         ),
+  );
+}
+
+Future<void> _showReviewBottomSheet(
+  BuildContext context,
+  Post post,
+  String userId,
+) async {
+  await showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: Colors.transparent,
+    builder: (_) => BlocProvider(
+      create: (_) => CreateCustomerReviewBloc(
+        createCustomerReviewForSpecificPostUseCase:
+            DependencyInjection.get<
+              CreateCustomerReviewForSpecificPostUseCase
+            >(),
+      ),
+      child: _ReviewBottomSheet(post: post, userId: userId),
+    ),
   );
 }
 
@@ -897,20 +969,9 @@ Widget _buildLocationSection(
             children: [
               Expanded(
                 child: CustomButton(
-                  text: 'Get Directions',
+                  text: 'View Map to get direction',
                   icon: const Icon(Icons.directions),
                   onPressed: () => _launchMaps(context, latitude, longitude),
-                  isOutlined: true,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: CustomButton(
-                  text: 'View Map',
-                  icon: const Icon(Icons.fullscreen),
-                  onPressed: () {
-                    // TODO
-                  },
                 ),
               ),
             ],
@@ -925,13 +986,10 @@ Future<void> _launchMaps(BuildContext context, double lat, double lng) async {
   final googleUrl = Uri.parse(
     'https://www.google.com/maps/search/?api=1&query=$lat,$lng',
   );
-  final appleUrl = Uri.parse('https://maps.apple.com/?q=$lat,$lng');
 
-  if (await canLaunchUrl(googleUrl)) {
+  try {
     await launchUrl(googleUrl, mode: LaunchMode.externalApplication);
-  } else if (await canLaunchUrl(appleUrl)) {
-    await launchUrl(appleUrl, mode: LaunchMode.externalApplication);
-  } else {
+  } catch (e) {
     if (context.mounted) {
       ScaffoldMessenger.of(
         context,
@@ -1462,4 +1520,195 @@ void _showDeleteConfirmDialog(
       );
     },
   );
+}
+
+class _ReviewBottomSheet extends StatefulWidget {
+  final Post post;
+  final String userId;
+
+  const _ReviewBottomSheet({required this.post, required this.userId});
+
+  @override
+  State<_ReviewBottomSheet> createState() => _ReviewBottomSheetState();
+}
+
+class _ReviewBottomSheetState extends State<_ReviewBottomSheet> {
+  double ratingValue = 0;
+  final _commentCtrl = TextEditingController();
+
+  @override
+  void dispose() {
+    _commentCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocListener<CreateCustomerReviewBloc, CreateCustomerReviewState>(
+      listener: (context, state) {
+        if (state is CreateCustomerReviewSuccess) {
+          Navigator.of(context).pop(); // close bottom sheet
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Thank you for your rating!'),
+              backgroundColor: AppColors.success,
+            ),
+          );
+        }
+        if (state is CreateCustomerReviewError) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(state.message),
+              backgroundColor: AppColors.error,
+            ),
+          );
+        }
+      },
+      child: Container(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+          top: 24,
+          left: 20,
+          right: 20,
+        ),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Drag handle
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade300,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // Title
+            const Center(
+              child: Text(
+                'How was your experience?',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // Rating box
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppColors.primary.withAlpha(20),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                children: [
+                  const Text(
+                    'What do you think of the product overall?',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 4),
+                  const Text('Tell us everything!'),
+                  const SizedBox(height: 12),
+                  RatingBar.builder(
+                    initialRating: 0,
+                    minRating: 0,
+                    direction: Axis.horizontal,
+                    allowHalfRating: false,
+                    itemCount: 5,
+                    itemSize: 42,
+                    unratedColor: Colors.grey,
+                    itemPadding: const EdgeInsets.symmetric(horizontal: 4.0),
+                    itemBuilder: (context, _) =>
+                        const Icon(Icons.star, color: Colors.amber),
+                    onRatingUpdate: (rating) {
+                      setState(() => ratingValue = rating);
+                    },
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // Comment
+            const Text('Write a comment', style: TextStyle(fontSize: 16)),
+            const SizedBox(height: 8),
+            TextField(
+              controller: _commentCtrl,
+              maxLines: 3,
+              decoration: InputDecoration(
+                hintText: 'Tell us more about your experience...',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: Colors.grey.shade300),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: Colors.grey.shade300),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // Submit button
+            BlocBuilder<CreateCustomerReviewBloc, CreateCustomerReviewState>(
+              builder: (context, state) {
+                return SizedBox(
+                  width: double.infinity,
+                  height: 52,
+                  child: ElevatedButton(
+                    onPressed: state is CreateCustomerReviewLoading
+                        ? null
+                        : () {
+                            context.read<CreateCustomerReviewBloc>().add(
+                              CreateReviewRequested(
+                                postId: widget.post.id,
+                                userId: widget.userId,
+                                ratingValue: ratingValue.toInt(),
+                                comment: _commentCtrl.text,
+                              ),
+                            );
+                          },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: state is CreateCustomerReviewLoading
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : const Text(
+                            'Submit Review',
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }

@@ -87,6 +87,14 @@
 	<string>This app needs access to your location to allow you to pick a spot on the map.</string>
 
 
+	<!-- For opening maps -->
+	<key>LSApplicationQueriesSchemes</key>
+<array>
+  <string>https</string>
+  <string>maps</string>
+  <string>comgooglemaps</string>
+</array>
+
 	<!-- Camera -->
     <key>NSCameraUsageDescription</key>
     <string>This app needs camera access to take photos</string>
