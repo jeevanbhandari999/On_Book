@@ -592,7 +592,14 @@ class ProfileView extends StatelessWidget {
           iconColor: AppColors.success,
           textColor: AppColors.black,
           borderColor: AppColors.black,
-          onTap: () {},
+          onTap: () {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Security and privary is coming soon!'),
+                backgroundColor: AppColors.info,
+              ),
+            );
+          },
         ),
         const SizedBox(height: UiConstants.spacingSm),
         BlocBuilder<NotificationCubit, NotificationCubitState>(

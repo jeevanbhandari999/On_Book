@@ -708,7 +708,6 @@ class _BookingCard extends StatelessWidget {
   }
 }
 
-
 class _StatusChip extends StatelessWidget {
   final String label;
   final Color color;
@@ -752,17 +751,33 @@ class _EmptyState extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, size: 100, color: Colors.grey),
+          Container(
+                padding: const EdgeInsets.all(UiConstants.spacingMd),
+                decoration: BoxDecoration(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.primary.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  icon,
+                  size: 60,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+              )
+              .animate()
+              .scale(duration: 600.ms, curve: Curves.easeOutBack)
+              .fadeIn(duration: 600.ms),
           const SizedBox(height: UiConstants.spacingLg),
           Text(
             title,
-            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-          ),
+            style: Theme.of(context).textTheme.titleMedium,
+          ).animate().fadeIn(duration: 300.ms),
           const SizedBox(height: UiConstants.spacingSm),
           Text(
             subtitle,
-            style: const TextStyle(color: Colors.grey, fontSize: 16),
-          ),
+            style: TextStyle(color: Colors.grey[600], fontSize: 13),
+          ).animate().fadeIn().moveY(begin: 20, end: 0),
         ],
       ),
     );

@@ -15,7 +15,7 @@ import 'package:app/features/chat/presentation/pages/contacts_page.dart';
 import 'package:app/features/chat/presentation/pages/initial_chat_placeholder_page.dart';
 import 'package:app/features/customer_review/presentation/pages/customer_review_page.dart';
 import 'package:app/features/customer_review/presentation/pages/write_a_review_page.dart';
-import 'package:app/features/home/presentation/pages/another.dart';
+import 'package:app/features/home/presentation/pages/location_picker.dart';
 import 'package:app/features/home/presentation/pages/home_page.dart';
 import 'package:app/features/library/presentation/pages/library_page.dart';
 import 'package:app/features/notifications/presentation/pages/notifications_page.dart';
@@ -215,9 +215,9 @@ class AppRouter {
 
       /// Another test page
       GoRoute(
-        path: RouteConstants.anotherPage,
+        path: RouteConstants.pickLocation,
         parentNavigatorKey: rootNavigatorKey,
-        builder: (context, state) => const Another(),
+        builder: (context, state) => const LocationPicker(),
       ),
 
       /// Create Post

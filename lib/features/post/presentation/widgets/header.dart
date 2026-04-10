@@ -194,56 +194,57 @@ class _HeaderState extends State<Header> {
         ),
 
         /// ACTION BUTTONS
-        Padding(
-          padding: const EdgeInsets.all(12),
-          child: Row(
-            children: [
-              Expanded(
-                    child: CustomButton(
-                      text: manageOrgMessage,
-                      icon: const Icon(Icons.apartment_rounded),
-                      onPressed: () {
-                        ScaffoldMessenger.of(context).clearSnackBars();
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Manage posts coming soon'),
-                          ),
-                        );
-                      },
-                    ),
-                  )
-                  .animate(delay: UiConstants.animationFast)
-                  .fadeIn(duration: UiConstants.animationNormal)
-                  .slideY(
-                    begin: 0.4,
-                    duration: UiConstants.animationNormal,
-                    curve: Curves.easeOutCubic,
-                  ),
-              const SizedBox(width: UiConstants.spacingXs),
-              Expanded(
-                    child: CustomButton(
-                      text: managePostMessage,
-                      icon: const Icon(Icons.dashboard_customize_rounded),
-                      onPressed: () {
-                        ScaffoldMessenger.of(context).clearSnackBars();
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Manage posts coming soon'),
-                          ),
-                        );
-                      },
-                    ),
-                  )
-                  .animate(delay: UiConstants.animationSlow)
-                  .fadeIn(duration: UiConstants.animationNormal)
-                  .slideY(
-                    begin: 0.4,
-                    duration: UiConstants.animationNormal,
-                    curve: Curves.easeOutCubic,
-                  ),
-            ],
-          ),
-        ),
+        // Padding(
+        //   padding: const EdgeInsets.all(12),
+        //   child: Row(
+        //     children: [
+        //       Expanded(
+        //             child: CustomButton(
+        //               text: manageOrgMessage,
+        //               icon: const Icon(Icons.apartment_rounded),
+        //               onPressed: () {
+        //                 ScaffoldMessenger.of(context).clearSnackBars();
+        //                 ScaffoldMessenger.of(context).showSnackBar(
+        //                   const SnackBar(
+        //                     content: Text('Manage posts coming soon'),
+        //                   ),
+        //                 );
+        //               },
+        //             ),
+        //           )
+        //           .animate(delay: UiConstants.animationFast)
+        //           .fadeIn(duration: UiConstants.animationNormal)
+        //           .slideY(
+        //             begin: 0.4,
+        //             duration: UiConstants.animationNormal,
+        //             curve: Curves.easeOutCubic,
+        //           ),
+        //       const SizedBox(width: UiConstants.spacingXs),
+        //       Expanded(
+        //             child: CustomButton(
+        //               text: managePostMessage,
+        //               icon: const Icon(Icons.dashboard_customize_rounded),
+        //               onPressed: () {
+        //                 ScaffoldMessenger.of(context).clearSnackBars();
+        //                 ScaffoldMessenger.of(context).showSnackBar(
+        //                   const SnackBar(
+        //                     content: Text('Manage posts coming soon'),
+        //                   ),
+        //                 );
+        //               },
+        //             ),
+        //           )
+        //           .animate(delay: UiConstants.animationSlow)
+        //           .fadeIn(duration: UiConstants.animationNormal)
+        //           .slideY(
+        //             begin: 0.4,
+        //             duration: UiConstants.animationNormal,
+        //             curve: Curves.easeOutCubic,
+        //           ),
+        //     ],
+        //   ),
+        // ),
+        const SizedBox(height: UiConstants.spacingMd),
 
         /// SEARCH
         Padding(

@@ -344,7 +344,6 @@ class PostRemoteDataSourceImpl implements PostRemoteDataSource {
   Future<PostModel> getPostById(String postId) async {
     final postService = DependencyInjection.get<PostServices>();
     try {
-
       final response = await supabaseClient
           .from('posts')
           .select('''
@@ -733,7 +732,7 @@ class PostRemoteDataSourceImpl implements PostRemoteDataSource {
     try {
       final interestMap = await _buildInterestMap(userId);
 
-      // ✅ Fix 1: Convert enum tags to raw strings for Supabase overlaps()
+      // Convert enum tags to raw strings for Supabase overlaps()
       final rawTags = currentPost.tags
           ?.map((t) => t.name) // or t.toString() depending on your enum
           .toList();
@@ -753,7 +752,7 @@ class PostRemoteDataSourceImpl implements PostRemoteDataSource {
             .toList();
       }
 
-      // ✅ Fix 2: Pass raw string list to overlaps
+      // Pass raw string list to overlaps
       final response = await supabaseClient
           .from('posts')
           .select('*, post_images(*)')
@@ -764,7 +763,7 @@ class PostRemoteDataSourceImpl implements PostRemoteDataSource {
       final List<Map<String, dynamic>> raw = (response as List)
           .cast<Map<String, dynamic>>();
 
-      // ✅ Fix 3: Handle empty interestMap gracefully with a base score
+      // Handle empty interestMap gracefully with a base score
       final maxFreq = interestMap.isEmpty
           ? 1.0
           : interestMap.values.reduce((a, b) => a > b ? a : b);
@@ -777,7 +776,7 @@ class PostRemoteDataSourceImpl implements PostRemoteDataSource {
           maxFreq: maxFreq,
         );
 
-        // ✅ Fix 4: Boost posts sharing more tags with currentPost
+        // Boost posts sharing more tags with currentPost
         final postTags = _asList(json['tags']) ?? [];
         final overlap = postTags.where((t) => rawTags.contains(t)).length;
         score += overlap * 0.1; // small boost per shared tag

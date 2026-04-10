@@ -26,20 +26,20 @@ class PostRepositoryImpl implements PostRepository {
   ) async {
     try {
       // Check if cache is expired
-      final isCacheExpired = await localDataSource.isCacheExpired(
-        organizationId,
-      );
-      if (!isCacheExpired) {
-        // try to get the cached posts first
-        final cachedPosts = await localDataSource.getCachedPosts(
-          organizationId,
-        );
-        if (cachedPosts != null && cachedPosts.isNotEmpty) {
-          return Right(
-            cachedPosts.map((postModel) => postModel.toEntity()).toList(),
-          );
-        }
-      }
+      // final isCacheExpired = await localDataSource.isCacheExpired(
+      //   organizationId,
+      // );
+      // if (!isCacheExpired) {
+      //   // try to get the cached posts first
+      //   final cachedPosts = await localDataSource.getCachedPosts(
+      //     organizationId,
+      //   );
+      //   if (cachedPosts != null && cachedPosts.isNotEmpty) {
+      //     return Right(
+      //       cachedPosts.map((postModel) => postModel.toEntity()).toList(),
+      //     );
+      //   }
+      // }
 
       // fetch from remote if cache is expired or empty
       final postModels = await remoteDataSource.getPostsByOrganizationId(
@@ -47,7 +47,7 @@ class PostRepositoryImpl implements PostRepository {
       );
 
       // Cache the fetched posts from the remote for offline support
-      await localDataSource.cachePosts(organizationId, postModels);
+      // await localDataSource.cachePosts(organizationId, postModels);
 
       return Right(
         postModels.map((postModel) => postModel.toEntity()).toList(),
@@ -69,18 +69,18 @@ class PostRepositoryImpl implements PostRepository {
       return Left(ServerFailure(e.message));
     } on NetworkException catch (e) {
       // Again try to rturn the cached data in network error
-      try {
-        final cachedPosts = await localDataSource.getCachedPosts(
-          organizationId,
-        );
-        if (cachedPosts != null && cachedPosts.isNotEmpty) {
-          return Right(
-            cachedPosts.map((postModel) => postModel.toEntity()).toList(),
-          );
-        }
-      } catch (_) {
-        // Ignore these cache errors when network is also failing
-      }
+      // try {
+      //   final cachedPosts = await localDataSource.getCachedPosts(
+      //     organizationId,
+      //   );
+      //   if (cachedPosts != null && cachedPosts.isNotEmpty) {
+      //     return Right(
+      //       cachedPosts.map((postModel) => postModel.toEntity()).toList(),
+      //     );
+      //   }
+      // } catch (_) {
+      //   // Ignore these cache errors when network is also failing
+      // }
       return Left(NetworkFailure(e.message));
     } on CacheException catch (e) {
       return Left(CacheFailure(e.message));
@@ -314,7 +314,7 @@ class PostRepositoryImpl implements PostRepository {
       final postModel = await remoteDataSource.getPostById(postId);
 
       // Cache the fetched post
-      await localDataSource.cachePost(postModel);
+      // await localDataSource.cachePost(postModel);
 
       return Right(postModel.toEntity());
     } on ServerException catch (e) {
@@ -434,10 +434,10 @@ class PostRepositoryImpl implements PostRepository {
       final updatedPostModel = createPostModel.copyWith(videoUrl: videoUrl);
 
       // Ceche the created post
-      await localDataSource.cachePost(createPostModel);
+      // await localDataSource.cachePost(createPostModel);
 
       // Invalidate organization posts cache
-      await localDataSource.clearCachedPosts(post.organizationId);
+      // await localDataSource.clearCachedPosts(post.organizationId);
 
       return Right(updatedPostModel.toEntity());
     } on ValidationException catch (e) {

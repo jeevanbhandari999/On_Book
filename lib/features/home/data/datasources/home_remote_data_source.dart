@@ -17,8 +17,6 @@ abstract class HomeRemoteDataSource {
     String? cursor,
   });
 
-  // Get the recommendation (content based or AI whatever)
-  // TODO
   Future<Either<Failure, List<PostModel>>> getRecommendedPosts({
     required String userId,
     int limit = 15,
@@ -148,14 +146,14 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
     double? longitude,
   }) async {
     try {
-      // 1️⃣ Build interest map
+      // Build interest map
       final interestMap = await _buildInterestMap(userId);
 
       final maxFreq = interestMap.isEmpty
           ? 1.0
           : interestMap.values.reduce((a, b) => a > b ? a : b);
 
-      // 2️⃣ Fetch content-based candidates
+      // Fetch content-based candidates
       final contentResponse = await supabaseClient
           .from('posts')
           .select('*, post_images(*)')
@@ -165,7 +163,7 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
       List<Map<String, dynamic>> combined = (contentResponse as List)
           .cast<Map<String, dynamic>>();
 
-      // 3️⃣ If location exists → fetch nearby too
+      // If location exists → fetch nearby too
       if (latitude != null && longitude != null) {
         final nearbyResponse = await supabaseClient.rpc(
           'get_nearby_posts',
@@ -183,14 +181,14 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
         combined.addAll(nearbyList);
       }
 
-      // 4️⃣ Remove duplicates (by post id)
+      // Remove duplicates (by post id)
       final Map<String, Map<String, dynamic>> uniqueMap = {
         for (var post in combined) post['id']: post,
       };
 
       final uniquePosts = uniqueMap.values.toList();
 
-      // 5️⃣ Score posts (content based)
+      // Score posts (content based)
       final scored = uniquePosts.map((json) {
         final score = _contentScore(
           tagsRaw: json['tags'],
@@ -202,7 +200,7 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
         return MapEntry(json, score);
       }).toList()..sort((a, b) => b.value.compareTo(a.value));
 
-      // 6️⃣ Take top limit
+      // Take top limit
       final finalPosts = scored
           .take(limit)
           .map((e) => PostModel.fromJson(e.key))

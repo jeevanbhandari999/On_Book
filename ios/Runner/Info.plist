@@ -71,14 +71,20 @@
 
 
 	<!-- For locatiom access -->
-	<key>NSLocationWhenInUseUsageDescription</key>
+	<!-- <key>NSLocationWhenInUseUsageDescription</key>
 	<string>This app needs location access to show your current position on the map.</string>
 
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>This app needs location access to show your current position on the map.</string>
 
 	<key>NSLocationAlwaysUsageDescription</key>
-	<string>This app needs location access to show your current position on the map.</string>
+	<string>This app needs location access to show your current position on the map.</string> -->
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>This app needs access to your location to allow you to pick a spot on the map.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>This app needs access to your location to function properly.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>This app needs access to your location to allow you to pick a spot on the map.</string>
 
 
 	<!-- Camera -->

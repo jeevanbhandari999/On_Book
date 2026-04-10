@@ -258,10 +258,10 @@ class NavigationConfiguration {
 
     NavigationItem(
       route: RouteConstants.postPage,
-      label: 'Create',
+      label: 'Post',
       icon: Icons.add_circle_outline,
       selectedIcon: Icons.add_circle_rounded,
-      semanticLabel: 'Navigate to Create',
+      semanticLabel: 'Navigate to Post',
       tooltip: 'Add or create new content',
       description: 'Navigate to content creation dashboard',
       childRoutes: ['/'],

@@ -371,7 +371,7 @@ class PostView extends StatelessWidget {
                                     children: [
                                       Expanded(
                                         child: Text(
-                                          'Rs. ${post.price!.toStringAsFixed(2)}',
+                                          'Rs. ${post.price!.toStringAsFixed(2)}/night',
                                           style: const TextStyle(
                                             fontWeight: FontWeight.bold,
                                             fontSize: 14,

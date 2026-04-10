@@ -45,11 +45,10 @@ class PostView extends StatelessWidget {
       body: BlocConsumer<OrganizationPostsBloc, OrganizationPostsState>(
         listener: (context, state) {
           if (state is AdminLoggedIn) {
-            context.go(RouteConstants.anotherPage);
+            context.go(RouteConstants.forgotPassword);
           }
         },
         builder: (context, state) {
-          // print(state);
           if (state is UserRoleAndOrganizationDetailStatusChecking) {
             return const PostDetailShimmerEffectPage();
           } else if (state is OrganizationOwnerLoggedIn) {

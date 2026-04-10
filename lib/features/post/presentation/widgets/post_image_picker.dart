@@ -112,14 +112,14 @@ class PostMediaPicker extends StatelessWidget {
         ),
         const SizedBox(height: UiConstants.spacingMd),
 
-        _VideoSection(
-          videoFile: videoFile,
-          uploadProgress: uploadProgress?[videoFile],
-          enabled: enabled,
-          onPick: (source) => _pickVideo(context, source),
-          onRemove: onVideoRemoved,
-        ),
-        const SizedBox(height: UiConstants.spacingSm),
+        // _VideoSection(
+        //   videoFile: videoFile,
+        //   uploadProgress: uploadProgress?[videoFile],
+        //   enabled: enabled,
+        //   onPick: (source) => _pickVideo(context, source),
+        //   onRemove: onVideoRemoved,
+        // ),
+        // const SizedBox(height: UiConstants.spacingSm),
       ],
     );
   }

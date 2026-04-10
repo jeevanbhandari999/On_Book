@@ -1,7 +1,3 @@
-// ─────────────────────────────────────────────────────────────────
-// features/search/data/datasources/search_remote_data_source.dart
-// ─────────────────────────────────────────────────────────────────
-//
 // Content-Based Filtering Algorithm (discovery feed):
 //
 //  1.  Fetch PostTags & AmenityTypes from posts the user liked / saved
@@ -143,49 +139,6 @@ class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
       OrganizationModel.fromJson(row).toEntity();
 
   // ── Content-Based Filtering helpers ──────────────────────────────
-  // Future<Map<String, int>> _buildInterestMap(String userId) async {
-  //   try {
-  //     // Fetch tags/amenities from posts the user liked
-  //     // final liked = await supabase
-  //     //     .from('post_likes')
-  //     //     .select('posts(tags, amenities)')
-  //     //     .eq('user_id', userId)
-  //     //     .limit(60);
-
-  //     // Fetch tags/amenities from posts the user saved
-  //     final saved = await supabase
-  //         .from('user_saved_posts')
-  //         .select('posts(tags, amenities)')
-  //         .eq('user_id', userId)
-  //         .limit(20);
-
-  //     final Map<String, int> freq = {};
-
-  //     void extractList(dynamic raw) {
-  //       if (raw is List) {
-  //         for (final item in raw) {
-  //           if (item is String && item.isNotEmpty) {
-  //             freq[item] = (freq[item] ?? 0) + 1;
-  //           }
-  //         }
-  //       }
-  //     }
-
-  //     for (final row in [
-  //       // ...liked,
-  //       ...saved,
-  //     ]) {
-  //       final post = row['posts'] as Map<String, dynamic>?;
-  //       if (post == null) continue;
-  //       extractList(post['tags']);
-  //       extractList(post['amenities']);
-  //     }
-
-  //     return freq;
-  //   } catch (_) {
-  //     return {};
-  //   }
-  // }
 
   Future<Map<String, double>> _buildInterestMap(String userId) async {
     try {
@@ -244,23 +197,7 @@ class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
     }
   }
 
-  /// Step 2 — score a post row against the interest map.
-  // double _contentScore({
-  //   required dynamic tagsRaw,
-  //   required dynamic amenitiesRaw,
-  //   required Map<String, int> freq,
-  //   required int maxFreq,
-  // }) {
-  //   if (freq.isEmpty) return 0;
-  //   final signals = <String>[...?_asList(tagsRaw), ...?_asList(amenitiesRaw)];
-  //   if (signals.isEmpty) return 0;
-
-  //   double total = 0;
-  //   for (final s in signals) {
-  //     total += (freq[s] ?? 0) / maxFreq;
-  //   }
-  //   return (total / signals.length).clamp(0.0, 1.0);
-  // }
+  /// score a post row against the interest map.
 
   double _contentScore({
     required dynamic tagsRaw,
@@ -298,78 +235,6 @@ class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
   }
 
   // ── Discovery feed ────────────────────────────────────────────────
-
-  // @override
-  // Future<SearchResult> getDiscoveryFeed({
-  //   required String currentUserId,
-  //   int page = 1,
-  //   int limit = 20,
-  // }) async {
-  //   try {
-  //     final results = await Future.wait<dynamic>([
-  //       _buildInterestMap(currentUserId),
-  //       supabase
-  //           .from('users')
-  //           .select(_userSelect)
-  //           .neq('user_id', currentUserId)
-  //           .order('created_at', ascending: false)
-  //           .limit(10),
-  //       supabase
-  //           .from('organizations')
-  //           .select(_orgSelect)
-  //           .order('created_at', ascending: false)
-  //           .limit(10),
-  //       supabase
-  //           .from('posts')
-  //           .select(_postSelect)
-  //           .eq('status', PostStatus.available.name)
-  //           .neq('created_by', currentUserId)
-  //           .order('created_at', ascending: false)
-  //           .limit(limit * 5),
-  //     ]);
-
-  //     final freq = results[0] as Map<String, int>;
-  //     final userRows = results[1] as List<dynamic>;
-  //     final orgRows = results[2] as List<dynamic>;
-  //     final candidateRows = results[3] as List<dynamic>;
-
-  //     final maxFreq = freq.isEmpty
-  //         ? 1
-  //         : freq.values.reduce((a, b) => a > b ? a : b);
-
-  //     //   final maxFreq = freq.isEmpty
-  //     // ? 1.0
-  //     // : freq.values.reduce((a, b) => a > b ? a : b);
-
-  //     // Score & sort candidates
-  //     final scored = candidateRows.map((row) {
-  //       final r = row as Map<String, dynamic>;
-  //       final cs = _contentScore(
-  //         tagsRaw: r['tags'],
-  //         amenitiesRaw: r['amenities'],
-  //         freq: freq,
-  //         maxFreq: maxFreq,
-  //       );
-  //       final rs = _recencyScore(r['created_at'] as String?);
-  //       final blended = 0.6 * cs + 0.4 * rs;
-  //       return MapEntry(r, blended);
-  //     }).toList()..sort((a, b) => b.value.compareTo(a.value));
-
-  //     final posts = scored.take(limit).map((e) => _postFromRow(e.key)).toList();
-  //     final users = userRows
-  //         .map((r) => _userFromRow(r as Map<String, dynamic>))
-  //         .toList();
-  //     final orgs = orgRows
-  //         .map((r) => _orgFromRow(r as Map<String, dynamic>))
-  //         .toList();
-
-  //     return SearchResult(posts: posts, users: users, organizations: orgs);
-  //   } on supabase_import.PostgrestException catch (e) {
-  //     throw ServerException(e.message);
-  //   } catch (e) {
-  //     throw ServerException(e.toString());
-  //   }
-  // }
 
   @override
   Future<SearchResult> getDiscoveryFeed({

@@ -939,12 +939,28 @@ class _ErrorSliver extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.error_outline, size: 48, color: Colors.red[300]),
+          Container(
+                padding: const EdgeInsets.all(UiConstants.spacingMd),
+                decoration: BoxDecoration(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.error.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.error_outline,
+                  size: 60,
+                  color: Theme.of(context).colorScheme.error,
+                ),
+              )
+              .animate()
+              .scale(duration: 600.ms, curve: Curves.easeOutBack)
+              .fadeIn(duration: 600.ms),
           const SizedBox(height: UiConstants.spacingMd),
           Text(
             'Something went wrong',
             style: Theme.of(context).textTheme.titleMedium,
-          ),
+          ).animate().fadeIn(duration: 300.ms),
           const SizedBox(height: UiConstants.spacingSm),
           Padding(
             padding: const EdgeInsets.symmetric(
@@ -955,7 +971,7 @@ class _ErrorSliver extends StatelessWidget {
               'Please try again in later.',
               textAlign: TextAlign.center,
               style: TextStyle(color: Colors.grey[600], fontSize: 13),
-            ),
+            ).animate().fadeIn().moveY(begin: 20, end: 0),
           ),
         ],
       ),

@@ -80,7 +80,10 @@ class _PostFormState extends State<PostForm> {
       },
       builder: (context, state) {
         if (state is! PostFormReady) {
-          return const Center(child: CircularProgressIndicator());
+          return const Padding(
+            padding: EdgeInsets.only(top: 100),
+            child: CircularProgressIndicator(),
+          );
         }
 
         final form = state;
@@ -134,7 +137,7 @@ class _PostFormState extends State<PostForm> {
               // Price
               CustomTextField(
                 controller: _priceController,
-                label: 'Price (Rs.) *',
+                label: 'Price/night (Rs.) *',
                 hint: 'e.g. 5000',
                 keyboardType: TextInputType.number,
                 errorText: form.validationErrors['price'],
@@ -298,17 +301,17 @@ class _PostFormState extends State<PostForm> {
               const SizedBox(height: UiConstants.spacingMd),
 
               // YouTube URL
-              CustomTextField(
-                controller: _youtubeController,
-                label: 'YouTube URL (optional)',
-                hint: 'https://youtube.com/...',
-                errorText: form.validationErrors['youtubeUrl'],
-                onChanged: (v) => context.read<PostFormBloc>().add(
-                  PostFormYoutubeUrlChanged(v.trim()),
-                ),
-                prefixIcon: const Icon(Icons.play_circle_outline),
-              ),
-              const SizedBox(height: UiConstants.spacingMd),
+              // CustomTextField(
+              //   controller: _youtubeController,
+              //   label: 'YouTube URL (optional)',
+              //   hint: 'https://youtube.com/...',
+              //   errorText: form.validationErrors['youtubeUrl'],
+              //   onChanged: (v) => context.read<PostFormBloc>().add(
+              //     PostFormYoutubeUrlChanged(v.trim()),
+              //   ),
+              //   prefixIcon: const Icon(Icons.play_circle_outline),
+              // ),
+              // const SizedBox(height: UiConstants.spacingMd),
               // Media Picker
               PostMediaPicker(
                 primaryImageError: form.validationErrors['primary_image'],
@@ -335,22 +338,7 @@ class _PostFormState extends State<PostForm> {
                   const PostFormVideoRemoved(),
                 ),
               ),
-              // PostMediaPicker(
-              //   existingPrimaryImageUrl: form.editPost?.primaryImageUrl,
-              //   existingAdditionalImages: form.existingAdditionalImages,
-              //   primaryImageFile: form.primaryImageFile,
-              //   additionalImages: form.additionalImages,
-              //   videoFile: form.videoFile,
-              //   onPrimaryImagePicked: (f) =>
-              //       bloc.add(PostFormPrimaryImagePicked(f)),
-              //   onImageAdded: (f) => bloc.add(PostFormAdditionalImageAdded(f)),
-              //   onImageRemoved: (i) =>
-              //       bloc.add(PostFormAdditionalImageRemoved(i)),
-              //   onExistingImageRemoved: (url) =>
-              //       bloc.add(PostFormExistingImageRemoved(imageUrl: url)),
-              //   onVideoPicked: (f) => bloc.add(PostFormVideoPicked(f)),
-              //   onVideoRemoved: () => bloc.add(const PostFormVideoRemoved()),
-              // ),
+
               const SizedBox(height: UiConstants.spacingMd),
 
               // Location Picker
@@ -411,7 +399,111 @@ class _PostFormState extends State<PostForm> {
 }
 
 // Reuse your existing _LocationSection (just move it here or keep separate)
-class _LocationSection extends StatelessWidget {
+// class _LocationSection extends StatelessWidget {
+//   final double? latitude;
+//   final double? longitude;
+//   final Function(double?, double?) onChanged;
+
+//   const _LocationSection({
+//     required this.latitude,
+//     required this.longitude,
+//     required this.onChanged,
+//   });
+
+//   @override
+//   Widget build(BuildContext context) {
+//     // Create controllers that reflect current values
+//     final latController = TextEditingController(
+//       text: latitude != null ? latitude!.toStringAsFixed(6) : '',
+//     );
+//     final lngController = TextEditingController(
+//       text: longitude != null ? longitude!.toStringAsFixed(6) : '',
+//     );
+
+//     // Keep controllers in sync if value changes externally (e.g. from map)
+//     latController.text = latitude?.toStringAsFixed(6) ?? '';
+//     lngController.text = longitude?.toStringAsFixed(6) ?? '';
+
+//     return Column(
+//       crossAxisAlignment: CrossAxisAlignment.start,
+//       children: [
+//         Text(
+//           'Location (optional)',
+//           style: Theme.of(context).textTheme.labelMedium,
+//         ),
+//         if (latitude != null && longitude != null)
+//           Row(
+//             children: [
+//               Expanded(
+//                 child: CustomTextField(
+//                   controller: latController,
+//                   label: 'Latitude',
+//                   hint: 'e.g. 27.7172',
+//                   keyboardType: const TextInputType.numberWithOptions(
+//                     decimal: true,
+//                   ),
+//                   onChanged: (v) {
+//                     final val = double.tryParse(v);
+//                     onChanged(val, longitude);
+//                   },
+//                   prefixIcon: const Icon(Icons.location_on, size: 20),
+//                 ),
+//               ),
+//               const SizedBox(width: 12),
+//               Expanded(
+//                 child: CustomTextField(
+//                   controller: lngController,
+//                   label: 'Longitude',
+//                   hint: 'e.g. 85.3240',
+//                   keyboardType: const TextInputType.numberWithOptions(
+//                     decimal: true,
+//                   ),
+//                   onChanged: (v) {
+//                     final val = double.tryParse(v);
+//                     onChanged(latitude, val);
+//                   },
+//                   prefixIcon: const Icon(Icons.explore, size: 20),
+//                 ),
+//               ),
+//             ],
+//           ),
+//         const SizedBox(height: 12),
+
+//         // Pick from Map Button
+//         SizedBox(
+//           width: double.infinity,
+//           child: CustomButton(
+//             text: 'Pick Location from Map',
+//             icon: const Icon(Icons.map_outlined),
+//             onPressed: () async {
+//               final result = await context.push(
+//                 RouteConstants.pickLocation,
+//               ); // your Another page
+
+//               if (result is LatLng && context.mounted) {
+//                 onChanged(result.latitude, result.longitude);
+//               }
+//             },
+//           ),
+//         ),
+
+//         const SizedBox(height: 8),
+
+//         // Optional: Clear button
+//         if (latitude != null || longitude != null)
+//           Align(
+//             alignment: Alignment.centerRight,
+//             child: TextButton(
+//               onPressed: () => onChanged(null, null),
+//               child: const Text('Clear Location'),
+//             ),
+//           ),
+//       ],
+//     );
+//   }
+// }
+
+class _LocationSection extends StatefulWidget {
   final double? latitude;
   final double? longitude;
   final Function(double?, double?) onChanged;
@@ -423,19 +515,49 @@ class _LocationSection extends StatelessWidget {
   });
 
   @override
+  State<_LocationSection> createState() => _LocationSectionState();
+}
+
+class _LocationSectionState extends State<_LocationSection> {
+  late TextEditingController latController;
+  late TextEditingController lngController;
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize controllers ONCE
+    latController = TextEditingController(
+      text: widget.latitude != null ? widget.latitude!.toStringAsFixed(6) : '',
+    );
+    lngController = TextEditingController(
+      text: widget.longitude != null
+          ? widget.longitude!.toStringAsFixed(6)
+          : '',
+    );
+  }
+
+  @override
+  void didUpdateWidget(covariant _LocationSection oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Update controllers ONLY if the values changed externally (e.g., returned from map)
+    if (widget.latitude != oldWidget.latitude) {
+      latController.text = widget.latitude?.toStringAsFixed(6) ?? '';
+    }
+    if (widget.longitude != oldWidget.longitude) {
+      lngController.text = widget.longitude?.toStringAsFixed(6) ?? '';
+    }
+  }
+
+  @override
+  void dispose() {
+    // Prevent memory leaks
+    latController.dispose();
+    lngController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // Create controllers that reflect current values
-    final latController = TextEditingController(
-      text: latitude != null ? latitude!.toStringAsFixed(6) : '',
-    );
-    final lngController = TextEditingController(
-      text: longitude != null ? longitude!.toStringAsFixed(6) : '',
-    );
-
-    // Keep controllers in sync if value changes externally (e.g. from map)
-    latController.text = latitude?.toStringAsFixed(6) ?? '';
-    lngController.text = longitude?.toStringAsFixed(6) ?? '';
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -443,7 +565,7 @@ class _LocationSection extends StatelessWidget {
           'Location (optional)',
           style: Theme.of(context).textTheme.labelMedium,
         ),
-        if (latitude != null && longitude != null)
+        if (widget.latitude != null && widget.longitude != null)
           Row(
             children: [
               Expanded(
@@ -456,7 +578,7 @@ class _LocationSection extends StatelessWidget {
                   ),
                   onChanged: (v) {
                     final val = double.tryParse(v);
-                    onChanged(val, longitude);
+                    widget.onChanged(val, widget.longitude);
                   },
                   prefixIcon: const Icon(Icons.location_on, size: 20),
                 ),
@@ -472,7 +594,7 @@ class _LocationSection extends StatelessWidget {
                   ),
                   onChanged: (v) {
                     final val = double.tryParse(v);
-                    onChanged(latitude, val);
+                    widget.onChanged(widget.latitude, val);
                   },
                   prefixIcon: const Icon(Icons.explore, size: 20),
                 ),
@@ -488,25 +610,22 @@ class _LocationSection extends StatelessWidget {
             text: 'Pick Location from Map',
             icon: const Icon(Icons.map_outlined),
             onPressed: () async {
-              final result = await context.push(
-                RouteConstants.anotherPage,
-              ); // your Another page
+              final result = await context.push(RouteConstants.pickLocation);
 
               if (result is LatLng && context.mounted) {
-                onChanged(result.latitude, result.longitude);
+                widget.onChanged(result.latitude, result.longitude);
               }
             },
           ),
         ),
-
         const SizedBox(height: 8),
 
         // Optional: Clear button
-        if (latitude != null || longitude != null)
+        if (widget.latitude != null || widget.longitude != null)
           Align(
             alignment: Alignment.centerRight,
             child: TextButton(
-              onPressed: () => onChanged(null, null),
+              onPressed: () => widget.onChanged(null, null),
               child: const Text('Clear Location'),
             ),
           ),

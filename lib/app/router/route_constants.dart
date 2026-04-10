@@ -13,7 +13,7 @@ class RouteConstants {
 
   // Search routes
   static const String searchPage = '/search';
-  static const String anotherPage = '/anotherPage';
+  static const String pickLocation = '/pickLocation';
 
   // Post routes
   static const String dummyPostPage =
