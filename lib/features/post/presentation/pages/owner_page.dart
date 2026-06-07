@@ -183,6 +183,7 @@ Widget _buildPostsList(
     builder: (context, state) {
       if (state is OrganizationPostsLoading) {
         return SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
           padding: const EdgeInsets.all(UiConstants.spacingSm),
           child: StaggeredGrid.count(
             crossAxisCount: 2,

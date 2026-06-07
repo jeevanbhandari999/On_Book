@@ -239,66 +239,66 @@ class _ChatViewState extends State<ChatView> {
                               ),
                             ],
                           ),
-                          actions: [
-                            IconButton(
-                              icon: const Icon(
-                                Icons.videocam,
-                                color: Colors.black,
-                              ),
-                              onPressed: () {},
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.call, color: Colors.black),
-                              onPressed: () {},
-                            ),
-                            AppPopupMenu(
-                              iconColor: AppColors.black,
-                              items: [
-                                AppPopupMenuItem(
-                                  value: 'view_profile',
-                                  label: 'View Profile',
-                                  icon: Icons.person,
-                                  onTap: () {
-                                    final otherUserId = _getOtherUserId();
-                                    if (otherUserId != null) {
-                                      context.push(
-                                        RouteConstants.viewUserProfilePage,
-                                        extra: {
-                                          'userId': otherUserId,
-                                          'currentUserId': widget.currentUserId,
-                                        },
-                                      );
-                                    }
-                                  },
-                                ),
-                                AppPopupMenuItem(
-                                  value: 'mute_notifications',
-                                  label: 'Mute Notifications',
-                                  icon: Icons.notifications_off,
-                                  onTap: () {},
-                                ),
-                                AppPopupMenuItem(
-                                  value: 'search',
-                                  label: 'Search',
-                                  icon: Icons.search,
-                                  onTap: () {},
-                                ),
-                                AppPopupMenuItem(
-                                  value: 'clear_chat',
-                                  label: 'Clear Chat',
-                                  icon: Icons.clear_all,
-                                  onTap: () {},
-                                ),
-                                AppPopupMenuItem(
-                                  isDistructive: true,
-                                  value: 'block',
-                                  label: 'Block',
-                                  icon: Icons.block,
-                                  onTap: () {},
-                                ),
-                              ],
-                            ),
-                          ],
+                          // actions: [
+                          //   IconButton(
+                          //     icon: const Icon(
+                          //       Icons.videocam,
+                          //       color: Colors.black,
+                          //     ),
+                          //     onPressed: () {},
+                          //   ),
+                          //   IconButton(
+                          //     icon: const Icon(Icons.call, color: Colors.black),
+                          //     onPressed: () {},
+                          //   ),
+                          //   AppPopupMenu(
+                          //     iconColor: AppColors.black,
+                          //     items: [
+                          //       AppPopupMenuItem(
+                          //         value: 'view_profile',
+                          //         label: 'View Profile',
+                          //         icon: Icons.person,
+                          //         onTap: () {
+                          //           final otherUserId = _getOtherUserId();
+                          //           if (otherUserId != null) {
+                          //             context.push(
+                          //               RouteConstants.viewUserProfilePage,
+                          //               extra: {
+                          //                 'userId': otherUserId,
+                          //                 'currentUserId': widget.currentUserId,
+                          //               },
+                          //             );
+                          //           }
+                          //         },
+                          //       ),
+                          //       AppPopupMenuItem(
+                          //         value: 'mute_notifications',
+                          //         label: 'Mute Notifications',
+                          //         icon: Icons.notifications_off,
+                          //         onTap: () {},
+                          //       ),
+                          //       AppPopupMenuItem(
+                          //         value: 'search',
+                          //         label: 'Search',
+                          //         icon: Icons.search,
+                          //         onTap: () {},
+                          //       ),
+                          //       AppPopupMenuItem(
+                          //         value: 'clear_chat',
+                          //         label: 'Clear Chat',
+                          //         icon: Icons.clear_all,
+                          //         onTap: () {},
+                          //       ),
+                          //       AppPopupMenuItem(
+                          //         isDistructive: true,
+                          //         value: 'block',
+                          //         label: 'Block',
+                          //         icon: Icons.block,
+                          //         onTap: () {},
+                          //       ),
+                          //     ],
+                          //   ),
+                          // ],
                           flexibleSpace: FlexibleSpaceBar(
                             background: Container(
                               decoration: BoxDecoration(
@@ -499,17 +499,17 @@ class _ChatViewState extends State<ChatView> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          Container(
-            decoration: BoxDecoration(
-              color: Theme.of(context).primaryColor,
-              shape: BoxShape.circle,
-            ),
-            child: IconButton(
-              icon: const Icon(Icons.add, color: Colors.black),
-              onPressed: () {},
-            ),
-          ),
-          const SizedBox(width: UiConstants.spacingSm),
+          // Container(
+          //   decoration: BoxDecoration(
+          //     color: Theme.of(context).primaryColor,
+          //     shape: BoxShape.circle,
+          //   ),
+          //   child: IconButton(
+          //     icon: const Icon(Icons.add, color: Colors.black),
+          //     onPressed: () {},
+          //   ),
+          // ),
+          // const SizedBox(width: UiConstants.spacingSm),
           Expanded(
             child: Container(
               constraints: const BoxConstraints(maxHeight: 140),
@@ -569,8 +569,9 @@ class _ChatViewState extends State<ChatView> {
               shape: BoxShape.circle,
             ),
             child: IconButton(
-              icon: Icon(
-                _isTyping ? Icons.send_rounded : Icons.mic,
+              icon: const Icon(
+                // _isTyping ? Icons.send_rounded : Icons.mic,
+                Icons.send_rounded,
                 color: Colors.black,
                 size: 20,
               ),

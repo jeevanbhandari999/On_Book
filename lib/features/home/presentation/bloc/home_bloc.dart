@@ -207,23 +207,6 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     RefreshNearbyPosts event,
     Emitter<HomeState> emit,
   ) async {
-    // final result = await getNearbyPostsUseCase(
-    //   GetAllPostsNearByUserParams(
-    //     userId: event.userId,
-    //     latitude: event.latitude,
-    //     longitude: event.longitude,
-    //     limit: 15,
-    //     cursor: null,
-    //   ),
-    // );
-
-    // result.fold(
-    //   (failure) => emit(HomeError(failure.message)),
-    //   (data) => emit(
-    //     HomeLoaded(data.posts, data.nextCursor, organizations: const {}),
-    //   ),
-    // );
-
     final result = await getAllPostRecommendedByContentFilterUseCase(
       GetAllPostRecommendedByContentFilterParams(
         userId: event.userId,

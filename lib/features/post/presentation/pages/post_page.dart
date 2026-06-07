@@ -45,6 +45,7 @@ class PostView extends StatelessWidget {
       body: BlocConsumer<OrganizationPostsBloc, OrganizationPostsState>(
         listener: (context, state) {
           if (state is AdminLoggedIn) {
+            // We will manage the adim dash board later
             context.go(RouteConstants.forgotPassword);
           }
         },

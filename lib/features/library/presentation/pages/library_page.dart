@@ -827,14 +827,14 @@ class _BookingActionMenu extends StatelessWidget {
         );
       }
 
-      items.add(
-        AppPopupMenuItem(
-          value: 'updatePayment',
-          label: 'Update Payment',
-          icon: Icons.currency_exchange,
-          onTap: () => _handleAction(context, 'updatePayment'),
-        ),
-      );
+      // items.add(
+      //   AppPopupMenuItem(
+      //     value: 'updatePayment',
+      //     label: 'Update Payment',
+      //     icon: Icons.currency_exchange,
+      //     onTap: () => _handleAction(context, 'updatePayment'),
+      //   ),
+      // );
 
       items.add(
         AppPopupMenuItem(
@@ -870,10 +870,10 @@ class _BookingActionMenu extends StatelessWidget {
           ),
         );
         break;
-      case 'updatePayment':
-        // TODO
-        // call update payment
-        break;
+      // case 'updatePayment':
+      //   // TODO
+      //   // call update payment
+      //   break;
       case 'reject':
         context.read<LibraryBloc>().add(
           UpdateBookingStatusFromLibraryPage(
@@ -901,10 +901,8 @@ extension BookingStatusUI on Booking {
   }) {
     final chips = <BookingStatusChipData>[];
 
-    /// 1️⃣ Main booking status
     chips.add(_mapPrimaryStatus());
 
-    /// 2️⃣ Booking type
     if (isHourly) {
       chips.add(
         const BookingStatusChipData(label: 'HOURLY', color: Color(0xFFEA580C)),
@@ -915,7 +913,6 @@ extension BookingStatusUI on Booking {
       );
     }
 
-    /// 3️⃣ Time-based state
     if (isOngoing) {
       chips.add(
         const BookingStatusChipData(label: 'ONGOING', color: Colors.orange),

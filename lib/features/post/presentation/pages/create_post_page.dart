@@ -46,7 +46,7 @@ class CreatePostView extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         title: const Text(
-          'Creating Post',
+          'Create Post',
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
       ),

@@ -3,6 +3,7 @@ import 'package:app/app/app_config.dart';
 import 'package:app/app/dependency_injection.dart';
 import 'package:app/app/router/app_router.dart';
 import 'package:app/core/theme/app_theme.dart';
+import 'package:app/features/home/presentation/cubit/location_cubit.dart';
 import 'package:app/features/notifications/domain/usecases/stream_notifications_use_case.dart';
 import 'package:app/features/notifications/presentation/bloc/notification_cubit.dart';
 import 'package:app/features/notifications/presentation/services/notification_service.dart';
@@ -53,6 +54,7 @@ Future<void> main() async {
                   DependencyInjection.get<StreamNotificationsUseCase>(),
             ),
           ),
+          BlocProvider(create: (context) => LocationCubit()),
         ],
         child: const MyApp(),
       ),

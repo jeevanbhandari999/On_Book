@@ -722,7 +722,7 @@ class PostRemoteDataSourceImpl implements PostRemoteDataSource {
   }
 
   // ALGORITHM IMPLEMENTATIONS
-
+  // Showing the related posts according to the tags and amenities, as well as saved posts tags and amenities
   @override
   Future<List<PostModel>> getRelatedPosts({
     required String userId,
@@ -732,56 +732,90 @@ class PostRemoteDataSourceImpl implements PostRemoteDataSource {
     try {
       final interestMap = await _buildInterestMap(userId);
 
-      // Convert enum tags to raw strings for Supabase overlaps()
-      final rawTags = currentPost.tags
-          ?.map((t) => t.name) // or t.toString() depending on your enum
-          .toList();
+      final rawTags = currentPost.tags?.map((t) => t.name).toList();
+      final rawAmenities = currentPost.amenities?.map((a) => a.name).toList();
 
-      if (rawTags == null || rawTags.isEmpty) {
-        // Fallback: just fetch recent posts if current post has no tags
+      // Combine current post's tags + amenities as signals
+      final currentSignals = <String>[...?rawTags, ...?rawAmenities];
+
+      final maxFreq = interestMap.isEmpty
+          ? 1.0
+          : interestMap.values
+                .map((v) => v.abs())
+                .reduce((a, b) => a > b ? a : b);
+
+      List<Map<String, dynamic>> raw = [];
+
+      if (currentSignals.isNotEmpty) {
+        // Fetch posts that overlap with current post's tags
         final response = await supabaseClient
             .from('posts')
             .select('*, post_images(*)')
             .neq('id', currentPost.id)
-            .order('created_at', ascending: false)
-            .limit(limit);
+            .overlaps('tags', rawTags ?? [])
+            .limit(limit * 4);
 
-        return (response as List)
-            .cast<Map<String, dynamic>>()
-            .map((json) => PostModel.fromJson(json))
-            .toList();
+        raw = (response as List).cast<Map<String, dynamic>>();
       }
 
-      // Pass raw string list to overlaps
-      final response = await supabaseClient
-          .from('posts')
-          .select('*, post_images(*)')
-          .neq('id', currentPost.id)
-          .overlaps('tags', rawTags) // <-- fixed
-          .limit(limit * 3);
+      // If not enough results, top up with recent posts
+      if (raw.length < limit) {
+        final fallback = await supabaseClient
+            .from('posts')
+            .select('*, post_images(*)')
+            .neq('id', currentPost.id)
+            .order('created_at', ascending: false)
+            .limit(limit * 2);
 
-      final List<Map<String, dynamic>> raw = (response as List)
-          .cast<Map<String, dynamic>>();
+        final fallbackList = (fallback as List).cast<Map<String, dynamic>>();
 
-      // Handle empty interestMap gracefully with a base score
-      final maxFreq = interestMap.isEmpty
-          ? 1.0
-          : interestMap.values.reduce((a, b) => a > b ? a : b);
+        // Merge without duplicates
+        final existingIds = raw.map((p) => p['id']).toSet();
+        for (final post in fallbackList) {
+          if (!existingIds.contains(post['id'])) {
+            raw.add(post);
+          }
+        }
+      }
 
       final scored = raw.map((json) {
-        double score = _contentScore(
+        // Interest score — based on user's saved post history
+        final double interestScore = _contentScore(
           tagsRaw: json['tags'],
           amenitiesRaw: json['amenities'],
           freq: interestMap,
           maxFreq: maxFreq,
         );
 
-        // Boost posts sharing more tags with currentPost
+        // Similarity score — how similar is this post to the current post
         final postTags = _asList(json['tags']) ?? [];
-        final overlap = postTags.where((t) => rawTags.contains(t)).length;
-        score += overlap * 0.1; // small boost per shared tag
+        final postAmenities = _asList(json['amenities']) ?? [];
+        final postSignals = [...postTags, ...postAmenities];
 
-        return MapEntry(json, score);
+        final double similarityScore = currentSignals.isEmpty
+            ? 0
+            : postSignals.where((s) => currentSignals.contains(s)).length /
+                  currentSignals.length;
+
+        // Tag overlap boost — more shared tags = higher rank
+        final int tagOverlap = postTags
+            .where((t) => (rawTags ?? []).contains(t))
+            .length;
+        final int amenityOverlap = postAmenities
+            .where((a) => (rawAmenities ?? []).contains(a))
+            .length;
+
+        // Final score:
+        // 40% similarity to current post
+        // 40% user interest from saved history
+        // 20% raw overlap count boost (normalized)
+        final double overlapBoost = ((tagOverlap + amenityOverlap) * 0.05)
+            .clamp(0.0, 0.2);
+
+        final double finalScore =
+            (similarityScore * 0.4) + (interestScore * 0.4) + overlapBoost;
+
+        return MapEntry(json, finalScore);
       }).toList()..sort((a, b) => b.value.compareTo(a.value));
 
       return scored.take(limit).map((e) => PostModel.fromJson(e.key)).toList();
@@ -790,31 +824,169 @@ class PostRemoteDataSourceImpl implements PostRemoteDataSource {
     }
   }
 
+  // For easy explanation
+  // Future<Map<String, double>> _buildInterestMap(String userId) async {
+  //   try {
+  //     final saved = await supabaseClient
+  //         .from('user_saved_posts')
+  //         .select('posts(tags, amenities)')
+  //         .eq('user_id', userId)
+  //         .limit(30);
+
+  //     final Map<String, double> freq = {};
+
+  //     void extract(dynamic raw) {
+  //       if (raw is List) {
+  //         for (final item in raw) {
+  //           if (item is String && item.isNotEmpty) {
+  //             freq[item] = (freq[item] ?? 0) + 1.0;
+  //           }
+  //         }
+  //       }
+  //     }
+
+  //     for (final row in saved as List) {
+  //       final post = row['posts'] as Map<String, dynamic>?;
+  //       if (post == null) continue;
+  //       extract(post['tags']);
+  //       extract(post['amenities']);
+  //     }
+
+  //     return freq;
+  //   } catch (e) {
+  //     return {};
+  //   }
+  // }
+
   Future<Map<String, double>> _buildInterestMap(String userId) async {
     try {
+      // Saved posts — explicit save action
       final saved = await supabaseClient
           .from('user_saved_posts')
-          .select('posts(tags, amenities)')
+          .select('posts(tags, amenities, organization_id)')
           .eq('user_id', userId)
           .limit(30);
 
+      // Rated posts — explicit rating feedback
+      final rated = await supabaseClient
+          .from('ratings')
+          .select('rating_value, posts(tags, amenities, organization_id)')
+          .eq('user_id', userId)
+          .limit(30);
+
+      // Org behavioral scores — implicit engagement signals like booked, review, viewed, saved and many more
+      final orgScores = await supabaseClient
+          .from('user_org_scores')
+          .select(
+            'organization_id, rating_score, like_score, review_score, '
+            'visit_score, save_score, booking_score, view_score, total_score',
+          )
+          .eq('user_id', userId)
+          .order('total_score', ascending: false)
+          .limit(20);
+
+      // Build org engagement weight map first
+      // orgId engagement weight (0.0 to 3.0+)
+      final Map<String, double> orgEngagementWeight = {};
+      for (final row in orgScores as List) {
+        final orgId = row['organization_id'] as String?;
+        if (orgId == null) continue;
+
+        // Each signal weighted by its importance
+        // booking > visit > save > rating > review > like > view
+        final double weight =
+            (row['booking_score'] as num? ?? 0) * 1.5 +
+            (row['visit_score'] as num? ?? 0) * 1.2 +
+            (row['save_score'] as num? ?? 0) * 1.0 +
+            (row['rating_score'] as num? ?? 0) * 1.0 +
+            (row['review_score'] as num? ?? 0) * 0.8 +
+            (row['like_score'] as num? ?? 0) * 0.5 +
+            (row['view_score'] as num? ?? 0) * 0.2;
+
+        orgEngagementWeight[orgId] = weight;
+      }
+
       final Map<String, double> freq = {};
 
-      void extract(dynamic raw) {
+      void extract(dynamic raw, double weight) {
         if (raw is List) {
           for (final item in raw) {
             if (item is String && item.isNotEmpty) {
-              freq[item] = (freq[item] ?? 0) + 1.0;
+              freq[item] = (freq[item] ?? 0) + weight;
             }
           }
         }
       }
 
+      // Apply saved posts — weight 1.0
       for (final row in saved as List) {
         final post = row['posts'] as Map<String, dynamic>?;
         if (post == null) continue;
-        extract(post['tags']);
-        extract(post['amenities']);
+
+        // Boost further if user also has high org engagement
+        final orgId = post['organization_id'] as String?;
+        final orgBoost = orgId != null
+            ? (orgEngagementWeight[orgId] ?? 0) * 0.1
+            : 0.0;
+
+        extract(post['tags'], 1.0 + orgBoost);
+        extract(post['amenities'], 1.0 + orgBoost);
+      }
+
+      // Apply rated posts — weight by rating value
+      for (final row in rated as List) {
+        final post = row['posts'] as Map<String, dynamic>?;
+        if (post == null) continue;
+
+        final int ratingValue = row['rating_value'] as int? ?? 3;
+        final orgId = post['organization_id'] as String?;
+        final orgBoost = orgId != null
+            ? (orgEngagementWeight[orgId] ?? 0) * 0.1
+            : 0.0;
+
+        final double baseWeight = switch (ratingValue) {
+          5 => 1.5,
+          4 => 1.0,
+          3 => 0.2,
+          2 => -0.5,
+          1 => -1.0,
+          _ => 0.0,
+        };
+
+        // Negative ratings ignore org boost — bad experience is bad
+        final double finalWeight = baseWeight < 0
+            ? baseWeight
+            : baseWeight + orgBoost;
+
+        extract(post['tags'], finalWeight);
+        extract(post['amenities'], finalWeight);
+      }
+
+      // Apply org engagement directly to tags of posts from those orgs
+      // Fetch posts from highly engaged orgs and boost their tags
+      final topOrgIds = orgEngagementWeight.entries
+          .where((e) => e.value > 0.5)
+          .map((e) => e.key)
+          .take(10)
+          .toList();
+
+      if (topOrgIds.isNotEmpty) {
+        final orgPosts = await supabaseClient
+            .from('posts')
+            .select('tags, amenities, organization_id')
+            .inFilter('organization_id', topOrgIds)
+            .limit(50);
+
+        for (final row in orgPosts as List) {
+          final orgId = row['organization_id'] as String?;
+          if (orgId == null) continue;
+
+          final double engagementWeight =
+              (orgEngagementWeight[orgId] ?? 0) * 0.15;
+
+          extract(row['tags'], engagementWeight);
+          extract(row['amenities'], engagementWeight);
+        }
       }
 
       return freq;
@@ -848,7 +1020,3 @@ class PostRemoteDataSourceImpl implements PostRemoteDataSource {
     return null;
   }
 }
-
-
-// 
-

@@ -17,11 +17,11 @@ class ChatUserModel {
 
   factory ChatUserModel.fromJson(Map<String, dynamic> json) {
     return ChatUserModel(
-      id: json['id'],
-      userId: json['user_id'],
-      fullName: json['full_name'],
-      role: json['role'],
-      imageUrl: json['image_url'],
+      id: json['id'] as String,
+      userId: json['user_id'] as String,
+      fullName: json['full_name'] as String,
+      role: json['role'] as String,
+      imageUrl: json['image_url'] as String?,
     );
   }
 

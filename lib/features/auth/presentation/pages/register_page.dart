@@ -63,6 +63,7 @@ class _RegisterViewState extends State<RegisterView> {
     return Scaffold(
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
+          print(state);
           if (state is AuthRegistrationSuccess) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
@@ -97,7 +98,7 @@ class _RegisterViewState extends State<RegisterView> {
                 expandedHeight: 220,
                 collapsedHeight: kToolbarHeight + UiConstants.spacingSm,
                 pinned: true,
-               backgroundColor: AppColors.primaryLight,
+                backgroundColor: AppColors.primaryLight,
                 centerTitle: true,
                 title: ShowOnCollapsedSliverAppBar(
                   child: const Text(

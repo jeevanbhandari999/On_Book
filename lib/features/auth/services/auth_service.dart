@@ -495,7 +495,6 @@ class AuthService {
   // Fetch the organizations
   Future<List<OrganizationModel>> fetchOrganizations() async {
     final response = await _supabase.from('organizations').select();
-    // print('response form the backend : $response');
     return response
         .map((organization) => OrganizationModel.fromJson(organization))
         .toList();

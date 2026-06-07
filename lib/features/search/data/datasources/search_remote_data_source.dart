@@ -309,9 +309,6 @@ class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
           row['organization_id']: (row['total_score'] ?? 0).toDouble(),
       };
 
-      // ─────────────────────────────────────────────
-      // SCORE POSTS
-      // ─────────────────────────────────────────────
 
       final scoredPosts = candidateRows.map((row) {
         final r = row as Map<String, dynamic>;
@@ -351,10 +348,6 @@ class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
           .map((e) => _postFromRow(e.key))
           .toList();
 
-      // ─────────────────────────────────────────────
-      // SCORE ORGANIZATIONS
-      // ─────────────────────────────────────────────
-
       final scoredOrgs = orgRows.map((row) {
         final r = row as Map<String, dynamic>;
         final orgId = r['id'];
@@ -370,10 +363,6 @@ class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
           .take(limit)
           .map((e) => _orgFromRow(e.key))
           .toList();
-
-      // ─────────────────────────────────────────────
-      // USERS (simple recency for now)
-      // ─────────────────────────────────────────────
 
       final users = userRows
           .map((r) => _userFromRow(r as Map<String, dynamic>))

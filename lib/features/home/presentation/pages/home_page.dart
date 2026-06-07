@@ -12,6 +12,7 @@ import 'package:app/features/home/domain/usecases/get_organization_detail_by_pos
 import 'package:app/features/home/domain/usecases/get_organization_list_based_on_global_score_use_case.dart';
 import 'package:app/features/home/presentation/bloc/get_organization_list_based_on_global_score_bloc.dart';
 import 'package:app/features/home/presentation/bloc/home_bloc.dart';
+import 'package:app/features/home/presentation/cubit/location_cubit.dart';
 import 'package:app/features/home/presentation/widgets/animated_app_icon.dart';
 import 'package:app/features/home/presentation/widgets/home_shimmer.dart';
 import 'package:app/features/home/presentation/widgets/home_sliver_header.dart';
@@ -52,33 +53,18 @@ class HomePage extends StatelessWidget {
           )..add(GetCurrentUserProfileDetailsRequested(userId: userId)),
         ),
         BlocProvider(
-          create: (context) =>
-              HomeBloc(
-                  getNearbyPostsUseCase:
-                      DependencyInjection.get<GetAllPostsNearByUserUseCase>(),
-                  getOrganizationDetailByPostOrganizationIdUseCase:
-                      DependencyInjection.get<
-                        GetOrganizationDetailByPostOrganizationIdUseCase
-                      >(),
-                  getAllPostRecommendedByContentFilterUseCase:
-                      DependencyInjection.get<
-                        GetAllPostRecommendedByContentFilterUseCase
-                      >(),
-                )
-                // ..add(
-                //   FetchNearbyPosts(
-                //     userId: userId,
-                //     latitude: 37.421998,
-                //     longitude: -122.084000,
-                //   ),
-                // ),
-                ..add(
-                  FetchNearByAndContentBasedFilteringPosts(
-                    userId: userId,
-                    // latitude: 37.421998,
-                    // longitude: -122.084000,
-                  ),
-                ),
+          create: (context) => HomeBloc(
+            getNearbyPostsUseCase:
+                DependencyInjection.get<GetAllPostsNearByUserUseCase>(),
+            getOrganizationDetailByPostOrganizationIdUseCase:
+                DependencyInjection.get<
+                  GetOrganizationDetailByPostOrganizationIdUseCase
+                >(),
+            getAllPostRecommendedByContentFilterUseCase:
+                DependencyInjection.get<
+                  GetAllPostRecommendedByContentFilterUseCase
+                >(),
+          )..add(FetchNearByAndContentBasedFilteringPosts(userId: userId)),
         ),
         BlocProvider(
           create: (context) => GetOrganizationListBasedOnGlobalScoreBloc(
@@ -88,6 +74,7 @@ class HomePage extends StatelessWidget {
                 >(),
           )..add(const GetOrganizationListBasedOnGlobalScoreRequested()),
         ),
+        BlocProvider(create: (context) => LocationCubit()..checkShouldPrompt()),
       ],
       child: HomeView(userId: userId),
     );
@@ -100,442 +87,498 @@ class HomeView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: RefreshIndicator(
-        onRefresh: () async {
-          context.read<HomeBloc>().add(RefreshNearbyPosts(userId: userId));
-          // context.read<HomeBloc>().add(
-          //   FetchNearByAndContentBasedFilteringPosts(
-          //     userId: userId,
-          //     // latitude: 37.421998,
-          //     // longitude: -122.084000,
-          //   ),
-          // );
-        },
-        child: BlocBuilder<HomeBloc, HomeState>(
-          builder: (context, state) {
-            if (state is HomeLoading) {
-              return const HomeShimmer();
+    return BlocListener<LocationCubit, LocationState>(
+      listener: (context, state) {
+        if (state is LocationShouldPrompt) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            _showLocationSheet(context);
+          });
+        }
+
+        if (state is LocationGranted) {
+          context.read<HomeBloc>().add(
+            FetchNearByAndContentBasedFilteringPosts(
+              userId: userId,
+              latitude: state.latitude,
+              longitude: state.longitude,
+            ),
+          );
+        }
+      },
+      child: Scaffold(
+        body: RefreshIndicator(
+          onRefresh: () async {
+            final locationState = context.read<LocationCubit>().state;
+            double? lat;
+            double? lng;
+
+            if (locationState is LocationGranted) {
+              lat = locationState.latitude;
+              lng = locationState.longitude;
             }
-            if (state is HomeError) {
-              // print(state.message);
-              return Center(child: Text(state.message));
-            }
 
-            if (state is HomeLoaded) {
-              return CustomScrollView(
-                slivers: [
-                  /// APP BAR
-                  SliverAppBar(
-                    pinned: true,
-                    backgroundColor: AppColors.primaryLight,
-                    elevation: 0,
-                    expandedHeight: 200,
-                    centerTitle: true,
-                    collapsedHeight: kToolbarHeight + UiConstants.spacingSm,
+            context.read<HomeBloc>().add(
+              RefreshNearbyPosts(userId: userId, latitude: lat, longitude: lng),
+            );
+          },
+          child: BlocBuilder<HomeBloc, HomeState>(
+            builder: (context, state) {
+              if (state is HomeLoading) {
+                return const HomeShimmer();
+              }
+              if (state is HomeError) {
+                // print(state.message);
+                return Center(child: Text(state.message));
+              }
 
-                    leading: const AnimatedAppIcon(),
-                    actions: [
-                      BlocBuilder<NotificationCubit, NotificationCubitState>(
-                        builder: (context, state) {
-                          final unreadCount = state is NotificationCubitLoaded
-                              ? state.notifications
-                                    .where((n) => n.isUnread)
-                                    .length
-                              : 0;
-
-                          return IconButton(
-                            icon: Stack(
-                              clipBehavior: Clip.none,
-                              children: [
-                                const Icon(
-                                  Icons.notifications_outlined,
-                                  color: Colors.black,
-                                ),
-                                if (unreadCount > 0)
-                                  Positioned(
-                                    top: -4,
-                                    right: -4,
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 5,
-                                        vertical: 2,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: Colors.red,
-                                        borderRadius: BorderRadius.circular(10),
-                                        border: Border.all(
-                                          color: Theme.of(
-                                            context,
-                                          ).scaffoldBackgroundColor,
-                                          width: 1.5,
-                                        ),
-                                      ),
-                                      constraints: const BoxConstraints(
-                                        minWidth: 18,
-                                        minHeight: 18,
-                                      ),
-                                      child: Center(
-                                        child: Text(
-                                          unreadCount > 99
-                                              ? '99+'
-                                              : '$unreadCount',
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.bold,
-                                            height: 1.1,
-                                          ),
-                                          textAlign: TextAlign.center,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                              ],
-                            ),
-                            onPressed: () {
-                              context.push(
-                                RouteConstants.notificationsPage,
-                                extra: userId,
-                              );
-                            },
-                          );
-                        },
-                      ),
-                      BlocBuilder<NotificationCubit, NotificationCubitState>(
-                        builder: (context, state) {
-                          final unReadChatCount =
-                              state is NotificationCubitLoaded
-                              ? state.notifications
-                                    .where(
-                                      (n) =>
-                                          n.type ==
-                                                  NotificationType
-                                                      .chatMessage &&
-                                              n.isUnread ||
-                                          n.isViewed,
-                                    )
-                                    .map((n) => n.referenceId)
-                                    .toSet()
-                                    .length
-                              : 0;
-                          return IconButton(
-                            icon: Stack(
-                              clipBehavior: Clip.none,
-                              children: [
-                                const Icon(
-                                  Icons.chat_outlined,
-                                  color: Colors.black,
-                                ),
-                                if (unReadChatCount > 0)
-                                  Positioned(
-                                    top: -4,
-                                    right: -4,
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 5,
-                                        vertical: 2,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: Colors.red,
-                                        borderRadius: BorderRadius.circular(10),
-                                        border: Border.all(
-                                          color: Theme.of(
-                                            context,
-                                          ).scaffoldBackgroundColor,
-                                          width: 1.5,
-                                        ),
-                                      ),
-                                      constraints: const BoxConstraints(
-                                        minWidth: 18,
-                                        minHeight: 18,
-                                      ),
-                                      child: Center(
-                                        child: Text(
-                                          unReadChatCount > 99
-                                              ? '99+'
-                                              : '$unReadChatCount',
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.bold,
-                                            height: 1.1,
-                                          ),
-                                          textAlign: TextAlign.center,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                              ],
-                            ),
-                            onPressed: () {
-                              context.push(
-                                RouteConstants.chatUserListPage,
-                                extra: userId,
-                              );
-                            },
-                          );
-                        },
-                      ),
-                    ],
-                    title:
-                        BlocBuilder<
-                          GetCurrentUserProfileDetailsBloc,
-                          GetCurrentUserProfileDetailsState
-                        >(
+              if (state is HomeLoaded) {
+                return CustomScrollView(
+                  slivers: [
+                    /// APP BAR
+                    SliverAppBar(
+                      pinned: true,
+                      backgroundColor: AppColors.primaryLight,
+                      elevation: 0,
+                      expandedHeight: 215,
+                      centerTitle: true,
+                      collapsedHeight: kToolbarHeight + UiConstants.spacingSm,
+                      leading: const AnimatedAppIcon(),
+                      actions: [
+                        BlocBuilder<NotificationCubit, NotificationCubitState>(
                           builder: (context, state) {
-                            if (state is GetCurrentUserProfileDetailsLoading) {
-                              return const Center(
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                ),
-                              );
-                            }
+                            final unreadCount = state is NotificationCubitLoaded
+                                ? state.notifications
+                                      .where((n) => n.isUnread)
+                                      .length
+                                : 0;
 
-                            if (state is GetCurrentUserProfileDetailsError) {
-                              return const SizedBox.shrink();
-                            }
+                            return IconButton(
+                              icon: Stack(
+                                clipBehavior: Clip.none,
+                                children: [
+                                  const Icon(
+                                    Icons.notifications_outlined,
+                                    color: Colors.black,
+                                  ),
+                                  if (unreadCount > 0)
+                                    Positioned(
+                                      top: -4,
+                                      right: -4,
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 5,
+                                          vertical: 2,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: Colors.red,
+                                          borderRadius: BorderRadius.circular(
+                                            10,
+                                          ),
+                                          border: Border.all(
+                                            color: Theme.of(
+                                              context,
+                                            ).scaffoldBackgroundColor,
+                                            width: 1.5,
+                                          ),
+                                        ),
+                                        constraints: const BoxConstraints(
+                                          minWidth: 18,
+                                          minHeight: 18,
+                                        ),
+                                        child: Center(
+                                          child: Text(
+                                            unreadCount > 99
+                                                ? '99+'
+                                                : '$unreadCount',
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.bold,
+                                              height: 1.1,
+                                            ),
+                                            textAlign: TextAlign.center,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                              onPressed: () {
+                                context.push(
+                                  RouteConstants.notificationsPage,
+                                  extra: userId,
+                                );
+                              },
+                            );
+                          },
+                        ),
+                        BlocBuilder<NotificationCubit, NotificationCubitState>(
+                          builder: (context, state) {
+                            final unReadChatCount =
+                                state is NotificationCubitLoaded
+                                ? state.notifications
+                                      .where(
+                                        (n) =>
+                                            n.type ==
+                                                    NotificationType
+                                                        .chatMessage &&
+                                                n.isUnread ||
+                                            n.isViewed,
+                                      )
+                                      .map((n) => n.referenceId)
+                                      .toSet()
+                                      .length
+                                : 0;
+                            return IconButton(
+                              icon: Stack(
+                                clipBehavior: Clip.none,
+                                children: [
+                                  const Icon(
+                                    Icons.chat_outlined,
+                                    color: Colors.black,
+                                  ),
+                                  if (unReadChatCount > 0)
+                                    Positioned(
+                                      top: -4,
+                                      right: -4,
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 5,
+                                          vertical: 2,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: Colors.red,
+                                          borderRadius: BorderRadius.circular(
+                                            10,
+                                          ),
+                                          border: Border.all(
+                                            color: Theme.of(
+                                              context,
+                                            ).scaffoldBackgroundColor,
+                                            width: 1.5,
+                                          ),
+                                        ),
+                                        constraints: const BoxConstraints(
+                                          minWidth: 18,
+                                          minHeight: 18,
+                                        ),
+                                        child: Center(
+                                          child: Text(
+                                            unReadChatCount > 99
+                                                ? '99+'
+                                                : '$unReadChatCount',
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.bold,
+                                              height: 1.1,
+                                            ),
+                                            textAlign: TextAlign.center,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                              onPressed: () {
+                                context.push(
+                                  RouteConstants.chatUserListPage,
+                                  extra: userId,
+                                );
+                              },
+                            );
+                          },
+                        ),
+                      ],
+                      title:
+                          BlocBuilder<
+                            GetCurrentUserProfileDetailsBloc,
+                            GetCurrentUserProfileDetailsState
+                          >(
+                            builder: (context, state) {
+                              if (state
+                                  is GetCurrentUserProfileDetailsLoading) {
+                                return const Center(
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                );
+                              }
 
-                            if (state is GetCurrentUserProfileDetailsSuccess) {
-                              final user = state.user;
-                              final authService =
-                                  DependencyInjection.get<AuthService>();
+                              if (state is GetCurrentUserProfileDetailsError) {
+                                return const SizedBox.shrink();
+                              }
 
-                              final userEmail = authService
-                                  .getCurrentUserEmail();
+                              if (state
+                                  is GetCurrentUserProfileDetailsSuccess) {
+                                final user = state.user;
+                                final authService =
+                                    DependencyInjection.get<AuthService>();
 
-                              return ShowOnCollapsedSliverAppBar(
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    CircleAvatar(
-                                      backgroundColor: Theme.of(
-                                        context,
-                                      ).colorScheme.secondary.withAlpha(150),
-                                      radius: 16,
-                                      child: ClipOval(
-                                        child:
-                                            user.imageUrl != null &&
-                                                user.imageUrl!.isNotEmpty
-                                            ? CachedNetworkImage(
-                                                imageUrl: user.imageUrl!,
-                                                fit: BoxFit.cover,
-                                                width: 48,
-                                                height: 48,
-                                                placeholder: (context, url) =>
-                                                    Shimmer.fromColors(
-                                                      baseColor:
-                                                          Colors.grey.shade300,
-                                                      highlightColor:
-                                                          Colors.grey.shade100,
-                                                      child: Container(
-                                                        color: Colors.black,
+                                final userEmail = authService
+                                    .getCurrentUserEmail();
+
+                                return ShowOnCollapsedSliverAppBar(
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      CircleAvatar(
+                                        backgroundColor: Theme.of(
+                                          context,
+                                        ).colorScheme.secondary.withAlpha(150),
+                                        radius: 16,
+                                        child: ClipOval(
+                                          child:
+                                              user.imageUrl != null &&
+                                                  user.imageUrl!.isNotEmpty
+                                              ? CachedNetworkImage(
+                                                  imageUrl: user.imageUrl!,
+                                                  fit: BoxFit.cover,
+                                                  width: 48,
+                                                  height: 48,
+                                                  placeholder: (context, url) =>
+                                                      Shimmer.fromColors(
+                                                        baseColor: Colors
+                                                            .grey
+                                                            .shade300,
+                                                        highlightColor: Colors
+                                                            .grey
+                                                            .shade100,
+                                                        child: Container(
+                                                          color: Colors.black,
+                                                        ),
                                                       ),
-                                                    ),
-                                                errorWidget:
-                                                    (
-                                                      context,
-                                                      error,
-                                                      stackTrace,
-                                                    ) => CachedNetworkImage(
-                                                      imageUrl:
-                                                          'https://upload.wikimedia.org/wikipedia/commons/9/9e/Placeholder_Person.jpg',
-                                                    ),
-                                              )
-                                            : Text(
-                                                user.fullName[0].toUpperCase(),
+                                                  errorWidget:
+                                                      (
+                                                        context,
+                                                        error,
+                                                        stackTrace,
+                                                      ) => CachedNetworkImage(
+                                                        imageUrl:
+                                                            'https://upload.wikimedia.org/wikipedia/commons/9/9e/Placeholder_Person.jpg',
+                                                      ),
+                                                )
+                                              : Text(
+                                                  user.fullName[0]
+                                                      .toUpperCase(),
+                                                  style: const TextStyle(
+                                                    fontSize: 16,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Colors.black,
+                                                  ),
+                                                ),
+                                        ),
+                                      ).animate().scale(
+                                        duration: UiConstants.animationNormal,
+                                      ),
+                                      const SizedBox(
+                                        width: UiConstants.spacingSm,
+                                      ),
+                                      Flexible(
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: [
+                                            AutoMarqueeText(
+                                              text: user.fullName,
+                                              style: const TextStyle(
+                                                color: Colors.black,
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+
+                                            if (userEmail != null &&
+                                                userEmail.isNotEmpty)
+                                              AutoMarqueeText(
+                                                text: userEmail,
                                                 style: const TextStyle(
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.bold,
                                                   color: Colors.black,
                                                 ),
                                               ),
+                                          ],
+                                        ),
                                       ),
-                                    ).animate().scale(
-                                      duration: UiConstants.animationNormal,
-                                    ),
-                                    const SizedBox(
-                                      width: UiConstants.spacingSm,
-                                    ),
-                                    Flexible(
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: [
-                                          AutoMarqueeText(
-                                            text: user.fullName,
-                                            style: const TextStyle(
-                                              color: Colors.black,
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-
-                                          if (userEmail != null &&
-                                              userEmail.isNotEmpty)
-                                            AutoMarqueeText(
-                                              text: userEmail,
-                                              style: const TextStyle(
-                                                color: Colors.black,
-                                              ),
-                                            ),
-                                        ],
+                                    ],
+                                  ),
+                                );
+                              }
+                              return const SizedBox.shrink();
+                            },
+                          ),
+                      flexibleSpace: Stack(
+                        children: [
+                          Positioned.fill(
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.primary,
+                                    borderRadius: const BorderRadius.vertical(
+                                      bottom: Radius.circular(
+                                        UiConstants.radiusXl,
                                       ),
                                     ),
-                                  ],
+                                  ),
                                 ),
-                              );
-                            }
-                            return const SizedBox.shrink();
-                          },
-                        ),
-                    flexibleSpace: Stack(
-                      children: [
-                        Positioned.fill(
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context).colorScheme.primary,
-                                  borderRadius: const BorderRadius.vertical(
-                                    bottom: Radius.circular(
-                                      UiConstants.radiusXl,
+                              )
+                              .animate()
+                              .slideY(
+                                begin: -2,
+                                duration: UiConstants.animationSlow,
+                                curve: Curves.easeOutCubic,
+                              )
+                              .fadeIn(duration: UiConstants.animationSlow),
+                          const FlexibleSpaceBar(
+                            background: HomeSliverHeader(),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SliverToBoxAdapter(
+                      child:
+                          BlocBuilder<
+                            GetOrganizationListBasedOnGlobalScoreBloc,
+                            GetOrganizationListBasedOnGlobalScoreState
+                          >(
+                            builder: (context, state) {
+                              if (state
+                                  is GetOrganizationListBasedOnGlobalScoreLoading) {
+                                return SizedBox(
+                                  height: 100,
+                                  child: ListView.separated(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: UiConstants.spacingMd,
+                                      vertical: UiConstants.spacingSm,
                                     ),
+                                    scrollDirection: Axis.horizontal,
+                                    itemCount: 8,
+                                    separatorBuilder: (_, __) => const SizedBox(
+                                      width: UiConstants.spacingMd,
+                                    ),
+                                    itemBuilder: (context, index) =>
+                                        _shimmerCircle(),
                                   ),
-                                ),
-                              ),
-                            )
-                            .animate()
-                            .slideY(
-                              begin: -2,
-                              duration: UiConstants.animationSlow,
-                              curve: Curves.easeOutCubic,
-                            )
-                            .fadeIn(duration: UiConstants.animationSlow),
-                        const FlexibleSpaceBar(background: HomeSliverHeader()),
-                      ],
+                                );
+                              }
+                              if (state
+                                  is GetOrganizationListBasedOnGlobalScoreError) {
+                                return Center(child: Text(state.message));
+                              }
+                              if (state
+                                  is GetOrganizationListBasedOnGlobalScoreSuccess) {
+                                final organizations = state.organizations;
+
+                                final int displayCount =
+                                    organizations.length >= 8
+                                    ? organizations.length
+                                    : 8;
+
+                                return SizedBox(
+                                  height: 100,
+                                  child: ListView.separated(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: UiConstants.spacingMd,
+                                      vertical: UiConstants.spacingSm,
+                                    ),
+                                    scrollDirection: Axis.horizontal,
+                                    itemCount: displayCount,
+                                    separatorBuilder: (_, __) => const SizedBox(
+                                      width: UiConstants.spacingMd,
+                                    ),
+                                    itemBuilder: (context, index) {
+                                      if (index < organizations.length) {
+                                        return _orgItem(
+                                          context,
+                                          organizations[index],
+                                        );
+                                      } else {
+                                        // shimmer filler if less than 8 orgs
+                                        return _shimmerCircle();
+                                      }
+                                    },
+                                  ),
+                                );
+                              }
+                              return const SizedBox.shrink();
+                            },
+                          ),
                     ),
-                  ),
-                  SliverToBoxAdapter(
-                    child:
-                        BlocBuilder<
-                          GetOrganizationListBasedOnGlobalScoreBloc,
-                          GetOrganizationListBasedOnGlobalScoreState
-                        >(
-                          builder: (context, state) {
-                            if (state
-                                is GetOrganizationListBasedOnGlobalScoreLoading) {
-                              return SizedBox(
-                                height: 100,
-                                child: ListView.separated(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: UiConstants.spacingMd,
-                                    vertical: UiConstants.spacingSm,
-                                  ),
-                                  scrollDirection: Axis.horizontal,
-                                  itemCount: 8,
-                                  separatorBuilder: (_, __) => const SizedBox(
-                                    width: UiConstants.spacingMd,
-                                  ),
-                                  itemBuilder: (context, index) =>
-                                      _shimmerCircle(),
-                                ),
-                              );
-                            }
-                            if (state
-                                is GetOrganizationListBasedOnGlobalScoreError) {
-                              return Center(child: Text(state.message));
-                            }
-                            if (state
-                                is GetOrganizationListBasedOnGlobalScoreSuccess) {
-                              final organizations = state.organizations;
 
-                              final int displayCount = organizations.length >= 8
-                                  ? organizations.length
-                                  : 8;
+                    SliverPadding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: UiConstants.spacingMd,
+                      ),
+                      sliver: SliverMasonryGrid.count(
+                        crossAxisCount: 2,
+                        mainAxisSpacing: UiConstants.spacingSm,
+                        crossAxisSpacing: UiConstants.spacingSm,
+                        itemBuilder: (context, index) {
+                          final post = state.posts[index];
+                          // print(state.posts[index].title);
 
-                              return SizedBox(
-                                height: 100,
-                                child: ListView.separated(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: UiConstants.spacingMd,
-                                    vertical: UiConstants.spacingSm,
-                                  ),
-                                  scrollDirection: Axis.horizontal,
-                                  itemCount: displayCount,
-                                  separatorBuilder: (_, __) => const SizedBox(
-                                    width: UiConstants.spacingMd,
-                                  ),
-                                  itemBuilder: (context, index) {
-                                    if (index < organizations.length) {
-                                      return _orgItem(
-                                        context,
-                                        organizations[index],
-                                      );
-                                    } else {
-                                      // shimmer filler if less than 8 orgs
-                                      return _shimmerCircle();
-                                    }
-                                  },
-                                ),
-                              );
-                            }
-                            return const SizedBox.shrink();
-                          },
-                        ),
-                  ),
+                          final organization =
+                              state.organizations[post.organizationId];
+                          if (organization == null) {
+                            context.read<HomeBloc>().add(
+                              FetchOrganizationDetails(post.organizationId),
+                            );
+                            return const SizedBox(
+                              height: 120,
+                              child: Center(child: CircularProgressIndicator()),
+                            );
+                          }
 
-                  SliverPadding(
-                    padding: const EdgeInsets.all(UiConstants.spacingMd),
-                    sliver: SliverMasonryGrid.count(
-                      crossAxisCount: 2,
-                      mainAxisSpacing: UiConstants.spacingSm,
-                      crossAxisSpacing: UiConstants.spacingSm,
-                      itemBuilder: (context, index) {
-                        final post = state.posts[index];
-                        // print(state.posts[index].title);
-
-                        final organization =
-                            state.organizations[post.organizationId];
-                        if (organization == null) {
-                          context.read<HomeBloc>().add(
-                            FetchOrganizationDetails(post.organizationId),
-                          );
-                          return const SizedBox(
-                            height: 120,
-                            child: Center(child: CircularProgressIndicator()),
-                          );
-                        }
-
-                        return PostCard(
-                              post: post,
-                              organization: organization,
-                              userId: userId,
-                            )
-                            .animate(delay: (index * 80).ms)
-                            .slideX(
-                              begin: index.isEven ? -0.3 : 0.3,
-                              duration: UiConstants.animationSlow,
-                              curve: Curves.easeOutCubic,
-                            )
-                            .scale(
-                              begin: const Offset(0.9, 1),
-                              duration: UiConstants.animationSlow,
-                              curve: Curves.easeInOut,
-                            )
-                            .fade(duration: UiConstants.animationSlow);
-                      },
-                      childCount: state.posts.length,
+                          return PostCard(
+                                post: post,
+                                organization: organization,
+                                userId: userId,
+                              )
+                              .animate(delay: (index * 80).ms)
+                              .slideX(
+                                begin: index.isEven ? -0.3 : 0.3,
+                                duration: UiConstants.animationSlow,
+                                curve: Curves.easeOutCubic,
+                              )
+                              .scale(
+                                begin: const Offset(0.9, 1),
+                                duration: UiConstants.animationSlow,
+                                curve: Curves.easeInOut,
+                              )
+                              .fade(duration: UiConstants.animationSlow);
+                        },
+                        childCount: state.posts.length,
+                      ),
                     ),
-                  ),
-                ],
-              );
-            }
+                  ],
+                );
+              }
 
-            return const SizedBox();
-          },
+              return const SizedBox();
+            },
+          ),
         ),
       ),
     );
+  }
+
+  void _showLocationSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isDismissible: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => BlocProvider.value(
+        value: context.read<LocationCubit>(),
+        child: const _LocationPermissionSheet(),
+      ),
+    ).then((_) {
+      // If dismissed without action, treat as denied for session
+      final state = context.read<LocationCubit>().state;
+      if (state is LocationShouldPrompt) {
+        context.read<LocationCubit>().dismiss();
+      }
+    });
   }
 
   Widget _shimmerCircle() {
@@ -613,4 +656,147 @@ String _getInitialCharactrOfOrganization(String name) {
       .where((word) => word.isNotEmpty)
       .map((word) => word[0].toUpperCase())
       .join();
+}
+
+class _LocationPermissionSheet extends StatelessWidget {
+  const _LocationPermissionSheet();
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocListener<LocationCubit, LocationState>(
+      listener: (context, state) {
+        if (state is LocationGranted || state is LocationDenied) {
+          Navigator.of(context).pop();
+        }
+      },
+      child: Container(
+        padding: EdgeInsets.fromLTRB(
+          24,
+          20,
+          24,
+          MediaQuery.of(context).padding.bottom + 24,
+        ),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Drag handle
+            Container(
+              width: 40,
+              height: 4,
+              margin: const EdgeInsets.only(bottom: 20),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade300,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+
+            // Icon
+            Container(
+              width: 64,
+              height: 64,
+              decoration: BoxDecoration(
+                color: AppColors.primary.withAlpha(20),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.location_on,
+                color: AppColors.primary,
+                size: 32,
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            const Text(
+              'Allow Location Access',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                color: Colors.black87,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'We use your location to show nearby places and personalize your experience.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey.shade600,
+                height: 1.5,
+              ),
+            ),
+            const SizedBox(height: 28),
+
+            BlocBuilder<LocationCubit, LocationState>(
+              builder: (context, state) {
+                final isLoading = state is LocationLoading;
+                return Column(
+                  children: [
+                    // Allow button
+                    SizedBox(
+                      width: double.infinity,
+                      height: 52,
+                      child: ElevatedButton(
+                        onPressed: isLoading
+                            ? null
+                            : () => context
+                                  .read<LocationCubit>()
+                                  .requestLocation(),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                        ),
+                        child: isLoading
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : const Text(
+                                'Allow Location',
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+
+                    // Deny button
+                    SizedBox(
+                      width: double.infinity,
+                      height: 52,
+                      child: TextButton(
+                        onPressed: isLoading
+                            ? null
+                            : () => context.read<LocationCubit>().dismiss(),
+                        child: Text(
+                          'Not Now',
+                          style: TextStyle(
+                            fontSize: 15,
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }

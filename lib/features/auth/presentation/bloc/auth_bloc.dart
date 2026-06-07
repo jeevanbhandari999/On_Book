@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'package:app/app/dependency_injection.dart';
 import 'package:app/features/auth/data/models/orgnization_model.dart';
 import 'package:app/features/auth/data/models/user_model.dart';
+import 'package:app/features/auth/domain/repositories/auth_repository.dart';
 import 'package:app/features/auth/services/auth_service.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -230,11 +232,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         // Check if manager needs to create organization
         if (user.role == UserRole.owner && user.organizationId == null) {
           emit(AuthNeedsOrganizationCreation(user: user));
+          return;
         }
         // Check if manager needs to join organization
         if ((user.role == UserRole.manager || user.role == UserRole.worker) &&
             user.organizationId == null) {
           emit(AuthNeedsOrganizationSelection(user: user));
+          return;
         }
 
         // Get organization if user has one
@@ -418,12 +422,19 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         logoUrl: event.logoUrl,
       );
       // Get updated user profile
-      final user = await _authService.getCurrentUserProfile();
-      if (user != null) {
-        emit(AuthAuthenticated(user: user, organization: organization));
-      } else {
-        emit(const AuthError(message: 'Failed to get updated user profile'));
-      }
+      final userDependencu = DependencyInjection.get<AuthRepository>();
+      final user = await userDependencu.getCurrentUser();
+      user.fold(
+        (failure) => emit(
+          const AuthError(message: 'Failed to get updated user profile'),
+        ),
+        (userData) => emit(
+          AuthAuthenticated(
+            user: UserModel.fromEntity(userData),
+            organization: organization,
+          ),
+        ),
+      );
     } catch (e) {
       emit(AuthError(message: e.toString()));
     }
@@ -450,13 +461,21 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     try {
       await _authService.updateProfile(organizationId: event.organizationId);
       // Get updated user profile
-      final user = await _authService.getCurrentUserProfile();
+      final userDependencu = DependencyInjection.get<AuthRepository>();
       final organization = await _authService.getUserOrganization();
-      if (user != null) {
-        emit(AuthAuthenticated(user: user, organization: organization));
-      } else {
-        emit(const AuthError(message: 'Failed to get updated user profile'));
-      }
+
+      final user = await userDependencu.getCurrentUser();
+      user.fold(
+        (failure) => emit(
+          const AuthError(message: 'Failed to get updated user profile'),
+        ),
+        (userData) => emit(
+          AuthAuthenticated(
+            user: UserModel.fromEntity(userData),
+            organization: organization,
+          ),
+        ),
+      );
     } catch (e) {
       emit(AuthError(message: e.toString()));
     }
