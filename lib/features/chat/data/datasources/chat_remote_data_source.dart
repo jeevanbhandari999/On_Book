@@ -608,13 +608,9 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     // Step 4: Sort by last message time, fallback to room created_at
     rooms.sort((a, b) {
       final aTime =
-          a.lastMessage?.createdAt ??
-          DateTime.tryParse(a.createdAt as String) ??
-          DateTime(0);
+          a.lastMessage?.createdAt ?? a.createdAt;
       final bTime =
-          b.lastMessage?.createdAt ??
-          DateTime.tryParse(b.createdAt as String) ??
-          DateTime(0);
+          b.lastMessage?.createdAt ?? b.createdAt;
       return bTime.compareTo(aTime); // descending — newest first
     });
 

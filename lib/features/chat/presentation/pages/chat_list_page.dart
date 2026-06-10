@@ -180,7 +180,10 @@ class _RoomPageViewState extends State<RoomPageView> {
               );
             }
 
-            return const _ErrorState();
+            if (state is RoomError) {
+              return _ErrorState(message: state.message);
+            }
+            return const SizedBox.shrink();
           },
         ),
       ),
@@ -446,7 +449,8 @@ class _EmptyRoomsView extends StatelessWidget {
 }
 
 class _ErrorState extends StatelessWidget {
-  const _ErrorState();
+  final String message;
+  const _ErrorState({required this.message});
 
   @override
   Widget build(BuildContext context) {
@@ -483,6 +487,7 @@ class _ErrorState extends StatelessWidget {
               .fadeIn(delay: 200.ms, duration: 600.ms)
               .moveY(begin: 20, end: 0),
           const SizedBox(height: 8),
+          Text(message),
           Text(
                 'Something went wrong, please try again or restart the app.',
                 style: TextStyle(fontSize: 14, color: Colors.grey[600]),
