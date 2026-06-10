@@ -25,7 +25,7 @@ class AppTheme {
       scaffoldBackgroundColor: AppColors.primaryLight,
       visualDensity: VisualDensity.standard,
       fontFamily: 'Quicksand',
-      fontFamilyFallback: const ['Apple Color Emoji', 'Noto Color Emoji'],
+      fontFamilyFallback: const ['AppleColorEmoji', 'NotoColorEmoji'],
 
       // Typography
       textTheme: const TextTheme(

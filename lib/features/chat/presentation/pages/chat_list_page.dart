@@ -329,6 +329,10 @@ class _RoomTile extends StatelessWidget {
                                     ? FontWeight.bold
                                     : FontWeight.w500,
                                 color: Colors.black,
+                                fontFamilyFallback: const [
+                                  'AppleColorEmoji',
+                                  'NotoColorEmoji',
+                                ],
                               ),
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -355,6 +359,10 @@ class _RoomTile extends StatelessWidget {
                                     ? FontWeight.w600
                                     : FontWeight.normal,
                                 color: Colors.black,
+                                fontFamilyFallback: const [
+                                  'AppleColorEmoji',
+                                  'NotoColorEmoji',
+                                ],
                               ),
                               overflow: TextOverflow.ellipsis,
                             ),

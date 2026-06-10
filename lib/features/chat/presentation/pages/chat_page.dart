@@ -217,10 +217,14 @@ class _ChatViewState extends State<ChatView> {
                                       widget.room.getDisplayName(
                                         widget.currentUserId,
                                       ),
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         color: Colors.black,
                                         fontSize: 16,
                                         fontWeight: FontWeight.w600,
+                                        fontFamilyFallback: const [
+                                          'AppleColorEmoji',
+                                          'NotoColorEmoji',
+                                        ],
                                       ),
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
@@ -229,9 +233,13 @@ class _ChatViewState extends State<ChatView> {
                                       AutoMarqueeText(
                                         text:
                                             '${widget.room.members?.length ?? 0} Participants',
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                           color: AppColors.black,
                                           fontSize: 12,
+                                          fontFamilyFallback: const [
+                                            'AppleColorEmoji',
+                                            'NotoColorEmoji',
+                                          ],
                                         ),
                                       ),
                                   ],
@@ -634,6 +642,7 @@ class _MessageBubble extends StatelessWidget {
                     style: TextStyle(
                       color: isMe ? Colors.black : Colors.black87,
                       fontSize: 15,
+                      fontFamilyFallback: const ['AppleColorEmoji', 'NotoColorEmoji'],
                     ),
                   ),
                   Row(
