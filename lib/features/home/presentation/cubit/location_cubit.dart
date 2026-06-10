@@ -116,4 +116,9 @@ class LocationCubit extends Cubit<LocationState> {
     // User dismissed without deciding — treat as denied for this session only
     emit(const LocationDenied());
   }
+
+  /// Called when user taps "Location off" to show the permission sheet again
+  void promptAgain() {
+    emit(const LocationShouldPrompt());
+  }
 }

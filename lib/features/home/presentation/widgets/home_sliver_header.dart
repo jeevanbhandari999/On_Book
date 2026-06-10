@@ -223,10 +223,9 @@ class HomeSliverHeader extends StatelessWidget {
 
                                         if (state is LocationDenied) {
                                           return GestureDetector(
-                                            onTap: () =>
-                                                _showLocationSheetFromHeader(
-                                                  context,
-                                                ),
+                                            onTap: () => context
+                                                .read<LocationCubit>()
+                                                .promptAgain(),
                                             child: const Row(
                                               mainAxisSize: MainAxisSize.min,
                                               children: [
@@ -273,19 +272,6 @@ class HomeSliverHeader extends StatelessWidget {
     );
   }
 
-  void _showLocationSheetFromHeader(BuildContext context) {
-    // Reset state so sheet shows again
-    context.read<LocationCubit>().emit(const LocationShouldPrompt());
-    showModalBottomSheet(
-      context: context,
-      isDismissible: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => BlocProvider.value(
-        value: context.read<LocationCubit>(),
-        child: const _LocationPermissionSheet(),
-      ),
-    );
-  }
 }
 
 class GreetingData {
@@ -298,147 +284,4 @@ class GreetingData {
     required this.nameLine,
     required this.subtitle,
   });
-}
-
-class _LocationPermissionSheet extends StatelessWidget {
-  const _LocationPermissionSheet();
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocListener<LocationCubit, LocationState>(
-      listener: (context, state) {
-        if (state is LocationGranted || state is LocationDenied) {
-          Navigator.of(context).pop();
-        }
-      },
-      child: Container(
-        padding: EdgeInsets.fromLTRB(
-          24,
-          20,
-          24,
-          MediaQuery.of(context).padding.bottom + 24,
-        ),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Drag handle
-            Container(
-              width: 40,
-              height: 4,
-              margin: const EdgeInsets.only(bottom: 20),
-              decoration: BoxDecoration(
-                color: Colors.grey.shade300,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-
-            // Icon
-            Container(
-              width: 64,
-              height: 64,
-              decoration: BoxDecoration(
-                color: AppColors.primary.withAlpha(20),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.location_on,
-                color: AppColors.primary,
-                size: 32,
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            const Text(
-              'Allow Location Access',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-                color: Colors.black87,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'We use your location to show nearby places and personalize your experience.',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey.shade600,
-                height: 1.5,
-              ),
-            ),
-            const SizedBox(height: 28),
-
-            BlocBuilder<LocationCubit, LocationState>(
-              builder: (context, state) {
-                final isLoading = state is LocationLoading;
-                return Column(
-                  children: [
-                    // Allow button
-                    SizedBox(
-                      width: double.infinity,
-                      height: 52,
-                      child: ElevatedButton(
-                        onPressed: isLoading
-                            ? null
-                            : () => context
-                                  .read<LocationCubit>()
-                                  .requestLocation(),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
-                          foregroundColor: Colors.white,
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                        ),
-                        child: isLoading
-                            ? const SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: Colors.white,
-                                ),
-                              )
-                            : const Text(
-                                'Allow Location',
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-
-                    // Deny button
-                    SizedBox(
-                      width: double.infinity,
-                      height: 52,
-                      child: TextButton(
-                        onPressed: isLoading
-                            ? null
-                            : () => context.read<LocationCubit>().dismiss(),
-                        child: Text(
-                          'Not Now',
-                          style: TextStyle(
-                            fontSize: 15,
-                            color: Colors.grey.shade600,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                );
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }
