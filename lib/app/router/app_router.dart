@@ -96,10 +96,7 @@ class AppRouter {
       /// MAIN SHELL
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {
-          return MainTabNavigationPage(
-            currentRoute: state.uri.toString(),
-            navigationShell: navigationShell,
-          );
+          return MainTabNavigationPage(navigationShell: navigationShell);
         },
         branches: [
           /// HOME
@@ -129,17 +126,6 @@ class AppRouter {
             ],
           ),
 
-          /// POST
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: RouteConstants.postPage,
-                pageBuilder: (context, state) =>
-                    const NoTransitionPage(child: PostPage()),
-              ),
-            ],
-          ),
-
           /// LIBRARY
           StatefulShellBranch(
             routes: [
@@ -158,6 +144,17 @@ class AppRouter {
                 path: RouteConstants.profilePage,
                 pageBuilder: (context, state) =>
                     const NoTransitionPage(child: ProfilePage()),
+              ),
+            ],
+          ),
+
+          /// POST
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: RouteConstants.postPage,
+                pageBuilder: (context, state) =>
+                    const NoTransitionPage(child: PostPage()),
               ),
             ],
           ),
