@@ -72,7 +72,7 @@ class OwnerView extends StatelessWidget {
                       UiConstants.spacingMd,
                       0,
                       UiConstants.spacingMd,
-                      16,
+                      8,
                     ),
                     decoration: BoxDecoration(
                       color: AppColors.primaryLight,
@@ -184,7 +184,9 @@ Widget _buildPostsList(
       if (state is OrganizationPostsLoading) {
         return SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.all(UiConstants.spacingSm),
+          padding: const EdgeInsets.symmetric(
+            horizontal: UiConstants.spacingSm,
+          ),
           child: StaggeredGrid.count(
             crossAxisCount: 2,
             mainAxisSpacing: UiConstants.spacingSm,
@@ -221,7 +223,7 @@ Widget _buildPostsList(
         }
 
         return Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
           child: PostGridSection(
             posts: state.posts
                 .map(
@@ -262,7 +264,9 @@ Widget _buildPostVideos(
     builder: (context, state) {
       if (state is OrganizationPostsLoading) {
         return SingleChildScrollView(
-          padding: const EdgeInsets.all(UiConstants.spacingSm),
+          padding: const EdgeInsets.symmetric(
+            horizontal: UiConstants.spacingSm,
+          ),
           child: StaggeredGrid.count(
             crossAxisCount: 2,
             mainAxisSpacing: UiConstants.spacingSm,
@@ -376,7 +380,9 @@ Widget _buildPostImages(
       // print(state);
       if (state is OrganizationPostsLoading) {
         return SingleChildScrollView(
-          padding: const EdgeInsets.all(UiConstants.spacingSm),
+          padding: const EdgeInsets.symmetric(
+            horizontal: UiConstants.spacingSm,
+          ),
           child: StaggeredGrid.count(
             crossAxisCount: 2,
             mainAxisSpacing: UiConstants.spacingSm,
