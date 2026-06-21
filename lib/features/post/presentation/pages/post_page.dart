@@ -77,33 +77,39 @@ class PostView extends StatelessWidget {
           BlocBuilder<OrganizationPostsBloc, OrganizationPostsState>(
             builder: (context, state) {
               if (state is OrganizationOwnerLoggedIn) {
-                return CustomButton(
-                  text: 'Create Post',
-                  onPressed: () {
-                    context.push(
-                      RouteConstants.createPostPage,
-                      extra: {
-                        'userId': state.user.userId,
-                        'organizationId': state.organization.id,
-                      },
-                    );
-                  },
-                  icon: const Icon(Icons.add),
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 75.0),
+                  child: CustomButton(
+                    text: 'Create Post',
+                    onPressed: () {
+                      context.push(
+                        RouteConstants.createPostPage,
+                        extra: {
+                          'userId': state.user.userId,
+                          'organizationId': state.organization.id,
+                        },
+                      );
+                    },
+                    icon: const Icon(Icons.add),
+                  ),
                 );
               }
               if (state is OrganizationManagerLoggedIn) {
-                return CustomButton(
-                  text: 'Create Post',
-                  onPressed: () {
-                    context.push(
-                      RouteConstants.createPostPage,
-                      extra: {
-                        'userId': state.user.userId,
-                        'organizationId': state.organization.id,
-                      },
-                    );
-                  },
-                  icon: const Icon(Icons.add),
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 75.0),
+                  child: CustomButton(
+                    text: 'Create Post',
+                    onPressed: () {
+                      context.push(
+                        RouteConstants.createPostPage,
+                        extra: {
+                          'userId': state.user.userId,
+                          'organizationId': state.organization.id,
+                        },
+                      );
+                    },
+                    icon: const Icon(Icons.add),
+                  ),
                 );
               }
 
